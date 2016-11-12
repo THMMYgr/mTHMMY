@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 
@@ -88,8 +89,7 @@ public class RecentFragment extends Fragment
 
         sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
 
-        client = new OkHttpClient.Builder().build();
-
+        client = BaseActivity.getClient();
 
         topicSummaries = new ArrayList<>();
 

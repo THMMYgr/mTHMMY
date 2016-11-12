@@ -60,7 +60,7 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(findViewById(R.id.list).getContext()));
         recyclerView.setAdapter(topicAdapter);
 
-        client = new OkHttpClient.Builder().build();
+        client = BaseActivity.getClient();
         new TopicTask().execute(extras.getString("TOPIC_URL"));
 
     }

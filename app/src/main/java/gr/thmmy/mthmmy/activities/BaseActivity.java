@@ -8,10 +8,13 @@ import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 
 import okhttp3.CookieJar;
+import okhttp3.OkHttpClient;
 
 public class BaseActivity extends AppCompatActivity {
 
-    private static boolean cookiesInit=false;   //To initialize cookie stuff only once per app start
+    private static boolean init =false;   //To initialize stuff only once per app start
+
+    private static OkHttpClient client;
     protected static CookieJar cookieJar;
     protected static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
 
@@ -19,11 +22,14 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(!cookiesInit)
+        if(!init)
         {
             sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(BaseActivity.this);
             cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
-            cookiesInit=true;
+            client = new OkHttpClient.Builder()
+                    .cookieJar(cookieJar)
+                    .build();
+            init =true;
         }
 
     }
@@ -35,5 +41,9 @@ public class BaseActivity extends AppCompatActivity {
 
     public static SharedPrefsCookiePersistor getSharedPrefsCookiePersistor() {
         return sharedPrefsCookiePersistor;
+    }
+
+    public static OkHttpClient getClient() {
+        return client;
     }
 }

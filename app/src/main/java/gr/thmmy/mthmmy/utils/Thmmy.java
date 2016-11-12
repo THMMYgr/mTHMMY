@@ -91,10 +91,7 @@ public class Thmmy
                     .build();
         }
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .cookieJar(BaseActivity.getCookieJar())
-                .build();
-
+        OkHttpClient client = BaseActivity.getClient();
 
         try
         {
@@ -151,6 +148,7 @@ public class Thmmy
 
     }
 
+    //To maintain data between activities/ between activity state change (possibly temporary solution)
     public static class LoginData implements Parcelable
     {
         private int status;
@@ -240,12 +238,9 @@ public class Thmmy
 
 
     //--------------------------------------LOGOUT--------------------------------------------------
-    //Two options: (username, password, duration) or nothing - cookies
     public static int logout(HttpUrl logoutLink)
     {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .cookieJar(BaseActivity.getCookieJar())   //cookies will be deleted
-                .build();
+        OkHttpClient client = BaseActivity.getClient();
         Request request = new Request.Builder()
                 .url(logoutLink)
                 .build();
