@@ -5,6 +5,12 @@
     <color name="colorPrimaryLight">#616161</color>
     <color name="colorAccent">#2b2b2b</color>
 
+    <color name="bg_login">#000000</color>
+    <color name="input_login">#4CFF00</color>
+    <color name="input_login_hint">#4CFF00</color>
+    <color name="btn_login">#4CFF00</color>
+    <color name="guest_color">#4CFF00</color>
+
     <color name="transparent">#00000000</color>
 
     <color name="white">#ffffff</color>
