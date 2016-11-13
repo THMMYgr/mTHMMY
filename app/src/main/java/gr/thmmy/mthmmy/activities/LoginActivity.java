@@ -98,7 +98,7 @@ public class LoginActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Integer result) {
-            switch (loginData.getStatus()) {
+            switch (result) {
                 case WRONG_USER:
                     Toast.makeText(getApplicationContext(),
                             "Wrong username!", Toast.LENGTH_LONG).show();
