@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#313335</color>
-    <color name="colorPrimaryDark">#2b2b2b</color>
-    <color name="colorPrimaryLight">#616161</color>
-    <color name="colorAccent">#2b2b2b</color>
+    <!--Teal-Indigo-->
+    <!--<color name="primary">#009688</color>
+    <color name="primary_dark">#00796B</color>
+    <color name="primary_light">#B2DFDB</color>
+    <color name="accent">#536DFE</color>
+    <color name="primary_text">#E7E7E7</color>
+    <color name="secondary_text">#757575</color>-->
 
-    <color name="bg_login">#000000</color>
-    <color name="input_login">#4CFF00</color>
-    <color name="input_login_hint">#4CFF00</color>
-    <color name="btn_login">#4CFF00</color>
-    <color name="guest_color">#4CFF00</color>
+    <!--Indigo-Teal-->
+    <color name="primary">#3F51B5</color>
+    <color name="primary_dark">#303F9F</color>
+    <color name="primary_light">#C5CAE9</color>
+    <color name="accent">#009688</color>
+    <color name="primary_text">#E7E7E7</color>
+    <color name="secondary_text">#757575</color>
 
     <color name="transparent">#00000000</color>
-
     <color name="white">#ffffff</color>
+    <color name="iron">#CCCCCC</color>
     <color name="background">#616161</color>
 
     <color name="myColor1">#ffb74d</color>

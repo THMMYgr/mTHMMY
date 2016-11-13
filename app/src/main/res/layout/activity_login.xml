@@ -1,69 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:background="@color/bg_login"
-              android:gravity="center"
-              android:orientation="vertical"
-              android:padding="10dp">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fitsSystemWindows="true">
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp">
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
 
-        <EditText
-            android:id="@+id/username"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/box_border"
-            android:hint="@string/hint_username"
-            android:inputType="textEmailAddress"
-            android:maxLines="1"
-            android:padding="10dp"
-            android:textColor="@color/input_login"
-            android:textColorHint="@color/input_login_hint"/>
+        <ImageView
+            android:id="@+id/thmmy3dImg"
+            android:layout_width="wrap_content"
+            android:layout_height="90dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="40dp"
+            android:contentDescription="@string/thmmy_img_description"
+            android:src="@drawable/thmmy_3d_wshadow"/>
 
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="fill_parent"
+        <!--  Username Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/box_border"
-            android:hint="@string/hint_password"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:padding="10dp"
-            android:textColor="@color/input_login"
-            android:textColorHint="@color/input_login_hint"/>
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_username"
+                android:inputType="textPersonName"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <!--  Password Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_password"
+                android:inputType="textPassword"/>
+        </android.support.design.widget.TextInputLayout>
 
         <!-- Login Button -->
-
-        <Button
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/btnLogin"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dip"
-            android:background="@drawable/box_border"
-            android:text="@string/btn_login"
-            android:textColor="@color/btn_login"/>
-
-        <!-- Guest Button -->
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="24dp"
+            android:padding="12dp"
+            android:text="@string/btn_login"/>
 
         <Button
             android:id="@+id/btnContinueAsGuest"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
             android:layout_marginTop="40dip"
             android:background="@null"
             android:text="@string/btn_continue_as_guest"
             android:textAllCaps="false"
-            android:textColor="@color/guest_color"
             android:textSize="15sp"/>
-    </LinearLayout>
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>
