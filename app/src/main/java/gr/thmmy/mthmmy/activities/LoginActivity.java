@@ -22,6 +22,7 @@ import static gr.thmmy.mthmmy.utils.Thmmy.login;
 
 public class LoginActivity extends BaseActivity {
     private static final String TAG = "LoginActivity";
+    private static boolean passed=false; //becomes true after (guest) login - to redirect to Main
     private EditText inputUsername;
     private EditText inputPassword;
     Button btnLogin;
@@ -29,6 +30,12 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if(passed)  //redirect to MainActivity if user passed this one at least once
+        {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -61,7 +68,11 @@ public class LoginActivity extends BaseActivity {
         btnGuest.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                //TO-DO
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                passed=true;
+                finish();
+                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
         });
     }
@@ -134,6 +145,7 @@ public class LoginActivity extends BaseActivity {
                             .show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
+                    passed=true;
                     finish();
                     overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                     break;
