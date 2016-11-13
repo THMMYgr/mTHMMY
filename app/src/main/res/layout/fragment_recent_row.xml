@@ -14,10 +14,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:foreground="?android:attr/selectableItemBackground"
-        card_view:cardPreventCornerOverlap="false"
-        card_view:cardUseCompatPadding="true"
-        card_view:cardCornerRadius="4dp"
-        card_view:cardBackgroundColor="@color/colorPrimary">
+        card_view:cardCornerRadius="0dp"
+        card_view:cardBackgroundColor="@color/white"
+        card_view:cardElevation="2dp"
+        card_view:cardPreventCornerOverlap="true"
+        card_view:cardUseCompatPadding="true">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -36,16 +37,24 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:textAppearance="?attr/textAppearanceListItem"
-            android:textColor="@color/myColor1" />
+            android:textColor="@color/md_grey_850" />
+        <Space
+            android:id="@+id/spacer"
+            android:layout_below="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_alignParentBottom="@+id/title"
+            android:layout_toRightOf="@+id/dateTime"
+            android:layout_toEndOf="@+id/dateTime"/>
 
         <TextView
             android:id="@+id/dateTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/title"
+            android:layout_below="@+id/spacer"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:textColor="@color/myColor2"/>
+            android:textColor="@color/md_grey_500"/>
 
         <TextView
             android:id="@+id/lastUser"
@@ -56,7 +65,9 @@
             android:layout_alignBottom="@+id/dateTime"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:textColor="@color/myColor2"/>
+            android:textColor="@color/md_grey_500"/>
+
+
 
     </RelativeLayout>
 
