@@ -62,49 +62,8 @@ public class LoginActivity extends BaseActivity {
                 // login user
 
                 new LoginTask().execute(username,password);
-//                try {
-//                    switch (new LoginTask().execute(username, password).get()) {
-//                        case WRONG_USER:
-//                            Toast.makeText(getApplicationContext(),
-//                                    "Wrong username!", Toast.LENGTH_LONG)
-//                                    .show();
-//                            break;
-//                        case WRONG_PASSWORD:
-//                            Toast.makeText(getApplicationContext(),
-//                                    "Wrong password!", Toast.LENGTH_LONG)
-//                                    .show();
-//                            break;
-//                        case FAILED:
-//                            Toast.makeText(getApplicationContext(),
-//                                    "Check your connection!", Toast.LENGTH_LONG)
-//                                    .show();
-//                            break;
-//                        case CERTIFICATE_ERROR:
-//                            Toast.makeText(getApplicationContext(),
-//                                    "Certificate error!", Toast.LENGTH_LONG)
-//                                    .show();
-//                            break;
-//                        case OTHER_ERROR:
-//                            Toast.makeText(getApplicationContext(),
-//                                    "Check your connection!", Toast.LENGTH_LONG)
-//                                    .show();
-//                            break;
-//                        case LOGGED_IN:
-//                            progressDialog.dismiss();
-//                            Toast.makeText(getApplicationContext(),
-//                                    "Login successful!", Toast.LENGTH_LONG)
-//                                    .show();
-//                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                            startActivity(intent);
-//                            finish();
-//                            overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
-//                            break;
-//                    }
-//                } catch (InterruptedException | ExecutionException e) {
-//                    e.printStackTrace();
-//                }
+
                 progressDialog.dismiss();
-                btnLogin.setEnabled(true);
             }
         });
 
@@ -175,6 +134,7 @@ public class LoginActivity extends BaseActivity {
                     overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                     break;
             }
+            btnLogin.setEnabled(true);
         }
 
         @Override
