@@ -19,7 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="40dp"
             android:contentDescription="@string/thmmy_img_description"
-            android:src="@drawable/thmmy_3d_wshadow"/>
+            android:src="@drawable/thmmy_material_somehow"/>
 
         <!--  Username Label -->
         <android.support.design.widget.TextInputLayout
