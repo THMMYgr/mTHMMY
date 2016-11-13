@@ -49,21 +49,11 @@ public class LoginActivity extends BaseActivity {
                     return;
                 }
 
-                btnLogin.setEnabled(false);
-
-                final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                        R.style.AppTheme_Dark_Dialog);
-                progressDialog.setIndeterminate(true);
-                progressDialog.setMessage("Authenticating...");
-                progressDialog.show();
-
                 String username = inputUsername.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
+
                 // login user
-
                 new LoginTask().execute(username,password);
-
-                progressDialog.dismiss();
             }
         });
 
@@ -88,13 +78,27 @@ public class LoginActivity extends BaseActivity {
         btnLogin.setEnabled(true);
     }
 
-    private class LoginTask extends AsyncTask<String, Void, Integer> {
+    private class LoginTask extends AsyncTask<String, Void, Integer>
+    {
+        ProgressDialog progressDialog;
 
         @Override
         protected Integer doInBackground(String... params) {
             setLoginData(login(params[0], params[1],"-1"));
             return loginData.getStatus();
         }
+
+        @Override
+        protected void onPreExecute() {
+            btnLogin.setEnabled(false);
+
+            progressDialog = new ProgressDialog(LoginActivity.this,
+                    R.style.AppTheme_Dark_Dialog);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Authenticating...");
+            progressDialog.show();
+        }
+
 
         @Override
         protected void onPostExecute(Integer result) {
@@ -135,14 +139,7 @@ public class LoginActivity extends BaseActivity {
                     break;
             }
             btnLogin.setEnabled(true);
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
+            progressDialog.dismiss();
         }
     }
 
