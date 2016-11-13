@@ -4,25 +4,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="gr.thmmy.mthmmy.activities.TopicActivity">
 
+
     <view
-        class="gr.thmmy.mthmmy.utils.CustomRecyclerView"
-        android:id="@+id/list"
-        android:name="gr.thmmy.mthmmy.activities.Topic"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:clipToPadding="false"
-        android:background="@color/background"
-        app:layoutManager="LinearLayoutManager"
-        tools:context="gr.thmmy.mthmmy.activities.TopicActivity"
-        tools:listitem="@layout/fragment_recent_row" />
+    class="gr.thmmy.mthmmy.utils.CustomRecyclerView"
+    android:id="@+id/list"
+    android:name="gr.thmmy.mthmmy.activities.Topic"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    android:clipToPadding="false"
+    android:background="@color/white"
+    app:layoutManager="LinearLayoutManager"
+    tools:context="gr.thmmy.mthmmy.activities.TopicActivity"
+    tools:listitem="@layout/activity_topic_post_row" />
 
     <ProgressBar
         android:visibility="invisible"
@@ -33,3 +30,5 @@
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
+
+

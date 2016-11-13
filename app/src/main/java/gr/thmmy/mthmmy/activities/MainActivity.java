@@ -132,15 +132,18 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         @Override
         public int getCount() {
             // Show 1 total pages.
-            return 1;
+            return 2;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "RECENT";
+                    return "RECENT POSTS";
+                case 1:
+                    return "FORUM";
             }
+
             return null;
         }
     }
