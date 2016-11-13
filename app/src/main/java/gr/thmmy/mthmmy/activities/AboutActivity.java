@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import gr.thmmy.mthmmy.BuildConfig;

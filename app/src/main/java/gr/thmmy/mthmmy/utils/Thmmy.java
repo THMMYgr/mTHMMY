@@ -32,7 +32,8 @@ public class Thmmy
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
     private static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php");
 
-    public static final int OK = 1;
+    public static final int LOGGED_OUT = 0;
+    public static final int LOGGED_IN = 1;
     public static final int WRONG_USER= 2;
     public static final int WRONG_PASSWORD= 3;
     public static final int FAILED= 4;
@@ -40,22 +41,6 @@ public class Thmmy
     public static final int OTHER_ERROR = 6;
 
 
-
-
-
-    public static int authenticate(String username, String password)
-    {
-        LoginData loginData = login(username, password, "60");
-
-        int status = loginData.getStatus();
-        if (status==OK)
-        {
-            logout(loginData.getLogoutLink());
-            return OK;
-        }
-        return status;
-
-    }
 
 
     //-------------------------------------------LOGIN--------------------------------------------------
@@ -106,7 +91,7 @@ public class Thmmy
                 setPersistentCookieSession();
                 loginData.setUsername(extractUserName(document));
                 loginData.setLogoutLink(HttpUrl.parse(logout.attr("href")));
-                loginData.setStatus(OK);
+                loginData.setStatus(LOGGED_IN);
             }
             else
             {
@@ -238,11 +223,11 @@ public class Thmmy
 
 
     //--------------------------------------LOGOUT--------------------------------------------------
-    public static int logout(HttpUrl logoutLink)
+    public static int logout(LoginData loginData)
     {
         OkHttpClient client = BaseActivity.getClient();
         Request request = new Request.Builder()
-                .url(logoutLink)
+                .url(loginData.getLogoutLink())
                 .build();
 
         try {
@@ -250,10 +235,12 @@ public class Thmmy
             Document document = Jsoup.parse(response.body().string());
 
             Elements login =  document.select("[value=Login]");
+            ((PersistentCookieJar) BaseActivity.getCookieJar()).clear();
             if(!login.isEmpty())
             {
                 Log.i("Logout", "Logout successful");
-                return OK;
+                loginData.setStatus(LOGGED_OUT);
+                return LOGGED_OUT;
             }
             else
             {

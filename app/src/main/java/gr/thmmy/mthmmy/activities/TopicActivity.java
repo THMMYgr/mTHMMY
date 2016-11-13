@@ -3,7 +3,6 @@ package gr.thmmy.mthmmy.activities;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,10 +13,6 @@ import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.data.Post;
-import gr.thmmy.mthmmy.utils.CustomRecyclerView;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -26,7 +21,9 @@ import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import okhttp3.OkHttpClient;
+import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.data.Post;
+import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -35,7 +32,6 @@ public class TopicActivity extends BaseActivity {
     private CustomRecyclerView recyclerView;
     private TopicAdapter topicAdapter;
     private ProgressBar progressBar;
-    private OkHttpClient client;
 
     private List<Post> postsList;
 
@@ -60,7 +56,6 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(findViewById(R.id.list).getContext()));
         recyclerView.setAdapter(topicAdapter);
 
-        client = BaseActivity.getClient();
         new TopicTask().execute(extras.getString("TOPIC_URL"));
 
     }

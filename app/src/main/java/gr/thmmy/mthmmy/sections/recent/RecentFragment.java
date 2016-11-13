@@ -272,7 +272,7 @@ public class RecentFragment extends Fragment
                     String title = recent.get(i).child(0).attr("title");
 
                     String lastUser = recent.get(i + 1).text();
-                    Pattern pattern = Pattern.compile("by (.*)");
+                    Pattern pattern = Pattern.compile("\\b (.*)");
                     Matcher matcher = pattern.matcher(lastUser);
                     if (matcher.find())
                         lastUser = matcher.group(1);
@@ -302,62 +302,6 @@ public class RecentFragment extends Fragment
             Log.e(TAG, "Parsing failed!");
             return false;
         }
-
-        // TODO: replace parse function with this when a method to get recent TOPICS and not POSTS becomes available
-//        private boolean parse(String document) throws XmlPullParserException, IOException {
-//            String text = null, tagName, link = null, title = null, poster = null,dateTime = null;
-//            boolean posterFlag = false;
-//            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-//            factory.setNamespaceAware(true);
-//            XmlPullParser xpp = factory.newPullParser();
-//
-//            xpp.setInput( new StringReader(document) );
-//            int eventType = xpp.getEventType();
-//            topicSummaries.clear();
-//
-//            while (eventType != XmlPullParser.END_DOCUMENT) {
-//                tagName = xpp.getName();
-//                switch (eventType) {
-//                    case XmlPullParser.START_TAG:
-//                        if (tagName.equals("poster"))
-//                            posterFlag=true;
-//                        break;
-//
-//                    case XmlPullParser.TEXT:
-//                        text = xpp.getText();
-//                        break;
-//
-//                    case XmlPullParser.END_TAG:
-//                        switch (tagName)
-//                        {
-//                            case "recent-post":
-//                                topicSummaries.add(new TopicSummary(link, title, poster, dateTime));
-//                                break;
-//                            case "name":
-//                                if(posterFlag) {
-//                                    poster = text;
-//                                    posterFlag = false;
-//                                }
-//                                break;
-//                            case "link":
-//                                link = text;
-//                                break;
-//                            case "time":
-//                                dateTime = text;
-//                                break;
-//                            case "subject":
-//                                title = text;
-//                                break;
-//                        }
-//                        break;
-//
-//                    default:
-//                        break;
-//                }
-//                eventType = xpp.next();
-//            }
-//            return true;
-//        }
     }
 
 }

@@ -1,25 +1,30 @@
 package gr.thmmy.mthmmy.activities;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.jsoup.nodes.Document;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.sections.recent.RecentFragment;
+import gr.thmmy.mthmmy.utils.Thmmy;
 
 public class MainActivity extends BaseActivity implements RecentFragment.OnListFragmentInteractionListener
 {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;   /** The {@link ViewPager} that will host the section contents.*/
+
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +55,14 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        this.menu=menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        if(loginData.getStatus()== Thmmy.LOGGED_IN)
+            hideLogin();
+        else
+            hideLogout();
+
         return true;
     }
 
@@ -59,14 +71,34 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
     {
         int id = item.getItemId();
 
-        if (id == R.id.action_about) {
+        if (id == R.id.action_about)
+        {
             Intent i = new Intent(MainActivity.this, AboutActivity.class);
             startActivity(i);
             return true;
         }
+        else if (id == R.id.action_logout)
+            new LogoutTask().execute();
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void hideLogin()
+    {
+        MenuItem login = menu.findItem(R.id.action_login);
+        MenuItem logout = menu.findItem(R.id.action_logout);
+        login.setVisible(false);
+        logout.setVisible(true);
+    }
+
+    private void hideLogout()
+    {
+        MenuItem login = menu.findItem(R.id.action_login);
+        MenuItem logout = menu.findItem(R.id.action_logout);
+        login.setVisible(true);
+        logout.setVisible(false);
+    }
+
 
     @Override
     public void onFragmentInteraction(TopicSummary topicSummary)
@@ -111,5 +143,31 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
             }
             return null;
         }
+    }
+
+
+    private class LogoutTask extends AsyncTask<Void, Void, Integer>
+    {
+        protected Integer doInBackground(Void... voids)
+        {
+            return Thmmy.logout(loginData);
+        }
+
+
+        protected void onPreExecute() {
+            //TODO: a progressbar maybe?
+        }
+
+        protected void onPostExecute(Integer result)
+        {
+            if(result==Thmmy.LOGGED_OUT)
+                hideLogout();
+            else
+                hideLogin();
+        }
+
+
+
+
     }
 }

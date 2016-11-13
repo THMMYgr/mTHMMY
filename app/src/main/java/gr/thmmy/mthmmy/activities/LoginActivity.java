@@ -16,11 +16,11 @@ import gr.thmmy.mthmmy.R;
 
 import static gr.thmmy.mthmmy.utils.Thmmy.CERTIFICATE_ERROR;
 import static gr.thmmy.mthmmy.utils.Thmmy.FAILED;
-import static gr.thmmy.mthmmy.utils.Thmmy.OK;
+import static gr.thmmy.mthmmy.utils.Thmmy.LOGGED_IN;
 import static gr.thmmy.mthmmy.utils.Thmmy.OTHER_ERROR;
 import static gr.thmmy.mthmmy.utils.Thmmy.WRONG_PASSWORD;
 import static gr.thmmy.mthmmy.utils.Thmmy.WRONG_USER;
-import static gr.thmmy.mthmmy.utils.Thmmy.authenticate;
+import static gr.thmmy.mthmmy.utils.Thmmy.login;
 
 public class LoginActivity extends BaseActivity {
     private static final String TAG = "LoginActivity";
@@ -63,7 +63,7 @@ public class LoginActivity extends BaseActivity {
                 String password = inputPassword.getText().toString().trim();
                 // login user
                 try {
-                    switch (new loginAsync().execute(username, password).get()) {
+                    switch (new LoginTask().execute(username, password).get()) {
                         case WRONG_USER:
                             Toast.makeText(getApplicationContext(),
                                     "Wrong username!", Toast.LENGTH_LONG)
@@ -89,7 +89,7 @@ public class LoginActivity extends BaseActivity {
                                     "Check your connection!", Toast.LENGTH_LONG)
                                     .show();
                             break;
-                        case OK:
+                        case LOGGED_IN:
                             progressDialog.dismiss();
                             Toast.makeText(getApplicationContext(),
                                     "Login successful!", Toast.LENGTH_LONG)
@@ -129,11 +129,12 @@ public class LoginActivity extends BaseActivity {
         btnLogin.setEnabled(true);
     }
 
-    private class loginAsync extends AsyncTask<String, Void, Integer> {
+    private class LoginTask extends AsyncTask<String, Void, Integer> {
 
         @Override
         protected Integer doInBackground(String... params) {
-            return authenticate(params[0], params[1]);
+            setLoginData(login(params[0], params[1],"-1"));
+            return loginData.getStatus();
         }
 
         @Override
