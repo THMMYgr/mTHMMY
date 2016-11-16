@@ -1,20 +1,32 @@
 package gr.thmmy.mthmmy.activities;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseArray;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.WebView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.toolbox.ImageLoader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,46 +35,87 @@ import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.Post;
+import gr.thmmy.mthmmy.utils.CircularNetworkImageView;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.ImageController;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class TopicActivity extends BaseActivity {
-
-    private CustomRecyclerView recyclerView;
+    private ImageLoader imageLoader = ImageController.getInstance().getImageLoader();
     private TopicAdapter topicAdapter;
     private ProgressBar progressBar;
-
     private List<Post> postsList;
+    private EditText pageSelect;
+
+    private int thisPage = 1;
+    private SparseArray<String> pagesUrls = new SparseArray<>();
+    private String base_url = "";
+    private int numberOfPages = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
 
+        Bundle extras = getIntent().getExtras();
+        final String topicTitle = getIntent().getExtras().getString("TOPIC_TITLE");
+
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
+        if (imageLoader == null)
+            imageLoader = ImageController.getInstance().getImageLoader();
 
-        Bundle extras = getIntent().getExtras();
         ActionBar actionbar = getSupportActionBar();
-        if(actionbar!=null)
-            actionbar.setTitle(extras.getString("TOPIC_TITLE"));
+        if (actionbar != null)
+            actionbar.setTitle(topicTitle);
+
+        ActionBar.LayoutParams lp = new ActionBar.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT
+                , LinearLayout.LayoutParams.WRAP_CONTENT
+                , Gravity.END | Gravity.CENTER_VERTICAL);
+        View customNav = LayoutInflater.from(this).inflate(R.layout.topic_page_select, null);
+
+        pageSelect = (EditText) customNav.findViewById(R.id.select_page);
+        pageSelect.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_GO) {
+                    int pageRequested = Integer.parseInt(pageSelect.getText().toString());
+                    if (pageRequested == thisPage) {
+                        Toast.makeText(getBaseContext()
+                                , "You already are here!", Toast.LENGTH_LONG).show();
+                    } else if (pageRequested >= 1 && pageRequested <= numberOfPages) {
+                        Intent intent = getIntent();
+                        intent.putExtra("TOPIC_URL", pagesUrls.get(pageRequested - 1));
+                        intent.putExtra("TOPIC_TITLE", topicTitle);
+                        finish();
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(getBaseContext()
+                                , "There is no such page!", Toast.LENGTH_LONG).show();
+                    }
+                }
+                return true;
+            }
+        });
+        assert actionbar != null;
+        actionbar.setCustomView(customNav, lp);
+        actionbar.setDisplayShowCustomEnabled(true);
+
 
         postsList = new ArrayList<>();
-
         topicAdapter = new TopicAdapter();
 
-        recyclerView = (CustomRecyclerView) findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(findViewById(R.id.list).getContext()));
+        CustomRecyclerView recyclerView = (CustomRecyclerView) findViewById(R.id.posts_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(findViewById(R.id.posts_list).getContext()));
         recyclerView.setAdapter(topicAdapter);
 
         new TopicTask().execute(extras.getString("TOPIC_URL"));
-
     }
 
 
-    private class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.ViewHolder>
-    {
+    private class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.ViewHolder> {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
@@ -71,29 +124,19 @@ public class TopicActivity extends BaseActivity {
         }
 
 
-
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
 
+//----------------------------------- Holder behaves erratically -----------------------------------
+            if (postsList.get(position).getThumbnailUrl() != "") {
+                holder.mThumbnailView.setImageUrl(postsList.get(position).getThumbnailUrl(), imageLoader);
+            }
             holder.mAuthorView.setText(postsList.get(position).getAuthor());
-            holder.mDateTimeView.setText(postsList.get(position).getDateTime());
-            holder.mContentView.loadData(postsList.get(position).getContent(), "text/html", null);
-
-//            holder.topic = recentList.get(position);
-//
-//            holder.mView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//
-//                    if (null != mListener) {
-//                        // Notify the active callbacks interface (the activity, if the
-//                        // fragment is attached to one) that an item has been selected.
-//                        mListener.onFragmentInteraction(holder.topic);  //?
-//
-//                    }
-//
-//                }
-//            });
+            holder.mSubjectView.setText(postsList.get(position).getDateTime());
+            holder.mContentView.loadDataWithBaseURL("file:///android_asset/"
+                    , postsList.get(position).getContent()
+                    , "text/html", "UTF-8", null);
+//----------------------------------- Holder behaves erratically -----------------------------------
         }
 
         @Override
@@ -101,30 +144,30 @@ public class TopicActivity extends BaseActivity {
             return postsList.size();
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public final View mView;
-            public final TextView mAuthorView;
-            public final WebView mContentView;
-            public final TextView mDateTimeView;
+        class ViewHolder extends RecyclerView.ViewHolder {
+            final View mView;
+            final CircularNetworkImageView mThumbnailView;
+            final TextView mAuthorView;
+            final TextView mSubjectView;
+            final WebView mContentView;
 
-            public ViewHolder(View view) {
+            ViewHolder(View view) {
                 super(view);
                 mView = view;
-                mAuthorView = (TextView) view.findViewById(R.id.author);
-                mContentView = (WebView) view.findViewById(R.id.content);
-                mDateTimeView = (TextView) view.findViewById(R.id.dateTime);
+                mThumbnailView = (CircularNetworkImageView) view.findViewById(R.id.thumbnail);
+                mAuthorView = (TextView) view.findViewById(R.id.username);
+                mSubjectView = (TextView) view.findViewById(R.id.subject);
+                mContentView = (WebView) view.findViewById(R.id.post);
             }
 
         }
     }
 
 
-
 //---------------------------------------TOPIC ASYNC TASK-------------------------------------------
 
-    public class TopicTask extends AsyncTask<String, Void, Boolean>
-    {
-        private static final String TAG="TopicTask";
+    public class TopicTask extends AsyncTask<String, Void, Boolean> {
+        private static final String TAG = "TopicTask";
         private String pageLink;
 
         private Document document;
@@ -134,8 +177,9 @@ public class TopicActivity extends BaseActivity {
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
-        protected Boolean doInBackground(String... strings)
-        {
+        protected Boolean doInBackground(String... strings) {
+            base_url = strings[0].substring(0, strings[0].lastIndexOf("."));
+
             pageLink = strings[0];
 
             Request request = new Request.Builder()
@@ -154,23 +198,73 @@ public class TopicActivity extends BaseActivity {
                 Log.e("TAG", "ERROR", e);
                 return false;
             }
-
         }
 
 
-
-        protected void onPostExecute(Boolean result)
-        {
+        protected void onPostExecute(Boolean result) {
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             topicAdapter.notifyDataSetChanged();
+            pageSelect.setHint(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
         }
 
-        private boolean parse(Document document)
-        {
+        private boolean parse(Document document) {
+            {
+                Elements findCurrentPage = document.select("td:contains(Pages:)>b");
+                for (Element item : findCurrentPage) {
+                    if (!item.text().contains("...")
+                            && !item.text().contains("Pages")) {
+                        thisPage = Integer.parseInt(item.text());
+                        break;
+                    }
+                }
+            }
+            {
+                Elements footer_pages = document.select("td:contains(Pages:)>a.navPages");
+                if (footer_pages.size() != 0) {
+                    numberOfPages = thisPage;
+                    for (Element item : footer_pages) {
+                        if (Integer.parseInt(item.text()) > numberOfPages)
+                            numberOfPages = Integer.parseInt(item.text());
+                    }
+                }
+                for (int i = 0; i < numberOfPages; i++) {
+                    pagesUrls.put(i, base_url + "." + String.valueOf(i * 15));
+                }
+            }
+
+            Elements form_quickModForm = document.select("form[id=quickModForm]");
+            Elements nickNames = form_quickModForm.select("a[title^=View the profile of]");
+            Elements topic_subjectS = form_quickModForm.select("div[id^=subject_]");
+            Elements postTextS = form_quickModForm.select("div").select(".post");
+            Elements img_smalltexts = form_quickModForm.select("div").select(":matches(Posts:)");
+            //Elements replies_smalltexts = form_quickModForm.select("div.smalltext:matches(Reply #)");
+
+            for (int i = 0; i < nickNames.size(); i++) {
+
+                String tmp_nickName = nickNames.get(i).html();
+                Element thumbnail_urls = img_smalltexts.get(i).select("img").select(".avatar").first();
+
+                String tmp_url = "";
+                if (thumbnail_urls != null) {
+                    tmp_url = thumbnail_urls.attr("abs:src");
+                }
+                String tmp_topic_subject = topic_subjectS.get(i).select("a").first().text();
+                String tmp_post_text = postTextS.get(i).html();
+                tmp_post_text = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + tmp_post_text); //style.css
+
+
+                /*int tmp_postNum = 0; //topic starter
+                if (replies_smalltexts.size() == nickNames.size()) {
+                    String tmp_prep = replies_smalltexts.get(i).text().substring(9);
+                    tmp_postNum = Integer.parseInt(tmp_prep.substring(0, tmp_prep.indexOf(" on")));
+                } else if (i != 0) {
+                    String tmp_prep = replies_smalltexts.get(i - 1).text().substring(9);
+                    tmp_postNum = Integer.parseInt(tmp_prep.substring(0, tmp_prep.indexOf(" on")));
+                }*/
+
+                postsList.add(new Post(tmp_url, tmp_nickName, tmp_topic_subject, tmp_post_text));
+            }
             return true;
-
         }
-
-
     }
 }

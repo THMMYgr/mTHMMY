@@ -1,30 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--Teal-Indigo-->
-    <!--<color name="primary">#009688</color>
-    <color name="primary_dark">#00796B</color>
-    <color name="primary_light">#B2DFDB</color>
-    <color name="accent">#536DFE</color>
-    <color name="primary_text">#E7E7E7</color>
-    <color name="secondary_text">#757575</color>-->
-
-    <!--Indigo-Teal-->
+    <!--Indigo-->
     <color name="primary">#3F51B5</color>
     <color name="primary_dark">#303F9F</color>
     <color name="primary_light">#C5CAE9</color>
     <color name="accent">#FFFFFF</color>
     <color name="primary_text">#E7E7E7</color>
     <color name="secondary_text">#757575</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="divider">#8B8B8B</color>
 
     <color name="transparent">#00000000</color>
     <color name="white">#ffffff</color>
     <color name="iron">#CCCCCC</color>
-    <color name="background">#616161</color>
-
-    <color name="myColor1">#ffb74d</color>
-    <color name="myColor2">#1e88e5</color>
-    <color name="myColor3">#f57f17</color>
-    <color name="myColor4">#7e57c2</color>
-    <color name="myColor5">#388e3c</color>
-    <color name="myColor6">#d32f2f</color>
+    <color name="background">#D3D3D3</color>
 </resources>

@@ -23,19 +23,19 @@ import static gr.thmmy.mthmmy.utils.Thmmy.login;
 public class LoginActivity extends BaseActivity {
     private static final String TAG = "LoginActivity";
     private static boolean passed=false; //becomes true after (guest) login - to redirect to Main
-    private EditText inputUsername;
-    private EditText inputPassword;
     Button btnLogin;
     Button btnGuest;
+    private EditText inputUsername;
+    private EditText inputPassword;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if(passed)  //redirect to MainActivity if user passed this one at least once
+        /*if(passed)  //redirect to MainActivity if user passed this one at least once
         {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
-        }
+        }*/
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -87,6 +87,29 @@ public class LoginActivity extends BaseActivity {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
 
         btnLogin.setEnabled(true);
+    }
+
+    public boolean validate() {
+        boolean valid = true;
+
+        String email = inputUsername.getText().toString();
+        String password = inputPassword.getText().toString();
+
+        if (email.isEmpty()) {
+            inputUsername.setError("Enter a valid username");
+            valid = false;
+        } else {
+            inputUsername.setError(null);
+        }
+
+        if (password.isEmpty()) {
+            inputPassword.setError("Enter a valid password");
+            valid = false;
+        } else {
+            inputPassword.setError(null);
+        }
+
+        return valid;
     }
 
     private class LoginTask extends AsyncTask<String, Void, Integer>
@@ -153,29 +176,6 @@ public class LoginActivity extends BaseActivity {
             btnLogin.setEnabled(true);
             progressDialog.dismiss();
         }
-    }
-
-    public boolean validate() {
-        boolean valid = true;
-
-        String email = inputUsername.getText().toString();
-        String password = inputPassword.getText().toString();
-
-        if (email.isEmpty()) {
-            inputUsername.setError("Enter a valid username");
-            valid = false;
-        } else {
-            inputUsername.setError(null);
-        }
-
-        if (password.isEmpty()) {
-            inputPassword.setError("Enter a valid password");
-            valid = false;
-        } else {
-            inputPassword.setError(null);
-        }
-
-        return valid;
     }
 }
 

@@ -13,13 +13,24 @@ import okhttp3.OkHttpClient;
 
 public class BaseActivity extends AppCompatActivity {
 
-    private static boolean init =false;   //To initialize stuff only once per app start
-
     protected static OkHttpClient client;
     protected static CookieJar cookieJar;
     protected static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
-
     protected static Thmmy.LoginData loginData;
+    private static boolean init =false;   //To initialize stuff only once per app start
+
+    public static CookieJar getCookieJar()
+    {
+        return cookieJar;
+    }
+
+    public static SharedPrefsCookiePersistor getSharedPrefsCookiePersistor() {
+        return sharedPrefsCookiePersistor;
+    }
+
+    public static OkHttpClient getClient() {
+        return client;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +50,7 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
-    public static CookieJar getCookieJar()
-    {
-        return cookieJar;
-    }
-
-    public static SharedPrefsCookiePersistor getSharedPrefsCookiePersistor() {
-        return sharedPrefsCookiePersistor;
-    }
-
-    public static OkHttpClient getClient() {
-        return client;
-    }
-
     public void setLoginData(Thmmy.LoginData loginData) {
-        this.loginData = loginData;
+        BaseActivity.loginData = loginData;
     }
 }

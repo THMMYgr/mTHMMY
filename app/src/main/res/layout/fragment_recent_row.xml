@@ -1,77 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingEnd="4dp"
-    android:paddingStart="4dp"
-    android:orientation="vertical">
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:paddingEnd="4dp"
+              android:paddingStart="4dp">
 
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view"
-        android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:foreground="?android:attr/selectableItemBackground"
         card_view:cardCornerRadius="0dp"
-        card_view:cardBackgroundColor="@color/white"
         card_view:cardElevation="2dp"
         card_view:cardPreventCornerOverlap="true"
         card_view:cardUseCompatPadding="true">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_alignParentTop="true">
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:textColor="@color/md_grey_850" />
-        <Space
-            android:id="@+id/spacer"
-            android:layout_below="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:layout_alignParentBottom="@+id/title"
-            android:layout_toRightOf="@+id/dateTime"
-            android:layout_toEndOf="@+id/dateTime"/>
+            android:paddingBottom="6dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="6dp">
 
-        <TextView
-            android:id="@+id/dateTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/spacer"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:textColor="@color/md_grey_500"/>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="@color/md_grey_850"/>
 
-        <TextView
-            android:id="@+id/lastUser"
-            android:textStyle="italic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/dateTime"
-            android:layout_alignBottom="@+id/dateTime"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:textColor="@color/md_grey_500"/>
+            <Space
+                android:id="@+id/spacer"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_alignParentBottom="@+id/title"
+                android:layout_below="@+id/title"
+                android:layout_toEndOf="@+id/dateTime"
+                android:layout_toRightOf="@+id/dateTime"/>
 
+            <TextView
+                android:id="@+id/dateTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/spacer"/>
 
-
-    </RelativeLayout>
-
+            <TextView
+                android:id="@+id/lastUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/dateTime"
+                android:layout_alignBottom="@+id/dateTime"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:textStyle="italic"/>
+        </RelativeLayout>
     </android.support.v7.widget.CardView>
-
-
 </LinearLayout>

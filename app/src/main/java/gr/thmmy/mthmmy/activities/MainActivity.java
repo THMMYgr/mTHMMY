@@ -79,6 +79,12 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         }
         else if (id == R.id.action_logout)
             new LogoutTask().execute();
+        else{
+            Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+            startActivity(intent);
+            finish();
+            overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+        }
 
         return super.onOptionsItemSelected(item);
     }
