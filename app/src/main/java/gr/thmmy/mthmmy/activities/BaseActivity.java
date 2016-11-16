@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -18,6 +19,12 @@ public class BaseActivity extends AppCompatActivity {
     protected static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
     protected static Thmmy.LoginData loginData;
     private static boolean init =false;   //To initialize stuff only once per app start
+
+    //Shared preferences
+    public static final String SHARED_PREFS_NAME = "thmmySharedPrefs";
+    public static final String USER_NAME = "userNameKey";
+    public static final String GUEST_PREF_USERNAME = "GUEST";
+    public static final String IS_LOGGED_IN = "isLogedIn";
 
     public static CookieJar getCookieJar()
     {

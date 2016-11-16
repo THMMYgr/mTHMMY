@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,20 +23,15 @@ import static gr.thmmy.mthmmy.utils.Thmmy.login;
 
 public class LoginActivity extends BaseActivity {
     private static final String TAG = "LoginActivity";
-    private static boolean passed=false; //becomes true after (guest) login - to redirect to Main
     Button btnLogin;
     Button btnGuest;
     private EditText inputUsername;
     private EditText inputPassword;
+    private String username;
+    private String password;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        /*if(passed)  //redirect to MainActivity if user passed this one at least once
-        {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }*/
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -50,27 +46,31 @@ public class LoginActivity extends BaseActivity {
             public void onClick(View view) {
                 Log.d(TAG, "Login");
 
+                username = inputUsername.getText().toString().trim();
+                password = inputPassword.getText().toString().trim();
+
                 // Check for empty data in the form
                 if (!validate()) {
                     onLoginFailed();
                     return;
                 }
 
-                String username = inputUsername.getText().toString().trim();
-                String password = inputPassword.getText().toString().trim();
-
                 // login user
-                new LoginTask().execute(username,password);
+                new LoginTask().execute(username, password);
             }
         });
 
-        // Link to Register Screen
+        // Guest Button Action
         btnGuest.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
+                SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putString(USER_NAME, GUEST_PREF_USERNAME);
+                editor.putBoolean(IS_LOGGED_IN, true);
+                editor.apply();
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
-                passed=true;
                 finish();
                 overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
@@ -92,10 +92,7 @@ public class LoginActivity extends BaseActivity {
     public boolean validate() {
         boolean valid = true;
 
-        String email = inputUsername.getText().toString();
-        String password = inputPassword.getText().toString();
-
-        if (email.isEmpty()) {
+        if (username.isEmpty()) {
             inputUsername.setError("Enter a valid username");
             valid = false;
         } else {
@@ -112,13 +109,12 @@ public class LoginActivity extends BaseActivity {
         return valid;
     }
 
-    private class LoginTask extends AsyncTask<String, Void, Integer>
-    {
+    private class LoginTask extends AsyncTask<String, Void, Integer> {
         ProgressDialog progressDialog;
 
         @Override
         protected Integer doInBackground(String... params) {
-            setLoginData(login(params[0], params[1],"-1"));
+            setLoginData(login(params[0], params[1], "-1"));
             return loginData.getStatus();
         }
 
@@ -162,13 +158,16 @@ public class LoginActivity extends BaseActivity {
                             .show();
                     break;
                 case LOGGED_IN:
-                    //progressDialog.dismiss();
+                    SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE).edit();
+                    editor.putString(USER_NAME, username);
+                    editor.putBoolean(IS_LOGGED_IN, true);
+                    editor.apply();
+
                     Toast.makeText(getApplicationContext(),
                             "Login successful!", Toast.LENGTH_LONG)
                             .show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
-                    passed=true;
                     finish();
                     overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                     break;

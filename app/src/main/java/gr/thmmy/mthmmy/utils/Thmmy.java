@@ -27,32 +27,27 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class Thmmy
-{
+public class Thmmy {
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
     private static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php");
 
     public static final int LOGGED_OUT = 0;
     public static final int LOGGED_IN = 1;
-    public static final int WRONG_USER= 2;
-    public static final int WRONG_PASSWORD= 3;
-    public static final int FAILED= 4;
+    public static final int WRONG_USER = 2;
+    public static final int WRONG_PASSWORD = 3;
+    public static final int FAILED = 4;
     public static final int CERTIFICATE_ERROR = 5;
     public static final int OTHER_ERROR = 6;
 
 
-
-
     //-------------------------------------------LOGIN--------------------------------------------------
     //Two options: (username, password, duration) or nothing - cookies
-    public static LoginData login(String... strings)
-    {
-        Log.d("Login","Logging in...");
+    public static LoginData login(String... strings) {
+        Log.d("Login", "Logging in...");
         LoginData loginData = new LoginData();
         Request request;
 
-        if(strings.length==3)
-        {
+        if (strings.length == 3) {
             String loginName = strings[0];
             String password = strings[1];
             String duration = strings[2];
@@ -68,9 +63,7 @@ public class Thmmy
                     .url(loginUrl)
                     .post(formBody)
                     .build();
-        }
-        else
-        {
+        } else {
             request = new Request.Builder()
                     .url(loginUrl)
                     .build();
@@ -78,39 +71,33 @@ public class Thmmy
 
         OkHttpClient client = BaseActivity.getClient();
 
-        try
-        {
+        try {
             Response response = client.newCall(request).execute();
             Document document = Jsoup.parse(response.body().string());
 
             Element logout = document.getElementById("logoutbtn");
 
-            if (logout != null)
-            {
+            if (logout != null) {
                 Log.i("Login", "Login successful");
                 setPersistentCookieSession();
                 loginData.setUsername(extractUserName(document));
                 loginData.setLogoutLink(HttpUrl.parse(logout.attr("href")));
                 loginData.setStatus(LOGGED_IN);
-            }
-            else
-            {
+            } else {
                 Log.w("Login", "Login failed");
                 loginData.setStatus(FAILED);
 
                 //Making error more specific
                 Elements error = document.select("b:contains(That username does not exist.)");
 
-                if (error.size()==1)
-                {
+                if (error.size() == 1) {
                     loginData.setStatus(WRONG_USER);
-                    Log.d("Login","Wrong Username");
+                    Log.d("Login", "Wrong Username");
                 }
 
                 error = document.select("body:contains(Password incorrect)");
-                if (error.size()==1)
-                {
-                    Log.d("Login","Wrong Password");
+                if (error.size() == 1) {
+                    Log.d("Login", "Wrong Password");
                     loginData.setStatus(WRONG_PASSWORD);
                 }
 
@@ -126,21 +113,17 @@ public class Thmmy
             loginData.setStatus(OTHER_ERROR);
         }
 
-
-
         return loginData;
-
-
     }
 
     //To maintain data between activities/ between activity state change (possibly temporary solution)
-    public static class LoginData implements Parcelable
-    {
+    public static class LoginData implements Parcelable {
         private int status;
         private String username;
         private HttpUrl logoutLink;
 
-        public LoginData() {}
+        public LoginData() {
+        }
 
         public String getUsername() {
             return username;
@@ -192,18 +175,16 @@ public class Thmmy
 
         private LoginData(Parcel in) {
             status = in.readInt();
-            username=in.readString();
-            logoutLink=HttpUrl.parse(in.readString());
+            username = in.readString();
+            logoutLink = HttpUrl.parse(in.readString());
         }
     }
 
-    private static boolean setPersistentCookieSession()
-    {
+    private static boolean setPersistentCookieSession() {
         List<Cookie> cookieList = BaseActivity.getCookieJar().loadForRequest(HttpUrl.parse("https://www.thmmy.gr"));
 
         if (cookieList.size() == 2) {
-            if ((cookieList.get(0).name().equals("THMMYgrC00ki3")) && (cookieList.get(1).name().equals("PHPSESSID")))
-            {
+            if ((cookieList.get(0).name().equals("THMMYgrC00ki3")) && (cookieList.get(1).name().equals("PHPSESSID"))) {
                 Cookie.Builder builder = new Cookie.Builder();
                 builder.name(cookieList.get(1).name())
                         .value(cookieList.get(1).value())
@@ -221,10 +202,8 @@ public class Thmmy
     //-------------------------------------LOGIN ENDS-----------------------------------------------
 
 
-
     //--------------------------------------LOGOUT--------------------------------------------------
-    public static int logout(LoginData loginData)
-    {
+    public static int logout(LoginData loginData) {
         OkHttpClient client = BaseActivity.getClient();
         Request request = new Request.Builder()
                 .url(loginData.getLogoutLink())
@@ -234,16 +213,13 @@ public class Thmmy
             Response response = client.newCall(request).execute();
             Document document = Jsoup.parse(response.body().string());
 
-            Elements login =  document.select("[value=Login]");
+            Elements login = document.select("[value=Login]");
             ((PersistentCookieJar) BaseActivity.getCookieJar()).clear();
-            if(!login.isEmpty())
-            {
+            if (!login.isEmpty()) {
                 Log.i("Logout", "Logout successful");
                 loginData.setStatus(LOGGED_OUT);
                 return LOGGED_OUT;
-            }
-            else
-            {
+            } else {
                 Log.w("Logout", "Logout failed");
                 return FAILED;
             }
@@ -260,22 +236,15 @@ public class Thmmy
     }
 
 
-
-
 //----------------------------------------LOGOUT ENDS-----------------------------------------------
 
 
-
-
-//-------------------------------------------MISC---------------------------------------------------
-    public static String extractUserName(Document doc)
-    {
-        if(doc!=null)
-        {
+    //-------------------------------------------MISC---------------------------------------------------
+    public static String extractUserName(Document doc) {
+        if (doc != null) {
             Elements user = doc.select("div[id=myuser] > h3");
 
-            if (user.size()==1)
-            {
+            if (user.size() == 1) {
                 String txt = user.first().ownText();
 
                 Pattern pattern = Pattern.compile(", (.*?),");
