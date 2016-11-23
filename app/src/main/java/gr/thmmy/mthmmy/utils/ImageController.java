@@ -10,7 +10,7 @@ import com.android.volley.toolbox.Volley;
 
 public class ImageController extends Application {
 
-    public static final String TAG = ImageController.class.getSimpleName();
+    private static final String TAG = ImageController.class.getSimpleName();
     private static ImageController mInstance;
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
@@ -25,7 +25,7 @@ public class ImageController extends Application {
         mInstance = this;
     }
 
-    public RequestQueue getRequestQueue() {
+    private RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
             mRequestQueue = Volley.newRequestQueue(getApplicationContext());
         }
@@ -53,10 +53,13 @@ public class ImageController extends Application {
         getRequestQueue().add(req);
     }
 
-    public void cancelPendingRequests(Object tag) {
-        if (mRequestQueue != null) {
-            mRequestQueue.cancelAll(tag);
-        }
+    public void cancelPendingRequests(){
+        mRequestQueue.cancelAll(new RequestQueue.RequestFilter() {
+            @Override
+            public boolean apply(Request<?> request) {
+                return true;
+            }
+        });
     }
 }
 

@@ -5,13 +5,15 @@ public class Post
     private final String thumbnailUrl;
     private final String author;
     private final String subject;
-    private String content;
+    private final String content;
+    private final int postNumber;
 
-    public Post(String thumbnailUrl, String author, String subject, String content) {
+    public Post(String thumbnailUrl, String author, String subject, String content, int postNumber) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
         this.content = content;
+        this.postNumber = postNumber;
     }
 
     public String getThumbnailUrl() { return thumbnailUrl;}
@@ -24,7 +26,9 @@ public class Post
         return author;
     }
 
-    public String getDateTime() {
+    public String getSubject() {
         return subject;
     }
+
+    public int getPostNumber(){ return postNumber;}
 }

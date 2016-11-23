@@ -23,8 +23,7 @@ import static gr.thmmy.mthmmy.utils.Thmmy.login;
 
 public class LoginActivity extends BaseActivity {
     private static final String TAG = "LoginActivity";
-    Button btnLogin;
-    Button btnGuest;
+    private Button btnLogin;
     private EditText inputUsername;
     private EditText inputPassword;
     private String username;
@@ -38,7 +37,7 @@ public class LoginActivity extends BaseActivity {
         inputUsername = (EditText) findViewById(R.id.username);
         inputPassword = (EditText) findViewById(R.id.password);
         btnLogin = (Button) findViewById(R.id.btnLogin);
-        btnGuest = (Button) findViewById(R.id.btnContinueAsGuest);
+        Button btnGuest = (Button) findViewById(R.id.btnContinueAsGuest);
 
         // Login button Click Event
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -83,13 +82,13 @@ public class LoginActivity extends BaseActivity {
         moveTaskToBack(true);
     }
 
-    public void onLoginFailed() {
+    private void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
 
         btnLogin.setEnabled(true);
     }
 
-    public boolean validate() {
+    private boolean validate() {
         boolean valid = true;
 
         if (username.isEmpty()) {

@@ -15,8 +15,8 @@ import android.util.AttributeSet;
 import com.android.volley.toolbox.NetworkImageView;
 
 public class CircularNetworkImageView extends NetworkImageView {
-    private static final int THUMBNAIL_SIZE = 100;
-    Context mContext;
+    private static final int THUMBNAIL_SIZE = 80;
+    private Context mContext;
 
     public CircularNetworkImageView(Context context) {
         super(context);
@@ -34,18 +34,6 @@ public class CircularNetworkImageView extends NetworkImageView {
         mContext = context;
     }
 
-    public static Bitmap scaleDown(Bitmap realImage, float maxImageSize,
-                                   boolean filter) {
-        float ratio = Math.min(
-                maxImageSize / realImage.getWidth(),
-                maxImageSize / realImage.getHeight());
-        int width = Math.round(ratio * realImage.getWidth());
-        int height = Math.round(ratio * realImage.getHeight());
-
-        return Bitmap.createScaledBitmap(realImage, width,
-                height, filter);
-    }
-
     @Override
     public void setImageBitmap(Bitmap bm) {
         if(bm==null) return;
@@ -60,18 +48,19 @@ public class CircularNetworkImageView extends NetworkImageView {
      * @param bitmap
      * @return bitmap
      */
-    public Bitmap getCircularBitmap(Bitmap bitmap) {
+    private Bitmap getCircularBitmap(Bitmap bitmap) {
+        bitmap = Bitmap.createScaledBitmap(bitmap, THUMBNAIL_SIZE, THUMBNAIL_SIZE, false);
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
-        int width = bitmap.getWidth();
+        int size = bitmap.getWidth();
         if(bitmap.getWidth()>bitmap.getHeight())
-            width = bitmap.getHeight();
+            size = bitmap.getHeight();
         final int color = 0xff424242;
         final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, width, width);
+        final Rect rect = new Rect(0, 0, size, size);
         final RectF rectF = new RectF(rect);
-        final float roundPx = width / 2;
+        final float roundPx = size / 2;
 
         paint.setAntiAlias(true);
         canvas.drawARGB(0, 0, 0, 0);
@@ -81,7 +70,6 @@ public class CircularNetworkImageView extends NetworkImageView {
         paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
         canvas.drawBitmap(bitmap, rect, rect, paint);
 
-        output = scaleDown(output, THUMBNAIL_SIZE, true);
         return output;
     }
 }

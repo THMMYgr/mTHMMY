@@ -11,7 +11,8 @@
     <color name="divider">#8B8B8B</color>
 
     <color name="transparent">#00000000</color>
-    <color name="white">#ffffff</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
     <color name="iron">#CCCCCC</color>
     <color name="background">#D3D3D3</color>
 </resources>

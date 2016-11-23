@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/background"
                 tools:context="gr.thmmy.mthmmy.activities.TopicActivity">
 
-
-    <view
-        android:id="@+id/posts_list"
-        android:name="gr.thmmy.mthmmy.activities.Topic"
-        class="gr.thmmy.mthmmy.utils.CustomRecyclerView"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:clipToPadding="false"
-        android:paddingBottom="4dp"
-        android:paddingTop="4dp"
-        app:layoutManager="LinearLayoutManager"
-        tools:context="gr.thmmy.mthmmy.activities.TopicActivity"
-        tools:listitem="@layout/activity_topic_post_row"/>
+        android:scrollbars="none"
+        tools:context="gr.thmmy.mthmmy.activities.TopicActivity">
+
+        <LinearLayout
+            android:id="@+id/posts_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp">
+        </LinearLayout>
+
+    </ScrollView>
 
     <ProgressBar
         android:id="@+id/progressBar"

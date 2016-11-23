@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.activities;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -14,17 +13,16 @@ import okhttp3.OkHttpClient;
 
 public class BaseActivity extends AppCompatActivity {
 
-    protected static OkHttpClient client;
-    protected static CookieJar cookieJar;
-    protected static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
-    protected static Thmmy.LoginData loginData;
-    private static boolean init =false;   //To initialize stuff only once per app start
-
     //Shared preferences
-    public static final String SHARED_PREFS_NAME = "thmmySharedPrefs";
-    public static final String USER_NAME = "userNameKey";
-    public static final String GUEST_PREF_USERNAME = "GUEST";
-    public static final String IS_LOGGED_IN = "isLogedIn";
+    static final String SHARED_PREFS_NAME = "thmmySharedPrefs";
+    static final String USER_NAME = "userNameKey";
+    static final String GUEST_PREF_USERNAME = "GUEST";
+    static final String IS_LOGGED_IN = "isLoggedIn";
+    static OkHttpClient client;
+    static Thmmy.LoginData loginData;
+    private static CookieJar cookieJar;
+    private static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
+    private static boolean init =false;   //To initialize stuff only once per app start
 
     public static CookieJar getCookieJar()
     {
@@ -57,7 +55,7 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
-    public void setLoginData(Thmmy.LoginData loginData) {
+    void setLoginData(Thmmy.LoginData loginData) {
         BaseActivity.loginData = loginData;
     }
 }

@@ -28,9 +28,6 @@ import okhttp3.Response;
 
 
 public class Thmmy {
-    private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
-    private static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php");
-
     public static final int LOGGED_OUT = 0;
     public static final int LOGGED_IN = 1;
     public static final int WRONG_USER = 2;
@@ -38,7 +35,7 @@ public class Thmmy {
     public static final int FAILED = 4;
     public static final int CERTIFICATE_ERROR = 5;
     public static final int OTHER_ERROR = 6;
-
+    private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
 
     //-------------------------------------------LOGIN--------------------------------------------------
     //Two options: (username, password, duration) or nothing - cookies
@@ -116,71 +113,7 @@ public class Thmmy {
         return loginData;
     }
 
-    //To maintain data between activities/ between activity state change (possibly temporary solution)
-    public static class LoginData implements Parcelable {
-        private int status;
-        private String username;
-        private HttpUrl logoutLink;
-
-        public LoginData() {
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
-
-        public HttpUrl getLogoutLink() {
-            return logoutLink;
-        }
-
-        public void setLogoutLink(HttpUrl logoutLink) {
-            this.logoutLink = logoutLink;
-        }
-
-
-        public int describeContents() {
-            return 0;
-        }
-
-        public void writeToParcel(Parcel out, int flags) {
-            out.writeInt(status);
-            out.writeString(username);
-            out.writeString(logoutLink.toString());
-        }
-
-        public static final Parcelable.Creator<LoginData> CREATOR
-                = new Parcelable.Creator<LoginData>() {
-            public LoginData createFromParcel(Parcel in) {
-                return new LoginData(in);
-            }
-
-            public LoginData[] newArray(int size) {
-                return new LoginData[size];
-            }
-        };
-
-        private LoginData(Parcel in) {
-            status = in.readInt();
-            username = in.readString();
-            logoutLink = HttpUrl.parse(in.readString());
-        }
-    }
-
-    private static boolean setPersistentCookieSession() {
+    private static void setPersistentCookieSession() {
         List<Cookie> cookieList = BaseActivity.getCookieJar().loadForRequest(HttpUrl.parse("https://www.thmmy.gr"));
 
         if (cookieList.size() == 2) {
@@ -194,13 +127,9 @@ public class Thmmy {
                 cookieList.add(builder.build());
                 BaseActivity.getSharedPrefsCookiePersistor().clear();
                 BaseActivity.getSharedPrefsCookiePersistor().saveAll(cookieList);
-                return true;
             }
         }
-        return false;
     }
-    //-------------------------------------LOGIN ENDS-----------------------------------------------
-
 
     //--------------------------------------LOGOUT--------------------------------------------------
     public static int logout(LoginData loginData) {
@@ -234,13 +163,10 @@ public class Thmmy {
 
 
     }
-
-
-//----------------------------------------LOGOUT ENDS-----------------------------------------------
-
+    //-------------------------------------LOGIN ENDS-----------------------------------------------
 
     //-------------------------------------------MISC---------------------------------------------------
-    public static String extractUserName(Document doc) {
+    private static String extractUserName(Document doc) {
         if (doc != null) {
             Elements user = doc.select("div[id=myuser] > h3");
 
@@ -255,6 +181,69 @@ public class Thmmy {
         }
 
         return null;
+    }
+
+
+//----------------------------------------LOGOUT ENDS-----------------------------------------------
+
+    //To maintain data between activities/ between activity state change (possibly temporary solution)
+    public static class LoginData implements Parcelable {
+        public static final Parcelable.Creator<LoginData> CREATOR
+                = new Parcelable.Creator<LoginData>() {
+            public LoginData createFromParcel(Parcel in) {
+                return new LoginData(in);
+            }
+
+            public LoginData[] newArray(int size) {
+                return new LoginData[size];
+            }
+        };
+        private int status;
+        private String username;
+        private HttpUrl logoutLink;
+
+        public LoginData() {
+        }
+
+        private LoginData(Parcel in) {
+            status = in.readInt();
+            username = in.readString();
+            logoutLink = HttpUrl.parse(in.readString());
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        void setUsername(String username) {
+            this.username = username;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+
+        HttpUrl getLogoutLink() {
+            return logoutLink;
+        }
+
+        void setLogoutLink(HttpUrl logoutLink) {
+            this.logoutLink = logoutLink;
+        }
+
+        public int describeContents() {
+            return 0;
+        }
+
+        public void writeToParcel(Parcel out, int flags) {
+            out.writeInt(status);
+            out.writeString(username);
+            out.writeString(logoutLink.toString());
+        }
     }
 
 }

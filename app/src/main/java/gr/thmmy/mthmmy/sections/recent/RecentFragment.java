@@ -50,14 +50,13 @@ public class RecentFragment extends Fragment
 
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private CustomRecyclerView recyclerView;
     private RecentAdapter recentAdapter;
 
     private List<TopicSummary> topicSummaries;
 
     private OnListFragmentInteractionListener mListener;
 
-    OkHttpClient client;
+    private OkHttpClient client;
 
     // Required empty public constructor
     public RecentFragment() {}
@@ -154,7 +153,7 @@ public class RecentFragment extends Fragment
             progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
             recentAdapter = new RecentAdapter(topicSummaries, mListener);
 
-            recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
+            CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
             recyclerView.setLayoutManager(new LinearLayoutManager(rootView.findViewById(R.id.list).getContext()));
             recyclerView.setAdapter(recentAdapter);
 
@@ -204,11 +203,6 @@ public class RecentFragment extends Fragment
         // TODO: Update argument type and name
         void onFragmentInteraction(TopicSummary topicSummary);
     }
-
-
-    int n=0;
-    long s=0;
-
 
     //---------------------------------------ASYNC TASK-----------------------------------
 
@@ -260,7 +254,7 @@ public class RecentFragment extends Fragment
             swipeRefreshLayout.setRefreshing(false);
         }
 
-        private boolean parse(Document document)
+        private void parse(Document document)
         {
             Elements recent = document.select("#block8 :first-child div");
             if(recent.size()==30)
@@ -279,7 +273,7 @@ public class RecentFragment extends Fragment
                     else
                     {
                         Log.e(TAG, "Parsing failed (lastUser)!");
-                        return false;
+                        return;
                     }
 
                     String dateTime = recent.get(i + 2).text();
@@ -290,17 +284,16 @@ public class RecentFragment extends Fragment
                     else
                     {
                         Log.e(TAG, "Parsing failed (dateTime)!");
-                        return false;
+                        return;
                     }
 
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
 
-                return true;
+                return;
             }
             Log.e(TAG, "Parsing failed!");
-            return false;
         }
     }
 
