@@ -14,7 +14,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="25dp" />
+            android:layout_height="25dp"/>
 
         <ImageView
             android:id="@+id/thmmyLogo"
@@ -36,7 +36,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="10dp" />
+            android:layout_height="10dp"/>
 
         <!--  Username Label -->
         <android.support.design.widget.TextInputLayout

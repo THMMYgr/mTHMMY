@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.data;
 
-public class Post
-{
+public class Post {
     private final String thumbnailUrl;
     private final String author;
     private final String subject;
@@ -16,7 +15,9 @@ public class Post
         this.postNumber = postNumber;
     }
 
-    public String getThumbnailUrl() { return thumbnailUrl;}
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
 
     public String getContent() {
         return content;
@@ -30,5 +31,7 @@ public class Post
         return subject;
     }
 
-    public int getPostNumber(){ return postNumber;}
+    public int getPostNumber() {
+        return postNumber;
+    }
 }

@@ -9,11 +9,11 @@ class LruBitmapCache extends LruCache<String, Bitmap> implements
         ImageCache {
     private static final int CACHE_SIZE_DIVIDER = 8;
 
-     LruBitmapCache() {
+    LruBitmapCache() {
         this(getDefaultLruCacheSize());
     }
 
-     private LruBitmapCache(int sizeInKiloBytes) {
+    private LruBitmapCache(int sizeInKiloBytes) {
         super(sizeInKiloBytes);
     }
 

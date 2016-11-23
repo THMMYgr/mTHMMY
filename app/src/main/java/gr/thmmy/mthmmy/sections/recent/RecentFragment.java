@@ -14,11 +14,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.BaseActivity;
-import gr.thmmy.mthmmy.data.TopicSummary;
-import gr.thmmy.mthmmy.utils.CustomRecyclerView;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -29,6 +24,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.BaseActivity;
+import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -41,8 +40,7 @@ import okhttp3.Response;
  * Use the {@link RecentFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RecentFragment extends Fragment
-{
+public class RecentFragment extends Fragment {
     private static final String TAG = "RecentFragment";
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
     private static final String ARG_SECTION_NUMBER = "SectionNumber";
@@ -59,7 +57,8 @@ public class RecentFragment extends Fragment
     private OkHttpClient client;
 
     // Required empty public constructor
-    public RecentFragment() {}
+    public RecentFragment() {
+    }
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -68,8 +67,7 @@ public class RecentFragment extends Fragment
      * @param sectionNumber
      * @return A new instance of fragment Recent.
      */
-    public static RecentFragment newInstance(int sectionNumber)
-    {
+    public static RecentFragment newInstance(int sectionNumber) {
         RecentFragment fragment = new RecentFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -82,8 +80,7 @@ public class RecentFragment extends Fragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
@@ -93,63 +90,60 @@ public class RecentFragment extends Fragment
         topicSummaries = new ArrayList<>();
 
 
-        if(sectionNumber==1)    //?
-        Log.d(TAG,"onCreate");
+        if (sectionNumber == 1)    //?
+            Log.d(TAG, "onCreate");
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(sectionNumber==1)//temp
+        if (sectionNumber == 1)//temp
         {
-            if(topicSummaries.isEmpty())
+            if (topicSummaries.isEmpty())
                 new RecentTask().execute();
 
 
         }
-        Log.d(TAG,"onActivityCreated");
+        Log.d(TAG, "onActivityCreated");
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if(sectionNumber==1)
-        Log.d(TAG,"onStart");
+        if (sectionNumber == 1)
+            Log.d(TAG, "onStart");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if(sectionNumber==1)
-        Log.d(TAG,"onResume");
+        if (sectionNumber == 1)
+            Log.d(TAG, "onResume");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(sectionNumber==1)
-        Log.d(TAG,"onPause");
+        if (sectionNumber == 1)
+            Log.d(TAG, "onPause");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if(sectionNumber==1)
-        Log.d(TAG,"onStop");
+        if (sectionNumber == 1)
+            Log.d(TAG, "onStop");
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_recent, container, false);
 
         // Set the adapter
-        if (rootView instanceof RelativeLayout)
-        {
+        if (rootView instanceof RelativeLayout) {
             progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
             recentAdapter = new RecentAdapter(topicSummaries, mListener);
 
@@ -206,9 +200,8 @@ public class RecentFragment extends Fragment
 
     //---------------------------------------ASYNC TASK-----------------------------------
 
-    public class RecentTask extends AsyncTask<Void, Void, Integer>
-    {
-        private static final String TAG="RecentTask";
+    public class RecentTask extends AsyncTask<Void, Void, Integer> {
+        private static final String TAG = "RecentTask";
         private final String thmmyUrl = "https://www.thmmy.gr/smf/index.php";
 
         private Document document;
@@ -219,8 +212,7 @@ public class RecentFragment extends Fragment
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
-        protected Integer doInBackground(Void... voids)
-        {
+        protected Integer doInBackground(Void... voids) {
 
             Request request = new Request.Builder()
                     .url(thmmyUrl)
@@ -231,7 +223,7 @@ public class RecentFragment extends Fragment
                 parse(document);
                 return 0;
             } catch (IOException e) {
-                    Log.d("DEB", "ERROR", e);
+                Log.d("DEB", "ERROR", e);
                 return 1;
             } catch (Exception e) {
                 Log.d("DEB", "ERROR", e);
@@ -241,27 +233,23 @@ public class RecentFragment extends Fragment
         }
 
 
+        protected void onPostExecute(Integer result) {
 
-        protected void onPostExecute(Integer result)
-        {
-
-            if(result==0)
+            if (result == 0)
                 recentAdapter.notifyDataSetChanged();
-            else if (result==1)
+            else if (result == 1)
                 Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
-            
+
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);
         }
 
-        private void parse(Document document)
-        {
+        private void parse(Document document) {
             Elements recent = document.select("#block8 :first-child div");
-            if(recent.size()==30)
-            {
+            if (recent.size() == 30) {
                 topicSummaries.clear();
 
-                for(int i=0; i<recent.size(); i+=3) {
+                for (int i = 0; i < recent.size(); i += 3) {
                     String link = recent.get(i).child(0).attr("href");
                     String title = recent.get(i).child(0).attr("title");
 
@@ -270,8 +258,7 @@ public class RecentFragment extends Fragment
                     Matcher matcher = pattern.matcher(lastUser);
                     if (matcher.find())
                         lastUser = matcher.group(1);
-                    else
-                    {
+                    else {
                         Log.e(TAG, "Parsing failed (lastUser)!");
                         return;
                     }
@@ -281,8 +268,7 @@ public class RecentFragment extends Fragment
                     matcher = pattern.matcher(dateTime);
                     if (matcher.find())
                         dateTime = matcher.group(1);
-                    else
-                    {
+                    else {
                         Log.e(TAG, "Parsing failed (dateTime)!");
                         return;
                     }

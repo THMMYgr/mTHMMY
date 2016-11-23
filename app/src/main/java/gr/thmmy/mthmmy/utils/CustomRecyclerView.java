@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 
 //Custom RecyclerView, so EdgeEffect and SwipeRefresh both work
 public class CustomRecyclerView extends RecyclerView {
-    private volatile boolean enableRefreshing=true;
+    private volatile boolean enableRefreshing = true;
 
     public CustomRecyclerView(Context context) {
         super(context);
@@ -24,22 +24,20 @@ public class CustomRecyclerView extends RecyclerView {
 
     @Override
     public void onScrolled(int dx, int dy) {
-        if(dy>0)
-            enableRefreshing=false;
+        if (dy > 0)
+            enableRefreshing = false;
         super.onScrolled(dx, dy);
     }
 
 
     @Override
-    public void onScrollStateChanged(int state)
-    {
-        if((state!=SCROLL_STATE_DRAGGING)&&((LinearLayoutManager)getLayoutManager()).findFirstCompletelyVisibleItemPosition()==0)
-            enableRefreshing=true;
-        else if(getChildCount()==0)
-            enableRefreshing=true;
-        else if(((LinearLayoutManager)getLayoutManager()).findFirstCompletelyVisibleItemPosition()!=0)
-            enableRefreshing=false;
-
+    public void onScrollStateChanged(int state) {
+        if ((state != SCROLL_STATE_DRAGGING) && ((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition() == 0)
+            enableRefreshing = true;
+        else if (getChildCount() == 0)
+            enableRefreshing = true;
+        else if (((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition() != 0)
+            enableRefreshing = false;
 
 
         super.onScrollStateChanged(state);
@@ -47,7 +45,7 @@ public class CustomRecyclerView extends RecyclerView {
 
     @Override
     public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
-        if(enableRefreshing)
+        if (enableRefreshing)
             return super.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
         else
             return super.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, 0, offsetInWindow);

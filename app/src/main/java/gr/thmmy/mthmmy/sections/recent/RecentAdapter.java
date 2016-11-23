@@ -6,18 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.TopicSummary;
-
-import java.util.List;
 
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link TopicSummary} and makes a call to the
  * specified {@link RecentFragment.OnListFragmentInteractionListener}.
  */
-public class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder>
-{
+public class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     private final List<TopicSummary> recentList;
     private final RecentFragment.OnListFragmentInteractionListener mListener;
 
@@ -33,7 +32,6 @@ public class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder
                 .inflate(R.layout.fragment_recent_row, parent, false);
         return new ViewHolder(view);
     }
-
 
 
     @Override

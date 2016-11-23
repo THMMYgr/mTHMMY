@@ -53,7 +53,7 @@ public class ImageController extends Application {
         getRequestQueue().add(req);
     }
 
-    public void cancelPendingRequests(){
+    public void cancelPendingRequests() {
         mRequestQueue.cancelAll(new RequestQueue.RequestFilter() {
             @Override
             public boolean apply(Request<?> request) {

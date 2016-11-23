@@ -1,7 +1,7 @@
 package gr.thmmy.mthmmy.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -14,16 +14,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.util.Objects;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.sections.recent.RecentFragment;
-import gr.thmmy.mthmmy.utils.Thmmy;
+
+import static gr.thmmy.mthmmy.activities.BaseActivity.Thmmy.logout;
 
 public class MainActivity extends BaseActivity implements RecentFragment.OnListFragmentInteractionListener {
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
 
+//----------------------------------------CLASS VARIABLES-----------------------------------------
+    private static final String TAG = "MainActivity";
     private Menu menu;
 
     @Override
@@ -31,21 +33,22 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
-        if (!prefs.getBoolean(IS_LOGGED_IN, false)) {
+        if (_prefs.getInt(LOG_STATUS, OTHER_ERROR) != LOGGED_IN) { //If not logged in
+            //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
         }
 
+        //Initialize toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Create the adapter that will return a fragment for each section of the activity
+        //Create the adapter that will return a fragment for each section of the activity
         SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
+        //Set up the ViewPager with the sections adapter.
         ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
@@ -62,14 +65,16 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        //Inflate the menu; this adds items to the action bar if it is present.
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
-        if (prefs.getBoolean(IS_LOGGED_IN, false)
-                && prefs.getString(USER_NAME, null) != GUEST_PREF_USERNAME)
+
+        if (_prefs.getInt(LOG_STATUS, OTHER_ERROR) == LOGGED_IN
+                && !Objects.equals(_prefs.getString(USER_NAME, null), GUEST_PREF_USERNAME)) {
+            //Will enter when logged out or if user is guest
             hideLogin();
-        else
+        } else
+            //Will enter when logged in
             hideLogout();
 
         return true;
@@ -80,12 +85,15 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         int id = item.getItemId();
 
         if (id == R.id.action_about) {
+            //Go to about
             Intent i = new Intent(MainActivity.this, AboutActivity.class);
             startActivity(i);
             return true;
         } else if (id == R.id.action_logout)
+            //Attempt logout
             new LogoutTask().execute();
         else {
+            //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -95,14 +103,14 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         return super.onOptionsItemSelected(item);
     }
 
-    private void hideLogin() {
+    private void hideLogin() { //Hide login AND show logout
         MenuItem login = menu.findItem(R.id.action_login);
         MenuItem logout = menu.findItem(R.id.action_logout);
         login.setVisible(false);
         logout.setVisible(true);
     }
 
-    private void hideLogout() {
+    private void hideLogout() { //Hide logout AND show login
         MenuItem login = menu.findItem(R.id.action_login);
         MenuItem logout = menu.findItem(R.id.action_logout);
         login.setVisible(true);
@@ -156,27 +164,37 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
             return null;
         }
     }
+//-------------------------------FragmentPagerAdapter END-------------------------------------------
 
-    private class LogoutTask extends AsyncTask<Void, Void, Integer> {
+//-------------------------------------------LOGOUT-------------------------------------------------
+    private class LogoutTask extends AsyncTask<Void, Void, Integer> { //Attempt logout
+        ProgressDialog progressDialog;
+
         protected Integer doInBackground(Void... voids) {
-            return Thmmy.logout(loginData);
+            return logout();
         }
 
-        protected void onPreExecute() {
-            //TODO: a progressbar maybe?
+        protected void onPreExecute() { //Show a progress dialog until done
+            progressDialog = new ProgressDialog(MainActivity.this,
+                    R.style.AppTheme);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Logging out...");
+            progressDialog.show();
         }
 
-        protected void onPostExecute(Integer result) {
-            if (result == Thmmy.LOGGED_OUT) {
-                SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE).edit();
-                editor.putString(USER_NAME, null);
-                editor.putBoolean(IS_LOGGED_IN, false);
-                editor.apply();
+        protected void onPostExecute(Integer result) { //Handle attempt result
+            progressDialog.dismiss(); //Hide progress dialog
+            if (result == LOGGED_OUT) { //Successful logout
+                /*
+                    At this point result is LOGGED_OUT
+                    BUT pref's LOGIN_STATUS variable is LOGGED_IN!!
+                    and USER_NAME is GUEST
+                */
                 Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
-
                 hideLogout();
-            } else
+            } else //Logout failed
                 hideLogin();
         }
     }
+//-----------------------------------------LOGOUT END-----------------------------------------------
 }

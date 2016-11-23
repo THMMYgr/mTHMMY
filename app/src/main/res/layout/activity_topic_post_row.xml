@@ -38,7 +38,6 @@
                     android:layout_centerVertical="true"
                     android:layout_marginBottom="3dp"
                     android:layout_marginEnd="3dp"
-                    android:layout_marginRight="3dp"
                     android:layout_marginTop="3dp">
 
                     <gr.thmmy.mthmmy.utils.CircularNetworkImageView
@@ -49,8 +48,6 @@
                         android:maxHeight="@dimen/thumbnail_size"
                         android:maxWidth="@dimen/thumbnail_size"
                         android:paddingEnd="2dp"
-                        android:paddingLeft="2dp"
-                        android:paddingRight="5dp"
                         android:paddingStart="2dp"/>
                 </FrameLayout>
 
@@ -60,12 +57,10 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_marginEnd="5dp"
-                    android:layout_marginRight="5dp"
                     android:layout_toEndOf="@+id/thumbnail_holder"
-                    android:layout_toRightOf="@+id/thumbnail_holder"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="sometext"
+                    android:text="@string/username"
                     android:textColor="@color/black"
                     android:textStyle="bold"/>
 
@@ -74,10 +69,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="100dp"
-                    android:layout_marginStart="100dp"
                     android:text=""/>
 
                 <TextView
@@ -86,8 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/username"
                     android:layout_toEndOf="@+id/thumbnail_holder"
-                    android:layout_toRightOf="@+id/thumbnail_holder"
-                    android:text="sometext"
+                    android:text="@string/subject"
                     />
 
             </RelativeLayout>
@@ -114,7 +105,7 @@
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
                     android:background="@color/white"
-                    android:text="sometext"
+                    android:text="@string/post"
                     />
             </FrameLayout>
         </LinearLayout>

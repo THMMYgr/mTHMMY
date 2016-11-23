@@ -13,8 +13,8 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
         String versionName = BuildConfig.VERSION_NAME;
-        TextView tv= (TextView) findViewById(R.id.version);
-        if(tv!=null)
+        TextView tv = (TextView) findViewById(R.id.version);
+        if (tv != null)
             tv.setText(getString(R.string.version, versionName));
 
         //TODO: add licenses
