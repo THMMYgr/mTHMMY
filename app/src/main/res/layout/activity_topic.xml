@@ -63,11 +63,11 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:textColor="@color/white"
                 android:gravity="center"
                 android:hint="@string/text_page"
                 android:maxLines="1"
-                android:textSize="20sp"/>
+                android:textColor="@color/white"
+                android:textSize="22sp"/>
 
             <ImageButton
                 android:id="@+id/page_next_button"

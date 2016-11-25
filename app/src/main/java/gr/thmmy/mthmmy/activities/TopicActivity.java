@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -130,6 +132,12 @@ public class TopicActivity extends BaseActivity {
         // Increment once for a click
         increment.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(!autoIncrement && step == LARGE_STEP){ //If just clicked go to last page
+                    changePage(numberOfPages - 1);
+                    return;
+                }
+                //Clicked and holden
+                autoIncrement = false; //Stop incrementing
                 increment(step);
                 changePage(pageValue - 1);
             }
@@ -140,17 +148,16 @@ public class TopicActivity extends BaseActivity {
                 new View.OnLongClickListener(){
                     public boolean onLongClick(View arg0) {
                         autoIncrement = true;
-                        repeatUpdateHandler.postDelayed(new RepetetiveUpdater(step), INITIAL_DELAY);
+                        repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
                     }
                 }
         );
 
-        // When the button is released, if we're auto incrementing, stop
+        // When the button is released
         increment.setOnTouchListener( new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if( event.getAction() == MotionEvent.ACTION_UP && autoIncrement ){
-                    autoIncrement = false;
                     changePage(pageValue - 1);
                 }
                 return false;
@@ -162,6 +169,12 @@ public class TopicActivity extends BaseActivity {
         // Decrement once for a click
         decrement.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(!autoDecrement && step == LARGE_STEP){ //If just clicked go to first page
+                    changePage(0);
+                    return;
+                }
+                //Clicked and holden
+                autoDecrement = false; //Stop incrementing
                 decrement(step);
                 changePage(pageValue - 1);
             }
@@ -173,28 +186,29 @@ public class TopicActivity extends BaseActivity {
                 new View.OnLongClickListener(){
                     public boolean onLongClick(View arg0) {
                         autoDecrement = true;
-                        repeatUpdateHandler.postDelayed( new RepetetiveUpdater(step), INITIAL_DELAY);
+                        repeatUpdateHandler.postDelayed( new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
                     }
                 }
         );
 
-        // When the button is released, if we're auto decrementing, stop
+        // When the button is released
         decrement.setOnTouchListener( new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if( event.getAction() == MotionEvent.ACTION_UP && autoDecrement ){
-                    autoDecrement = false;
                     changePage(pageValue - 1);
                 }
-                return true;
+                return false;
             }
         });
     }
 
     private void increment(int step){
-        if( pageValue < numberOfPages - step - 1){
+        if( pageValue < numberOfPages - step){
             pageValue = pageValue + step;
         }
+        else
+            pageValue = numberOfPages;
         pageIndicator.setText(pageValue + "/" + String.valueOf(numberOfPages));
         if(pageValue >= 1000)
             pageIndicator.setTextSize(16);
@@ -203,9 +217,10 @@ public class TopicActivity extends BaseActivity {
     }
 
     private void decrement(int step){
-        if( pageValue > step + 1 ){
+        if( pageValue > step)
             pageValue = pageValue - step;
-        }
+        else
+            pageValue = 1;
         pageIndicator.setText(pageValue + "/" + String.valueOf(numberOfPages));
         if(numberOfPages >= 1000)
             pageIndicator.setTextSize(16);
@@ -214,7 +229,7 @@ public class TopicActivity extends BaseActivity {
     }
 
     private void changePage(int pageRequested){
-        if(pageRequested != thisPage - 1) {
+        if(pageRequested != thisPage - 1){
             //Restart activity with new page
             Intent intent = getIntent();
             intent.putExtra("TOPIC_URL", pagesUrls.get(pageRequested));
@@ -244,7 +259,10 @@ public class TopicActivity extends BaseActivity {
             {
                 if(pageUrl.contains("msg")){
                     String tmp = pageUrl.substring(pageUrl.indexOf("msg") + 3);
-                    postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
+                    if(tmp.contains(";"))
+                        postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
+                    else
+                        postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
                 }
             }
 
@@ -416,7 +434,7 @@ public class TopicActivity extends BaseActivity {
             CircularNetworkImageView thumbnail = (CircularNetworkImageView) convertView.findViewById(R.id.thumbnail);
             TextView username = (TextView) convertView.findViewById(R.id.username);
             TextView subject = (TextView) convertView.findViewById(R.id.subject);
-            WebView post = (WebView) convertView.findViewById(R.id.post);
+            final WebView post = (WebView) convertView.findViewById(R.id.post);
             CardView cardView = (CardView) convertView.findViewById(R.id.card_view);
 
             //Post's WebView parameters set
@@ -457,10 +475,7 @@ public class TopicActivity extends BaseActivity {
                 cardView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (cardExpandable.getVisibility() == View.GONE)
-                            cardExpandable.setVisibility(View.VISIBLE);
-                        else
-                            cardExpandable.setVisibility(View.GONE);
+                        visibilityChangeAnimate(cardExpandable);
                     }
                 });
 
@@ -488,10 +503,15 @@ public class TopicActivity extends BaseActivity {
 
                             case MotionEvent.ACTION_UP:
                                 fingerState = FINGER_RELEASED;
-                                if (cardExpandable.getVisibility() == View.GONE)
-                                    cardExpandable.setVisibility(View.VISIBLE);
-                                else
-                                    cardExpandable.setVisibility(View.GONE);
+
+                                //If this was a link don't expand the card
+                                WebView.HitTestResult htResult = post.getHitTestResult();
+                                if (htResult.getExtra() != null
+                                        && htResult.getExtra() != null)
+                                    return false;
+
+                                //Expand/Collapse card
+                                visibilityChangeAnimate(cardExpandable);
                                 break;
 
                             case MotionEvent.ACTION_MOVE:
@@ -522,6 +542,49 @@ public class TopicActivity extends BaseActivity {
     }
 //--------------------------------------POPULATE UI METHOD END--------------------------------------
 
+//---------------------------------VISIBILITY CHANGE ANIMATE METHOD---------------------------------
+    //Method that animates views visibility changes
+    private void visibilityChangeAnimate(final View mCard){
+        //If the view is gone fade it in
+        if (mCard.getVisibility() == View.GONE) {
+            mCard.clearAnimation();
+            // Prepare the View for the animation
+            mCard.setVisibility(View.VISIBLE);
+            mCard.setAlpha(0.0f);
+
+            // Start the animation
+            mCard.animate()
+                    .translationY(0)
+                    .alpha(1.0f)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mCard.setVisibility(View.VISIBLE);
+                        }
+                    });
+        }
+        //If the view is visible fade it out
+        else {
+            mCard.clearAnimation();
+
+            // Start the animation
+            mCard.animate()
+                    .translationY(mCard.getHeight())
+                    .alpha(0.0f)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mCard.setVisibility(View.GONE);
+                        }
+                    });
+        }
+    }
+//-------------------------------VISIBILITY CHANGE ANIMATE METHOD END-------------------------------
+
 //--------------------------------------CUSTOM WEBVIEW CLIENT---------------------------------------
     private class LinkLauncher extends WebViewClient {
         //Older versions
@@ -550,13 +613,22 @@ public class TopicActivity extends BaseActivity {
             //host's application activity or load it in a browser.
             if (Objects.equals(host, "www.thmmy.gr")) {
                 //This is my web site, so figure out what Activity should launch
-                if (uri.toString().contains("topic=")) {
-                    //Restart activity with new topic
-                    Intent intent = getIntent();
-                    intent.putExtra("TOPIC_URL", uri.toString());
-                    intent.putExtra("TOPIC_TITLE", "");
-                    finish();
-                    startActivity(intent);
+                if (uri.toString().contains("topic=")) { //This url points to a topic
+                    //Is the link pointing to current topic?
+                    if(Objects.equals(
+                            uri.toString().substring(0, uri.toString().lastIndexOf(".")), base_url)){
+                        //Don't restart Activity
+                        //Just change post focus
+                        //TODO
+                    }
+                    else {
+                        //Restart activity with new data
+                        Intent intent = getIntent();
+                        intent.putExtra("TOPIC_URL", uri.toString());
+                        intent.putExtra("TOPIC_TITLE", "");
+                        finish();
+                        startActivity(intent);
+                    }
                 }
                 return true;
             }
@@ -569,18 +641,18 @@ public class TopicActivity extends BaseActivity {
     }
 //------------------------------------CUSTOM WEBVIEW CLIENT END-------------------------------------
 
-    class RepetetiveUpdater implements Runnable {
+    class RepetitiveUpdater implements Runnable {
         private final int step;
 
-        RepetetiveUpdater(int step){this.step = step;}
+        RepetitiveUpdater(int step){this.step = step;}
         public void run() {
             long REPEAT_DELAY = 250;
             if( autoIncrement ){
                 increment(step);
-                repeatUpdateHandler.postDelayed( new RepetetiveUpdater(step), REPEAT_DELAY);
+                repeatUpdateHandler.postDelayed( new RepetitiveUpdater(step), REPEAT_DELAY);
             } else if( autoDecrement ){
                 decrement(step);
-                repeatUpdateHandler.postDelayed( new RepetetiveUpdater(step), REPEAT_DELAY);
+                repeatUpdateHandler.postDelayed( new RepetitiveUpdater(step), REPEAT_DELAY);
             }
         }
     }
