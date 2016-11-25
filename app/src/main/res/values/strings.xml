@@ -16,4 +16,9 @@
     <string name="username">Username should be here...</string>
     <string name="subject">Subject should be here...</string>
     <string name="post">Post should be here...</string>
+    <string name="text_first">first</string>
+    <string name="text_previous">previous</string>
+    <string name="text_page">Page</string>
+    <string name="text_next">next</string>
+    <string name="text_last">last</string>
 </resources>

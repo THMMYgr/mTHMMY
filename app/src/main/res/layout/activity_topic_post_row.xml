@@ -1,10 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:animateLayoutChanges="true"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:orientation="vertical"
               android:paddingEnd="4dp"
               android:paddingStart="4dp">
+
+    <FrameLayout
+        android:animateLayoutChanges="true"
+        android:id="@+id/card_expandable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/post_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:text=""
+            android:textColor="@color/card_expand_text_color"
+            android:textSize="12sp"
+            />
+
+        <TextView
+            android:id="@+id/post_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:text=""
+            android:textColor="@color/card_expand_text_color"
+            android:textSize="12sp"
+
+            />
+    </FrameLayout>
 
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -20,25 +55,22 @@
         card_view:cardUseCompatPadding="true">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="5dp">
+            android:orientation="vertical">
 
             <RelativeLayout
                 android:id="@+id/header"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:padding="16dp">
 
                 <FrameLayout
                     android:id="@+id/thumbnail_holder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginBottom="3dp"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginTop="3dp">
+                    android:layout_centerVertical="true">
 
                     <gr.thmmy.mthmmy.utils.CircularNetworkImageView
                         android:id="@+id/thumbnail"
@@ -46,9 +78,7 @@
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="false"
                         android:maxHeight="@dimen/thumbnail_size"
-                        android:maxWidth="@dimen/thumbnail_size"
-                        android:paddingEnd="2dp"
-                        android:paddingStart="2dp"/>
+                        android:maxWidth="@dimen/thumbnail_size"/>
                 </FrameLayout>
 
                 <TextView
@@ -57,6 +87,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_marginEnd="5dp"
+                    android:layout_marginStart="16dp"
                     android:layout_toEndOf="@+id/thumbnail_holder"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -65,19 +96,14 @@
                     android:textStyle="bold"/>
 
                 <TextView
-                    android:id="@+id/post_number"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentTop="true"
-                    android:text=""/>
-
-                <TextView
                     android:id="@+id/subject"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/username"
+                    android:layout_marginStart="16dp"
                     android:layout_toEndOf="@+id/thumbnail_holder"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="@string/subject"
                     />
 
@@ -88,27 +114,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginBottom="9dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="3dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
                 android:background="@color/divider"/>
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginBottom="16dp">
 
                 <WebView
                     android:id="@+id/post"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
                     android:background="@color/white"
+                    android:clickable="true"
                     android:text="@string/post"
                     />
             </FrameLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>
-
