@@ -215,7 +215,7 @@ public class BaseActivity extends AppCompatActivity {
                 Response response = client.newCall(request).execute();
                 Document document = Jsoup.parse(response.body().string());
 
-                Elements login = document.select("[value=Login]"); //Find login button
+                Elements login = document.select("[pageValue=Login]"); //Find login button
                 ((PersistentCookieJar) getCookieJar()).clear();
                 if (!login.isEmpty()) { //If found, logout was successful
                     Log.i("Logout", "Logout successful");
