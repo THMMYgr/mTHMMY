@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,6 +76,7 @@ public class TopicActivity extends BaseActivity {
     /* --Topic's pages end-- */
     /* --Thumbnail-- */
     private static final int THUMBNAIL_SIZE = 80;
+    private static final int THUMBNAIL_PADDING = 16;
     private ImageLoader imageLoader = ImageController.getInstance().getImageLoader();
     /* --Thumbnail end-- */
 
@@ -343,12 +346,24 @@ public class TopicActivity extends BaseActivity {
 
             for (Element item : rows) { //For every post
                 //Variables to pass
-                String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate;
-                int p_postNum, p_postIndex;
+                String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_rank,
+                        p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_urlOfStars;
+                int p_postNum, p_postIndex, p_numberOfStars;
+                boolean p_isDeleted = false;
+
+                //Initialize variables
+                p_rank = "Rank";
+                p_specialRank = "Special rank";
+                p_gender = "";
+                p_personalText = "";
+                p_numberOfPosts = "";
+                p_urlOfStars = "";
+                p_numberOfStars = 0;
 
                 //Find the Username
                 Element userName = item.select("a[title^=View the profile of]").first();
                 if (userName == null) { //Deleted profile
+                    p_isDeleted = true;
                     p_userName = item
                             .select("td:has(div.smalltext:containsOwn(Guest))[style^=overflow]")
                             .first().text();
@@ -376,7 +391,7 @@ public class TopicActivity extends BaseActivity {
                 Element postDate = item.select("div.smalltext:matches(on:)").first();
                 p_postDate = postDate.text();
                 p_postDate = p_postDate.substring(p_postDate.indexOf("on:") + 4
-                        ,p_postDate.indexOf(" »"));
+                        , p_postDate.indexOf(" »"));
 
                 //Find post's number
                 Element postNum = item.select("div.smalltext:matches(Reply #)").first();
@@ -389,16 +404,79 @@ public class TopicActivity extends BaseActivity {
 
                 //Find post's index
                 Element postIndex = item.select("a[name^=msg]").first();
-                if(postIndex == null)
+                if (postIndex == null)
                     p_postIndex = NO_INDEX;
                 else {
                     String tmp = postIndex.attr("name");
                     p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
                 }
 
-                //Add new post in postsList
-                postsList.add(new Post(p_thumbnailUrl, p_userName, p_subject
-                        , p_post, p_postDate, p_postNum, p_postIndex));
+                if (!p_isDeleted) { //Active user
+                    //Get extra info
+                    int postsLineIndex = -1;
+                    int starsLineIndex = -1;
+
+                    Element info = userName.parent().nextElementSibling(); //Get sibling "div"
+                    List<String> infoList = Arrays.asList(info.html().split("<br>"));
+
+                    for (String line : infoList) {
+                        Log.i(TAG, line);
+                        if (line.contains("Posts:")) {
+                            postsLineIndex = infoList.indexOf(line);
+                            //Remove any line breaks and spaces on the start and end
+                            p_numberOfPosts = p_personalText.replace("\n", "")
+                                    .replace("\r", "").trim();
+                        }
+                        if (line.contains("Gender:")) {
+                            if (line.contains("alt=\"Male\""))
+                                p_gender = "Gender: Male";
+                            else
+                                p_gender = "Gender: Female";
+                        }
+                        if (line.contains("alt=\"*\"")) {
+                            starsLineIndex = infoList.indexOf(line);
+                            Document starsHtml = Jsoup.parse(line);
+                            p_numberOfStars = starsHtml.select("img[alt]").size();
+                            p_urlOfStars = starsHtml.select("img[alt]").first().attr("abs:src");
+                        }
+                    }
+
+                    //If this member has no stars yet ==> New member,
+                    //or is just a member
+                    if (starsLineIndex == -1 || starsLineIndex == 1) {
+                        //In this case:
+                        p_rank = infoList.get(0).trim(); //First line has the rank
+                        p_specialRank = null; //They don't have a special rank
+                    } else if (starsLineIndex == 2) { //This member has a special rank
+                        p_specialRank = infoList.get(0).trim(); //First line has the special rank
+                        p_rank = infoList.get(1).trim(); //Second line has the rank
+                    }
+                    for (int i = postsLineIndex + 1; i < infoList.size() - 1; ++i) {
+                        //Search under "Posts:"
+                        //and above "Personal Message", "View Profile" etc buttons
+
+                        String thisLine = infoList.get(i);
+                        //If this line isn't empty and doesn't contain user's avatar
+                        if (!Objects.equals(thisLine, "") && thisLine != null
+                                && !Objects.equals(thisLine, " \n")
+                                && !thisLine.contains("avatar")) {
+                            p_personalText = thisLine; //Then this line has user's personal text
+                            //Remove any line breaks and spaces on the start and end
+                            p_personalText = p_personalText.replace("\n", "")
+                                    .replace("\r", "").trim();
+                        }
+                    }
+                    //Add new post in postsList, extended information needed
+                    postsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post
+                            , p_postIndex, p_postNum, p_postDate, p_isDeleted, p_rank
+                            , p_specialRank, p_gender, p_numberOfPosts, p_personalText
+                            , p_urlOfStars, p_numberOfStars));
+
+                } else{ //Deleted user
+                    //Add new post in postsList, only standard information needed
+                    postsList.add(new Post(p_thumbnailUrl, p_userName, p_subject
+                            , p_post, p_postIndex, p_postNum, p_postDate, p_isDeleted));
+                }
             }
         }
         /* Parse method end */
@@ -435,7 +513,9 @@ public class TopicActivity extends BaseActivity {
             TextView username = (TextView) convertView.findViewById(R.id.username);
             TextView subject = (TextView) convertView.findViewById(R.id.subject);
             final WebView post = (WebView) convertView.findViewById(R.id.post);
-            CardView cardView = (CardView) convertView.findViewById(R.id.card_view);
+            final CardView cardView = (CardView) convertView.findViewById(R.id.card_view);
+            RelativeLayout header = (RelativeLayout) convertView.findViewById(R.id.header);
+            final LinearLayout userExtraInfo = (LinearLayout) convertView.findViewById(R.id.user_extra_info);
 
             //Post's WebView parameters set
             post.setClickable(true);
@@ -462,6 +542,8 @@ public class TopicActivity extends BaseActivity {
             //Post's index number set
             if (item.getPostNumber() != 0)
                 postNum.setText("#" + item.getPostNumber());
+            else
+                postNum.setText("");
 
             //Subject set
             subject.setText(item.getSubject());
@@ -469,64 +551,131 @@ public class TopicActivity extends BaseActivity {
             //Post's text set
             post.loadDataWithBaseURL("file:///android_asset/", item.getContent(), "text/html", "UTF-8", null);
 
-            /* --"Card expand/collapse"-like functionality-- */
-            if (item.getPostNumber() != 0) {
-                //Should expand/collapse when card is touched
-                cardView.setOnClickListener(new View.OnClickListener() {
+            if(!item.isDeleted()) { //Set extra info
+                //Variables for Graphics
+                TextView g_specialRank, g_rank, g_gender, g_numberOfPosts, g_personalText;
+                LinearLayout g_stars_holder = (LinearLayout) convertView.findViewById(R.id.stars);
+
+                //Variables for content
+                String c_specialRank = item.getSpecialRank()
+                        , c_rank = item.getRank()
+                        , c_gender = item.getGender()
+                        , c_numberOfPosts = item.getNumberOfPosts()
+                        , c_personalText = item.getPersonalText()
+                        , c_urlOfStars = item.getUrlOfStars();
+                int c_numberOfStars = item.getNumberOfStars();
+
+                if(!Objects.equals(c_specialRank, "") && c_specialRank != null){
+                    g_specialRank = (TextView) convertView.findViewById(R.id.special_rank);
+                    g_specialRank.setText(c_specialRank);
+                    g_specialRank.setVisibility(View.VISIBLE);
+                }
+                if(!Objects.equals(c_rank, "") && c_rank != null){
+                    g_rank = (TextView) convertView.findViewById(R.id.rank);
+                    g_rank.setText(c_rank);
+                    g_rank.setVisibility(View.VISIBLE);
+                }
+                if(!Objects.equals(c_gender, "") && c_gender != null){
+                    g_gender = (TextView) convertView.findViewById(R.id.gender);
+                    g_gender.setText(c_gender);
+                    g_gender.setVisibility(View.VISIBLE);
+                }
+                if(!Objects.equals(c_numberOfPosts, "") && c_numberOfPosts != null){
+                    g_numberOfPosts = (TextView) convertView.findViewById(R.id.number_of_posts);
+                    g_numberOfPosts.setText(c_numberOfPosts);
+                    g_numberOfPosts.setVisibility(View.VISIBLE);
+                }
+                if(!Objects.equals(c_personalText, "") && c_personalText != null){
+                    g_personalText = (TextView) convertView.findViewById(R.id.personal_text);
+                    g_personalText.setText("\"" + c_personalText + "\"");
+                    g_personalText.setVisibility(View.VISIBLE);
+                }
+                for(int i=0; i<c_numberOfStars; ++i){
+                    CircularNetworkImageView star = new CircularNetworkImageView(this);
+                    star.setImageUrl(c_urlOfStars, imageLoader);
+
+                    //Remove spacing between stars...
+                    //Don't know why this is happening in the first place
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.setMargins(-30, 0, -30, 0);
+                    star.setLayoutParams(params);
+
+                    g_stars_holder.addView(star, 0);
+                    g_stars_holder.setVisibility(View.VISIBLE);
+                }
+
+                /* --Header expand/collapse"-like functionality-- */
+
+                header.setOnClickListener(new View.OnClickListener(){
                     @Override
-                    public void onClick(View v) {
-                        visibilityChangeAnimate(cardExpandable);
-                    }
-                });
-
-                //Also when post is clicked
-                post.setOnTouchListener(new View.OnTouchListener() {
-
-                    final static int FINGER_RELEASED = 0;
-                    final static int FINGER_TOUCHED = 1;
-                    final static int FINGER_DRAGGING = 2;
-                    final static int FINGER_UNDEFINED = 3;
-
-                    private int fingerState = FINGER_RELEASED;
-
-                    @Override
-                    public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                        switch (motionEvent.getAction()) {
-
-                            case MotionEvent.ACTION_DOWN:
-                                if (fingerState == FINGER_RELEASED)
-                                    fingerState = FINGER_TOUCHED;
-                                else
-                                    fingerState = FINGER_UNDEFINED;
-                                break;
-
-                            case MotionEvent.ACTION_UP:
-                                fingerState = FINGER_RELEASED;
-
-                                //If this was a link don't expand the card
-                                WebView.HitTestResult htResult = post.getHitTestResult();
-                                if (htResult.getExtra() != null
-                                        && htResult.getExtra() != null)
-                                    return false;
-
-                                //Expand/Collapse card
-                                visibilityChangeAnimate(cardExpandable);
-                                break;
-
-                            case MotionEvent.ACTION_MOVE:
-                                if (fingerState == FINGER_TOUCHED || fingerState == FINGER_DRAGGING) fingerState = FINGER_DRAGGING;
-                                else fingerState = FINGER_UNDEFINED;
-                                break;
-
-                            default:
-                                fingerState = FINGER_UNDEFINED;
-
-                        }
-                        return false;
+                    public void onClick(View v){
+                        animateUserExtraInfoVisibility(userExtraInfo);
                     }
                 });
             }
+
+            /* --"Card expand/collapse"-like functionality-- */
+
+            //Should expand/collapse when card is touched
+            cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    animatePostExtraInfoVisibility(cardExpandable);
+                }
+            });
+
+            //Also when post is clicked
+            post.setOnTouchListener(new View.OnTouchListener() {
+
+                final static int FINGER_RELEASED = 0;
+                final static int FINGER_TOUCHED = 1;
+                final static int FINGER_DRAGGING = 2;
+                final static int FINGER_UNDEFINED = 3;
+
+                private int fingerState = FINGER_RELEASED;
+
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                    switch (motionEvent.getAction()) {
+
+                        case MotionEvent.ACTION_DOWN:
+                            if (fingerState == FINGER_RELEASED)
+                                fingerState = FINGER_TOUCHED;
+                            else
+                                fingerState = FINGER_UNDEFINED;
+                            break;
+
+                        case MotionEvent.ACTION_UP:
+                            fingerState = FINGER_RELEASED;
+
+                            //If this was a link don't expand the card
+                            WebView.HitTestResult htResult = post.getHitTestResult();
+                            if (htResult.getExtra() != null
+                                    && htResult.getExtra() != null)
+                                return false;
+
+                            //Expand/Collapse card
+                            animatePostExtraInfoVisibility(cardExpandable);
+                            break;
+
+                        case MotionEvent.ACTION_MOVE:
+                            if (fingerState == FINGER_TOUCHED || fingerState == FINGER_DRAGGING)
+                                fingerState = FINGER_DRAGGING;
+                            else fingerState = FINGER_UNDEFINED;
+                            break;
+
+                        default:
+                            fingerState = FINGER_UNDEFINED;
+
+                    }
+                    return false;
+                }
+            });
+
             /* --"Card expand/collapse"-like functionality end-- */
 
             //Add view to the linear layout that holds all posts
@@ -542,18 +691,18 @@ public class TopicActivity extends BaseActivity {
     }
 //--------------------------------------POPULATE UI METHOD END--------------------------------------
 
-//---------------------------------VISIBILITY CHANGE ANIMATE METHOD---------------------------------
+//--------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD--------------------------
     //Method that animates views visibility changes
-    private void visibilityChangeAnimate(final View mCard){
+    private void animatePostExtraInfoVisibility(final View dateAndPostNum){
         //If the view is gone fade it in
-        if (mCard.getVisibility() == View.GONE) {
-            mCard.clearAnimation();
+        if (dateAndPostNum.getVisibility() == View.GONE) {
+            dateAndPostNum.clearAnimation();
             // Prepare the View for the animation
-            mCard.setVisibility(View.VISIBLE);
-            mCard.setAlpha(0.0f);
+            dateAndPostNum.setVisibility(View.VISIBLE);
+            dateAndPostNum.setAlpha(0.0f);
 
             // Start the animation
-            mCard.animate()
+            dateAndPostNum.animate()
                     .translationY(0)
                     .alpha(1.0f)
                     .setDuration(300)
@@ -561,29 +710,71 @@ public class TopicActivity extends BaseActivity {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
-                            mCard.setVisibility(View.VISIBLE);
+                            dateAndPostNum.setVisibility(View.VISIBLE);
                         }
                     });
         }
         //If the view is visible fade it out
         else {
-            mCard.clearAnimation();
+            dateAndPostNum.clearAnimation();
 
             // Start the animation
-            mCard.animate()
-                    .translationY(mCard.getHeight())
+            dateAndPostNum.animate()
+                    .translationY(dateAndPostNum.getHeight())
                     .alpha(0.0f)
                     .setDuration(300)
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
-                            mCard.setVisibility(View.GONE);
+                            dateAndPostNum.setVisibility(View.GONE);
                         }
                     });
         }
     }
-//-------------------------------VISIBILITY CHANGE ANIMATE METHOD END-------------------------------
+//------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD END------------------------
+
+//--------------------------USER'S INFO VISIBILITY CHANGE ANIMATION METHOD--------------------------
+    //Method that animates views visibility changes
+    private void animateUserExtraInfoVisibility(final View userExtra){
+        //If the view is gone fade it in
+        if (userExtra.getVisibility() == View.GONE) {
+
+            userExtra.clearAnimation();
+            userExtra.setVisibility(View.VISIBLE);
+            userExtra.setAlpha(0.0f);
+
+            userExtra.animate()
+                    .translationY(0)
+                    .alpha(1.0f)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            userExtra.setVisibility(View.VISIBLE);
+                        }
+                    });
+        }
+        //If the view is visible fade it out
+        else {
+            userExtra.clearAnimation();
+
+            // Start the animation
+            userExtra.animate()
+                    .translationY(userExtra.getHeight())
+                    .alpha(0.0f)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            userExtra.setVisibility(View.GONE);
+                        }
+                    });
+        }
+    }
+//------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD END------------------------
 
 //--------------------------------------CUSTOM WEBVIEW CLIENT---------------------------------------
     private class LinkLauncher extends WebViewClient {

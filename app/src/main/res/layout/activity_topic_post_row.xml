@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="wrap_content"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
               android:paddingEnd="4dp"
@@ -62,14 +62,17 @@
                 android:id="@+id/header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp">
 
                 <FrameLayout
                     android:id="@+id/thumbnail_holder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_centerVertical="true">
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp">
 
                     <gr.thmmy.mthmmy.utils.CircularNetworkImageView
                         android:id="@+id/thumbnail"
@@ -85,8 +88,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_marginEnd="5dp"
-                    android:layout_marginStart="16dp"
                     android:layout_toEndOf="@+id/thumbnail_holder"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -99,14 +100,77 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/username"
-                    android:layout_marginStart="16dp"
                     android:layout_toEndOf="@+id/thumbnail_holder"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="@string/subject"
                     />
-
             </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/user_extra_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="3dp"
+                android:visibility="gone"
+                android:weightSum="1.0">
+
+                <TextView
+                    android:id="@+id/special_rank"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/card_expand_text_color"
+                    android:textSize="10sp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/rank"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/card_expand_text_color"
+                    android:textSize="10sp"
+                    android:visibility="gone"/>
+
+                <LinearLayout
+                    android:id="@+id/stars"
+                    android:layout_width="wrap_content"
+                    android:layout_height="12dp"
+                    android:layout_marginTop="2dp"
+                    android:weightSum="0"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/card_expand_text_color"
+                    android:textSize="10sp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/number_of_posts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/card_expand_text_color"
+                    android:textSize="10sp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/personal_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/card_expand_text_color"
+                    android:textSize="10sp"
+                    android:textStyle="italic"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
 
             <View
                 android:id="@+id/divider"
@@ -115,6 +179,7 @@
                 android:layout_marginBottom="9dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
                 android:background="@color/divider"/>
 
             <FrameLayout
