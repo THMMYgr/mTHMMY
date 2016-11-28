@@ -836,3 +836,9 @@ ul#topmenu li a:hover
 	z-index: 90;
 	width: 100%;
 }
+
+img
+{
+    max-width:100% !important;
+    height:auto !important;
+}

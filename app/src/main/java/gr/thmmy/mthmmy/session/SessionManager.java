@@ -230,6 +230,7 @@ public class SessionManager
         } finally {
             //All data should always be cleared from device regardless the result of logout
             clearSessionData();
+            guestLogin();
         }
     }
     //--------------------------------------AUTH ENDS-----------------------------------------------

@@ -187,7 +187,6 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         protected void onPostExecute(Integer result)
         {
             Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
-            sessionManager.guestLogin(); //Fall to guest login
             hideLogout();
             progressDialog.dismiss();
         }
