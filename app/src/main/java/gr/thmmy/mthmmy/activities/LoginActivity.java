@@ -128,10 +128,10 @@ public class LoginActivity extends BaseActivity {
         protected void onPreExecute() { //Show a progress dialog until done
             btnLogin.setEnabled(false); //Login button shouldn't be pressed during this
 
-            progressDialog = new ProgressDialog(LoginActivity.this,R.style.MyProgressDialog);
-            progressDialog.setTitle("Please Wait");
-            progressDialog.setMessage("Authenticating...");
+            progressDialog = new ProgressDialog(LoginActivity.this,R.style.AppTheme_Dark_Dialog);
+            progressDialog.setCancelable(false);
             progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Authenticating...");
             progressDialog.show();
         }
 
