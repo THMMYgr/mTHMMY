@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
 
+import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
 import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;
 import static gr.thmmy.mthmmy.session.SessionManager.FAILURE;
 import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
@@ -154,18 +155,19 @@ public class LoginActivity extends BaseActivity {
                     break;
                 case WRONG_PASSWORD:
                     Toast.makeText(getApplicationContext(),
-                            "Wrong password!", Toast.LENGTH_LONG)
-                            .show();
+                            "Wrong password!", Toast.LENGTH_LONG).show();
                     break;
                 case FAILURE:
                     Toast.makeText(getApplicationContext(),
-                            "Login failed...", Toast.LENGTH_LONG)
-                            .show();
+                            "Login failed...", Toast.LENGTH_LONG).show();
+                    break;
+                case CONNECTION_ERROR:
+                    Toast.makeText(getApplicationContext(),
+                            "Connection Error", Toast.LENGTH_LONG).show();
                     break;
                 case EXCEPTION:
                     Toast.makeText(getApplicationContext(),
-                            "Login failed...", Toast.LENGTH_LONG)
-                            .show();
+                            "Error", Toast.LENGTH_LONG).show();
                     break;
 
             }

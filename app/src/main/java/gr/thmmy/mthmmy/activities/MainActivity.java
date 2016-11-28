@@ -164,6 +164,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
 
 //-------------------------------------------LOGOUT-------------------------------------------------
+/**
+ *  Result toast will always display a success, because when user chooses logout all data are
+ *  cleared regardless of the actual outcome
+ */
     private class LogoutTask extends AsyncTask<Void, Void, Integer> { //Attempt logout
         ProgressDialog progressDialog;
 
@@ -171,7 +175,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
             return sessionManager.logout();
         }
 
-        protected void onPreExecute() { //Show a progress dialog until done
+        protected void onPreExecute()
+        { //Show a progress dialog until done
             progressDialog = new ProgressDialog(MainActivity.this,
                     R.style.AppTheme);
             progressDialog.setIndeterminate(true);
@@ -179,16 +184,12 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
             progressDialog.show();
         }
 
-        protected void onPostExecute(Integer result) { //Handle attempt result
-            progressDialog.dismiss(); //Hide progress dialog
-            if (result == LOGGED_OUT)  //Successful logout
-            {
-                Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
-                sessionManager.guestLogin(); //Fall to guest login
-                hideLogout();
-            }
-            else //Logout failed
-                hideLogin();
+        protected void onPostExecute(Integer result)
+        {
+            Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
+            sessionManager.guestLogin(); //Fall to guest login
+            hideLogout();
+            progressDialog.dismiss();
         }
     }
 //-----------------------------------------LOGOUT END-----------------------------------------------

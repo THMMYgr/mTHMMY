@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +26,7 @@ import okhttp3.Response;
 
 /**
     This class handles all session related operations (e.g. login, logout)
-    and stores data to SharedPreferences (session informarion and cookies).
+    and stores data to SharedPreferences (session information and cookies).
 */
 public class SessionManager
 {
@@ -42,7 +43,8 @@ public class SessionManager
     public static final int FAILURE = 1;    //Generic Error
     public static final int WRONG_USER = 2;
     public static final int WRONG_PASSWORD = 3;
-    public static final int EXCEPTION = 4;
+    public static final int CONNECTION_ERROR = 4;
+    public static final int EXCEPTION = 5;
 
     //Login status codes
     public static final int LOGGED_OUT = 0;
@@ -145,8 +147,13 @@ public class SessionManager
                 return FAILURE;
             }
             //Handle exception
-        } catch (Exception e) {
-            Log.w(TAG, "Login Exception: "+ e.getMessage(), e);
+        }
+        catch (IOException e) {
+            Log.w(TAG, "Login IOException: "+ e.getMessage(), e);
+            return CONNECTION_ERROR;
+        }
+        catch (Exception e) {
+            Log.w(TAG, "Login Exception (other): "+ e.getMessage(), e);
             return EXCEPTION;
         }
     }
@@ -154,9 +161,11 @@ public class SessionManager
     /**
      *  A function that checks the validity of the current saved session (if it exists).
      *  If LOGIN_STATUS is true, it will call login() with cookies. This can only return
-     *  the codes {SUCCESS, FAILURE, EXCEPTION}. EXCEPTION is considered a SUCCESS (e.g. no internet
-     *  connection), at least until a more thorough handling of different exceptions is implemented.
-     *  Always call it in a separate thread.
+     *  the codes {SUCCESS, FAILURE, CONNECTION_ERROR, EXCEPTION}. CONNECTION_ERROR and EXCEPTION
+     *  are simply considered a SUCCESS (e.g. no internet connection), at least until a more
+     *  thorough handling of different exceptions is implemented (if considered mandatory).
+     *  Always call it in a separate thread in a way that won't hinder performance (e.g. after
+     *  fragments' data are retrieved).
      */
     public void validateSession()
     {
@@ -167,7 +176,7 @@ public class SessionManager
         if(status==LOGGED_IN)
         {
             int loginResult = login();
-            if(loginResult == SUCCESS || loginResult == EXCEPTION)
+            if(loginResult == SUCCESS || loginResult == CONNECTION_ERROR || loginResult == EXCEPTION)
                 return;
         }
         else if(status==AS_GUEST)
@@ -208,19 +217,19 @@ public class SessionManager
             {
                 Log.i("Logout", "Logout successful!");
                 return SUCCESS;
-            }
-            else
-            {
+            } else {
                 Log.i(TAG, "Logout failed.");
                 return FAILURE;
             }
+        } catch (IOException e) {
+            Log.w(TAG, "Logout IOException: "+ e.getMessage(), e);
+            return CONNECTION_ERROR;
         } catch (Exception e) {
             Log.w(TAG, "Logout Exception: "+ e.getMessage(), e);
             return EXCEPTION;
         } finally {
             //All data should always be cleared from device regardless the result of logout
             clearSessionData();
-            Log.i(TAG,"Session data cleared.");
         }
     }
     //--------------------------------------AUTH ENDS-----------------------------------------------
@@ -228,10 +237,6 @@ public class SessionManager
     //---------------------------------------GETTERS------------------------------------------------
     public String getUsername() {
         return sharedPrefs.getString(USERNAME, "Username");
-    }
-
-    public String getLogoutLink() {
-        return sharedPrefs.getString(LOGOUT_LINK, "LogoutLink");
     }
 
     public int getLogStatus() {
@@ -266,8 +271,9 @@ public class SessionManager
     {
         cookieJar.clear();
         sharedPrefs.edit().clear().apply(); //Clear session data
-        sharedPrefs.edit().putString(USERNAME, guestName).apply();  //User becomes guest
-        sharedPrefs.edit().putInt(LOGIN_STATUS, LOGGED_OUT).apply();
+        sharedPrefs.edit().putString(USERNAME, guestName).apply();
+        sharedPrefs.edit().putInt(LOGIN_STATUS, LOGGED_OUT).apply(); //User logs out
+        Log.i(TAG,"Session data cleared.");
     }
 
     private String extractUserName(Document doc)
