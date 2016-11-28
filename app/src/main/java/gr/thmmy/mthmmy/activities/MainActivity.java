@@ -178,7 +178,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         protected void onPreExecute()
         { //Show a progress dialog until done
             progressDialog = new ProgressDialog(MainActivity.this,
-                    R.style.AppTheme);
+                    R.style.MyProgressDialog);
             progressDialog.setIndeterminate(true);
             progressDialog.setMessage("Logging out...");
             progressDialog.show();
