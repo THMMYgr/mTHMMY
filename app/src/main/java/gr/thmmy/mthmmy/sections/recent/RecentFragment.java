@@ -27,7 +27,9 @@ import java.util.regex.Pattern;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -202,7 +204,7 @@ public class RecentFragment extends Fragment {
 
     public class RecentTask extends AsyncTask<Void, Void, Integer> {
         private static final String TAG = "RecentTask";
-        private final String thmmyUrl = "https://www.thmmy.gr/smf/index.php";
+        private final HttpUrl thmmyUrl = SessionManager.indexUrl;
 
         private Document document;
 

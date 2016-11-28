@@ -12,6 +12,12 @@ import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
 
+import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;
+import static gr.thmmy.mthmmy.session.SessionManager.FAILURE;
+import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
+import static gr.thmmy.mthmmy.session.SessionManager.WRONG_PASSWORD;
+import static gr.thmmy.mthmmy.session.SessionManager.WRONG_USER;
+
 public class LoginActivity extends BaseActivity {
 
 //-----------------------------------------CLASS VARIABLES------------------------------------------
@@ -64,8 +70,7 @@ public class LoginActivity extends BaseActivity {
 
             public void onClick(View view) {
                 //Session data update
-                _prefs.edit().putString(USER_NAME, GUEST_PREF_USERNAME).apply();
-                _prefs.edit().putInt(LOG_STATUS, LOGGED_IN).apply();
+                sessionManager.guestLogin();
 
                 //Go to main
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -115,8 +120,7 @@ public class LoginActivity extends BaseActivity {
 
         @Override
         protected Integer doInBackground(String... params) {
-            Thmmy.login(params[0], params[1], "-1"); //Attempt login
-            return _prefs.getInt(LOG_STATUS, OTHER_ERROR);
+            return sessionManager.login(params[0], params[1]);
         }
 
         @Override
@@ -134,31 +138,7 @@ public class LoginActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Integer result) { //Handle attempt result
             switch (result) {
-                case WRONG_USER:
-                    Toast.makeText(getApplicationContext(),
-                            "Wrong username!", Toast.LENGTH_LONG).show();
-                    break;
-                case WRONG_PASSWORD:
-                    Toast.makeText(getApplicationContext(),
-                            "Wrong password!", Toast.LENGTH_LONG)
-                            .show();
-                    break;
-                case FAILED:
-                    Toast.makeText(getApplicationContext(),
-                            "Check your connection!", Toast.LENGTH_LONG)
-                            .show();
-                    break;
-                case CERTIFICATE_ERROR:
-                    Toast.makeText(getApplicationContext(),
-                            "Certificate error!", Toast.LENGTH_LONG)
-                            .show();
-                    break;
-                case OTHER_ERROR:
-                    Toast.makeText(getApplicationContext(),
-                            "Check your connection!", Toast.LENGTH_LONG)
-                            .show();
-                    break;
-                case LOGGED_IN: //Successful login
+                case SUCCESS: //Successful login
                     Toast.makeText(getApplicationContext(),
                             "Login successful!", Toast.LENGTH_LONG)
                             .show();
@@ -168,6 +148,26 @@ public class LoginActivity extends BaseActivity {
                     finish();
                     overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                     break;
+                case WRONG_USER:
+                    Toast.makeText(getApplicationContext(),
+                            "Wrong username!", Toast.LENGTH_LONG).show();
+                    break;
+                case WRONG_PASSWORD:
+                    Toast.makeText(getApplicationContext(),
+                            "Wrong password!", Toast.LENGTH_LONG)
+                            .show();
+                    break;
+                case FAILURE:
+                    Toast.makeText(getApplicationContext(),
+                            "Login failed...", Toast.LENGTH_LONG)
+                            .show();
+                    break;
+                case EXCEPTION:
+                    Toast.makeText(getApplicationContext(),
+                            "Login failed...", Toast.LENGTH_LONG)
+                            .show();
+                    break;
+
             }
             //Login failed
             btnLogin.setEnabled(true); //Re-enable login button

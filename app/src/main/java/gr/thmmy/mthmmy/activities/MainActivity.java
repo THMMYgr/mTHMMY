@@ -14,13 +14,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.Objects;
-
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.sections.recent.RecentFragment;
 
-import static gr.thmmy.mthmmy.activities.BaseActivity.Thmmy.logout;
+import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
+import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_OUT;
 
 public class MainActivity extends BaseActivity implements RecentFragment.OnListFragmentInteractionListener {
 
@@ -33,7 +32,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (_prefs.getInt(LOG_STATUS, OTHER_ERROR) != LOGGED_IN) { //If not logged in
+        if (sessionManager.getLogStatus()== LOGGED_OUT) { //If not logged in
             //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -69,13 +68,11 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        if (_prefs.getInt(LOG_STATUS, OTHER_ERROR) == LOGGED_IN
-                && !Objects.equals(_prefs.getString(USER_NAME, null), GUEST_PREF_USERNAME)) {
-            //Will enter when logged out or if user is guest
-            hideLogin();
-        } else
-            //Will enter when logged in
+        if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
             hideLogout();
+        else
+            hideLogin();
+
 
         return true;
     }
@@ -171,7 +168,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         ProgressDialog progressDialog;
 
         protected Integer doInBackground(Void... voids) {
-            return logout();
+            return sessionManager.logout();
         }
 
         protected void onPreExecute() { //Show a progress dialog until done
@@ -184,15 +181,13 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
 
         protected void onPostExecute(Integer result) { //Handle attempt result
             progressDialog.dismiss(); //Hide progress dialog
-            if (result == LOGGED_OUT) { //Successful logout
-                /*
-                    At this point result is LOGGED_OUT
-                    BUT pref's LOGIN_STATUS variable is LOGGED_IN!!
-                    and USER_NAME is GUEST
-                */
+            if (result == LOGGED_OUT)  //Successful logout
+            {
                 Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
+                sessionManager.guestLogin(); //Fall to guest login
                 hideLogout();
-            } else //Logout failed
+            }
+            else //Logout failed
                 hideLogin();
         }
     }
