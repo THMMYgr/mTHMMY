@@ -41,4 +41,10 @@
         <item name="android:background">@color/primary</item>
     </style>
 
+    <style name="MyProgressDialog" parent="Theme.AppCompat.Dialog"> 
+        <item name="colorAccent">@color/black</item> 
+        <item name="android:textColor">@color/secondary_text</item> 
+    </style>
+
+
 </resources>

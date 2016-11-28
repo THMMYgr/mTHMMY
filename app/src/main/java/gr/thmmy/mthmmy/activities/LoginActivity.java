@@ -21,7 +21,7 @@ import static gr.thmmy.mthmmy.session.SessionManager.WRONG_USER;
 
 public class LoginActivity extends BaseActivity {
 
-//-----------------------------------------CLASS VARIABLES------------------------------------------
+    //-----------------------------------------CLASS VARIABLES------------------------------------------
     /* --Graphics-- */
     private Button btnLogin;
     private EditText inputUsername;
@@ -114,7 +114,7 @@ public class LoginActivity extends BaseActivity {
         return valid;
     }
 
-//--------------------------------------------LOGIN-------------------------------------------------
+    //--------------------------------------------LOGIN-------------------------------------------------
     private class LoginTask extends AsyncTask<String, Void, Integer> {
         //Class variables
         ProgressDialog progressDialog;
@@ -128,10 +128,10 @@ public class LoginActivity extends BaseActivity {
         protected void onPreExecute() { //Show a progress dialog until done
             btnLogin.setEnabled(false); //Login button shouldn't be pressed during this
 
-            progressDialog = new ProgressDialog(LoginActivity.this,
-                    R.style.AppTheme);
-            progressDialog.setIndeterminate(true);
+            progressDialog = new ProgressDialog(LoginActivity.this,R.style.MyProgressDialog);
+            progressDialog.setTitle("Please Wait");
             progressDialog.setMessage("Authenticating...");
+            progressDialog.setIndeterminate(true);
             progressDialog.show();
         }
 
