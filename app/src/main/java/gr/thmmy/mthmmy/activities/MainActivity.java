@@ -16,12 +16,13 @@ import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.sections.forum.ForumFragment;
 import gr.thmmy.mthmmy.sections.recent.RecentFragment;
 
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_OUT;
 
-public class MainActivity extends BaseActivity implements RecentFragment.OnListFragmentInteractionListener {
+public class MainActivity extends BaseActivity implements RecentFragment.OnListFragmentInteractionListener, ForumFragment.OnListFragmentInteractionListener {
 
 //----------------------------------------CLASS VARIABLES-----------------------------------------
     private static final String TAG = "MainActivity";
@@ -138,14 +139,16 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return RecentFragment.newInstance(position + 1);
+            switch(position) {
+                case 0: return RecentFragment.newInstance(position +1);
+                case 1: return ForumFragment.newInstance(position +1);
+                default: return RecentFragment.newInstance(position +1); //temp (?)
+            }
         }
 
         @Override
         public int getCount() {
-            // Show 1 total pages.
+            // Show 2 total pages.
             return 2;
         }
 
