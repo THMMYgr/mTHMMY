@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -92,7 +93,6 @@ public class TopicActivity extends BaseActivity {
     private static final String TAG = "TopicActivity";
     private String topicTitle;
     private String parsedTitle;
-    private ActionBar actionbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +101,13 @@ public class TopicActivity extends BaseActivity {
 
         Bundle extras = getIntent().getExtras();
         topicTitle = getIntent().getExtras().getString("TOPIC_TITLE");
+
+        //Initialize toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(topicTitle);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //Variables initialization
         postsLinearLayout = (LinearLayout) findViewById(R.id.posts_list);
@@ -112,10 +119,6 @@ public class TopicActivity extends BaseActivity {
 
         postsList = new ArrayList<>();
 
-        actionbar = getSupportActionBar();
-        if (actionbar != null)
-            if(!Objects.equals(topicTitle, ""))
-                actionbar.setTitle(topicTitle);
 
         firstPage = (ImageButton) findViewById(R.id.page_first_button);
         previousPage = (ImageButton) findViewById(R.id.page_previous_button);
@@ -504,8 +507,8 @@ public class TopicActivity extends BaseActivity {
         //Set topic title if not already present
         if (topicTitle == null || Objects.equals(topicTitle, "")) {
             topicTitle = parsedTitle;
-            if (actionbar != null){
-                actionbar.setTitle(topicTitle);
+            if (toolbar != null){
+                toolbar.setTitle(topicTitle);
             }
         }
 

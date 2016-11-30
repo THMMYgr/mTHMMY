@@ -1,7 +1,5 @@
 package gr.thmmy.mthmmy.data;
 
-import android.util.Log;
-
 public class Post {
     //Standard info
     private final String thumbnailUrl;

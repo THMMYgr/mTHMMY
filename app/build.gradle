@@ -9,8 +9,8 @@ android {
         applicationId "gr.thmmy.mthmmy"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 3
-        versionName "0.17"
+        versionCode 4
+        versionName "0.2"
     }
     buildTypes {
         release {
@@ -35,4 +35,5 @@ dependencies {
     compile('com.mikepenz:materialdrawer:5.7.0@aar') {
         transitive = true
     }
+    compile 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
 }
