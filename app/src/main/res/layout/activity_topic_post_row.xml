@@ -7,7 +7,7 @@
               android:paddingStart="4dp">
 
     <FrameLayout
-        android:id="@+id/card_expandable"
+        android:id="@+id/post_date_and_number_exp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"
@@ -62,6 +62,7 @@
                 android:id="@+id/header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingTop="16dp">

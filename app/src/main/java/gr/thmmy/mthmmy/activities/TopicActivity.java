@@ -10,8 +10,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.CardView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -58,6 +60,8 @@ public class TopicActivity extends BaseActivity {
     private LinearLayout postsLinearLayout;
     private static final int NO_POST_FOCUS = -1;
     private int postFocus = NO_POST_FOCUS;
+    //Quote
+    //TODO
     /* --Posts end-- */
     /* --Topic's pages-- */
     private int thisPage = 1;
@@ -76,7 +80,6 @@ public class TopicActivity extends BaseActivity {
     /* --Topic's pages end-- */
     /* --Thumbnail-- */
     private static final int THUMBNAIL_SIZE = 80;
-    private static final int THUMBNAIL_PADDING = 16;
     private ImageLoader imageLoader = ImageController.getInstance().getImageLoader();
     /* --Thumbnail end-- */
 
@@ -484,7 +487,12 @@ public class TopicActivity extends BaseActivity {
 //-------------------------------------TOPIC ASYNC TASK END-----------------------------------------
 
 //----------------------------------------POPULATE UI METHOD----------------------------------------
-    private void populateLayout() { //Show parsed data
+
+    /**
+     * This method runs on the main thread. It reads from the postsList and dynamically
+     * adds a card for each post to the ScrollView.
+     */
+    private void populateLayout() {
         //Set topic title if not already present
         if (topicTitle == null || Objects.equals(topicTitle, "")) {
             topicTitle = parsedTitle;
@@ -497,23 +505,27 @@ public class TopicActivity extends BaseActivity {
         LayoutInflater inflater = (LayoutInflater) getApplicationContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
+        //Create a card for each post
         for (Post item : postsList) {
             //Inflate a topic post row layout
             View convertView = inflater.inflate(R.layout.activity_topic_post_row
                     , postsLinearLayout, false);
 
+            //Get an ImageLoader instance
             if (imageLoader == null)
                 imageLoader = ImageController.getInstance().getImageLoader();
 
             //Initialize layout's graphic elements
-            final FrameLayout cardExpandable = (FrameLayout) convertView.findViewById(R.id.card_expandable);
+            //Basic stuff
+            final CardView cardView = (CardView) convertView.findViewById(R.id.card_view);
+            final FrameLayout postDateAndNumberExp = (FrameLayout) convertView.findViewById(R.id.post_date_and_number_exp);
             TextView postDate = (TextView) convertView.findViewById(R.id.post_date);
             TextView postNum = (TextView) convertView.findViewById(R.id.post_number);
             CircularNetworkImageView thumbnail = (CircularNetworkImageView) convertView.findViewById(R.id.thumbnail);
-            TextView username = (TextView) convertView.findViewById(R.id.username);
-            TextView subject = (TextView) convertView.findViewById(R.id.subject);
+            final TextView username = (TextView) convertView.findViewById(R.id.username);
+            final TextView subject = (TextView) convertView.findViewById(R.id.subject);
             final WebView post = (WebView) convertView.findViewById(R.id.post);
-            final CardView cardView = (CardView) convertView.findViewById(R.id.card_view);
+            //User's extra
             RelativeLayout header = (RelativeLayout) convertView.findViewById(R.id.header);
             final LinearLayout userExtraInfo = (LinearLayout) convertView.findViewById(R.id.user_extra_info);
 
@@ -545,12 +557,13 @@ public class TopicActivity extends BaseActivity {
             else
                 postNum.setText("");
 
-            //Subject set
+            //Post's subject set
             subject.setText(item.getSubject());
 
             //Post's text set
             post.loadDataWithBaseURL("file:///android_asset/", item.getContent(), "text/html", "UTF-8", null);
 
+            //If user is not deleted then we have more to do
             if(!item.isDeleted()) { //Set extra info
                 //Variables for Graphics
                 TextView g_specialRank, g_rank, g_gender, g_numberOfPosts, g_personalText;
@@ -600,14 +613,17 @@ public class TopicActivity extends BaseActivity {
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
                     );
-                    params.setMargins(-30, 0, -30, 0);
+                    params.setMargins((int) getResources().getDimension(R.dimen.stars_margin)
+                            , 0
+                            , (int) getResources().getDimension(R.dimen.stars_margin)
+                            , 0);
                     star.setLayoutParams(params);
 
                     g_stars_holder.addView(star, 0);
                     g_stars_holder.setVisibility(View.VISIBLE);
                 }
 
-                /* --Header expand/collapse"-like functionality-- */
+                /* --Header expand/collapse functionality-- */
 
                 header.setOnClickListener(new View.OnClickListener(){
                     @Override
@@ -615,21 +631,45 @@ public class TopicActivity extends BaseActivity {
                         animateUserExtraInfoVisibility(userExtraInfo);
                     }
                 });
+
+                //Clicking the expanded part of a header should collapse the extra info
+                userExtraInfo.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v){
+                        animateUserExtraInfoVisibility(v);
+                    }
+                });
+                /* --Header expand/collapse functionality end-- */
             }
 
-            /* --"Card expand/collapse"-like functionality-- */
+            /* --Card expand/collapse functionality-- */
 
             //Should expand/collapse when card is touched
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    animatePostExtraInfoVisibility(cardExpandable);
+                    animatePostExtraInfoVisibility(postDateAndNumberExp, username, subject);
                 }
             });
 
             //Also when post is clicked
             post.setOnTouchListener(new View.OnTouchListener() {
+                //Long press handling
+                private final int LONG_PRESS_DURATION = 1000;
+                private final Handler webViewLongClickHandler = new Handler();
+                private boolean wasLongClick = false;
+                private float downCoordinateX;
+                private float downCoordinateY;
+                private final float SCROLL_THRESHOLD = 7;
 
+                Runnable WebViewLongClick = new Runnable() {
+                    public void run() {
+                        wasLongClick = true;
+                        //TODO
+                    }
+                };
+
+                //Other variables
                 final static int FINGER_RELEASED = 0;
                 final static int FINGER_TOUCHED = 1;
                 final static int FINGER_DRAGGING = 2;
@@ -643,26 +683,40 @@ public class TopicActivity extends BaseActivity {
                     switch (motionEvent.getAction()) {
 
                         case MotionEvent.ACTION_DOWN:
+                            downCoordinateX = motionEvent.getX();
+                            downCoordinateY = motionEvent.getY();
                             if (fingerState == FINGER_RELEASED)
                                 fingerState = FINGER_TOUCHED;
                             else
                                 fingerState = FINGER_UNDEFINED;
+                            //Start long click runnable
+                            webViewLongClickHandler.postDelayed(WebViewLongClick
+                                    , LONG_PRESS_DURATION);
                             break;
 
                         case MotionEvent.ACTION_UP:
                             fingerState = FINGER_RELEASED;
+                            webViewLongClickHandler.removeCallbacks(WebViewLongClick);
 
-                            //If this was a link don't expand the card
-                            WebView.HitTestResult htResult = post.getHitTestResult();
-                            if (htResult.getExtra() != null
-                                    && htResult.getExtra() != null)
-                                return false;
-
-                            //Expand/Collapse card
-                            animatePostExtraInfoVisibility(cardExpandable);
+                            if(!wasLongClick) {
+                                //If this was a link don't expand the card
+                                WebView.HitTestResult htResult = post.getHitTestResult();
+                                if (htResult.getExtra() != null
+                                        && htResult.getExtra() != null)
+                                    return false;
+                                //Else expand/collapse card
+                                cardView.performClick();
+                            }
+                            else
+                                wasLongClick = false;
                             break;
 
                         case MotionEvent.ACTION_MOVE:
+                            //If finger moved too much, cancel long click
+                            if (((Math.abs(downCoordinateX - motionEvent.getX()) > SCROLL_THRESHOLD ||
+                                    Math.abs(downCoordinateY - motionEvent.getY()) > SCROLL_THRESHOLD))) {
+                                webViewLongClickHandler.removeCallbacks(WebViewLongClick);
+                            }
                             if (fingerState == FINGER_TOUCHED || fingerState == FINGER_DRAGGING)
                                 fingerState = FINGER_DRAGGING;
                             else fingerState = FINGER_UNDEFINED;
@@ -676,7 +730,7 @@ public class TopicActivity extends BaseActivity {
                 }
             });
 
-            /* --"Card expand/collapse"-like functionality end-- */
+            /* --Card expand/collapse-like functionality end-- */
 
             //Add view to the linear layout that holds all posts
             postsLinearLayout.addView(convertView);
@@ -692,10 +746,23 @@ public class TopicActivity extends BaseActivity {
 //--------------------------------------POPULATE UI METHOD END--------------------------------------
 
 //--------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD--------------------------
-    //Method that animates views visibility changes
-    private void animatePostExtraInfoVisibility(final View dateAndPostNum){
+    /**
+     * Method that animates view's visibility changes for post's extra info
+     */
+    private void animatePostExtraInfoVisibility(final View dateAndPostNum, TextView username,
+                                                TextView subject) {
         //If the view is gone fade it in
         if (dateAndPostNum.getVisibility() == View.GONE) {
+            //Show full username
+            username.setMaxLines(Integer.MAX_VALUE); //As in the android sourcecode
+            username.setEllipsize(null);
+
+            //Show full subject
+            subject.setTextColor(ContextCompat.getColor(this, R.color.black));
+            subject.setMaxLines(Integer.MAX_VALUE); //As in the android sourcecode
+            subject.setEllipsize(null);
+
+
             dateAndPostNum.clearAnimation();
             // Prepare the View for the animation
             dateAndPostNum.setVisibility(View.VISIBLE);
@@ -716,6 +783,13 @@ public class TopicActivity extends BaseActivity {
         }
         //If the view is visible fade it out
         else {
+            username.setMaxLines(1); //As in the android sourcecode
+            username.setEllipsize(TextUtils.TruncateAt.END);
+
+            subject.setTextColor(ContextCompat.getColor(this, R.color.secondary_text));
+            subject.setMaxLines(1); //As in the android sourcecode
+            subject.setEllipsize(TextUtils.TruncateAt.END);
+
             dateAndPostNum.clearAnimation();
 
             // Start the animation
@@ -735,8 +809,11 @@ public class TopicActivity extends BaseActivity {
 //------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD END------------------------
 
 //--------------------------USER'S INFO VISIBILITY CHANGE ANIMATION METHOD--------------------------
-    //Method that animates views visibility changes
+    /**
+     * Method that animates view's visibility changes for user's extra info
+     */
     private void animateUserExtraInfoVisibility(final View userExtra){
+
         //If the view is gone fade it in
         if (userExtra.getVisibility() == View.GONE) {
 
@@ -744,6 +821,7 @@ public class TopicActivity extends BaseActivity {
             userExtra.setVisibility(View.VISIBLE);
             userExtra.setAlpha(0.0f);
 
+            // Start the animation
             userExtra.animate()
                     .translationY(0)
                     .alpha(1.0f)
@@ -777,7 +855,12 @@ public class TopicActivity extends BaseActivity {
 //------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD END------------------------
 
 //--------------------------------------CUSTOM WEBVIEW CLIENT---------------------------------------
-    private class LinkLauncher extends WebViewClient {
+    /**
+     * This class is used to handle link clicks in WebViews.
+     * When link url is one that the app can handle internally, it does.
+     * Otherwise user is prompt to open the link in a browser.
+     */
+    private class LinkLauncher extends WebViewClient { //Used to handle link clicks
         //Older versions
         @SuppressWarnings("deprecation")
         @Override
@@ -832,6 +915,11 @@ public class TopicActivity extends BaseActivity {
     }
 //------------------------------------CUSTOM WEBVIEW CLIENT END-------------------------------------
 
+//----------------------------------------REPETITIVE UPDATER----------------------------------------
+    /**
+     * This class is used to implement the repetitive increment/decrement of page value
+     * when long pressing one of the page navigation buttons.
+     */
     class RepetitiveUpdater implements Runnable {
         private final int step;
 
@@ -847,4 +935,5 @@ public class TopicActivity extends BaseActivity {
             }
         }
     }
+//--------------------------------------REPETITIVE UPDATER END--------------------------------------
 }
