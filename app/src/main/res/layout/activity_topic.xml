@@ -9,7 +9,7 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.MainActivity">
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
@@ -28,7 +28,7 @@
             android:paddingTop="4dp">
         </LinearLayout>
 
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/bottom_navigation_bar"
@@ -85,21 +85,7 @@
             android:background="@color/primary"
             android:contentDescription="@string/text_last"
             app:srcCompat="@drawable/page_last"/>
-
-        <Space
-            android:layout_width="80dp"
-            android:layout_height="match_parent"/>
     </LinearLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:elevation="12dp"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
-        app:srcCompat="@drawable/ic_add_fab"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -107,7 +93,17 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
+        android:layout_gravity="center"
         android:visibility="invisible"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="42dp"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
+        app:srcCompat="@drawable/ic_add_fab"/>
 </android.support.design.widget.CoordinatorLayout>
 
 
