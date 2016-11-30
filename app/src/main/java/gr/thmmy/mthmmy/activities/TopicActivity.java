@@ -434,7 +434,7 @@ public class TopicActivity extends BaseActivity {
                         if (line.contains("Posts:")) {
                             postsLineIndex = infoList.indexOf(line);
                             //Remove any line breaks and spaces on the start and end
-                            p_numberOfPosts = p_personalText.replace("\n", "")
+                            p_numberOfPosts = line.replace("\n", "")
                                     .replace("\r", "").trim();
                         }
                         if (line.contains("Gender:")) {
@@ -469,7 +469,8 @@ public class TopicActivity extends BaseActivity {
                         //If this line isn't empty and doesn't contain user's avatar
                         if (!Objects.equals(thisLine, "") && thisLine != null
                                 && !Objects.equals(thisLine, " \n")
-                                && !thisLine.contains("avatar")) {
+                                && !thisLine.contains("avatar")
+                                && !thisLine.contains("<a href=")) {
                             p_personalText = thisLine; //Then this line has user's personal text
                             //Remove any line breaks and spaces on the start and end
                             p_personalText = p_personalText.replace("\n", "")
