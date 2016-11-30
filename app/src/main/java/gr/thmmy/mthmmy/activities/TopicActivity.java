@@ -109,6 +109,8 @@ public class TopicActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        createDrawer();
+
         //Variables initialization
         postsLinearLayout = (LinearLayout) findViewById(R.id.posts_list);
 

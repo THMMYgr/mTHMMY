@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.sections.forum;
+package gr.thmmy.mthmmy.activities.main.forum;
 
 import android.content.Context;
 import android.os.AsyncTask;

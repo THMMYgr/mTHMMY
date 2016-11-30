@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.sections.recent;
+package gr.thmmy.mthmmy.activities.main.recent;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

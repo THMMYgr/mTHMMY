@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.sections.forum;
+package gr.thmmy.mthmmy.activities.main.forum;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,7 +10,7 @@ import java.util.List;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.TopicSummary;
-import gr.thmmy.mthmmy.sections.recent.RecentFragment;
+import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
 
 
 /**

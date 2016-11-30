@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.main.MainActivity;
 
 import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
 import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;

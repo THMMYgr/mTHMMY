@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.sections.recent;
+package gr.thmmy.mthmmy.activities.main.recent;
 
 import android.content.Context;
 import android.os.AsyncTask;

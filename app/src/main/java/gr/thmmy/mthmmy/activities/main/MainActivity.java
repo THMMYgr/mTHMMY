@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities;
+package gr.thmmy.mthmmy.activities.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +10,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.BaseActivity;
+import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.TopicActivity;
 import gr.thmmy.mthmmy.data.TopicSummary;
-import gr.thmmy.mthmmy.sections.forum.ForumFragment;
-import gr.thmmy.mthmmy.sections.recent.RecentFragment;
+import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
+import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
 
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_OUT;
 
