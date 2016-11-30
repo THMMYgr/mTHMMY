@@ -60,9 +60,10 @@ public class TopicActivity extends BaseActivity {
     private LinearLayout postsLinearLayout;
     private static final int NO_POST_FOCUS = -1;
     private int postFocus = NO_POST_FOCUS;
+
     //Quote
     //TODO
-    /* --Posts end-- */
+
     /* --Topic's pages-- */
     private int thisPage = 1;
     private String base_url = "";
@@ -77,11 +78,14 @@ public class TopicActivity extends BaseActivity {
     private static final int SMALL_STEP = 1;
     private static final int LARGE_STEP = 10;
     private Integer pageValue;
-    /* --Topic's pages end-- */
+    private ImageButton firstPage;
+    private ImageButton previousPage;
+    private ImageButton nextPage;
+    private ImageButton lastPage;
+
     /* --Thumbnail-- */
     private static final int THUMBNAIL_SIZE = 80;
     private ImageLoader imageLoader = ImageController.getInstance().getImageLoader();
-    /* --Thumbnail end-- */
 
     //Other variables
     private ProgressBar progressBar;
@@ -113,17 +117,20 @@ public class TopicActivity extends BaseActivity {
             if(!Objects.equals(topicTitle, ""))
                 actionbar.setTitle(topicTitle);
 
-
-        ImageButton firstPage = (ImageButton) findViewById(R.id.page_first_button);
-        ImageButton previousPage = (ImageButton) findViewById(R.id.page_previous_button);
+        firstPage = (ImageButton) findViewById(R.id.page_first_button);
+        previousPage = (ImageButton) findViewById(R.id.page_previous_button);
         pageIndicator = (TextView) findViewById(R.id.page_indicator);
-        ImageButton nextPage = (ImageButton) findViewById(R.id.page_next_button);
-        ImageButton lastPage = (ImageButton) findViewById(R.id.page_last_button);
+        nextPage = (ImageButton) findViewById(R.id.page_next_button);
+        lastPage = (ImageButton) findViewById(R.id.page_last_button);
 
         initDecrementButton(firstPage, LARGE_STEP);
         initDecrementButton(previousPage, SMALL_STEP);
         initIncrementButton(nextPage, SMALL_STEP);
         initIncrementButton(lastPage, LARGE_STEP);
+        firstPage.setEnabled(false);
+        previousPage.setEnabled(false);
+        nextPage.setEnabled(false);
+        lastPage.setEnabled(false);
 
         new TopicTask().execute(extras.getString("TOPIC_URL")); //Attempt data parsing
     }
@@ -501,6 +508,12 @@ public class TopicActivity extends BaseActivity {
             }
         }
 
+        //Now that parsing is complete and we have the url for every page enable page nav buttons
+        firstPage.setEnabled(true);
+        previousPage.setEnabled(true);
+        nextPage.setEnabled(true);
+        lastPage.setEnabled(true);
+
         //Initialize an inflater
         LayoutInflater inflater = (LayoutInflater) getApplicationContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -662,7 +675,7 @@ public class TopicActivity extends BaseActivity {
                 private float downCoordinateY;
                 private final float SCROLL_THRESHOLD = 7;
 
-                Runnable WebViewLongClick = new Runnable() {
+                final Runnable WebViewLongClick = new Runnable() {
                     public void run() {
                         wasLongClick = true;
                         //TODO

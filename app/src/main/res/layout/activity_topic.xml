@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/background"
-                tools:context="gr.thmmy.mthmmy.activities.TopicActivity">
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.MainActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
+        android:layout_gravity="top|start"
         android:layout_marginBottom="50dp"
+        android:background="@color/background"
         android:scrollbars="none"
         tools:context="gr.thmmy.mthmmy.activities.TopicActivity">
 
@@ -27,77 +30,75 @@
 
     </ScrollView>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/bottom_navigation_bar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom|end"
         android:layout_marginTop="-2dp"
-        android:elevation="8dp"
-        android:outlineProvider="bounds">
+        app:elevation="8dp">
 
-        <LinearLayout
-            android:id="@+id/bottom_navigation_bar_content"
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/page_first_button"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@color/primary_dark"
-            android:orientation="horizontal">
+            android:layout_weight="0.8"
+            android:background="@color/primary"
+            android:contentDescription="@string/text_first"
+            app:srcCompat="@drawable/page_first"/>
 
-            <ImageButton
-                android:id="@+id/page_first_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/text_first"
-                app:srcCompat="@drawable/page_first"/>
+        <ImageButton
+            android:id="@+id/page_previous_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:background="@color/primary"
+            android:contentDescription="@string/text_previous"
+            app:srcCompat="@drawable/page_previous"/>
 
-            <ImageButton
-                android:id="@+id/page_previous_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/text_previous"
-                app:srcCompat="@drawable/page_previous"/>
+        <TextView
+            android:id="@+id/page_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="@string/text_page"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="22sp"/>
 
-            <TextView
-                android:id="@+id/page_indicator"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:hint="@string/text_page"
-                android:maxLines="1"
-                android:textColor="@color/white"
-                android:textSize="22sp"/>
+        <ImageButton
+            android:id="@+id/page_next_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:background="@color/primary"
+            android:contentDescription="@string/text_next"
+            app:srcCompat="@drawable/page_next"/>
 
-            <ImageButton
-                android:id="@+id/page_next_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/text_next"
-                app:srcCompat="@drawable/page_next"/>
+        <ImageButton
+            android:id="@+id/page_last_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:background="@color/primary"
+            android:contentDescription="@string/text_last"
+            app:srcCompat="@drawable/page_last"/>
 
-            <ImageButton
-                android:id="@+id/page_last_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/text_last"
-                app:srcCompat="@drawable/page_last"/>
-
-            <Space
-                android:layout_width="80dp"
-                android:layout_height="match_parent"/>
-        </LinearLayout>
-    </FrameLayout>
+        <Space
+            android:layout_width="80dp"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:elevation="12dp"
+        app:elevation="12dp"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_add_fab"/>
 
     <ProgressBar
@@ -107,6 +108,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:visibility="invisible"/>
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
 
 
