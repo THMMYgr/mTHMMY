@@ -16,7 +16,7 @@
         <item name="colorControlHighlight">@color/white</item>
         <item name="android:textColorHint">@color/iron</item>
 
-        <item name="colorButtonNormal">@color/primary_dark</item>
+        <item name="colorButtonNormal">@color/primary</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

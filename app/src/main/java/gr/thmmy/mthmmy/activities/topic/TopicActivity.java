@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities;
+package gr.thmmy.mthmmy.activities.topic;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -46,6 +45,7 @@ import java.util.Objects;
 import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.data.Post;
 import gr.thmmy.mthmmy.utils.CircularNetworkImageView;
 import gr.thmmy.mthmmy.utils.ImageController;
@@ -714,10 +714,9 @@ public class TopicActivity extends BaseActivity {
                             break;
 
                         case MotionEvent.ACTION_UP:
-                            fingerState = FINGER_RELEASED;
                             webViewLongClickHandler.removeCallbacks(WebViewLongClick);
 
-                            if(!wasLongClick) {
+                            if(!wasLongClick && fingerState != FINGER_DRAGGING) {
                                 //If this was a link don't expand the card
                                 WebView.HitTestResult htResult = post.getHitTestResult();
                                 if (htResult.getExtra() != null
@@ -728,6 +727,7 @@ public class TopicActivity extends BaseActivity {
                             }
                             else
                                 wasLongClick = false;
+                            fingerState = FINGER_RELEASED;
                             break;
 
                         case MotionEvent.ACTION_MOVE:
@@ -735,9 +735,8 @@ public class TopicActivity extends BaseActivity {
                             if (((Math.abs(downCoordinateX - motionEvent.getX()) > SCROLL_THRESHOLD ||
                                     Math.abs(downCoordinateY - motionEvent.getY()) > SCROLL_THRESHOLD))) {
                                 webViewLongClickHandler.removeCallbacks(WebViewLongClick);
-                            }
-                            if (fingerState == FINGER_TOUCHED || fingerState == FINGER_DRAGGING)
                                 fingerState = FINGER_DRAGGING;
+                            }
                             else fingerState = FINGER_UNDEFINED;
                             break;
 
@@ -842,7 +841,6 @@ public class TopicActivity extends BaseActivity {
 
             // Start the animation
             userExtra.animate()
-                    .translationY(0)
                     .alpha(1.0f)
                     .setDuration(300)
                     .setListener(new AnimatorListenerAdapter() {
@@ -859,7 +857,6 @@ public class TopicActivity extends BaseActivity {
 
             // Start the animation
             userExtra.animate()
-                    .translationY(userExtra.getHeight())
                     .alpha(0.0f)
                     .setDuration(300)
                     .setListener(new AnimatorListenerAdapter() {

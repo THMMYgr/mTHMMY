@@ -39,7 +39,7 @@
                 android:value=".activities.main.MainActivity"/>
         </activity>
         <activity
-            android:name=".activities.TopicActivity"
+            android:name=".activities.topic.TopicActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">

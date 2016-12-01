@@ -34,7 +34,7 @@
         android:layout_marginBottom="50dp"
         android:background="@color/background"
         android:scrollbars="none"
-        tools:context="gr.thmmy.mthmmy.activities.TopicActivity">
+        tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity">
 
         <LinearLayout
             android:id="@+id/posts_list"
@@ -61,7 +61,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:background="@color/primary"
             android:contentDescription="@string/text_first"
             app:srcCompat="@drawable/page_first"/>
 
@@ -70,7 +69,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:background="@color/primary"
             android:contentDescription="@string/text_previous"
             app:srcCompat="@drawable/page_previous"/>
 
@@ -91,7 +89,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:background="@color/primary"
             android:contentDescription="@string/text_next"
             app:srcCompat="@drawable/page_next"/>
 
@@ -100,7 +97,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:background="@color/primary"
             android:contentDescription="@string/text_last"
             app:srcCompat="@drawable/page_last"/>
     </LinearLayout>

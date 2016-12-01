@@ -12,7 +12,7 @@ import android.support.v7.widget.Toolbar;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.TopicActivity;
+import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;

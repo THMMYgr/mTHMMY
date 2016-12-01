@@ -106,7 +106,7 @@ public class LoginActivity extends BaseActivity {
         }
 
         if (password.isEmpty()) {
-            inputPassword.setError("Enter a valid password");
+            inputPassword.setError("Enter a valid password", null);
             valid = false;
         } else {
             inputPassword.setError(null);
