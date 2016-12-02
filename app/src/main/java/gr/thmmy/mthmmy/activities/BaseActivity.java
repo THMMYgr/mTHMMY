@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -62,7 +64,6 @@ public class BaseActivity extends AppCompatActivity
             sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs);
             init = true;
         }
-
     }
 
     public static OkHttpClient getClient()
@@ -127,6 +128,15 @@ public class BaseActivity extends AppCompatActivity
                 })
                 .build();
         drawer.setSelection(-1);
+
+        drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
+        drawer.setOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
+            @Override
+            public boolean onNavigationClickListener(View clickedView) {
+                onBackPressed();
+                return true;
+            }
+        });
     }
 
     protected void updateDrawer()

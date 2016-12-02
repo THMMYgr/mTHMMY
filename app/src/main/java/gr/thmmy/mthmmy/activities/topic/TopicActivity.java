@@ -183,6 +183,15 @@ public class TopicActivity extends BaseActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen()) {
+            drawer.closeDrawer();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onDestroy() { //When finished cancel whatever request can still be canceled
         super.onDestroy();
         ImageController.getInstance().cancelPendingRequests();

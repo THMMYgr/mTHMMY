@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.BaseActivity;
@@ -23,6 +24,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
 
     //----------------------------------------CLASS VARIABLES-----------------------------------------
     private static final String TAG = "MainActivity";
+    private static final int TIME_INTERVAL = 2000;
+    private long mBackPressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +64,21 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
         updateDrawer();
     }
 
-
-
-
+    @Override
+    public void onBackPressed() {
+        if(drawer.isDrawerOpen()){
+            drawer.closeDrawer();
+            return;
+        }
+        else if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
+            super.onBackPressed();
+            return;
+        } else {
+            Toast.makeText(getBaseContext(), "Press back again to exit!"
+                    , Toast.LENGTH_SHORT).show();
+        }
+        mBackPressed = System.currentTimeMillis();
+    }
 
     @Override
     public void onFragmentInteraction(TopicSummary topicSummary) {
