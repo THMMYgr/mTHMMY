@@ -58,9 +58,9 @@ public class SessionManager
 
     //Shared Preferences & its keys
     private SharedPreferences sharedPrefs;
-    private static final String USERNAME = "Username";
-    private static final String LOGOUT_LINK = "LogoutLink";
-    private static final String LOGIN_STATUS = "IsLoggedIn";
+    public static final String USERNAME = "Username";
+    public static final String LOGOUT_LINK = "LogoutLink";
+    public static final String LOGIN_STATUS = "IsLoggedIn";
 
     //Constructor
     public SessionManager(OkHttpClient client, PersistentCookieJar cookieJar,

@@ -10,26 +10,6 @@
     <color name="card_background">#FFFFFF</color>
     <color name="divider">#8B8B8B</color>
 
-    <!--Lime-->
-    <!--<color name="primary">#CDDC39</color>
-    <color name="primary_dark">#AFB42B</color>
-    <color name="primary_light">#F0F4C3</color>
-    <color name="accent">#FFC107</color>
-    <color name="primary_text">#212121</color>
-    <color name="secondary_text">#757575</color>
-    <color name="card_background">#212121</color>
-    <color name="divider">#BDBDBD</color>-->
-
-    <!--Cyan-->
-    <!--<color name="primary">#00BCD4</color>
-    <color name="primary_dark">#0097A7</color>
-    <color name="primary_light">#B2EBF2</color>
-    <color name="accent">#009688</color>
-    <color name="primary_text">#464646</color>
-    <color name="secondary_text">#757575</color>
-    <color name="card_background">#FFFFFF</color>
-    <color name="divider">#BDBDBD</color>-->
-
     <color name="transparent">#00000000</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>

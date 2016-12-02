@@ -35,7 +35,7 @@ public class BaseActivity extends AppCompatActivity
     private static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
 
     //Shared Preferences
-    private static final String SHARED_PREFS_NAME = "ThmmySharedPrefs";
+    protected static final String SHARED_PREFS_NAME = "ThmmySharedPrefs";
     protected static SharedPreferences sharedPrefs;
 
     //SessionManager

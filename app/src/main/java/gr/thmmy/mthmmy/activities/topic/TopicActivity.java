@@ -4,13 +4,17 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -52,6 +56,9 @@ import gr.thmmy.mthmmy.utils.ImageController;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
+import static gr.thmmy.mthmmy.session.SessionManager.LOGIN_STATUS;
+
 public class TopicActivity extends BaseActivity {
 
 //-----------------------------------------CLASS VARIABLES------------------------------------------
@@ -61,10 +68,8 @@ public class TopicActivity extends BaseActivity {
     private LinearLayout postsLinearLayout;
     private static final int NO_POST_FOCUS = -1;
     private int postFocus = NO_POST_FOCUS;
-
     //Quote
-    //TODO
-
+    private final ArrayList<Integer> toQuoteList = new ArrayList<>();
     /* --Topic's pages-- */
     private int thisPage = 1;
     private String base_url = "";
@@ -93,6 +98,7 @@ public class TopicActivity extends BaseActivity {
     private static final String TAG = "TopicActivity";
     private String topicTitle;
     private String parsedTitle;
+    private FloatingActionButton replyFAB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +142,42 @@ public class TopicActivity extends BaseActivity {
         previousPage.setEnabled(false);
         nextPage.setEnabled(false);
         lastPage.setEnabled(false);
+
+        replyFAB = (FloatingActionButton) findViewById(R.id.fab);
+        replyFAB.setEnabled(false);
+
+        replyFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+                int tmp_curr_status = sharedPrefs.getInt(LOGIN_STATUS, -1);
+                if(tmp_curr_status == -1){
+                    new AlertDialog.Builder(TopicActivity.this)
+                            .setTitle("ERROR!")
+                            .setMessage("An error occurred while trying to find your LOGIN_STATUS.\n" +
+                                    "Please sent below info to developers:\n"
+                                    + getLocalClassName() + "." + "l"
+                                    + Thread.currentThread().getStackTrace()[1].getLineNumber())
+                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+                else if(tmp_curr_status != LOGGED_IN){
+                    new AlertDialog.Builder(TopicActivity.this, R.style.AppTheme_Dark_Dialog)
+                            .setTitle(" ")
+                            .setMessage("You need to be logged in to reply!")
+                            .setIcon(android.R.drawable.ic_secure)
+                            .show();
+                }
+                else{
+                    //TODO
+                    //Reply
+                }
+            }
+        });
 
         new TopicTask().execute(extras.getString("TOPIC_URL")); //Attempt data parsing
     }
@@ -484,14 +526,14 @@ public class TopicActivity extends BaseActivity {
                     }
                     //Add new post in postsList, extended information needed
                     postsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post
-                            , p_postIndex, p_postNum, p_postDate, p_isDeleted, p_rank
+                            , p_postIndex, p_postNum, p_postDate, false, p_rank
                             , p_specialRank, p_gender, p_numberOfPosts, p_personalText
                             , p_urlOfStars, p_numberOfStars));
 
                 } else{ //Deleted user
                     //Add new post in postsList, only standard information needed
                     postsList.add(new Post(p_thumbnailUrl, p_userName, p_subject
-                            , p_post, p_postIndex, p_postNum, p_postDate, p_isDeleted));
+                            , p_post, p_postIndex, p_postNum, p_postDate, true));
                 }
             }
         }
@@ -506,6 +548,9 @@ public class TopicActivity extends BaseActivity {
      * adds a card for each post to the ScrollView.
      */
     private void populateLayout() {
+        //Enable reply button
+        replyFAB.setEnabled(true);
+
         //Set topic title if not already present
         if (topicTitle == null || Objects.equals(topicTitle, "")) {
             topicTitle = parsedTitle;
@@ -525,7 +570,7 @@ public class TopicActivity extends BaseActivity {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         //Create a card for each post
-        for (Post item : postsList) {
+        for (final Post currentPost : postsList) {
             //Inflate a topic post row layout
             View convertView = inflater.inflate(R.layout.activity_topic_post_row
                     , postsLinearLayout, false);
@@ -544,6 +589,8 @@ public class TopicActivity extends BaseActivity {
             final TextView username = (TextView) convertView.findViewById(R.id.username);
             final TextView subject = (TextView) convertView.findViewById(R.id.subject);
             final WebView post = (WebView) convertView.findViewById(R.id.post);
+            final ImageButton quoteToggle = (ImageButton) convertView.findViewById(R.id.toggle_quote_button);
+
             //User's extra
             RelativeLayout header = (RelativeLayout) convertView.findViewById(R.id.header);
             final LinearLayout userExtraInfo = (LinearLayout) convertView.findViewById(R.id.user_extra_info);
@@ -560,42 +607,61 @@ public class TopicActivity extends BaseActivity {
             thumbnail.setMaxHeight(THUMBNAIL_SIZE);
 
             //Thumbnail image set
-            if (item.getThumbnailUrl() != null) {
-                thumbnail.setImageUrl(item.getThumbnailUrl(), imageLoader);
+            if (currentPost.getThumbnailUrl() != null) {
+                thumbnail.setImageUrl(currentPost.getThumbnailUrl(), imageLoader);
             }
 
             //Username set
-            username.setText(item.getAuthor());
+            username.setText(currentPost.getAuthor());
 
             //Post's submit date set
-            postDate.setText(item.getPostDate());
+            postDate.setText(currentPost.getPostDate());
 
             //Post's index number set
-            if (item.getPostNumber() != 0)
-                postNum.setText("#" + item.getPostNumber());
+            if (currentPost.getPostNumber() != 0)
+                postNum.setText("#" + currentPost.getPostNumber());
             else
                 postNum.setText("");
 
             //Post's subject set
-            subject.setText(item.getSubject());
+            subject.setText(currentPost.getSubject());
 
             //Post's text set
-            post.loadDataWithBaseURL("file:///android_asset/", item.getContent(), "text/html", "UTF-8", null);
+            post.loadDataWithBaseURL("file:///android_asset/", currentPost.getContent(), "text/html", "UTF-8", null);
+
+            quoteToggle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(view.isSelected()){
+                        if(toQuoteList.contains(currentPost.getPostNumber())) {
+                            toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
+                            view.setSelected(false);
+                        }
+                        else
+                            Log.i(TAG, "An error occurred while trying to exclude post from" +
+                                    "toQuoteList, post wasn't there!");
+                    }
+                    else{
+                        toQuoteList.add(currentPost.getPostNumber());
+                        view.setSelected(true);
+                    }
+                }
+            });
 
             //If user is not deleted then we have more to do
-            if(!item.isDeleted()) { //Set extra info
+            if(!currentPost.isDeleted()) { //Set extra info
                 //Variables for Graphics
                 TextView g_specialRank, g_rank, g_gender, g_numberOfPosts, g_personalText;
                 LinearLayout g_stars_holder = (LinearLayout) convertView.findViewById(R.id.stars);
 
                 //Variables for content
-                String c_specialRank = item.getSpecialRank()
-                        , c_rank = item.getRank()
-                        , c_gender = item.getGender()
-                        , c_numberOfPosts = item.getNumberOfPosts()
-                        , c_personalText = item.getPersonalText()
-                        , c_urlOfStars = item.getUrlOfStars();
-                int c_numberOfStars = item.getNumberOfStars();
+                String c_specialRank = currentPost.getSpecialRank()
+                        , c_rank = currentPost.getRank()
+                        , c_gender = currentPost.getGender()
+                        , c_numberOfPosts = currentPost.getNumberOfPosts()
+                        , c_personalText = currentPost.getPersonalText()
+                        , c_urlOfStars = currentPost.getUrlOfStars();
+                int c_numberOfStars = currentPost.getNumberOfStars();
 
                 if(!Objects.equals(c_specialRank, "") && c_specialRank != null){
                     g_specialRank = (TextView) convertView.findViewById(R.id.special_rank);
@@ -684,7 +750,7 @@ public class TopicActivity extends BaseActivity {
                 final Runnable WebViewLongClick = new Runnable() {
                     public void run() {
                         wasLongClick = true;
-                        //TODO
+                        quoteToggle.performClick();
                     }
                 };
 
@@ -755,7 +821,7 @@ public class TopicActivity extends BaseActivity {
 
             //Set post focus
             if(postFocus != NO_POST_FOCUS){
-                if(item.getPostIndex() == postFocus){
+                if(currentPost.getPostIndex() == postFocus){
                     //TODO
                 }
             }
