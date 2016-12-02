@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
@@ -58,62 +59,72 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:id="@+id/header"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp">
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-                <FrameLayout
-                    android:id="@+id/thumbnail_holder"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:id="@+id/header"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp">
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingTop="16dp">
 
-                    <gr.thmmy.mthmmy.utils.CircularNetworkImageView
-                        android:id="@+id/thumbnail"
+                    <FrameLayout
+                        android:id="@+id/thumbnail_holder"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:adjustViewBounds="false"
-                        android:maxHeight="@dimen/thumbnail_size"
-                        android:maxWidth="@dimen/thumbnail_size"/>
-                </FrameLayout>
+                        android:layout_alignParentTop="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp">
 
-                <TextView
-                    android:id="@+id/username"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_toEndOf="@+id/thumbnail_holder"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="@string/username"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"/>
+                        <gr.thmmy.mthmmy.utils.CircularNetworkImageView
+                            android:id="@+id/thumbnail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:adjustViewBounds="true"
+                            android:src="@drawable/ic_default_user_thumbnail"
+                            android:maxHeight="@dimen/thumbnail_size"
+                            android:maxWidth="@dimen/thumbnail_size"/>
+                    </FrameLayout>
 
-                <TextView
-                    android:id="@+id/subject"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/username"
-                    android:layout_toEndOf="@+id/thumbnail_holder"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="@string/subject"
-                    />
+                    <TextView
+                        android:id="@+id/username"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_toEndOf="@+id/thumbnail_holder"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/username"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/subject"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/username"
+                        android:layout_toEndOf="@+id/thumbnail_holder"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/subject"
+                        />
+                </RelativeLayout>
 
                 <ImageButton
                     android:id="@+id/toggle_quote_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
+                    android:layout_width="@dimen/quote_button"
+                    android:layout_height="@dimen/quote_button"
+                    android:layout_marginEnd="9dp"
+                    android:layout_marginTop="9dp"
                     android:background="@drawable/ic_toggle_quote_bg"/>
-            </RelativeLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/user_extra_info"

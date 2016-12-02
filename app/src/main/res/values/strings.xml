@@ -22,4 +22,6 @@
     <string name="text_next">next</string>
     <string name="text_last">last</string>
     <string name="home">Home</string>
+
+    <string name="user_number_of_posts">#%1$d</string>
 </resources>

@@ -1,7 +1,5 @@
 package gr.thmmy.mthmmy.activities.topic;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +15,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -38,11 +35,8 @@ import com.android.volley.toolbox.ImageLoader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -83,7 +77,7 @@ public class TopicActivity extends BaseActivity {
     private boolean autoDecrement = false;
     private static final int SMALL_STEP = 1;
     private static final int LARGE_STEP = 10;
-    private Integer pageValue;
+    private Integer pageRequestValue;
     private ImageButton firstPage;
     private ImageButton previousPage;
     private ImageButton nextPage;
@@ -151,7 +145,7 @@ public class TopicActivity extends BaseActivity {
             public void onClick(View view) {
                 SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
                 int tmp_curr_status = sharedPrefs.getInt(LOGIN_STATUS, -1);
-                if(tmp_curr_status == -1){
+                if (tmp_curr_status == -1) {
                     new AlertDialog.Builder(TopicActivity.this)
                             .setTitle("ERROR!")
                             .setMessage("An error occurred while trying to find your LOGIN_STATUS.\n" +
@@ -164,15 +158,13 @@ public class TopicActivity extends BaseActivity {
                             })
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
-                }
-                else if(tmp_curr_status != LOGGED_IN){
+                } else if (tmp_curr_status != LOGGED_IN) {
                     new AlertDialog.Builder(TopicActivity.this, R.style.AppTheme_Dark_Dialog)
                             .setTitle(" ")
                             .setMessage("You need to be logged in to reply!")
                             .setIcon(android.R.drawable.ic_secure)
                             .show();
-                }
-                else{
+                } else {
                     //TODO
                     //Reply
                 }
@@ -203,24 +195,26 @@ public class TopicActivity extends BaseActivity {
         ImageController.getInstance().cancelPendingRequests();
     }
 
-    private void initIncrementButton(ImageButton increment, final int step){
+
+//--------------------------------------BOTTOM NAV BAR METHODS--------------------------------------
+    private void initIncrementButton(ImageButton increment, final int step) {
         // Increment once for a click
         increment.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(!autoIncrement && step == LARGE_STEP){ //If just clicked go to last page
+                if (!autoIncrement && step == LARGE_STEP) { //If just clicked go to last page
                     changePage(numberOfPages - 1);
                     return;
                 }
                 //Clicked and holden
                 autoIncrement = false; //Stop incrementing
-                increment(step);
-                changePage(pageValue - 1);
+                incrementPageRequestValue(step);
+                changePage(pageRequestValue - 1);
             }
         });
 
         // Auto increment for a long click
         increment.setOnLongClickListener(
-                new View.OnLongClickListener(){
+                new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
                         autoIncrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
@@ -230,81 +224,80 @@ public class TopicActivity extends BaseActivity {
         );
 
         // When the button is released
-        increment.setOnTouchListener( new View.OnTouchListener() {
+        increment.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
-                if( event.getAction() == MotionEvent.ACTION_UP && autoIncrement ){
-                    changePage(pageValue - 1);
+                if (event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
+                    changePage(pageRequestValue - 1);
                 }
                 return false;
             }
         });
     }
 
-    private void initDecrementButton(ImageButton decrement, final int step){
+    private void initDecrementButton(ImageButton decrement, final int step) {
         // Decrement once for a click
         decrement.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(!autoDecrement && step == LARGE_STEP){ //If just clicked go to first page
+                if (!autoDecrement && step == LARGE_STEP) { //If just clicked go to first page
                     changePage(0);
                     return;
                 }
                 //Clicked and holden
                 autoDecrement = false; //Stop incrementing
-                decrement(step);
-                changePage(pageValue - 1);
+                decrementPageRequestValue(step);
+                changePage(pageRequestValue - 1);
             }
         });
 
 
-        // Auto Decrement for a long click
+        // Auto decrement for a long click
         decrement.setOnLongClickListener(
-                new View.OnLongClickListener(){
+                new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
                         autoDecrement = true;
-                        repeatUpdateHandler.postDelayed( new RepetitiveUpdater(step), INITIAL_DELAY);
+                        repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
                     }
                 }
         );
 
         // When the button is released
-        decrement.setOnTouchListener( new View.OnTouchListener() {
+        decrement.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
-                if( event.getAction() == MotionEvent.ACTION_UP && autoDecrement ){
-                    changePage(pageValue - 1);
+                if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
+                    changePage(pageRequestValue - 1);
                 }
                 return false;
             }
         });
     }
 
-    private void increment(int step){
-        if( pageValue < numberOfPages - step){
-            pageValue = pageValue + step;
-        }
-        else
-            pageValue = numberOfPages;
-        pageIndicator.setText(pageValue + "/" + String.valueOf(numberOfPages));
-        if(pageValue >= 1000)
+    private void incrementPageRequestValue(int step) {
+        if (pageRequestValue < numberOfPages - step) {
+            pageRequestValue = pageRequestValue + step;
+        } else
+            pageRequestValue = numberOfPages;
+        pageIndicator.setText(pageRequestValue + "/" + String.valueOf(numberOfPages));
+        if (pageRequestValue >= 1000)
             pageIndicator.setTextSize(16);
         else
             pageIndicator.setTextSize(20);
     }
 
-    private void decrement(int step){
-        if( pageValue > step)
-            pageValue = pageValue - step;
+    private void decrementPageRequestValue(int step) {
+        if (pageRequestValue > step)
+            pageRequestValue = pageRequestValue - step;
         else
-            pageValue = 1;
-        pageIndicator.setText(pageValue + "/" + String.valueOf(numberOfPages));
-        if(numberOfPages >= 1000)
+            pageRequestValue = 1;
+        pageIndicator.setText(pageRequestValue + "/" + String.valueOf(numberOfPages));
+        if (numberOfPages >= 1000)
             pageIndicator.setTextSize(16);
         else
             pageIndicator.setTextSize(20);
     }
 
-    private void changePage(int pageRequested){
-        if(pageRequested != thisPage - 1){
+    private void changePage(int pageRequested) {
+        if (pageRequested != thisPage - 1) {
             //Restart activity with new page
             Intent intent = getIntent();
             intent.putExtra("TOPIC_URL", pagesUrls.get(pageRequested));
@@ -313,7 +306,7 @@ public class TopicActivity extends BaseActivity {
             startActivity(intent);
         }
     }
-
+//------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
 
 //---------------------------------------TOPIC ASYNC TASK-------------------------------------------
     public class TopicTask extends AsyncTask<String, Void, Boolean> {
@@ -332,9 +325,9 @@ public class TopicActivity extends BaseActivity {
 
             //Find message focus if present
             {
-                if(pageUrl.contains("msg")){
+                if (pageUrl.contains("msg")) {
                     String tmp = pageUrl.substring(pageUrl.indexOf("msg") + 3);
-                    if(tmp.contains(";"))
+                    if (tmp.contains(";"))
                         postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
                     else
                         postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
@@ -369,188 +362,33 @@ public class TopicActivity extends BaseActivity {
             populateLayout(); //Show parsed data
             //Set current page
             pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
-            pageValue = thisPage;
-            if(numberOfPages >= 1000)
+            pageRequestValue = thisPage;
+            if (numberOfPages >= 1000)
                 pageIndicator.setTextSize(16);
         }
 
         /* Parse method */
         private void parse(Document document) {
-            //Method's variables
-            final int NO_INDEX = -1;
-
             //Find topic title if missing
-            if(topicTitle == null || Objects.equals(topicTitle, "")){
+            if (topicTitle == null || Objects.equals(topicTitle, "")) {
                 parsedTitle = document.select("td[id=top_subject]").first().text();
-                Log.d(TAG, parsedTitle);
                 parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Topic:") + 7
                         , parsedTitle.indexOf("(Read") - 8);
-                Log.d(TAG, parsedTitle);
             }
 
             { //Find current page's index
-                Elements findCurrentPage = document.select("td:contains(Pages:)>b"); //Contains pages
-                for (Element item : findCurrentPage) {
-                    if (!item.text().contains("...") //It's not "..."
-                            && !item.text().contains("Pages")) { //Nor "Pages"
-                        thisPage = Integer.parseInt(item.text());
-                        break;
-                    }
-                }
+                thisPage = TopicParser.parseCurrentPageIndex(document);
             }
             { //Find number of pages
-                Elements pages = document.select("td:contains(Pages:)>a.navPages"); //Contains all pages
-                if (pages.size() != 0) {
-                    numberOfPages = thisPage; //Initialize the number
-                    for (Element item : pages) { //Just a max
-                        if (Integer.parseInt(item.text()) > numberOfPages)
-                            numberOfPages = Integer.parseInt(item.text());
-                    }
-                }
+                numberOfPages = TopicParser.parseTopicNumberOfPages(document, thisPage);
+
                 for (int i = 0; i < numberOfPages; i++) {
                     //Generate each page's url from topic's base url +".15*numberOfPage"
                     pagesUrls.put(i, base_url + "." + String.valueOf(i * 15));
                 }
             }
 
-            //Each element is a post's row
-            Elements rows = document.select("form[id=quickModForm]>table>tbody>tr:matches(on)");
-
-            for (Element item : rows) { //For every post
-                //Variables to pass
-                String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_rank,
-                        p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_urlOfStars;
-                int p_postNum, p_postIndex, p_numberOfStars;
-                boolean p_isDeleted = false;
-
-                //Initialize variables
-                p_rank = "Rank";
-                p_specialRank = "Special rank";
-                p_gender = "";
-                p_personalText = "";
-                p_numberOfPosts = "";
-                p_urlOfStars = "";
-                p_numberOfStars = 0;
-
-                //Find the Username
-                Element userName = item.select("a[title^=View the profile of]").first();
-                if (userName == null) { //Deleted profile
-                    p_isDeleted = true;
-                    p_userName = item
-                            .select("td:has(div.smalltext:containsOwn(Guest))[style^=overflow]")
-                            .first().text();
-                    p_userName = p_userName.substring(0, p_userName.indexOf(" Guest"));
-                } else
-                    p_userName = userName.html();
-
-                //Find thumbnail url
-                Element thumbnailUrl = item.select("img.avatar").first();
-                p_thumbnailUrl = null; //In case user doesn't have an avatar
-                if (thumbnailUrl != null) {
-                    p_thumbnailUrl = thumbnailUrl.attr("abs:src");
-                }
-
-                //Find subject
-                p_subject = item.select("div[id^=subject_]").first().select("a").first().text();
-
-                //Find post's text
-                p_post = item.select("div").select(".post").first().html();
-                //Add stuff to make it work in WebView
-                p_post = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />"
-                        + p_post); //style.css
-
-                //Find post's submit date
-                Element postDate = item.select("div.smalltext:matches(on:)").first();
-                p_postDate = postDate.text();
-                p_postDate = p_postDate.substring(p_postDate.indexOf("on:") + 4
-                        , p_postDate.indexOf(" »"));
-
-                //Find post's number
-                Element postNum = item.select("div.smalltext:matches(Reply #)").first();
-                if (postNum == null) { //Topic starter
-                    p_postNum = 0;
-                } else {
-                    String tmp_str = postNum.text().substring(9);
-                    p_postNum = Integer.parseInt(tmp_str.substring(0, tmp_str.indexOf(" on")));
-                }
-
-                //Find post's index
-                Element postIndex = item.select("a[name^=msg]").first();
-                if (postIndex == null)
-                    p_postIndex = NO_INDEX;
-                else {
-                    String tmp = postIndex.attr("name");
-                    p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
-                }
-
-                if (!p_isDeleted) { //Active user
-                    //Get extra info
-                    int postsLineIndex = -1;
-                    int starsLineIndex = -1;
-
-                    Element info = userName.parent().nextElementSibling(); //Get sibling "div"
-                    List<String> infoList = Arrays.asList(info.html().split("<br>"));
-
-                    for (String line : infoList) {
-                        Log.i(TAG, line);
-                        if (line.contains("Posts:")) {
-                            postsLineIndex = infoList.indexOf(line);
-                            //Remove any line breaks and spaces on the start and end
-                            p_numberOfPosts = line.replace("\n", "")
-                                    .replace("\r", "").trim();
-                        }
-                        if (line.contains("Gender:")) {
-                            if (line.contains("alt=\"Male\""))
-                                p_gender = "Gender: Male";
-                            else
-                                p_gender = "Gender: Female";
-                        }
-                        if (line.contains("alt=\"*\"")) {
-                            starsLineIndex = infoList.indexOf(line);
-                            Document starsHtml = Jsoup.parse(line);
-                            p_numberOfStars = starsHtml.select("img[alt]").size();
-                            p_urlOfStars = starsHtml.select("img[alt]").first().attr("abs:src");
-                        }
-                    }
-
-                    //If this member has no stars yet ==> New member,
-                    //or is just a member
-                    if (starsLineIndex == -1 || starsLineIndex == 1) {
-                        //In this case:
-                        p_rank = infoList.get(0).trim(); //First line has the rank
-                        p_specialRank = null; //They don't have a special rank
-                    } else if (starsLineIndex == 2) { //This member has a special rank
-                        p_specialRank = infoList.get(0).trim(); //First line has the special rank
-                        p_rank = infoList.get(1).trim(); //Second line has the rank
-                    }
-                    for (int i = postsLineIndex + 1; i < infoList.size() - 1; ++i) {
-                        //Search under "Posts:"
-                        //and above "Personal Message", "View Profile" etc buttons
-
-                        String thisLine = infoList.get(i);
-                        //If this line isn't empty and doesn't contain user's avatar
-                        if (!Objects.equals(thisLine, "") && thisLine != null
-                                && !Objects.equals(thisLine, " \n")
-                                && !thisLine.contains("avatar")
-                                && !thisLine.contains("<a href=")) {
-                            p_personalText = thisLine; //Then this line has user's personal text
-                            //Remove any line breaks and spaces on the start and end
-                            p_personalText = p_personalText.replace("\n", "")
-                                    .replace("\r", "").trim();
-                        }
-                    }
-                    //Add new post in postsList, extended information needed
-                    postsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post
-                            , p_postIndex, p_postNum, p_postDate, false, p_rank
-                            , p_specialRank, p_gender, p_numberOfPosts, p_personalText
-                            , p_urlOfStars, p_numberOfStars));
-
-                } else{ //Deleted user
-                    //Add new post in postsList, only standard information needed
-                    postsList.add(new Post(p_thumbnailUrl, p_userName, p_subject
-                            , p_post, p_postIndex, p_postNum, p_postDate, true));
-                }
-            }
+            postsList = TopicParser.parseTopic(document);
         }
         /* Parse method end */
     }
@@ -569,7 +407,7 @@ public class TopicActivity extends BaseActivity {
         //Set topic title if not already present
         if (topicTitle == null || Objects.equals(topicTitle, "")) {
             topicTitle = parsedTitle;
-            if (toolbar != null){
+            if (toolbar != null) {
                 toolbar.setTitle(topicTitle);
             }
         }
@@ -622,7 +460,8 @@ public class TopicActivity extends BaseActivity {
             thumbnail.setMaxHeight(THUMBNAIL_SIZE);
 
             //Thumbnail image set
-            if (currentPost.getThumbnailUrl() != null) {
+            if (currentPost.getThumbnailUrl() != null
+                    && !Objects.equals(currentPost.getThumbnailUrl(), "")) {
                 thumbnail.setImageUrl(currentPost.getThumbnailUrl(), imageLoader);
             }
 
@@ -634,7 +473,8 @@ public class TopicActivity extends BaseActivity {
 
             //Post's index number set
             if (currentPost.getPostNumber() != 0)
-                postNum.setText("#" + currentPost.getPostNumber());
+                postNum.setText(getString(R.string.user_number_of_posts, currentPost.getPostNumber()));
+                //postNum.setText("#" + currentPost.getPostNumber());
             else
                 postNum.setText("");
 
@@ -647,16 +487,14 @@ public class TopicActivity extends BaseActivity {
             quoteToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(view.isSelected()){
-                        if(toQuoteList.contains(currentPost.getPostNumber())) {
+                    if (view.isSelected()) {
+                        if (toQuoteList.contains(currentPost.getPostNumber())) {
                             toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
                             view.setSelected(false);
-                        }
-                        else
+                        } else
                             Log.i(TAG, "An error occurred while trying to exclude post from" +
                                     "toQuoteList, post wasn't there!");
-                    }
-                    else{
+                    } else {
                         toQuoteList.add(currentPost.getPostNumber());
                         view.setSelected(true);
                     }
@@ -664,46 +502,41 @@ public class TopicActivity extends BaseActivity {
             });
 
             //If user is not deleted then we have more to do
-            if(!currentPost.isDeleted()) { //Set extra info
+            if (!currentPost.isDeleted()) { //Set extra info
                 //Variables for Graphics
                 TextView g_specialRank, g_rank, g_gender, g_numberOfPosts, g_personalText;
                 LinearLayout g_stars_holder = (LinearLayout) convertView.findViewById(R.id.stars);
 
                 //Variables for content
-                String c_specialRank = currentPost.getSpecialRank()
-                        , c_rank = currentPost.getRank()
-                        , c_gender = currentPost.getGender()
-                        , c_numberOfPosts = currentPost.getNumberOfPosts()
-                        , c_personalText = currentPost.getPersonalText()
-                        , c_urlOfStars = currentPost.getUrlOfStars();
+                String c_specialRank = currentPost.getSpecialRank(), c_rank = currentPost.getRank(), c_gender = currentPost.getGender(), c_numberOfPosts = currentPost.getNumberOfPosts(), c_personalText = currentPost.getPersonalText(), c_urlOfStars = currentPost.getUrlOfStars();
                 int c_numberOfStars = currentPost.getNumberOfStars();
 
-                if(!Objects.equals(c_specialRank, "") && c_specialRank != null){
+                if (!Objects.equals(c_specialRank, "") && c_specialRank != null) {
                     g_specialRank = (TextView) convertView.findViewById(R.id.special_rank);
                     g_specialRank.setText(c_specialRank);
                     g_specialRank.setVisibility(View.VISIBLE);
                 }
-                if(!Objects.equals(c_rank, "") && c_rank != null){
+                if (!Objects.equals(c_rank, "") && c_rank != null) {
                     g_rank = (TextView) convertView.findViewById(R.id.rank);
                     g_rank.setText(c_rank);
                     g_rank.setVisibility(View.VISIBLE);
                 }
-                if(!Objects.equals(c_gender, "") && c_gender != null){
+                if (!Objects.equals(c_gender, "") && c_gender != null) {
                     g_gender = (TextView) convertView.findViewById(R.id.gender);
                     g_gender.setText(c_gender);
                     g_gender.setVisibility(View.VISIBLE);
                 }
-                if(!Objects.equals(c_numberOfPosts, "") && c_numberOfPosts != null){
+                if (!Objects.equals(c_numberOfPosts, "") && c_numberOfPosts != null) {
                     g_numberOfPosts = (TextView) convertView.findViewById(R.id.number_of_posts);
                     g_numberOfPosts.setText(c_numberOfPosts);
                     g_numberOfPosts.setVisibility(View.VISIBLE);
                 }
-                if(!Objects.equals(c_personalText, "") && c_personalText != null){
+                if (!Objects.equals(c_personalText, "") && c_personalText != null) {
                     g_personalText = (TextView) convertView.findViewById(R.id.personal_text);
                     g_personalText.setText("\"" + c_personalText + "\"");
                     g_personalText.setVisibility(View.VISIBLE);
                 }
-                for(int i=0; i<c_numberOfStars; ++i){
+                for (int i = 0; i < c_numberOfStars; ++i) {
                     CircularNetworkImageView star = new CircularNetworkImageView(this);
                     star.setImageUrl(c_urlOfStars, imageLoader);
 
@@ -725,18 +558,18 @@ public class TopicActivity extends BaseActivity {
 
                 /* --Header expand/collapse functionality-- */
 
-                header.setOnClickListener(new View.OnClickListener(){
+                header.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v){
-                        animateUserExtraInfoVisibility(userExtraInfo);
+                    public void onClick(View v) {
+                        TopicAnimations.animateUserExtraInfoVisibility(userExtraInfo);
                     }
                 });
 
                 //Clicking the expanded part of a header should collapse the extra info
-                userExtraInfo.setOnClickListener(new View.OnClickListener(){
+                userExtraInfo.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v){
-                        animateUserExtraInfoVisibility(v);
+                    public void onClick(View v) {
+                        TopicAnimations.animateUserExtraInfoVisibility(v);
                     }
                 });
                 /* --Header expand/collapse functionality end-- */
@@ -748,86 +581,15 @@ public class TopicActivity extends BaseActivity {
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    animatePostExtraInfoVisibility(postDateAndNumberExp, username, subject);
+                    TopicAnimations.animatePostExtraInfoVisibility(postDateAndNumberExp
+                            , username, subject
+                            ,ContextCompat.getColor(getApplicationContext(), R.color.black)
+                            ,ContextCompat.getColor(getApplicationContext(), R.color.secondary_text));
                 }
             });
 
             //Also when post is clicked
-            post.setOnTouchListener(new View.OnTouchListener() {
-                //Long press handling
-                private final int LONG_PRESS_DURATION = 1000;
-                private final Handler webViewLongClickHandler = new Handler();
-                private boolean wasLongClick = false;
-                private float downCoordinateX;
-                private float downCoordinateY;
-                private final float SCROLL_THRESHOLD = 7;
-
-                final Runnable WebViewLongClick = new Runnable() {
-                    public void run() {
-                        wasLongClick = true;
-                        quoteToggle.performClick();
-                    }
-                };
-
-                //Other variables
-                final static int FINGER_RELEASED = 0;
-                final static int FINGER_TOUCHED = 1;
-                final static int FINGER_DRAGGING = 2;
-                final static int FINGER_UNDEFINED = 3;
-
-                private int fingerState = FINGER_RELEASED;
-
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                    switch (motionEvent.getAction()) {
-
-                        case MotionEvent.ACTION_DOWN:
-                            downCoordinateX = motionEvent.getX();
-                            downCoordinateY = motionEvent.getY();
-                            if (fingerState == FINGER_RELEASED)
-                                fingerState = FINGER_TOUCHED;
-                            else
-                                fingerState = FINGER_UNDEFINED;
-                            //Start long click runnable
-                            webViewLongClickHandler.postDelayed(WebViewLongClick
-                                    , LONG_PRESS_DURATION);
-                            break;
-
-                        case MotionEvent.ACTION_UP:
-                            webViewLongClickHandler.removeCallbacks(WebViewLongClick);
-
-                            if(!wasLongClick && fingerState != FINGER_DRAGGING) {
-                                //If this was a link don't expand the card
-                                WebView.HitTestResult htResult = post.getHitTestResult();
-                                if (htResult.getExtra() != null
-                                        && htResult.getExtra() != null)
-                                    return false;
-                                //Else expand/collapse card
-                                cardView.performClick();
-                            }
-                            else
-                                wasLongClick = false;
-                            fingerState = FINGER_RELEASED;
-                            break;
-
-                        case MotionEvent.ACTION_MOVE:
-                            //If finger moved too much, cancel long click
-                            if (((Math.abs(downCoordinateX - motionEvent.getX()) > SCROLL_THRESHOLD ||
-                                    Math.abs(downCoordinateY - motionEvent.getY()) > SCROLL_THRESHOLD))) {
-                                webViewLongClickHandler.removeCallbacks(WebViewLongClick);
-                                fingerState = FINGER_DRAGGING;
-                            }
-                            else fingerState = FINGER_UNDEFINED;
-                            break;
-
-                        default:
-                            fingerState = FINGER_UNDEFINED;
-
-                    }
-                    return false;
-                }
-            });
+            post.setOnTouchListener(new CustomTouchListener(post,cardView, quoteToggle));
 
             /* --Card expand/collapse-like functionality end-- */
 
@@ -835,8 +597,8 @@ public class TopicActivity extends BaseActivity {
             postsLinearLayout.addView(convertView);
 
             //Set post focus
-            if(postFocus != NO_POST_FOCUS){
-                if(currentPost.getPostIndex() == postFocus){
+            if (postFocus != NO_POST_FOCUS) {
+                if (currentPost.getPostIndex() == postFocus) {
                     //TODO
                 }
             }
@@ -844,114 +606,8 @@ public class TopicActivity extends BaseActivity {
     }
 //--------------------------------------POPULATE UI METHOD END--------------------------------------
 
-//--------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD--------------------------
-    /**
-     * Method that animates view's visibility changes for post's extra info
-     */
-    private void animatePostExtraInfoVisibility(final View dateAndPostNum, TextView username,
-                                                TextView subject) {
-        //If the view is gone fade it in
-        if (dateAndPostNum.getVisibility() == View.GONE) {
-            //Show full username
-            username.setMaxLines(Integer.MAX_VALUE); //As in the android sourcecode
-            username.setEllipsize(null);
-
-            //Show full subject
-            subject.setTextColor(ContextCompat.getColor(this, R.color.black));
-            subject.setMaxLines(Integer.MAX_VALUE); //As in the android sourcecode
-            subject.setEllipsize(null);
-
-
-            dateAndPostNum.clearAnimation();
-            // Prepare the View for the animation
-            dateAndPostNum.setVisibility(View.VISIBLE);
-            dateAndPostNum.setAlpha(0.0f);
-
-            // Start the animation
-            dateAndPostNum.animate()
-                    .translationY(0)
-                    .alpha(1.0f)
-                    .setDuration(300)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            dateAndPostNum.setVisibility(View.VISIBLE);
-                        }
-                    });
-        }
-        //If the view is visible fade it out
-        else {
-            username.setMaxLines(1); //As in the android sourcecode
-            username.setEllipsize(TextUtils.TruncateAt.END);
-
-            subject.setTextColor(ContextCompat.getColor(this, R.color.secondary_text));
-            subject.setMaxLines(1); //As in the android sourcecode
-            subject.setEllipsize(TextUtils.TruncateAt.END);
-
-            dateAndPostNum.clearAnimation();
-
-            // Start the animation
-            dateAndPostNum.animate()
-                    .translationY(dateAndPostNum.getHeight())
-                    .alpha(0.0f)
-                    .setDuration(300)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            dateAndPostNum.setVisibility(View.GONE);
-                        }
-                    });
-        }
-    }
-//------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD END------------------------
-
-//--------------------------USER'S INFO VISIBILITY CHANGE ANIMATION METHOD--------------------------
-    /**
-     * Method that animates view's visibility changes for user's extra info
-     */
-    private void animateUserExtraInfoVisibility(final View userExtra){
-
-        //If the view is gone fade it in
-        if (userExtra.getVisibility() == View.GONE) {
-
-            userExtra.clearAnimation();
-            userExtra.setVisibility(View.VISIBLE);
-            userExtra.setAlpha(0.0f);
-
-            // Start the animation
-            userExtra.animate()
-                    .alpha(1.0f)
-                    .setDuration(300)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            userExtra.setVisibility(View.VISIBLE);
-                        }
-                    });
-        }
-        //If the view is visible fade it out
-        else {
-            userExtra.clearAnimation();
-
-            // Start the animation
-            userExtra.animate()
-                    .alpha(0.0f)
-                    .setDuration(300)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            userExtra.setVisibility(View.GONE);
-                        }
-                    });
-        }
-    }
-//------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD END------------------------
-
 //--------------------------------------CUSTOM WEBVIEW CLIENT---------------------------------------
+
     /**
      * This class is used to handle link clicks in WebViews.
      * When link url is one that the app can handle internally, it does.
@@ -965,6 +621,7 @@ public class TopicActivity extends BaseActivity {
             final Uri uri = Uri.parse(url);
             return handleUri(uri);
         }
+
         //Newest versions
         @TargetApi(Build.VERSION_CODES.N)
         @Override
@@ -986,13 +643,12 @@ public class TopicActivity extends BaseActivity {
                 //This is my web site, so figure out what Activity should launch
                 if (uri.toString().contains("topic=")) { //This url points to a topic
                     //Is the link pointing to current topic?
-                    if(Objects.equals(
-                            uri.toString().substring(0, uri.toString().lastIndexOf(".")), base_url)){
+                    if (Objects.equals(
+                            uri.toString().substring(0, uri.toString().lastIndexOf(".")), base_url)) {
                         //Don't restart Activity
                         //Just change post focus
                         //TODO
-                    }
-                    else {
+                    } else {
                         //Restart activity with new data
                         Intent intent = getIntent();
                         intent.putExtra("TOPIC_URL", uri.toString());
@@ -1013,24 +669,118 @@ public class TopicActivity extends BaseActivity {
 //------------------------------------CUSTOM WEBVIEW CLIENT END-------------------------------------
 
 //----------------------------------------REPETITIVE UPDATER----------------------------------------
+
     /**
-     * This class is used to implement the repetitive increment/decrement of page value
+     * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue of page value
      * when long pressing one of the page navigation buttons.
      */
     class RepetitiveUpdater implements Runnable {
         private final int step;
 
-        RepetitiveUpdater(int step){this.step = step;}
+        RepetitiveUpdater(int step) {
+            this.step = step;
+        }
+
         public void run() {
             long REPEAT_DELAY = 250;
-            if( autoIncrement ){
-                increment(step);
-                repeatUpdateHandler.postDelayed( new RepetitiveUpdater(step), REPEAT_DELAY);
-            } else if( autoDecrement ){
-                decrement(step);
-                repeatUpdateHandler.postDelayed( new RepetitiveUpdater(step), REPEAT_DELAY);
+            if (autoIncrement) {
+                incrementPageRequestValue(step);
+                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
+            } else if (autoDecrement) {
+                decrementPageRequestValue(step);
+                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
             }
         }
     }
 //--------------------------------------REPETITIVE UPDATER END--------------------------------------
+
+//--------------------------------------CUSTOM TOUCH LISTENER---------------------------------------
+    /**
+     * This class is a gesture detector for WebViews.
+     * It handles post's clicks, long clicks and touch and drag.
+     */
+
+    private class CustomTouchListener implements View.OnTouchListener {
+        //Long press handling
+        private final int LONG_PRESS_DURATION = 650;
+        private final Handler webViewLongClickHandler = new Handler();
+        private boolean wasLongClick = false;
+        private float downCoordinateX;
+        private float downCoordinateY;
+        private final float SCROLL_THRESHOLD = 7;
+        final private WebView post;
+        final private CardView cardView;
+        final private ImageButton quoteToggle;
+
+        //Other variables
+        final static int FINGER_RELEASED = 0;
+        final static int FINGER_TOUCHED = 1;
+        final static int FINGER_DRAGGING = 2;
+        final static int FINGER_UNDEFINED = 3;
+
+        private int fingerState = FINGER_RELEASED;
+
+        CustomTouchListener(WebView pPost, CardView pCard, ImageButton pQuoteToggle){
+            post = pPost;
+            cardView = pCard;
+            quoteToggle = pQuoteToggle;
+        }
+
+        final Runnable WebViewLongClick = new Runnable() {
+            public void run() {
+                wasLongClick = true;
+                quoteToggle.performClick();
+            }
+        };
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+
+            switch (motionEvent.getAction()) {
+
+                case MotionEvent.ACTION_DOWN:
+                    downCoordinateX = motionEvent.getX();
+                    downCoordinateY = motionEvent.getY();
+                    if (fingerState == FINGER_RELEASED)
+                        fingerState = FINGER_TOUCHED;
+                    else
+                        fingerState = FINGER_UNDEFINED;
+                    //Start long click runnable
+                    webViewLongClickHandler.postDelayed(WebViewLongClick
+                            , LONG_PRESS_DURATION);
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    webViewLongClickHandler.removeCallbacks(WebViewLongClick);
+
+                    if (!wasLongClick && fingerState != FINGER_DRAGGING) {
+                        //If this was a link don't expand the card
+                        WebView.HitTestResult htResult = post.getHitTestResult();
+                        if (htResult.getExtra() != null
+                                && htResult.getExtra() != null)
+                            return false;
+                        //Else expand/collapse card
+                        cardView.performClick();
+                    } else
+                        wasLongClick = false;
+                    fingerState = FINGER_RELEASED;
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    //If finger moved too much, cancel long click
+                    if (((Math.abs(downCoordinateX - motionEvent.getX()) > SCROLL_THRESHOLD ||
+                            Math.abs(downCoordinateY - motionEvent.getY()) > SCROLL_THRESHOLD))) {
+                        webViewLongClickHandler.removeCallbacks(WebViewLongClick);
+                        fingerState = FINGER_DRAGGING;
+                    } else fingerState = FINGER_UNDEFINED;
+                    break;
+
+                default:
+                    fingerState = FINGER_UNDEFINED;
+
+            }
+            return false;
+        }
+    }
+//------------------------------------CUSTOM TOUCH LISTENER END-------------------------------------
 }
