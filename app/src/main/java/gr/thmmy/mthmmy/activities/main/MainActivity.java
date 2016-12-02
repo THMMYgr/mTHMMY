@@ -61,6 +61,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.OnListF
     @Override
     protected void onResume() {
         super.onResume();
+        drawer.setSelection(HOME_ID);
         updateDrawer();
     }
 

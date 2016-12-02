@@ -24,6 +24,7 @@ public class AboutActivity extends BaseActivity
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         createDrawer();
+        drawer.setSelection(ABOUT_ID);
 
 
         TextView tv = (TextView) findViewById(R.id.version);
@@ -31,5 +32,11 @@ public class AboutActivity extends BaseActivity
             tv.setText(getString(R.string.version, versionName));
 
         //TODO: add licenses
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        drawer.setSelection(ABOUT_ID);
     }
 }

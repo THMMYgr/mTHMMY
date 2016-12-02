@@ -192,6 +192,12 @@ public class TopicActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        drawer.setSelection(-1);
+    }
+
+    @Override
     protected void onDestroy() { //When finished cancel whatever request can still be canceled
         super.onDestroy();
         ImageController.getInstance().cancelPendingRequests();

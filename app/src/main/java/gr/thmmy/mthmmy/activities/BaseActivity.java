@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -24,6 +23,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.session.SessionManager;
 import okhttp3.OkHttpClient;
 
@@ -74,16 +74,21 @@ public class BaseActivity extends AppCompatActivity
     //TODO: move stuff below
     //------------------------------------------DRAWER STUFF----------------------------------------
 
-    private static final int LOGINLOGOUT_ID=0;
-    private static final int ABOUT_ID=1;
+    protected static final int HOME_ID=0;
+    protected static final int LOG_ID =1;
+    protected static final int ABOUT_ID=2;
 
-    protected PrimaryDrawerItem loginLogout, about;
-    protected IconicsDrawable loginIcon,logoutIcon, aboutIcon;
+    protected PrimaryDrawerItem home,loginLogout, about;
+    protected IconicsDrawable homeIcon,loginIcon,logoutIcon, aboutIcon;
     /**
      * Call only after initializing Toolbar
      */
     protected void createDrawer()//TODO
     {
+        homeIcon =new IconicsDrawable(this)
+                .icon(FontAwesome.Icon.faw_home)
+                .color(Color.BLACK)
+                .sizeDp(24);
         loginIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_sign_in)
                 .color(Color.BLACK)
@@ -92,19 +97,28 @@ public class BaseActivity extends AppCompatActivity
                 .icon(FontAwesome.Icon.faw_sign_out)
                 .color(Color.BLACK)
                 .sizeDp(24);
-        loginLogout = new PrimaryDrawerItem().withIdentifier(LOGINLOGOUT_ID).withName(R.string.logout).withIcon(logoutIcon);
         aboutIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_info_circle)
                 .color(Color.BLACK)
                 .sizeDp(24);
+        home = new PrimaryDrawerItem().withIdentifier(HOME_ID).withName(R.string.home).withIcon(homeIcon);
+        loginLogout = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.logout).withIcon(logoutIcon);
         about = new PrimaryDrawerItem().withIdentifier(ABOUT_ID).withName(R.string.about).withIcon(aboutIcon);
-        drawer = new DrawerBuilder().withActivity(BaseActivity.this)
+        drawer = new DrawerBuilder().withActivity(this)
                 .withToolbar(toolbar)
-                .addDrawerItems(loginLogout,about)
+                .addDrawerItems(home,loginLogout,about)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if(drawerItem.equals(LOGINLOGOUT_ID))
+                        if(drawerItem.equals(HOME_ID))
+                        {
+                            if(!(BaseActivity.this instanceof MainActivity))
+                            {
+                                Intent i = new Intent(BaseActivity.this, MainActivity.class);
+                                startActivity(i);
+                            }
+                        }
+                        else if(drawerItem.equals(LOG_ID))
                         {
                             if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
                             {
@@ -112,22 +126,24 @@ public class BaseActivity extends AppCompatActivity
                                 startActivity(intent);
                                 finish();
                                 overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-
                             }
                             else
                                 new LogoutTask().execute();
                         }
                         else if(drawerItem.equals(ABOUT_ID))
                         {
-                            Intent i = new Intent(BaseActivity.this, AboutActivity.class);
-                            startActivity(i);
+                            if(!(BaseActivity.this instanceof AboutActivity))
+                            {
+                                Intent i = new Intent(BaseActivity.this, AboutActivity.class);
+                                startActivity(i);
+                            }
+
                         }
                         drawer.closeDrawer();
                         return true;
                     }
                 })
                 .build();
-        drawer.setSelection(-1);
 
         drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
         drawer.setOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
