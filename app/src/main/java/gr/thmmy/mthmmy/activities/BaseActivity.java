@@ -17,10 +17,14 @@ import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
@@ -66,6 +70,13 @@ public class BaseActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(drawer!=null)    //temporary solution to solve drawer animation closing after returning to activity
+            drawer.closeDrawer();
+    }
+
     public static OkHttpClient getClient()
     {
         return client;
@@ -73,40 +84,67 @@ public class BaseActivity extends AppCompatActivity
 
     //TODO: move stuff below
     //------------------------------------------DRAWER STUFF----------------------------------------
-
     protected static final int HOME_ID=0;
     protected static final int LOG_ID =1;
     protected static final int ABOUT_ID=2;
 
-    protected PrimaryDrawerItem home,loginLogout, about;
-    protected IconicsDrawable homeIcon,loginIcon,logoutIcon, aboutIcon;
+    private AccountHeader accountHeader;
+    private ProfileDrawerItem profileDrawerItem;
+    private PrimaryDrawerItem homeItem, loginLogoutItem, aboutItem;
+    private IconicsDrawable homeIcon,loginIcon,logoutIcon, aboutIcon;
+
     /**
      * Call only after initializing Toolbar
      */
     protected void createDrawer()//TODO
     {
+        //Drawer Icons
         homeIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_home)
-                .color(Color.BLACK)
-                .sizeDp(24);
+                .color(Color.BLACK);
+
         loginIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_sign_in)
-                .color(Color.BLACK)
-                .sizeDp(24);
+                .color(Color.BLACK);
+
         logoutIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_sign_out)
-                .color(Color.BLACK)
-                .sizeDp(24);
+                .color(Color.BLACK);
+
         aboutIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_info_circle)
-                .color(Color.BLACK)
-                .sizeDp(24);
-        home = new PrimaryDrawerItem().withIdentifier(HOME_ID).withName(R.string.home).withIcon(homeIcon);
-        loginLogout = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.logout).withIcon(logoutIcon);
-        about = new PrimaryDrawerItem().withIdentifier(ABOUT_ID).withName(R.string.about).withIcon(aboutIcon);
-        drawer = new DrawerBuilder().withActivity(this)
+                .color(Color.BLACK);
+
+        //Drawer Items
+        homeItem = new PrimaryDrawerItem().withIdentifier(HOME_ID).withName(R.string.home).withIcon(homeIcon);
+        loginLogoutItem = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.logout).withIcon(logoutIcon);
+        aboutItem = new PrimaryDrawerItem().withIdentifier(ABOUT_ID).withName(R.string.about).withIcon(aboutIcon);
+
+        //Profile
+        profileDrawerItem = new ProfileDrawerItem().withName(sessionManager.getUsername()); //TODO: set profile picture
+
+        //AccountHeader
+        accountHeader = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withCompactStyle(true)
+                .withSelectionListEnabledForSingleProfile(false)
+                .withHeaderBackground(R.color.primary)
+                .addProfiles(profileDrawerItem)
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                        //TODO: display profile stuff
+                        return false;
+                    }
+                })
+                .build();
+
+        //Drawer
+        drawer = new DrawerBuilder()
+                .withActivity(this)
                 .withToolbar(toolbar)
-                .addDrawerItems(home,loginLogout,about)
+                .withAccountHeader(accountHeader)
+                .addDrawerItems(homeItem,loginLogoutItem,aboutItem)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
@@ -139,7 +177,8 @@ public class BaseActivity extends AppCompatActivity
                             }
 
                         }
-                        drawer.closeDrawer();
+                        else
+                            drawer.closeDrawer();
                         return true;
                     }
                 })
@@ -160,17 +199,14 @@ public class BaseActivity extends AppCompatActivity
         if(drawer!=null)
         {
             if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
-            {
-                //Swap logout with login
-                loginLogout.withName(R.string.login).withIcon(loginIcon);
-                drawer.updateItem(loginLogout);
-            }
+                loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
             else
-            {
-                //Swap login with logout
-                loginLogout.withName(R.string.logout).withIcon(logoutIcon);
-                drawer.updateItem(loginLogout);
-            }
+                loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
+
+            ProfileDrawerItem p = new ProfileDrawerItem().withName(sessionManager.getUsername()); //TODO: set profile picture
+            accountHeader.updateProfile(p);
+            drawer.updateItem(loginLogoutItem);
+
         }
     }
 
