@@ -11,7 +11,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -55,6 +57,7 @@ import okhttp3.Response;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGIN_STATUS;
 
+@SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity {
 
 //-----------------------------------------CLASS VARIABLES------------------------------------------
@@ -315,11 +318,16 @@ public class TopicActivity extends BaseActivity {
     private void changePage(int pageRequested) {
         if (pageRequested != thisPage - 1) {
             //Restart activity with new page
+            Pair<View, String> p1 = Pair.create((View)replyFAB, "fab");
+            Pair<View, String> p2 = Pair.create((View)toolbar, "toolbar");
+            ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation(this, p1, p2);
+
             Intent intent = getIntent();
             intent.putExtra("TOPIC_URL", pagesUrls.get(pageRequested));
             intent.putExtra("TOPIC_TITLE", topicTitle);
+            startActivity(intent, options.toBundle());
             finish();
-            startActivity(intent);
         }
     }
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
@@ -466,18 +474,10 @@ public class TopicActivity extends BaseActivity {
 
             //Post's WebView parameters set
             post.setClickable(true);
-            //post.setWebViewClient(new LinkLauncher());
-
-
+            post.setWebViewClient(new LinkLauncher());
             post.getSettings().setJavaScriptEnabled(true);
             //TODO
             post.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND);
-            post.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    return false;
-                }
-            });
 
 
 
@@ -642,6 +642,7 @@ public class TopicActivity extends BaseActivity {
      * When link url is one that the app can handle internally, it does.
      * Otherwise user is prompt to open the link in a browser.
      */
+    @SuppressWarnings("unchecked")
     private class LinkLauncher extends WebViewClient { //Used to handle link clicks
         //Older versions
         @SuppressWarnings("deprecation")
@@ -663,28 +664,48 @@ public class TopicActivity extends BaseActivity {
         private boolean handleUri(final Uri uri) {
             //Method always returns true as we don't want any url to be loaded in WebViews
 
-            Log.i(TAG, "Uri =" + uri);
+            Log.i(TAG, "Uri = " + uri);
             final String host = uri.getHost(); //Get requested url's host
+            final String uriString = uri.toString();
 
             //Determine if you are going to pass the url to a
             //host's application activity or load it in a browser.
             if (Objects.equals(host, "www.thmmy.gr")) {
                 //This is my web site, so figure out what Activity should launch
-                if (uri.toString().contains("topic=")) { //This url points to a topic
+                if (uriString.contains("topic=")) { //This url points to a topic
                     //Is the link pointing to current topic?
                     if (Objects.equals(
-                            uri.toString().substring(0, uri.toString().lastIndexOf(".")), base_url)) {
-                        //Don't restart Activity
-                        //Just change post focus
-                        //TODO
-                    } else {
-                        //Restart activity with new data
-                        Intent intent = getIntent();
-                        intent.putExtra("TOPIC_URL", uri.toString());
-                        intent.putExtra("TOPIC_TITLE", "");
-                        finish();
-                        startActivity(intent);
+                            uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
+
+                        //Get uri's targeted message's index number
+                        String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
+                        if (msgIndexReq.contains("#"))
+                            msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf("#"));
+                        else
+                            msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf(";"));
+
+                        //Is this post already shown now? (is it in current page?)
+                        for (Post post : postsList) {
+                            if (post.getPostIndex() == Integer.parseInt(msgIndexReq)) {
+                                //Don't restart Activity
+                                //Just change post focus
+                                //TODO
+                                return true;
+                            }
+                        }
                     }
+                    //Restart activity with new data
+                    Pair<View, String> p1 = Pair.create((View) replyFAB, "fab");
+                    Pair<View, String> p2 = Pair.create((View) toolbar, "toolbar");
+                    ActivityOptionsCompat options = ActivityOptionsCompat.
+                            makeSceneTransitionAnimation(TopicActivity.this, p1, p2);
+
+                    Intent intent = getIntent();
+                    intent.putExtra("TOPIC_URL", uri.toString());
+                    intent.putExtra("TOPIC_TITLE", "");
+                    startActivity(intent, options.toBundle());
+                    finish();
+
                 }
                 return true;
             }
