@@ -92,6 +92,28 @@ class TopicParser {
 
             //Find post's text
             p_post = item.select("div").select(".post").first().html();
+
+            {
+                Elements noembedTag = item.select("div").select(".post").first().select("noembed");
+                ArrayList<String> embededVideosUrls = new ArrayList<>();
+
+                for (Element _noembed : noembedTag) {
+                    embededVideosUrls.add(_noembed.text().substring(_noembed.text()
+                                    .indexOf("href=\"https://www.youtube.com/watch?") + 6
+                            , _noembed.text().indexOf("target") - 6));
+                }
+
+                int tmp_counter = 0;
+                while (p_post.contains("<embed")) {
+                    p_post = p_post.replace(
+                            p_post.substring(p_post.indexOf("<embed"), p_post.indexOf("/noembed>") + 9)
+                            , "<iframe width=\"200\" height=\"315\" src=\""
+                                    + embededVideosUrls.get(tmp_counter)
+                                    + "\" frameborder=\"0\" allowfullscreen></iframe>"
+                    );
+                }
+            }
+
             //Add stuff to make it work in WebView
             p_post = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />"
                     + p_post); //style.css
@@ -129,7 +151,7 @@ class TopicParser {
                 List<String> infoList = Arrays.asList(info.html().split("<br>"));
 
                 for (String line : infoList) {
-                    Log.i(TAG, line);
+                    //Log.i(TAG, line);
                     if (line.contains("Posts:")) {
                         postsLineIndex = infoList.indexOf(line);
                         //Remove any line breaks and spaces on the start and end

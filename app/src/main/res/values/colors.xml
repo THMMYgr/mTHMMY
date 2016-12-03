@@ -16,4 +16,5 @@
     <color name="iron">#CCCCCC</color>
     <color name="card_expand_text_color">#464646</color>
     <color name="background">#D3D3D3</color>
+    <color name="dialog_bg_semi_transparent">#80212c6f</color>
 </resources>

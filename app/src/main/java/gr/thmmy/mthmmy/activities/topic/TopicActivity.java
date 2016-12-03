@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -44,6 +45,7 @@ import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.BaseActivity;
+import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.data.Post;
 import gr.thmmy.mthmmy.utils.CircularNetworkImageView;
 import gr.thmmy.mthmmy.utils.ImageController;
@@ -152,17 +154,31 @@ public class TopicActivity extends BaseActivity {
                                     "Please sent below info to developers:\n"
                                     + getLocalClassName() + "." + "l"
                                     + Thread.currentThread().getStackTrace()[1].getLineNumber())
-                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
+                            .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    //Todo
+                                    //Maybe sent info back to developers?
                                 }
                             })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 } else if (tmp_curr_status != LOGGED_IN) {
-                    new AlertDialog.Builder(TopicActivity.this, R.style.AppTheme_Dark_Dialog)
-                            .setTitle(" ")
+                    new AlertDialog.Builder(TopicActivity.this)
                             .setMessage("You need to be logged in to reply!")
-                            .setIcon(android.R.drawable.ic_secure)
+                            .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Intent intent = new Intent(TopicActivity.this, LoginActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                }
+                            })
                             .show();
                 } else {
                     //TODO
@@ -450,7 +466,20 @@ public class TopicActivity extends BaseActivity {
 
             //Post's WebView parameters set
             post.setClickable(true);
-            post.setWebViewClient(new LinkLauncher());
+            //post.setWebViewClient(new LinkLauncher());
+
+
+            post.getSettings().setJavaScriptEnabled(true);
+            //TODO
+            post.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND);
+            post.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    return false;
+                }
+            });
+
+
 
             //Avoiding errors about layout having 0 width/height
             thumbnail.setMinimumWidth(1);
