@@ -1,8 +1,12 @@
 package gr.thmmy.mthmmy.session;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Environment;
 import android.util.Log;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 
@@ -11,11 +15,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.utils.ImageController;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -293,6 +301,68 @@ public class SessionManager
         }
         return null;
     }
+
+    private File getUserAvatar(String image_url, final String package_name, final String image_name) {
+        final File[] returnImage = {null};
+
+        ImageController.getInstance().getImageLoader().get(image_url, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+                Bitmap bitmap = imageContainer.getBitmap(); //The image
+                //Create a file to store it
+                File pictureFile = getOutputMediaFile(package_name, image_name);
+
+                if (pictureFile == null) {
+                    Log.d(TAG,
+                            "Error creating media file, check storage permissions: ");// e.getMessage());
+                    return;
+                }
+                try {
+                    //Initialize an output stream
+                    FileOutputStream fos = new FileOutputStream(pictureFile);
+                    //Store image to file
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, fos);
+                    fos.close();
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG, "File not found: " + e.getMessage());
+                } catch (IOException e) {
+                    Log.d(TAG, "Error accessing file: " + e.getMessage());
+                }
+                returnImage[0] = pictureFile;
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+            }
+        });
+        return returnImage[0];
+    }
+
+    /** Create a File for saving an image or video */
+    private File getOutputMediaFile(String packageName, String imageName){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                + "/Android/data/"
+                + packageName
+                + "/Files");
+
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        // Create a media file name
+        File mediaFile;
+        String mImageName = imageName + ".jpg";
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
+        return mediaFile;
+    }
+
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------
 
 }
