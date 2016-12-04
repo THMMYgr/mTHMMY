@@ -1,13 +1,15 @@
 package gr.thmmy.mthmmy.activities;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
@@ -100,6 +102,7 @@ public class LoginActivity extends BaseActivity {
 
         if (username.isEmpty()) {
             inputUsername.setError("Enter a valid username");
+            inputUsername.requestFocus();
             valid = false;
         } else {
             inputUsername.setError(null);
@@ -107,6 +110,8 @@ public class LoginActivity extends BaseActivity {
 
         if (password.isEmpty()) {
             inputPassword.setError("Enter a valid password", null);
+            if (valid)
+                inputPassword.requestFocus();
             valid = false;
         } else {
             inputPassword.setError(null);
@@ -118,7 +123,8 @@ public class LoginActivity extends BaseActivity {
     //--------------------------------------------LOGIN-------------------------------------------------
     private class LoginTask extends AsyncTask<String, Void, Integer> {
         //Class variables
-        ProgressDialog progressDialog;
+        private LinearLayout spinner;
+        private ScrollView loginContent;
 
         @Override
         protected Integer doInBackground(String... params) {
@@ -129,11 +135,17 @@ public class LoginActivity extends BaseActivity {
         protected void onPreExecute() { //Show a progress dialog until done
             btnLogin.setEnabled(false); //Login button shouldn't be pressed during this
 
-            progressDialog = new ProgressDialog(LoginActivity.this,R.style.AppTheme_Dark_Dialog);
-            progressDialog.setCancelable(false);
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Authenticating...");
-            progressDialog.show();
+            spinner = (LinearLayout) findViewById(R.id.login_progress_bar);
+            loginContent = (ScrollView) findViewById(R.id.inner_scroll_view);
+
+            View view = getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+
+            loginContent.setVisibility(View.INVISIBLE);
+            spinner.setVisibility(View.VISIBLE);
         }
 
 
@@ -153,10 +165,12 @@ public class LoginActivity extends BaseActivity {
                 case WRONG_USER:
                     Toast.makeText(getApplicationContext(),
                             "Wrong username!", Toast.LENGTH_LONG).show();
+                    inputUsername.requestFocus();
                     break;
                 case WRONG_PASSWORD:
                     Toast.makeText(getApplicationContext(),
                             "Wrong password!", Toast.LENGTH_LONG).show();
+                    inputPassword.requestFocus();
                     break;
                 case FAILURE:
                     Toast.makeText(getApplicationContext(),
@@ -174,9 +188,10 @@ public class LoginActivity extends BaseActivity {
             }
             //Login failed
             btnLogin.setEnabled(true); //Re-enable login button
-            progressDialog.dismiss(); //Hide progress dialog
+
+            loginContent.setVisibility(View.VISIBLE);
+            spinner.setVisibility(View.INVISIBLE);
         }
     }
 //---------------------------------------LOGIN ENDS-------------------------------------------------
 }
-

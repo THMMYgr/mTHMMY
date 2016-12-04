@@ -11,11 +11,12 @@
     <string name="version">v%1$s</string>
     <string name="logo">logo</string>
     <string name="login">Login</string>
+    <string name="login_spinner">Authenticating&#8230;</string>
     <string name="logout">Logout</string>
 
-    <string name="username">Username should be here...</string>
-    <string name="subject">Subject should be here...</string>
-    <string name="post">Post should be here...</string>
+    <string name="username">Username should be here&#8230;</string>
+    <string name="subject">Subject should be here&#8230;</string>
+    <string name="post">Post should be here&#8230;</string>
     <string name="text_first">first</string>
     <string name="text_previous">previous</string>
     <string name="text_page">Page</string>
