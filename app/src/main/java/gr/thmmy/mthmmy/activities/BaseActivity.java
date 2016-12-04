@@ -117,7 +117,10 @@ public class BaseActivity extends AppCompatActivity
 
         //Drawer Items
         homeItem = new PrimaryDrawerItem().withIdentifier(HOME_ID).withName(R.string.home).withIcon(homeIcon);
-        loginLogoutItem = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.logout).withIcon(logoutIcon);
+        if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
+            loginLogoutItem = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.login).withIcon(loginIcon).withSelectable(false);
+        else
+            loginLogoutItem = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.logout).withIcon(logoutIcon).withSelectable(false);
         aboutItem = new PrimaryDrawerItem().withIdentifier(ABOUT_ID).withName(R.string.about).withIcon(aboutIcon);
 
         //Profile
