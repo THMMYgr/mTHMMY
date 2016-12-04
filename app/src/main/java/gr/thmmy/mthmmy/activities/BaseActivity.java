@@ -73,7 +73,7 @@ public class BaseActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        if(drawer!=null)    //temporary solution to solve drawer animation closing after returning to activity
+        if(drawer!=null)    //close drawer animation after returning to activity
             drawer.closeDrawer();
     }
 
@@ -177,8 +177,8 @@ public class BaseActivity extends AppCompatActivity
                             }
 
                         }
-                        else
-                            drawer.closeDrawer();
+
+                        drawer.closeDrawer();
                         return true;
                     }
                 })
