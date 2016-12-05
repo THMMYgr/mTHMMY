@@ -137,7 +137,7 @@ public class BaseActivity extends AppCompatActivity
                     @Override
                     public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
                         //TODO: display profile stuff
-                        return false;
+                        return true;    //don't close drawer (for now)
                     }
                 })
                 .build();
