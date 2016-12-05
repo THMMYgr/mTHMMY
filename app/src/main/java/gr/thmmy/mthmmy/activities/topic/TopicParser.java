@@ -15,15 +15,31 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.data.Post;
 
 class TopicParser {
+    //Parsing variables
+    private static String currentPage;
+    private static String postRowSelection;
+    private static String userNameSelection;
+    private static String guestSelection;
+    private static int postDateSubstrSelection;
+    private static String postNumberSelection;
+    private static int postNumSubstrSelection;
+    private static String numberOfPostsSelection;
+    private static String genderSelection;
+    private static String genderAltMale;
+    private static String genderAltFemale;
+
     private static final String TAG = "TopicParser";
 
     static int parseCurrentPageIndex(Document doc) {
+        defineLanguange(doc);
+
         int returnPage = 1;
-        Elements findCurrentPage = doc.select("td:contains(Pages:)>b"); //Contains pages
+        //Contains pages
+        Elements findCurrentPage = doc.select("td:contains(" + currentPage + ")>b");
 
         for (Element item : findCurrentPage) {
             if (!item.text().contains("...") //It's not "..."
-                    && !item.text().contains("Pages")) { //Nor "Pages"
+                    && !item.text().contains(currentPage)) { //Nor "Pages:"/"Σελίδες:"
                 returnPage = Integer.parseInt(item.text());
                 break;
             }
@@ -32,9 +48,13 @@ class TopicParser {
     }
 
     static int parseTopicNumberOfPages(Document doc, int thisPage) {
+        defineLanguange(doc);
+
         //Method's variables
         int returnPages = 1;
-        Elements pages = doc.select("td:contains(Pages:)>a.navPages"); //Contains all pages
+
+        //Contains all pages
+        Elements pages = doc.select("td:contains(" + currentPage + ")>a.navPages");
 
         if (pages.size() != 0) {
             returnPages = thisPage; //Initialize the number
@@ -47,11 +67,14 @@ class TopicParser {
     }
 
     static ArrayList<Post> parseTopic(Document doc) {
+        defineLanguange(doc);
+
         //Method's variables
         final int NO_INDEX = -1;
         ArrayList<Post> returnList = new ArrayList<>();
 
-        Elements rows = doc.select("form[id=quickModForm]>table>tbody>tr:matches(on)");
+        Elements rows = doc.select("form[id=quickModForm]>table>tbody>tr:matches("
+                + postRowSelection +")");
 
         for (Element item : rows) { //For every post
             //Variables to pass
@@ -70,13 +93,14 @@ class TopicParser {
             p_numberOfStars = 0;
 
             //Find the Username
-            Element userName = item.select("a[title^=View the profile of]").first();
+            Element userName = item.select("a[title^=" + userNameSelection + "]").first();
             if (userName == null) { //Deleted profile
                 p_isDeleted = true;
                 p_userName = item
-                        .select("td:has(div.smalltext:containsOwn(Guest))[style^=overflow]")
+                        .select("td:has(div.smalltext:containsOwn("
+                                + guestSelection + "))[style^=overflow]")
                         .first().text();
-                p_userName = p_userName.substring(0, p_userName.indexOf(" Guest"));
+                p_userName = p_userName.substring(0, p_userName.indexOf(" " + guestSelection));
             } else
                 p_userName = userName.html();
 
@@ -119,18 +143,18 @@ class TopicParser {
                     + p_post); //style.css
 
             //Find post's submit date
-            Element postDate = item.select("div.smalltext:matches(on:)").first();
+            Element postDate = item.select("div.smalltext:matches(" + postRowSelection + ":)").first();
             p_postDate = postDate.text();
-            p_postDate = p_postDate.substring(p_postDate.indexOf("on:") + 4
+            p_postDate = p_postDate.substring(p_postDate.indexOf(postRowSelection + ":") + postDateSubstrSelection
                     , p_postDate.indexOf(" »"));
 
             //Find post's number
-            Element postNum = item.select("div.smalltext:matches(Reply #)").first();
+            Element postNum = item.select("div.smalltext:matches(" + postNumberSelection + ")").first();
             if (postNum == null) { //Topic starter
                 p_postNum = 0;
             } else {
-                String tmp_str = postNum.text().substring(9);
-                p_postNum = Integer.parseInt(tmp_str.substring(0, tmp_str.indexOf(" on")));
+                String tmp_str = postNum.text().substring(postNumSubstrSelection);
+                p_postNum = Integer.parseInt(tmp_str.substring(0, tmp_str.indexOf(" " + postRowSelection)));
             }
 
             //Find post's index
@@ -151,18 +175,17 @@ class TopicParser {
                 List<String> infoList = Arrays.asList(info.html().split("<br>"));
 
                 for (String line : infoList) {
-                    //Log.i(TAG, line);
-                    if (line.contains("Posts:")) {
+                    if (line.contains(numberOfPostsSelection)) {
                         postsLineIndex = infoList.indexOf(line);
                         //Remove any line breaks and spaces on the start and end
                         p_numberOfPosts = line.replace("\n", "")
                                 .replace("\r", "").trim();
                     }
-                    if (line.contains("Gender:")) {
-                        if (line.contains("alt=\"Male\""))
-                            p_gender = "Gender: Male";
+                    if (line.contains(genderSelection)) {
+                        if (line.contains("alt=\"" + genderAltMale + "\""))
+                            p_gender = genderSelection + " " + genderAltMale;
                         else
-                            p_gender = "Gender: Female";
+                            p_gender = genderSelection + " " + genderAltFemale;
                     }
                     if (line.contains("alt=\"*\"")) {
                         starsLineIndex = infoList.indexOf(line);
@@ -211,5 +234,56 @@ class TopicParser {
             }
         }
         return returnList;
+    }
+
+    private static void defineLanguange(Document doc){
+        //English parsing variables
+        final String en_currentPage = "Pages:";
+        final String en_postRowSelection = "on";
+        final String en_userNameSelection = "View the profile of";
+        final String en_guestSelection = "Guest";
+        final String en_postsNumberSelection = "Reply #";
+        final String en_numberOfPostsSelection = "Posts:";
+        final String en_genderSelection = "Gender:";
+        final String en_genderAltMale = "Male";
+        final String en_genderAltFemale = "Female";
+
+        //Greek parsing variables
+        final String gr_currentPage = "Σελίδες:";
+        final String gr_postRowSelection = "στις";
+        final String gr_userNameSelection = "Εμφάνιση προφίλ του μέλους";
+        final String gr_guestSelection = "Επισκέπτης";
+        final String gr_postsNumberSelection = "Απάντηση #";
+        final String gr_numberOfPostsSelection = "Μηνύματα:";
+        final String gr_genderSelection = "Φύλο:";
+        final String gr_genderAltMale = "Άντρας";
+        final String gr_genderAltFemale = "Γυναίκα";
+
+        if(doc.select("h3").text().contains("Καλώς ορίσατε")){
+            currentPage = gr_currentPage;
+            postRowSelection = gr_postRowSelection;
+            userNameSelection = gr_userNameSelection;
+            guestSelection = gr_guestSelection;
+            postDateSubstrSelection = 6;
+            postNumberSelection = gr_postsNumberSelection;
+            postNumSubstrSelection = 12;
+            numberOfPostsSelection = gr_numberOfPostsSelection;
+            genderSelection = gr_genderSelection;
+            genderAltMale = gr_genderAltMale;
+            genderAltFemale = gr_genderAltFemale;
+        }
+        else{ //Means default is english (eg. guest's language)
+            currentPage = en_currentPage;
+            postRowSelection = en_postRowSelection;
+            userNameSelection = en_userNameSelection;
+            guestSelection = en_guestSelection;
+            postDateSubstrSelection = 4;
+            postNumberSelection = en_postsNumberSelection;
+            postNumSubstrSelection = 9;
+            numberOfPostsSelection = en_numberOfPostsSelection;
+            genderSelection = en_genderSelection;
+            genderAltMale = en_genderAltMale;
+            genderAltFemale = en_genderAltFemale;
+        }
     }
 }

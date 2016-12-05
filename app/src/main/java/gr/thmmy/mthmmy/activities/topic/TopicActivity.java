@@ -396,8 +396,15 @@ public class TopicActivity extends BaseActivity {
             //Find topic title if missing
             if (topicTitle == null || Objects.equals(topicTitle, "")) {
                 parsedTitle = document.select("td[id=top_subject]").first().text();
-                parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Topic:") + 7
-                        , parsedTitle.indexOf("(Read") - 8);
+                if(parsedTitle.contains("Topic:")) {
+                    parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Topic:") + 7
+                            , parsedTitle.indexOf("(Read") - 2);
+                }
+                else{
+                    parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Θέμα:") + 6
+                            , parsedTitle.indexOf("(Αναγνώστηκε") - 2);
+                    Log.d(TAG, parsedTitle);
+                }
             }
 
             { //Find current page's index
