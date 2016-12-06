@@ -27,7 +27,8 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/topic_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
@@ -36,18 +37,7 @@
         android:background="@color/background"
         android:scrollbars="none"
         tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity">
-
-        <LinearLayout
-            android:id="@+id/posts_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:orientation="vertical"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp">
-        </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
+    </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:id="@+id/bottom_navigation_bar"
@@ -110,6 +100,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_gravity="center"
+        android:background="@drawable/progress_bar_bg"
         android:visibility="invisible"/>
 
     <android.support.design.widget.FloatingActionButton

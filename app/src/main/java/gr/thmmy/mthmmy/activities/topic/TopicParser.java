@@ -1,7 +1,5 @@
 package gr.thmmy.mthmmy.activities.topic;
 
-import android.util.Log;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -123,15 +121,18 @@ class TopicParser {
 
                 for (Element _noembed : noembedTag) {
                     embededVideosUrls.add(_noembed.text().substring(_noembed.text()
-                                    .indexOf("href=\"https://www.youtube.com/watch?") + 6
-                            , _noembed.text().indexOf("target") - 6));
+                                    .indexOf("href=\"https://www.youtube.com/watch?") + 38
+                            , _noembed.text().indexOf("target") - 2));
                 }
 
                 int tmp_counter = 0;
                 while (p_post.contains("<embed")) {
+                    if (tmp_counter > embededVideosUrls.size())
+                        break;
                     p_post = p_post.replace(
                             p_post.substring(p_post.indexOf("<embed"), p_post.indexOf("/noembed>") + 9)
-                            , "<iframe width=\"200\" height=\"315\" src=\""
+                            , "<iframe width=\"100%\" height=\"auto\" src=\""
+                                    + "https://www.youtube.com/embed/"
                                     + embededVideosUrls.get(tmp_counter)
                                     + "\" frameborder=\"0\" allowfullscreen></iframe>"
                     );
