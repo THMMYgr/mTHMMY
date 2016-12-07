@@ -36,6 +36,8 @@ public class LoginActivity extends BaseActivity {
     //Other variables
     private static final String TAG = "LoginActivity";
 
+    private LoginTask loginTask;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,7 +67,8 @@ public class LoginActivity extends BaseActivity {
                 }
 
                 //Login user
-                new LoginTask().execute(username, password);
+                loginTask = new LoginTask();
+                loginTask.execute(username, password);
             }
         });
 
@@ -89,6 +92,9 @@ public class LoginActivity extends BaseActivity {
     public void onBackPressed() {
         // Disable going back to the MainActivity
         moveTaskToBack(true);
+//        if(loginTask!=null && loginTask.getStatus() == AsyncTask.Status.RUNNING){ TODO
+//            loginTask.cancel(true);
+//        }
     }
 
     private void onLoginFailed() {
@@ -192,6 +198,15 @@ public class LoginActivity extends BaseActivity {
             loginContent.setVisibility(View.VISIBLE);
             spinner.setVisibility(View.INVISIBLE);
         }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            btnLogin.setEnabled(true); //Re-enable login button
+            loginContent.setVisibility(View.VISIBLE);
+            spinner.setVisibility(View.INVISIBLE);
+        }
+
     }
 //---------------------------------------LOGIN ENDS-------------------------------------------------
 }
