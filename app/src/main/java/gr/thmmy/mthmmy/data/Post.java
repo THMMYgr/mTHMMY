@@ -21,8 +21,8 @@ public class Post {
     private int numberOfStars;
 
     public Post(String thumbnailUrl, String author, String subject, String content
-            , int postIndex, int postNumber, String postDate, boolean isDeleted
-            , String rank, String special_rank, String gender, String numberOfPosts
+            , int postIndex, int postNumber, String postDate, String rank
+            , String special_rank, String gender, String numberOfPosts
             , String personalText, String urlOfStars, int numberOfStars) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -31,7 +31,7 @@ public class Post {
         this.postIndex = postIndex;
         this.postNumber = postNumber;
         this.postDate = postDate;
-        this.isDeleted = isDeleted;
+        this.isDeleted = false;
         this.rank = rank;
         this.specialRank = special_rank;
         this.gender = gender;
@@ -42,7 +42,7 @@ public class Post {
     }
 
     public Post(String thumbnailUrl, String author, String subject, String content
-            , int postIndex, int postNumber, String postDate, boolean isDeleted) {
+            , int postIndex, int postNumber, String postDate) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -50,7 +50,7 @@ public class Post {
         this.postIndex = postIndex;
         this.postNumber = postNumber;
         this.postDate = postDate;
-        this.isDeleted = isDeleted;
+        this.isDeleted = true;
         rank = "Rank";
         specialRank = "Special rank";
         gender = "Gender";

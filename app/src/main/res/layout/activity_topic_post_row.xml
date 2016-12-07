@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
@@ -82,15 +81,16 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp">
 
-                        <gr.thmmy.mthmmy.utils.CircularNetworkImageView
+                        <ImageView
                             android:id="@+id/thumbnail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:adjustViewBounds="true"
-                            android:src="@drawable/ic_default_user_thumbnail"
+                            android:contentDescription="@string/thumbnail"
                             android:maxHeight="@dimen/thumbnail_size"
-                            android:maxWidth="@dimen/thumbnail_size"/>
+                            android:maxWidth="@dimen/thumbnail_size"
+                            android:src="@drawable/ic_default_user_thumbnail"/>
                     </FrameLayout>
 
                     <TextView
@@ -123,7 +123,8 @@
                     android:layout_height="@dimen/quote_button"
                     android:layout_marginEnd="9dp"
                     android:layout_marginTop="9dp"
-                    android:background="@drawable/ic_toggle_quote_bg"/>
+                    android:background="@drawable/ic_toggle_quote_bg"
+                    android:contentDescription="@string/quote"/>
             </LinearLayout>
 
             <LinearLayout
