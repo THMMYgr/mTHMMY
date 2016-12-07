@@ -35,7 +35,6 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.data.Post;
-import gr.thmmy.mthmmy.utils.ImageController;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -68,13 +67,14 @@ public class TopicActivity extends BaseActivity {
     private static final int LARGE_STEP = 10;
     private Integer pageRequestValue;
 
-    ImageButton firstPage;
-    ImageButton previousPage;
-    ImageButton nextPage;
-    ImageButton lastPage;
+    private ImageButton firstPage;
+    private ImageButton previousPage;
+    private ImageButton nextPage;
+    private ImageButton lastPage;
 
     //Other variables
     private ProgressBar progressBar;
+    @SuppressWarnings("unused")
     private static final String TAG = "TopicActivity";
     private String topicTitle;
     private FloatingActionButton replyFAB;
@@ -187,7 +187,6 @@ public class TopicActivity extends BaseActivity {
     @Override
     protected void onDestroy() { //When finished cancel whatever request can still be canceled
         super.onDestroy();
-        ImageController.getInstance().cancelPendingRequests();
     }
 
 

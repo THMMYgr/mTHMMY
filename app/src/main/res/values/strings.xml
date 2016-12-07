@@ -17,6 +17,8 @@
     <string name="username">Username should be here&#8230;</string>
     <string name="subject">Subject should be here&#8230;</string>
     <string name="post">Post should be here&#8230;</string>
+    <string name="thumbnail">Thumbnail should be here&#8230;</string>
+    <string name="quote">Quote button should be here&#8230;</string>
     <string name="text_first">first</string>
     <string name="text_previous">previous</string>
     <string name="text_page">Page</string>

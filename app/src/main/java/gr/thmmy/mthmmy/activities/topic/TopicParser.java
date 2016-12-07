@@ -26,6 +26,7 @@ class TopicParser {
     private static String genderAltMale;
     private static String genderAltFemale;
 
+    @SuppressWarnings("unused")
     private static final String TAG = "TopicParser";
 
     static int parseCurrentPageIndex(Document doc) {
@@ -224,14 +225,14 @@ class TopicParser {
                 }
                 //Add new post in postsList, extended information needed
                 returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post
-                        , p_postIndex, p_postNum, p_postDate, false, p_rank
+                        , p_postIndex, p_postNum, p_postDate, p_rank
                         , p_specialRank, p_gender, p_numberOfPosts, p_personalText
                         , p_urlOfStars, p_numberOfStars));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject
-                        , p_post, p_postIndex, p_postNum, p_postDate, true));
+                        , p_post, p_postIndex, p_postNum, p_postDate));
             }
         }
         return returnList;

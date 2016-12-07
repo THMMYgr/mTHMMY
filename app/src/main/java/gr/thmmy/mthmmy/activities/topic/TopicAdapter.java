@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,24 +16,23 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.android.volley.toolbox.ImageLoader;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.Post;
-import gr.thmmy.mthmmy.utils.CircularNetworkImageView;
-import gr.thmmy.mthmmy.utils.ImageController;
+import gr.thmmy.mthmmy.utils.CircleTransform;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
@@ -41,23 +41,22 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
 class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     private static final String TAG = "TopicAdapter";
 
-    private static final int THUMBNAIL_SIZE = 80;
-    private ImageLoader imageLoader = ImageController.getInstance().getImageLoader();
-    private Context context;
-    private List<Post> postsList;
+    private static int THUMBNAIL_SIZE;
+    private final Context context;
+    private final List<Post> postsList;
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        CardView cardView;
-        FrameLayout postDateAndNumberExp;
-        TextView postDate, postNum, username, subject;
-        CircularNetworkImageView thumbnail;
-        public WebView post;
-        ImageButton quoteToggle;
-        RelativeLayout header;
-        LinearLayout userExtraInfo;
+        final CardView cardView;
+        final FrameLayout postDateAndNumberExp;
+        final TextView postDate, postNum, username, subject;
+        final ImageView thumbnail;
+        final public WebView post;
+        final ImageButton quoteToggle;
+        final RelativeLayout header;
+        final LinearLayout userExtraInfo;
 
-        TextView specialRank, rank, gender, numberOfPosts, personalText;
-        LinearLayout stars_holder;
+        final TextView specialRank, rank, gender, numberOfPosts, personalText;
+        final LinearLayout stars_holder;
 
         MyViewHolder(View view) {
             super(view);
@@ -68,7 +67,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             postDateAndNumberExp = (FrameLayout) view.findViewById(R.id.post_date_and_number_exp);
             postDate = (TextView) view.findViewById(R.id.post_date);
             postNum = (TextView) view.findViewById(R.id.post_number);
-            thumbnail = (CircularNetworkImageView) view.findViewById(R.id.thumbnail);
+            thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
             username = (TextView) view.findViewById(R.id.username);
             subject = (TextView) view.findViewById(R.id.subject);
             post = (WebView) view.findViewById(R.id.post);
@@ -83,14 +82,21 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             numberOfPosts = (TextView) view.findViewById(R.id.number_of_posts);
             personalText = (TextView) view.findViewById(R.id.personal_text);
             stars_holder = (LinearLayout) view.findViewById(R.id.stars);
-
         }
+
+        /**
+         * Possible cleanup needed (like so:)
+         * https://stackoverflow.com/questions/24897441/picasso-how-to-cancel-all-image-requests-made-in-an-adapter
+         * TODO
+         */
     }
 
 
     TopicAdapter(Context context, List<Post> postsList) {
         this.context = context;
         this.postsList = postsList;
+
+        THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
     }
 
     @Override
@@ -109,7 +115,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         holder.post.setClickable(true);
         holder.post.setWebViewClient(new LinkLauncher());
         holder.post.getSettings().setJavaScriptEnabled(true);
-        holder.post.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND);
 
         //Avoiding errors about layout having 0 width/height
         holder.thumbnail.setMinimumWidth(1);
@@ -118,11 +123,17 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         holder.thumbnail.setMaxWidth(THUMBNAIL_SIZE);
         holder.thumbnail.setMaxHeight(THUMBNAIL_SIZE);
 
-        //Thumbnail image set
-        if (currentPost.getThumbnailUrl() != null
-                && !Objects.equals(currentPost.getThumbnailUrl(), "")) {
-            holder.thumbnail.setImageUrl(currentPost.getThumbnailUrl(), imageLoader);
-        }
+        //noinspection ConstantConditions
+        Picasso.with(context)
+                .load(currentPost.getThumbnailUrl())
+                .resize(THUMBNAIL_SIZE,THUMBNAIL_SIZE)
+                .centerCrop()
+                .error(ResourcesCompat.getDrawable(context.getResources()
+                        , R.drawable.ic_default_user_thumbnail, null))
+                .placeholder(ResourcesCompat.getDrawable(context.getResources()
+                        , R.drawable.ic_default_user_thumbnail, null))
+                .transform(new CircleTransform())
+                .into(holder.thumbnail);
 
         //Username set
         holder.username.setText(currentPost.getAuthor());
@@ -163,12 +174,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         //If user is not deleted then we have more to do
         if (!currentPost.isDeleted()) { //Set extra info
             //Variables for content
-            String c_specialRank = currentPost.getSpecialRank()
-                    , c_rank = currentPost.getRank()
-                    , c_gender = currentPost.getGender()
-                    , c_numberOfPosts = currentPost.getNumberOfPosts()
-                    , c_personalText = currentPost.getPersonalText()
-                    , c_urlOfStars = currentPost.getUrlOfStars();
+            String c_specialRank = currentPost.getSpecialRank(), c_rank = currentPost.getRank(), c_gender = currentPost.getGender(), c_numberOfPosts = currentPost.getNumberOfPosts(), c_personalText = currentPost.getPersonalText(), c_urlOfStars = currentPost.getUrlOfStars();
             int c_numberOfStars = currentPost.getNumberOfStars();
 
             if (!Objects.equals(c_specialRank, "") && c_specialRank != null) {
@@ -193,11 +199,15 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             }
 
             for (int i = 0; i < c_numberOfStars; ++i) {
-                CircularNetworkImageView star = new CircularNetworkImageView(context);
-                star.setImageUrl(c_urlOfStars, imageLoader);
+                ImageView star = new ImageView(context);
+
+                Picasso.with(context)
+                        .load(c_urlOfStars)
+                        .into(star);
 
                 //Remove spacing between stars...
                 //Don't know why this is happening in the first place
+                //TODO change layout? other solution?
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
@@ -373,7 +383,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         private boolean handleUri(final Uri uri) {
             //Method always returns true as we don't want any url to be loaded in WebViews
 
-            Log.i(TAG, "Uri = " + uri);
+            Log.i(TAG, "Uri clicked = " + uri);
             final String host = uri.getHost(); //Get requested url's host
             final String uriString = uri.toString();
 

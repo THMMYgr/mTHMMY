@@ -5,8 +5,6 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 
@@ -23,7 +21,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import gr.thmmy.mthmmy.utils.ImageController;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -302,7 +299,7 @@ public class SessionManager
         return null;
     }
 
-    private File getUserAvatar(String image_url, final String package_name, final String image_name) {
+    /*private File getUserAvatar(String image_url, final String package_name, final String image_name) {
         final File[] returnImage = {null};
 
         ImageController.getInstance().getImageLoader().get(image_url, new ImageLoader.ImageListener() {
@@ -336,7 +333,7 @@ public class SessionManager
             }
         });
         return returnImage[0];
-    }
+    }*/
 
     /** Create a File for saving an image or video */
     private File getOutputMediaFile(String packageName, String imageName){
