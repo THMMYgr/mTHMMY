@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
+import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -43,6 +45,7 @@ public class BaseActivity extends AppCompatActivity
 {
     // Client & Cookies
     protected static OkHttpClient client;
+    protected static Picasso picasso;
     private static PersistentCookieJar cookieJar;
     private static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
 
@@ -72,7 +75,11 @@ public class BaseActivity extends AppCompatActivity
                     .cookieJar(cookieJar)
                     .build();
             sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs);
-            //initialize and create the image loader logic
+            picasso = new Picasso.Builder(BaseActivity.this)
+                    .downloader(new OkHttp3Downloader(client))
+                    .build();
+            Picasso.setSingletonInstance(picasso);  // all following Picasso (with Picasso.with(Context context) requests will use this Picasso object
+            //initialize and create the image loader logic TODO move this to a singleton BaseApplication obj
             DrawerImageLoader.init(new AbstractDrawerImageLoader() {
                 @Override
                 public void set(ImageView imageView, Uri uri, Drawable placeholder) {
@@ -86,13 +93,14 @@ public class BaseActivity extends AppCompatActivity
                 @Override
                 public Drawable placeholder(Context ctx, String tag) {
                     if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)) {
-                        return new IconicsDrawable(ctx, FontAwesome.Icon.faw_user_circle);
+                        return new IconicsDrawable(ctx).icon(FontAwesome.Icon.faw_user)
+                                .paddingDp(10)
+                                .color(ContextCompat.getColor(ctx, R.color.primary_light))
+                                .backgroundColor(ContextCompat.getColor(ctx, R.color.primary));
                     }
 
                     return super.placeholder(ctx, tag);
                 }
-
-
             });
             init = true;
         }
@@ -238,7 +246,11 @@ public class BaseActivity extends AppCompatActivity
             if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
             {
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
-                profileDrawerItem.withName(sessionManager.getUsername()).withIcon(FontAwesome.Icon.faw_user_circle);
+                profileDrawerItem.withName(sessionManager.getUsername()).withIcon(new IconicsDrawable(this)
+                        .icon(FontAwesome.Icon.faw_user)
+                        .paddingDp(10)
+                        .color(ContextCompat.getColor(this, R.color.primary_light))
+                        .backgroundColor(ContextCompat.getColor(this, R.color.primary)));
             }
             else
             {

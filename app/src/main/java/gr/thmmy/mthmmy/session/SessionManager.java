@@ -61,7 +61,8 @@ public class SessionManager
     //Shared Preferences & its keys
     private SharedPreferences sharedPrefs;
     public static final String USERNAME = "Username";
-    public static final String AVATAR_LINK = "AvatarUrl";
+    public static final String AVATAR_LINK = "AvatarLink";
+    public static final String HAS_AVATAR = "HasAvatar";
     public static final String LOGOUT_LINK = "LogoutLink";
     public static final String LOGIN_STATUS = "IsLoggedIn";
 
@@ -124,7 +125,15 @@ public class SessionManager
                 //Edit SharedPreferences, save session's data
                 sharedPrefs.edit().putInt(LOGIN_STATUS, LOGGED_IN).apply();
                 sharedPrefs.edit().putString(USERNAME, extractUserName(document)).apply();
-                sharedPrefs.edit().putString(AVATAR_LINK, extractAvatarLink(document)).apply();
+                String avatar = extractAvatarLink(document);
+                if (avatar!=null)
+                {
+                    sharedPrefs.edit().putBoolean(HAS_AVATAR,true).apply();
+                    sharedPrefs.edit().putString(AVATAR_LINK, extractAvatarLink(document)).apply();
+                }
+                else
+                    sharedPrefs.edit().putBoolean(HAS_AVATAR,false).apply();
+
                 sharedPrefs.edit().putString(LOGOUT_LINK, HttpUrl.parse(logoutButton.attr("href")).toString()).apply();
 
                 return SUCCESS;
@@ -249,7 +258,11 @@ public class SessionManager
     }
 
     public String getAvatarLink() {
-        return sharedPrefs.getString(AVATAR_LINK, "AvatarUrl");
+        return sharedPrefs.getString(AVATAR_LINK, "AvatarLink");
+    }
+
+    public boolean hasAvatar() {
+        return sharedPrefs.getBoolean(HAS_AVATAR, false);
     }
 
     public int getLogStatus() {

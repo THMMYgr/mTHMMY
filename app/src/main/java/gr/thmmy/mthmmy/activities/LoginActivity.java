@@ -3,7 +3,6 @@ package gr.thmmy.mthmmy.activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -14,6 +13,7 @@ import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
+import mthmmy.utils.Report;
 
 import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
 import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;
@@ -54,7 +54,7 @@ public class LoginActivity extends BaseActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                Log.d(TAG, "Login");
+                Report.d(TAG, "Login");
 
                 //Get username and password strings
                 username = inputUsername.getText().toString().trim();
