@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.session;
 
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Environment;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -13,14 +12,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mthmmy.utils.Report;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -155,15 +153,15 @@ public class SessionManager
             //Handle exception
         }
         catch (InterruptedIOException e){
-            Report.i(TAG, "Login InterruptedIOException: "+ e.getMessage(), e);    //users cancels LoginTask
+            Report.i(TAG, "Login InterruptedIOException", e);    //users cancels LoginTask
             return CANCELLED;
         }
         catch (IOException e) {
-            Report.w(TAG, "Login IOException: "+ e.getMessage(), e);
+            Report.w(TAG, "Login IOException", e);
             return CONNECTION_ERROR;
         }
         catch (Exception e) {
-            Report.w(TAG, "Login Exception (other): "+ e.getMessage(), e);
+            Report.w(TAG, "Login Exception (other)", e);
             return EXCEPTION;
         }
     }
@@ -232,10 +230,10 @@ public class SessionManager
                 return FAILURE;
             }
         } catch (IOException e) {
-            Report.w(TAG, "Logout IOException: "+ e.getMessage(), e);
+            Report.w(TAG, "Logout IOException", e);
             return CONNECTION_ERROR;
         } catch (Exception e) {
-            Report.w(TAG, "Logout Exception: "+ e.getMessage(), e);
+            Report.w(TAG, "Logout Exception", e);
             return EXCEPTION;
         } finally {
             //All data should always be cleared from device regardless the result of logout
@@ -316,7 +314,7 @@ public class SessionManager
 
                 if (pictureFile == null) {
                     Report.d(TAG,
-                            "Error creating media file, check storage permissions: ");// e.getMessage());
+                            "Error creating media file, check storage permissions: ");
                     return;
                 }
                 try {
@@ -326,9 +324,9 @@ public class SessionManager
                     bitmap.compress(Bitmap.CompressFormat.PNG, 90, fos);
                     fos.close();
                 } catch (FileNotFoundException e) {
-                    Report.d(TAG, "File not found: " + e.getMessage());
+                    Report.d(TAG, "File not found");
                 } catch (IOException e) {
-                    Report.d(TAG, "Error accessing file: " + e.getMessage());
+                    Report.d(TAG, "Error accessing file"));
                 }
                 returnImage[0] = pictureFile;
             }

@@ -92,9 +92,9 @@ public class LoginActivity extends BaseActivity {
     public void onBackPressed() {
         // Disable going back to the MainActivity
         moveTaskToBack(true);
-//        if(loginTask!=null && loginTask.getStatus() == AsyncTask.Status.RUNNING){ TODO
-//            loginTask.cancel(true);
-//        }
+        if(loginTask!=null && loginTask.getStatus() == AsyncTask.Status.RUNNING){
+            loginTask.cancel(true);
+        }
     }
 
     private void onLoginFailed() {

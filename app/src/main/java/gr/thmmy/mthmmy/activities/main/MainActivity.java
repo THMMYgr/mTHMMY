@@ -13,10 +13,10 @@ import android.widget.Toast;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.topic.TopicActivity;
-import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
+import gr.thmmy.mthmmy.activities.topic.TopicActivity;
+import gr.thmmy.mthmmy.data.TopicSummary;
 
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_OUT;
 

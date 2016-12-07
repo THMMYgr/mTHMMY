@@ -9,8 +9,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
+import gr.thmmy.mthmmy.data.TopicSummary;
 
 
 /**
