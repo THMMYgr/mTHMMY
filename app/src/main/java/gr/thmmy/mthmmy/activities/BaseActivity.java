@@ -206,8 +206,8 @@ public class BaseActivity extends AppCompatActivity
             else
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
 
-            ProfileDrawerItem p = new ProfileDrawerItem().withName(sessionManager.getUsername()); //TODO: set profile picture
-            accountHeader.updateProfile(p);
+            profileDrawerItem.withName(sessionManager.getUsername()); //TODO: set profile picture
+            accountHeader.updateProfile(profileDrawerItem);
             drawer.updateItem(loginLogoutItem);
 
         }

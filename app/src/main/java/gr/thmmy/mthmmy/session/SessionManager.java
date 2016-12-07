@@ -3,7 +3,6 @@ package gr.thmmy.mthmmy.session;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.util.Log;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -19,11 +18,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.utils.ImageController;
+import mthmmy.utils.Report;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -51,8 +52,9 @@ public class SessionManager
     public static final int FAILURE = 1;    //Generic Error
     public static final int WRONG_USER = 2;
     public static final int WRONG_PASSWORD = 3;
-    public static final int CONNECTION_ERROR = 4;
-    public static final int EXCEPTION = 5;
+    public static final int CANCELLED = 4;
+    public static final int CONNECTION_ERROR = 5;
+    public static final int EXCEPTION = 6;
 
     //Login status codes
     public static final int LOGGED_OUT = 0;
@@ -87,7 +89,7 @@ public class SessionManager
      */
     public int login(String... strings)
     {
-        Log.i(TAG, "Logging in...");
+        Report.i(TAG, "Logging in...");
 
         //Build the login request for each case
         Request request;
@@ -123,7 +125,7 @@ public class SessionManager
             Element logoutButton = document.getElementById("logoutbtn"); //Attempt to find logout button
             if (logoutButton != null) //If logout button exists, login was successful
             {
-                Log.i(TAG, "Login successful!");
+                Report.i(TAG, "Login successful!");
                 setPersistentCookieSession();   //Store cookies
 
                 //Edit SharedPreferences, save session's data
@@ -135,18 +137,18 @@ public class SessionManager
             }
             else
             {
-                Log.i(TAG, "Login failed.");
+                Report.i(TAG, "Login failed.");
 
                 //Investigate login failure
                 Elements error = document.select("b:contains(That username does not exist.)");
                 if (error.size() == 1) { //Wrong username
-                    Log.i(TAG, "Wrong Username");
+                    Report.i(TAG, "Wrong Username");
                     return WRONG_USER;
                 }
 
                 error = document.select("body:contains(Password incorrect)");
                 if (error.size() == 1) { //Wrong password
-                    Log.i(TAG, "Wrong Password");
+                    Report.i(TAG, "Wrong Password");
                     return WRONG_PASSWORD;
                 }
 
@@ -156,35 +158,39 @@ public class SessionManager
             }
             //Handle exception
         }
+        catch (InterruptedIOException e){
+            Report.i(TAG, "Login InterruptedIOException: "+ e.getMessage(), e);    //users cancels LoginTask
+            return CANCELLED;
+        }
         catch (IOException e) {
-            Log.w(TAG, "Login IOException: "+ e.getMessage(), e);
+            Report.w(TAG, "Login IOException: "+ e.getMessage(), e);
             return CONNECTION_ERROR;
         }
         catch (Exception e) {
-            Log.w(TAG, "Login Exception (other): "+ e.getMessage(), e);
+            Report.w(TAG, "Login Exception (other): "+ e.getMessage(), e);
             return EXCEPTION;
         }
     }
 
     /**
      *  A function that checks the validity of the current saved session (if it exists).
-     *  If LOGIN_STATUS is true, it will call login() with cookies. This can only return
-     *  the codes {SUCCESS, FAILURE, CONNECTION_ERROR, EXCEPTION}. CONNECTION_ERROR and EXCEPTION
-     *  are simply considered a SUCCESS (e.g. no internet connection), at least until a more
-     *  thorough handling of different exceptions is implemented (if considered mandatory).
+     *  If LOGIN_STATUS is true, it will call login() with cookies. On failure, this can only return
+     *  the code FAILURE. CANCELLED, CONNECTION_ERROR and EXCEPTION are simply considered a SUCCESS
+     *  (e.g. no internet connection), at least until a more thorough handling of different
+     *  exceptions is implemented (if considered mandatory).
      *  Always call it in a separate thread in a way that won't hinder performance (e.g. after
      *  fragments' data are retrieved).
      */
     public void validateSession()
     {
-        Log.i(TAG, "Validating session...");
+        Report.i(TAG, "Validating session...");
 
         //Check if user is currently logged in
         int status = sharedPrefs.getInt(LOGIN_STATUS,LOGGED_OUT);
         if(status==LOGGED_IN)
         {
             int loginResult = login();
-            if(loginResult == SUCCESS || loginResult == CONNECTION_ERROR || loginResult == EXCEPTION)
+            if(loginResult != FAILURE)
                 return;
         }
         else if(status==AS_GUEST)
@@ -198,7 +204,7 @@ public class SessionManager
      */
     public void guestLogin()
     {
-        Log.i("TAG", "Continuing as a guest, as chosen by the user.");
+        Report.i("TAG", "Continuing as a guest, as chosen by the user.");
         clearSessionData();
         sharedPrefs.edit().putInt(LOGIN_STATUS, AS_GUEST).apply();
     }
@@ -209,7 +215,7 @@ public class SessionManager
      */
     public int logout()
     {
-        Log.i(TAG, "Logging out...");
+        Report.i(TAG, "Logging out...");
 
         Request request = new Request.Builder()
                 .url(sharedPrefs.getString(LOGOUT_LINK,"LogoutLink"))
@@ -223,17 +229,17 @@ public class SessionManager
             Elements loginButton = document.select("[value=Login]");  //Attempt to find login button
             if (!loginButton.isEmpty()) //If login button exists, logout was successful
             {
-                Log.i("Logout", "Logout successful!");
+                Report.i(TAG, "Logout successful!");
                 return SUCCESS;
             } else {
-                Log.i(TAG, "Logout failed.");
+                Report.i(TAG, "Logout failed.");
                 return FAILURE;
             }
         } catch (IOException e) {
-            Log.w(TAG, "Logout IOException: "+ e.getMessage(), e);
+            Report.w(TAG, "Logout IOException: "+ e.getMessage(), e);
             return CONNECTION_ERROR;
         } catch (Exception e) {
-            Log.w(TAG, "Logout Exception: "+ e.getMessage(), e);
+            Report.w(TAG, "Logout Exception: "+ e.getMessage(), e);
             return EXCEPTION;
         } finally {
             //All data should always be cleared from device regardless the result of logout
@@ -282,7 +288,7 @@ public class SessionManager
         sharedPrefs.edit().clear().apply(); //Clear session data
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
         sharedPrefs.edit().putInt(LOGIN_STATUS, LOGGED_OUT).apply(); //User logs out
-        Log.i(TAG,"Session data cleared.");
+        Report.i(TAG,"Session data cleared.");
     }
 
     private String extractUserName(Document doc)
@@ -313,7 +319,7 @@ public class SessionManager
                 File pictureFile = getOutputMediaFile(package_name, image_name);
 
                 if (pictureFile == null) {
-                    Log.d(TAG,
+                    Report.d(TAG,
                             "Error creating media file, check storage permissions: ");// e.getMessage());
                     return;
                 }
@@ -324,9 +330,9 @@ public class SessionManager
                     bitmap.compress(Bitmap.CompressFormat.PNG, 90, fos);
                     fos.close();
                 } catch (FileNotFoundException e) {
-                    Log.d(TAG, "File not found: " + e.getMessage());
+                    Report.d(TAG, "File not found: " + e.getMessage());
                 } catch (IOException e) {
-                    Log.d(TAG, "Error accessing file: " + e.getMessage());
+                    Report.d(TAG, "Error accessing file: " + e.getMessage());
                 }
                 returnImage[0] = pictureFile;
             }
