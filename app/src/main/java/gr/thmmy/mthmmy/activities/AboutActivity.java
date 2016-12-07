@@ -36,7 +36,7 @@ public class AboutActivity extends BaseActivity
 
     @Override
     protected void onResume() {
-        super.onResume();
         drawer.setSelection(ABOUT_ID);
+        super.onResume();
     }
 }

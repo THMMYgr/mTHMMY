@@ -1,14 +1,18 @@
 package gr.thmmy.mthmmy.activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -24,6 +28,9 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
+import com.mikepenz.materialdrawer.util.DrawerImageLoader;
+import com.squareup.picasso.Picasso;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
@@ -65,8 +72,36 @@ public class BaseActivity extends AppCompatActivity
                     .cookieJar(cookieJar)
                     .build();
             sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs);
+            //initialize and create the image loader logic
+            DrawerImageLoader.init(new AbstractDrawerImageLoader() {
+                @Override
+                public void set(ImageView imageView, Uri uri, Drawable placeholder) {
+                    Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
+                }
+                @Override
+                public void cancel(ImageView imageView) {
+                    Picasso.with(imageView.getContext()).cancelRequest(imageView);
+                }
+
+                @Override
+                public Drawable placeholder(Context ctx, String tag) {
+                    if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)) {
+                        return new IconicsDrawable(ctx, FontAwesome.Icon.faw_user_circle);
+                    }
+
+                    return super.placeholder(ctx, tag);
+                }
+
+
+            });
             init = true;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateDrawer();
     }
 
     @Override
@@ -123,7 +158,7 @@ public class BaseActivity extends AppCompatActivity
         aboutItem = new PrimaryDrawerItem().withIdentifier(ABOUT_ID).withName(R.string.about).withIcon(aboutIcon);
 
         //Profile
-        profileDrawerItem = new ProfileDrawerItem().withName(sessionManager.getUsername()); //TODO: set profile picture
+        profileDrawerItem = new ProfileDrawerItem().withName(sessionManager.getUsername());
 
         //AccountHeader
         accountHeader = new AccountHeaderBuilder()
@@ -201,11 +236,15 @@ public class BaseActivity extends AppCompatActivity
         if(drawer!=null)
         {
             if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
+            {
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
+                profileDrawerItem.withName(sessionManager.getUsername()).withIcon(FontAwesome.Icon.faw_user_circle);
+            }
             else
+            {
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
-
-            profileDrawerItem.withName(sessionManager.getUsername()); //TODO: set profile picture
+                profileDrawerItem.withName(sessionManager.getUsername()).withIcon(sessionManager.getAvatarLink());
+            }
             accountHeader.updateProfile(profileDrawerItem);
             drawer.updateItem(loginLogoutItem);
 

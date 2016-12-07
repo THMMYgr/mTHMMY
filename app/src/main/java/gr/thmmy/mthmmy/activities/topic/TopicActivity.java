@@ -180,8 +180,8 @@ public class TopicActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-        super.onResume();
         drawer.setSelection(-1);
+        super.onResume();
     }
 
     @Override
