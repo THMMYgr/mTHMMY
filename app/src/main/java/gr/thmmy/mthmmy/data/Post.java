@@ -17,13 +17,13 @@ public class Post {
     private final String gender;
     private final String numberOfPosts;
     private final String personalText;
-    private final String urlOfStars;
     private int numberOfStars;
+    private final int userColor;
 
     public Post(String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, String rank
             , String special_rank, String gender, String numberOfPosts
-            , String personalText, String urlOfStars, int numberOfStars) {
+            , String personalText, int numberOfStars, int userColor) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -37,12 +37,12 @@ public class Post {
         this.gender = gender;
         this.numberOfPosts = numberOfPosts;
         this.personalText = personalText;
-        this.urlOfStars = urlOfStars;
         this.numberOfStars = numberOfStars;
+        this.userColor = userColor;
     }
 
     public Post(String thumbnailUrl, String author, String subject, String content
-            , int postIndex, int postNumber, String postDate) {
+            , int postIndex, int postNumber, String postDate, int userColor) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -51,12 +51,12 @@ public class Post {
         this.postNumber = postNumber;
         this.postDate = postDate;
         this.isDeleted = true;
+        this.userColor = userColor;
         rank = "Rank";
         specialRank = "Special rank";
         gender = "Gender";
         numberOfPosts = "Posts: 0";
         personalText = "";
-        urlOfStars = "";
     }
 
     //Getters
@@ -106,7 +106,7 @@ public class Post {
         return personalText;
     }
 
-    public String getUrlOfStars() {return urlOfStars; }
-
     public int getNumberOfStars() {return numberOfStars; }
+
+    public int getUserColor() {return userColor; }
 }

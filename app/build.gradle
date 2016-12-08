@@ -10,7 +10,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 4
-        versionName "0.2"
+        versionName "0.4"
         archivesBaseName = "thmmyapp-v$versionName"
     }
     buildTypes {

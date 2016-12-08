@@ -48,8 +48,8 @@ public class TopicActivity extends BaseActivity {
 
     /* --Posts-- */
     private List<Post> postsList;
-    private static final int NO_POST_FOCUS = -1;
-    private int postFocus = NO_POST_FOCUS;
+    static final int NO_POST_FOCUS = -1;
+    static int postFocus = NO_POST_FOCUS;
     //Quote
     public static final ArrayList<Integer> toQuoteList = new ArrayList<>();
     /* --Topic's pages-- */
@@ -424,10 +424,10 @@ public class TopicActivity extends BaseActivity {
 
         //Set post focus
         if (postFocus != NO_POST_FOCUS) {
-            for (int i = 0; i < postsList.size(); ++i) {
-                Post currentPost = postsList.get(i);
-                if (currentPost.getPostIndex() == postFocus) {
-                    //TODO
+            for (int i = postsList.size() - 1; i >= 0; --i) {
+                int currentPostIndex = postsList.get(i).getPostIndex();
+                if (currentPostIndex == postFocus) {
+                    layoutManager.scrollToPosition(i);
                 }
             }
         }

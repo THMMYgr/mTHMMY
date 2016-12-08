@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -33,10 +34,14 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.Post;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.FontManager;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.NO_POST_FOCUS;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.postFocus;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
+import static gr.thmmy.mthmmy.utils.FontManager.FONTAWESOME;
 
 class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     private static final String TAG = "TopicAdapter";
@@ -44,6 +49,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private final List<Post> postsList;
+    private boolean foundPostFocus = false;
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         final CardView cardView;
@@ -55,8 +61,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         final RelativeLayout header;
         final LinearLayout userExtraInfo;
 
-        final TextView specialRank, rank, gender, numberOfPosts, personalText;
-        final LinearLayout stars_holder;
+        final TextView specialRank, rank, gender, numberOfPosts, personalText, stars;
 
         MyViewHolder(View view) {
             super(view);
@@ -81,7 +86,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             gender = (TextView) view.findViewById(R.id.gender);
             numberOfPosts = (TextView) view.findViewById(R.id.number_of_posts);
             personalText = (TextView) view.findViewById(R.id.personal_text);
-            stars_holder = (LinearLayout) view.findViewById(R.id.stars);
+            stars = (TextView) view.findViewById(R.id.stars);
         }
 
         /**
@@ -107,6 +112,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         return new MyViewHolder(itemView);
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         final Post currentPost = postsList.get(position);
@@ -173,54 +179,60 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         //If user is not deleted then we have more to do
         if (!currentPost.isDeleted()) { //Set extra info
-            //Variables for content
-            String c_specialRank = currentPost.getSpecialRank(), c_rank = currentPost.getRank(), c_gender = currentPost.getGender(), c_numberOfPosts = currentPost.getNumberOfPosts(), c_personalText = currentPost.getPersonalText(), c_urlOfStars = currentPost.getUrlOfStars();
-            int c_numberOfStars = currentPost.getNumberOfStars();
+            //Variables with content
+            String c_specialRank = currentPost.getSpecialRank()
+                    , c_rank = currentPost.getRank()
+                    , c_gender = currentPost.getGender()
+                    , c_numberOfPosts = currentPost.getNumberOfPosts()
+                    , c_personalText = currentPost.getPersonalText();
+            int c_numberOfStars = currentPost.getNumberOfStars()
+                    ,c_userColor = currentPost.getUserColor();
 
             if (!Objects.equals(c_specialRank, "") && c_specialRank != null) {
                 holder.specialRank.setText(c_specialRank);
                 holder.specialRank.setVisibility(View.VISIBLE);
             }
+            else
+                holder.specialRank.setVisibility(View.GONE);
             if (!Objects.equals(c_rank, "") && c_rank != null) {
                 holder.rank.setText(c_rank);
                 holder.rank.setVisibility(View.VISIBLE);
             }
+            else
+                holder.rank.setVisibility(View.GONE);
             if (!Objects.equals(c_gender, "") && c_gender != null) {
                 holder.gender.setText(c_gender);
                 holder.gender.setVisibility(View.VISIBLE);
             }
+            else
+                holder.gender.setVisibility(View.GONE);
             if (!Objects.equals(c_numberOfPosts, "") && c_numberOfPosts != null) {
                 holder.numberOfPosts.setText(c_numberOfPosts);
                 holder.numberOfPosts.setVisibility(View.VISIBLE);
             }
+            else
+                holder.numberOfPosts.setVisibility(View.GONE);
             if (!Objects.equals(c_personalText, "") && c_personalText != null) {
                 holder.personalText.setText("\"" + c_personalText + "\"");
                 holder.personalText.setVisibility(View.VISIBLE);
             }
+            else
+                holder.personalText.setVisibility(View.GONE);
 
-            for (int i = 0; i < c_numberOfStars; ++i) {
-                ImageView star = new ImageView(context);
+            if(c_numberOfStars != 0) {
+                holder.stars.setTypeface(FontManager.getTypeface(context, FONTAWESOME));
 
-                Picasso.with(context)
-                        .load(c_urlOfStars)
-                        .into(star);
-
-                //Remove spacing between stars...
-                //Don't know why this is happening in the first place
-                //TODO change layout? other solution?
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                params.setMargins((int) context.getResources().getDimension(R.dimen.stars_margin)
-                        , 0
-                        , (int) context.getResources().getDimension(R.dimen.stars_margin)
-                        , 0);
-                star.setLayoutParams(params);
-
-                holder.stars_holder.addView(star, 0);
-                holder.stars_holder.setVisibility(View.VISIBLE);
+                String aStar = context.getResources().getString(R.string.fa_icon_star);
+                String usersStars = "";
+                for (int i = 0; i < c_numberOfStars; ++i) {
+                    usersStars += aStar;
+                }
+                holder.stars.setText(usersStars);
+                holder.stars.setTextColor(c_userColor);
+                holder.stars.setVisibility(View.VISIBLE);
             }
+            else
+                holder.stars.setVisibility(View.GONE);
 
                 /* --Header expand/collapse functionality-- */
 
@@ -256,6 +268,13 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         //Also when post is clicked
         holder.post.setOnTouchListener(new CustomTouchListener(holder.post, holder.cardView, holder.quoteToggle));
+
+        if (postFocus != NO_POST_FOCUS && !foundPostFocus) {
+            if (currentPost.getPostIndex() == postFocus) {
+                holder.cardView.requestFocus();
+                foundPostFocus = true;
+            }
+        }
     }
 
     @Override

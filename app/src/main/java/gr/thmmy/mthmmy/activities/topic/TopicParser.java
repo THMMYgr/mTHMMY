@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.graphics.Color;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,6 +27,14 @@ class TopicParser {
     private static String genderSelection;
     private static String genderAltMale;
     private static String genderAltFemale;
+
+    //User colors variables
+    private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
+    private static final int USER_COLOR_RED = Color.parseColor("#F44336");
+    private static final int USER_COLOR_GREEN = Color.parseColor("#4CAF50");
+    private static final int USER_COLOR_BLUE = Color.parseColor("#536DFE");
+    private static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
+    private static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
 
     @SuppressWarnings("unused")
     private static final String TAG = "TopicParser";
@@ -78,8 +88,8 @@ class TopicParser {
         for (Element item : rows) { //For every post
             //Variables to pass
             String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_rank,
-                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_urlOfStars;
-            int p_postNum, p_postIndex, p_numberOfStars;
+                    p_specialRank, p_gender, p_personalText, p_numberOfPosts;
+            int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
 
             //Initialize variables
@@ -88,8 +98,8 @@ class TopicParser {
             p_gender = "";
             p_personalText = "";
             p_numberOfPosts = "";
-            p_urlOfStars = "";
             p_numberOfStars = 0;
+            p_userColor = USER_COLOR_YELLOW;
 
             //Find the Username
             Element userName = item.select("a[title^=" + userNameSelection + "]").first();
@@ -100,6 +110,7 @@ class TopicParser {
                                 + guestSelection + "))[style^=overflow]")
                         .first().text();
                 p_userName = p_userName.substring(0, p_userName.indexOf(" " + guestSelection));
+                p_userColor = USER_COLOR_BLACK;
             } else
                 p_userName = userName.html();
 
@@ -114,7 +125,7 @@ class TopicParser {
             p_subject = item.select("div[id^=subject_]").first().select("a").first().text();
 
             //Find post's text
-            p_post = item.select("div").select(".post").first().html();
+            p_post = item.select("div").select(".post").first().outerHtml();
 
             {
                 Elements noembedTag = item.select("div").select(".post").first().select("noembed");
@@ -193,7 +204,7 @@ class TopicParser {
                         starsLineIndex = infoList.indexOf(line);
                         Document starsHtml = Jsoup.parse(line);
                         p_numberOfStars = starsHtml.select("img[alt]").size();
-                        p_urlOfStars = starsHtml.select("img[alt]").first().attr("abs:src");
+                        p_userColor = colorPicker(starsHtml.select("img[alt]").first().attr("abs:src"));
                     }
                 }
 
@@ -227,12 +238,12 @@ class TopicParser {
                 returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post
                         , p_postIndex, p_postNum, p_postDate, p_rank
                         , p_specialRank, p_gender, p_numberOfPosts, p_personalText
-                        , p_urlOfStars, p_numberOfStars));
+                        , p_numberOfStars, p_userColor));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject
-                        , p_post, p_postIndex, p_postNum, p_postDate));
+                        , p_post, p_postIndex, p_postNum, p_postDate, p_userColor));
             }
         }
         return returnList;
@@ -287,5 +298,20 @@ class TopicParser {
             genderAltMale = en_genderAltMale;
             genderAltFemale = en_genderAltFemale;
         }
+    }
+    private static int colorPicker(String starsUrl){
+        if(starsUrl.contains("/star.gif"))
+            return USER_COLOR_YELLOW;
+        else if(starsUrl.contains("/starmod.gif"))
+            return USER_COLOR_GREEN;
+        else if(starsUrl.contains("/stargmod.gif"))
+            return USER_COLOR_BLUE;
+        else if(starsUrl.contains("/staradmin.gif"))
+            return USER_COLOR_RED;
+        else if(starsUrl.contains("/starweb.gif"))
+            return USER_COLOR_BLACK;
+        else if(starsUrl.contains("/oscar.gif"))
+            return USER_COLOR_PINK;
+        return USER_COLOR_YELLOW;
     }
 }
