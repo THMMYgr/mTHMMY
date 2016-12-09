@@ -36,7 +36,6 @@
             android:text=""
             android:textColor="@color/card_expand_text_color"
             android:textSize="8sp"
-
             />
     </FrameLayout>
 
@@ -47,7 +46,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:foreground="?android:attr/selectableItemBackground"
-        card_view:cardBackgroundColor="@color/white"
+        card_view:cardBackgroundColor="@color/card_background"
         card_view:cardCornerRadius="0dp"
         card_view:cardElevation="2dp"
         card_view:cardPreventCornerOverlap="true"
@@ -102,7 +101,7 @@
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:text="@string/username"
-                        android:textColor="@color/black"
+                        android:textColor="@color/primary_text"
                         android:textStyle="bold"/>
 
                     <TextView
@@ -213,7 +212,7 @@
                     android:layout_gravity="center"
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
-                    android:background="@color/white"
+                    android:background="@color/card_background"
                     android:clickable="true"
                     android:text="@string/post"
                     />

@@ -319,8 +319,8 @@ a img
 	width: 100%;
 	overflow: auto;
 	line-height: 1.3em;
-	/*color: white;
-    background: #333333 !important;*/
+	color: white;
+    background: #3C3F41 !important;
 }
 
 /* All the signatures used in the forum.  If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */

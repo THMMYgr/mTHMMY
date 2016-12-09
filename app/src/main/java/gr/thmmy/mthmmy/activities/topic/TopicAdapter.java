@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,6 +52,10 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     private final Context context;
     private final List<Post> postsList;
     private boolean foundPostFocus = false;
+    private ArrayList<boolean[]> viewProperties = new ArrayList<>();
+    private static final int isPostDateAndNumberVisibile = 0;
+    private static final int isUserExtraInfoVisibile = 1;
+    private static final int isQuoteButtonChecked = 2;
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         final CardView cardView;
@@ -102,6 +108,10 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         this.postsList = postsList;
 
         THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
+        for (int i = 0; i < postsList.size(); ++i) {
+            //Initialize properties, array's values will be false by default
+            viewProperties.add(new boolean[3]);
+        }
     }
 
     @Override
@@ -132,7 +142,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         //noinspection ConstantConditions
         Picasso.with(context)
                 .load(currentPost.getThumbnailUrl())
-                .resize(THUMBNAIL_SIZE,THUMBNAIL_SIZE)
+                .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                 .centerCrop()
                 .error(ResourcesCompat.getDrawable(context.getResources()
                         , R.drawable.ic_default_user_thumbnail, null))
@@ -180,46 +190,36 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         //If user is not deleted then we have more to do
         if (!currentPost.isDeleted()) { //Set extra info
             //Variables with content
-            String c_specialRank = currentPost.getSpecialRank()
-                    , c_rank = currentPost.getRank()
-                    , c_gender = currentPost.getGender()
-                    , c_numberOfPosts = currentPost.getNumberOfPosts()
-                    , c_personalText = currentPost.getPersonalText();
-            int c_numberOfStars = currentPost.getNumberOfStars()
-                    ,c_userColor = currentPost.getUserColor();
+            String c_specialRank = currentPost.getSpecialRank(), c_rank = currentPost.getRank(), c_gender = currentPost.getGender(), c_numberOfPosts = currentPost.getNumberOfPosts(), c_personalText = currentPost.getPersonalText();
+            int c_numberOfStars = currentPost.getNumberOfStars(), c_userColor = currentPost.getUserColor();
 
             if (!Objects.equals(c_specialRank, "") && c_specialRank != null) {
                 holder.specialRank.setText(c_specialRank);
                 holder.specialRank.setVisibility(View.VISIBLE);
-            }
-            else
+            } else
                 holder.specialRank.setVisibility(View.GONE);
             if (!Objects.equals(c_rank, "") && c_rank != null) {
                 holder.rank.setText(c_rank);
                 holder.rank.setVisibility(View.VISIBLE);
-            }
-            else
+            } else
                 holder.rank.setVisibility(View.GONE);
             if (!Objects.equals(c_gender, "") && c_gender != null) {
                 holder.gender.setText(c_gender);
                 holder.gender.setVisibility(View.VISIBLE);
-            }
-            else
+            } else
                 holder.gender.setVisibility(View.GONE);
             if (!Objects.equals(c_numberOfPosts, "") && c_numberOfPosts != null) {
                 holder.numberOfPosts.setText(c_numberOfPosts);
                 holder.numberOfPosts.setVisibility(View.VISIBLE);
-            }
-            else
+            } else
                 holder.numberOfPosts.setVisibility(View.GONE);
             if (!Objects.equals(c_personalText, "") && c_personalText != null) {
                 holder.personalText.setText("\"" + c_personalText + "\"");
                 holder.personalText.setVisibility(View.VISIBLE);
-            }
-            else
+            } else
                 holder.personalText.setVisibility(View.GONE);
 
-            if(c_numberOfStars != 0) {
+            if (c_numberOfStars != 0) {
                 holder.stars.setTypeface(FontManager.getTypeface(context, FONTAWESOME));
 
                 String aStar = context.getResources().getString(R.string.fa_icon_star);
@@ -230,15 +230,25 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 holder.stars.setText(usersStars);
                 holder.stars.setTextColor(c_userColor);
                 holder.stars.setVisibility(View.VISIBLE);
-            }
-            else
+            } else
                 holder.stars.setVisibility(View.GONE);
 
-                /* --Header expand/collapse functionality-- */
+            /* --Header expand/collapse functionality-- */
+
+            //Check if current post's header is expanded
+            if (viewProperties.get(position)[isUserExtraInfoVisibile]) //Expanded
+                holder.userExtraInfo.setVisibility(View.VISIBLE);
+            else //Collapsed
+                holder.userExtraInfo.setVisibility(View.GONE);
 
             holder.header.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //Change post's viewProperties accordingly
+                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
+                    tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];
+                    viewProperties.set(holder.getAdapterPosition(), tmp);
+
                     TopicAnimations.animateUserExtraInfoVisibility(holder.userExtraInfo);
                 }
             });
@@ -247,18 +257,49 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.userExtraInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //Change post's viewProperties accordingly
+                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
+                    tmp[1] = false;
+                    viewProperties.set(holder.getAdapterPosition(), tmp);
+
                     TopicAnimations.animateUserExtraInfoVisibility(v);
                 }
             });
-                /* --Header expand/collapse functionality end-- */
+            /* --Header expand/collapse functionality end-- */
         }
 
             /* --Card expand/collapse functionality-- */
+
+        //Check if current post is expanded
+        if (viewProperties.get(position)[isPostDateAndNumberVisibile]) { //Expanded
+            holder.postDateAndNumberExp.setVisibility(View.VISIBLE);
+
+            holder.username.setMaxLines(Integer.MAX_VALUE);
+            holder.username.setEllipsize(null);
+
+            holder.subject.setTextColor(Color.parseColor("#000000"));
+            holder.subject.setMaxLines(Integer.MAX_VALUE);
+            holder.subject.setEllipsize(null);
+        } else { //Collapsed
+            holder.postDateAndNumberExp.setVisibility(View.GONE);
+
+            holder.username.setMaxLines(1);
+            holder.username.setEllipsize(TextUtils.TruncateAt.END);
+
+            holder.subject.setTextColor(Color.parseColor("#757575"));
+            holder.subject.setMaxLines(1);
+            holder.subject.setEllipsize(TextUtils.TruncateAt.END);
+        }
 
         //Should expand/collapse when card is touched
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Change post's viewProperties accordingly
+                boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
+                tmp[isPostDateAndNumberVisibile] = !tmp[isPostDateAndNumberVisibile];
+                viewProperties.set(holder.getAdapterPosition(), tmp);
+
                 TopicAnimations.animatePostExtraInfoVisibility(holder.postDateAndNumberExp
                         , holder.username, holder.subject
                         , Color.parseColor("#000000")

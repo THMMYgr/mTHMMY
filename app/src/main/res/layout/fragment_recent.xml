@@ -17,7 +17,7 @@
             class="gr.thmmy.mthmmy.utils.CustomRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white"
+            android:background="@color/background"
             android:clipToPadding="false"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
