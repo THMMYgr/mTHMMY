@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +28,7 @@ import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import mthmmy.utils.Report;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -93,7 +93,7 @@ public class RecentFragment extends Fragment {
 
 
         if (sectionNumber == 1)    //?
-            Log.d(TAG, "onCreate");
+            Report.d(TAG, "onCreate");
     }
 
     @Override
@@ -106,35 +106,35 @@ public class RecentFragment extends Fragment {
 
 
         }
-        Log.d(TAG, "onActivityCreated");
+        Report.d(TAG, "onActivityCreated");
     }
 
     @Override
     public void onStart() {
         super.onStart();
         if (sectionNumber == 1)
-            Log.d(TAG, "onStart");
+            Report.d(TAG, "onStart");
     }
 
     @Override
     public void onResume() {
         super.onResume();
         if (sectionNumber == 1)
-            Log.d(TAG, "onResume");
+            Report.d(TAG, "onResume");
     }
 
     @Override
     public void onPause() {
         super.onPause();
         if (sectionNumber == 1)
-            Log.d(TAG, "onPause");
+            Report.d(TAG, "onPause");
     }
 
     @Override
     public void onStop() {
         super.onStop();
         if (sectionNumber == 1)
-            Log.d(TAG, "onStop");
+            Report.d(TAG, "onStop");
     }
 
 
@@ -225,10 +225,10 @@ public class RecentFragment extends Fragment {
                 parse(document);
                 return 0;
             } catch (IOException e) {
-                Log.d("DEB", "ERROR", e);
+                Report.d("DEB", "ERROR", e);
                 return 1;
             } catch (Exception e) {
-                Log.d("DEB", "ERROR", e);
+                Report.d("DEB", "ERROR", e);
                 return 2;
             }
 
@@ -261,7 +261,7 @@ public class RecentFragment extends Fragment {
                     if (matcher.find())
                         lastUser = matcher.group(1);
                     else {
-                        Log.e(TAG, "Parsing failed (lastUser)!");
+                        Report.e(TAG, "Parsing failed (lastUser)!");
                         return;
                     }
 
@@ -271,7 +271,7 @@ public class RecentFragment extends Fragment {
                     if (matcher.find())
                         dateTime = matcher.group(1);
                     else {
-                        Log.e(TAG, "Parsing failed (dateTime)!");
+                        Report.e(TAG, "Parsing failed (dateTime)!");
                         return;
                     }
 
@@ -281,7 +281,7 @@ public class RecentFragment extends Fragment {
 
                 return;
             }
-            Log.e(TAG, "Parsing failed!");
+            Report.e(TAG, "Parsing failed!");
         }
     }
 

@@ -12,7 +12,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,6 +36,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.Post;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import gr.thmmy.mthmmy.utils.FontManager;
+import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.NO_POST_FOCUS;
@@ -178,7 +178,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                         toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
                         view.setSelected(false);
                     } else
-                        Log.i(TAG, "An error occurred while trying to exclude post from" +
+                        Report.i(TAG, "An error occurred while trying to exclude post from" +
                                 "toQuoteList, post wasn't there!");
                 } else {
                     toQuoteList.add(currentPost.getPostNumber());
@@ -443,7 +443,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         private boolean handleUri(final Uri uri) {
             //Method always returns true as we don't want any url to be loaded in WebViews
 
-            Log.i(TAG, "Uri clicked = " + uri);
+            Report.i(TAG, "Uri clicked = " + uri);
             final String host = uri.getHost(); //Get requested url's host
             final String uriString = uri.toString();
 

@@ -13,7 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,6 +34,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.data.Post;
+import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -342,9 +342,9 @@ public class TopicActivity extends BaseActivity {
                 parse(document); //Parse data
                 return true;
             } catch (SSLHandshakeException e) {
-                Log.w(TAG, "Certificate problem (please switch to unsafe connection).");
+                Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Log.e("TAG", "ERROR", e);
+                Report.e("TAG", "ERROR", e);
             }
             return false;
         }
@@ -385,7 +385,7 @@ public class TopicActivity extends BaseActivity {
                 } else {
                     parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Θέμα:") + 6
                             , parsedTitle.indexOf("(Αναγνώστηκε") - 2);
-                    Log.d(TAG, parsedTitle);
+                    Report.d(TAG, parsedTitle);
                 }
             }
 
