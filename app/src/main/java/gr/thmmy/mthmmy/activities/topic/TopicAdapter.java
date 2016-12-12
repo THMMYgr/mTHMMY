@@ -236,10 +236,14 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             /* --Header expand/collapse functionality-- */
 
             //Check if current post's header is expanded
-            if (viewProperties.get(position)[isUserExtraInfoVisibile]) //Expanded
+            if (viewProperties.get(position)[isUserExtraInfoVisibile]) { //Expanded
                 holder.userExtraInfo.setVisibility(View.VISIBLE);
-            else //Collapsed
+                holder.userExtraInfo.setAlpha(1.0f);
+            }
+            else { //Collapsed
                 holder.userExtraInfo.setVisibility(View.GONE);
+                holder.userExtraInfo.setAlpha(0.0f);
+            }
 
             holder.header.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -273,6 +277,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         //Check if current post is expanded
         if (viewProperties.get(position)[isPostDateAndNumberVisibile]) { //Expanded
             holder.postDateAndNumberExp.setVisibility(View.VISIBLE);
+            holder.postDateAndNumberExp.setAlpha(1.0f);
+            holder.postDateAndNumberExp.setTranslationY(0);
 
             holder.username.setMaxLines(Integer.MAX_VALUE);
             holder.username.setEllipsize(null);
@@ -282,6 +288,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.subject.setEllipsize(null);
         } else { //Collapsed
             holder.postDateAndNumberExp.setVisibility(View.GONE);
+            holder.postDateAndNumberExp.setAlpha(0.0f);
+            holder.postDateAndNumberExp.setTranslationY(holder.postDateAndNumberExp.getHeight());
 
             holder.username.setMaxLines(1);
             holder.username.setEllipsize(TextUtils.TruncateAt.END);
