@@ -45,3 +45,6 @@ captures/
 
 ### Android Patch ###
 gen-external-apklibs
+
+# Google Services (release build)
+app/src/release/google-services.json

@@ -162,7 +162,7 @@ public class SessionManager
             //Handle exception
         }
         catch (InterruptedIOException e){
-            Report.i(TAG, "Login InterruptedIOException", e);    //users cancels LoginTask
+            Report.i(TAG, "Login InterruptedIOException");    //users cancels LoginTask
             return CANCELLED;
         }
         catch (IOException e) {

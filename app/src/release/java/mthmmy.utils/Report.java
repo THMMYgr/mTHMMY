@@ -1,67 +1,80 @@
 package mthmmy.utils;
 
-import android.util.Log;
+import com.google.firebase.crash.FirebaseCrash;
 
-public class Report //TODO implement for release
+public class Report
 {
 
     public static void v (String TAG, String message)
     {
-        Log.v(TAG,message);
+        log("V", TAG, message);
     }
 
     public static void v (String TAG, String message, Throwable tr)
     {
-        Log.v(TAG,message + ": " + tr.getMessage(),tr);
+        exception("V", TAG, message, tr);
     }
 
     public static void d (String TAG, String message)
     {
-        Log.d(TAG,message);
+        log("D", TAG, message);
     }
 
     public static void d (String TAG, String message, Throwable tr)
     {
-        Log.d(TAG,message + ": " + tr.getMessage(),tr);
+        exception("D", TAG, message, tr);
     }
 
     public static void i (String TAG, String message)
     {
-        Log.i(TAG,message);
+        log("I", TAG, message);
     }
 
     public static void i (String TAG, String message, Throwable tr)
     {
-        Log.i(TAG,message + ": " + tr.getMessage(),tr);
+        exception("I", TAG, message, tr);
     }
 
     public static void w (String TAG, String message)
     {
-        Log.w(TAG,message);
+        log("W", TAG, message);
     }
 
     public static void w (String TAG, String message, Throwable tr)
     {
-        Log.w(TAG,message + ": " + tr.getMessage(),tr);
+        exception("W", TAG, message, tr);
     }
 
     public static void e (String TAG, String message)
     {
-        Log.e(TAG,message);
+        log("E", TAG, message);
     }
 
     public static void e (String TAG, String message, Throwable tr)
     {
-        Log.e(TAG,message + ": " + tr.getMessage(),tr);
+        exception("E", TAG, message, tr);
     }
 
     public static void wtf (String TAG, String message)
     {
-        Log.wtf(TAG,message);
+        log("WTF", TAG, message);
     }
 
     public static void wtf (String TAG, String message, Throwable tr)
     {
-        Log.wtf(TAG,message + ": " + tr.getMessage(),tr);
+        exception("WTF", TAG, message, tr);
     }
+
+    private static void log(String level, String TAG, String message)
+    {
+        FirebaseCrash.log(level + "/" + TAG + ": " + message);
+    }
+
+    private static void exception(String level, String TAG, String message, Throwable tr)
+    {
+        FirebaseCrash.log(level + "/" + TAG + ": " + message + ": " + tr.getMessage());
+        FirebaseCrash.report(tr);
+    }
+
+
 }
