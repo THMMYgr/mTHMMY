@@ -7,8 +7,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -79,6 +77,8 @@ public class TopicActivity extends BaseActivity {
     private String topicTitle;
     private FloatingActionButton replyFAB;
     private String parsedTitle;
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +100,6 @@ public class TopicActivity extends BaseActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         postsList = new ArrayList<>();
-
 
         firstPage = (ImageButton) findViewById(R.id.page_first_button);
         previousPage = (ImageButton) findViewById(R.id.page_previous_button);
@@ -165,6 +164,12 @@ public class TopicActivity extends BaseActivity {
                 }
             }
         });
+
+        recyclerView = (RecyclerView)findViewById(R.id.topic_recycler_view);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), postsList));
 
         new TopicTask().execute(extras.getString("TOPIC_URL")); //Attempt data parsing
     }
@@ -292,17 +297,7 @@ public class TopicActivity extends BaseActivity {
 
     private void changePage(int pageRequested) {
         if (pageRequested != thisPage - 1) {
-            //Restart activity with new page
-            Pair<View, String> p1 = Pair.create((View) replyFAB, "fab");
-            Pair<View, String> p2 = Pair.create((View) toolbar, "toolbar");
-            ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeSceneTransitionAnimation(this, p1, p2);
-
-            Intent intent = getIntent();
-            intent.putExtra("TOPIC_URL", pagesUrls.get(pageRequested));
-            intent.putExtra("TOPIC_TITLE", topicTitle);
-            startActivity(intent, options.toBundle());
-            finish();
+            new TopicTask().execute(pagesUrls.get(pageRequested)); //Attempt data parsing
         }
     }
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
@@ -315,6 +310,7 @@ public class TopicActivity extends BaseActivity {
         //Show a progress bar until done
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
+            replyFAB.setEnabled(false);
         }
 
         protected Boolean doInBackground(String... strings) {
@@ -324,6 +320,7 @@ public class TopicActivity extends BaseActivity {
 
             //Find message focus if present
             {
+                postFocus = NO_POST_FOCUS;
                 if (pageUrl.contains("msg")) {
                     String tmp = pageUrl.substring(pageUrl.indexOf("msg") + 3);
                     if (tmp.contains(";"))
@@ -414,13 +411,7 @@ public class TopicActivity extends BaseActivity {
      * adds a card for each post to the ScrollView.
      */
     private void populateLayout() {
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.topic_recycler_view);
-        recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(layoutManager);
-
-        TopicAdapter adapter = new TopicAdapter(getApplicationContext(), postsList);
-        recyclerView.setAdapter(adapter);
+        recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), postsList), false);
 
         //Set post focus
         if (postFocus != NO_POST_FOCUS) {

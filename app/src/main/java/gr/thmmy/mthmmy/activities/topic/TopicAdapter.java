@@ -305,7 +305,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.username.setMaxLines(Integer.MAX_VALUE);
             holder.username.setEllipsize(null);
 
-            holder.subject.setTextColor(Color.parseColor("#000000"));
+            holder.subject.setTextColor(Color.parseColor("#FFFFFF"));
             holder.subject.setMaxLines(Integer.MAX_VALUE);
             holder.subject.setEllipsize(null);
         } else { //Collapsed
@@ -332,7 +332,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
                 TopicAnimations.animatePostExtraInfoVisibility(holder.postDateAndNumberExp
                         , holder.username, holder.subject
-                        , Color.parseColor("#000000")
+                        , Color.parseColor("#FFFFFF")
                         , Color.parseColor("#757575"));
             }
         });
