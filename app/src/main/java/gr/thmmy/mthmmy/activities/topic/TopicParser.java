@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -91,6 +92,7 @@ class TopicParser {
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
+            ArrayList<String> p_attachedFiles;
 
             //Initialize variables
             p_rank = "Rank";
@@ -100,6 +102,7 @@ class TopicParser {
             p_numberOfPosts = "";
             p_numberOfStars = 0;
             p_userColor = USER_COLOR_YELLOW;
+            p_attachedFiles = new ArrayList<>();
 
             //Find the Username
             Element userName = item.select("a[title^=" + userNameSelection + "]").first();
@@ -179,6 +182,23 @@ class TopicParser {
                 p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
             }
 
+            //Find attached file's urls, names and info, if present
+            Elements postAttachments = item.select("div:containsOwn(downloaded)");
+            if (postAttachments != null) {
+                for (Element attached : postAttachments) {
+                    //Get file's url and filename
+                    Element tmpAttachedFileUrlAndName = attached.select("a").first();
+                    tmpAttachedFileUrlAndName.select("img").remove().first();
+
+                    //Get file's info (size and download count)
+                    String tmpAttachedFileInfo = attached.text().trim();
+                    tmpAttachedFileInfo = tmpAttachedFileInfo.substring(
+                            tmpAttachedFileInfo.indexOf("("));
+
+                    p_attachedFiles.add(tmpAttachedFileUrlAndName + "  " + tmpAttachedFileInfo);
+                }
+            }
+
             if (!p_isDeleted) { //Active user
                 //Get extra info
                 int postsLineIndex = -1;
@@ -238,12 +258,12 @@ class TopicParser {
                 returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post
                         , p_postIndex, p_postNum, p_postDate, p_rank
                         , p_specialRank, p_gender, p_numberOfPosts, p_personalText
-                        , p_numberOfStars, p_userColor));
+                        , p_numberOfStars, p_userColor, p_attachedFiles));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
-                returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject
-                        , p_post, p_postIndex, p_postNum, p_postDate, p_userColor));
+                returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post
+                        , p_postIndex, p_postNum, p_postDate, p_userColor, p_attachedFiles));
             }
         }
         return returnList;

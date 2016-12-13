@@ -26,6 +26,7 @@
     <string name="text_last">last</string>
     <string name="home">Home</string>
     <string name="fa_icon_star">&#xf005;</string>
+    <string name="fa_file">&#xf15b;</string>
 
     <string name="user_number_of_posts">#%1$d</string>
 </resources>

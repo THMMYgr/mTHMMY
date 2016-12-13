@@ -1,7 +1,9 @@
 package gr.thmmy.mthmmy.data;
 
+import java.util.ArrayList;
+
 public class Post {
-    //Standard info
+    //Standard info (exists in every post)
     private final String thumbnailUrl;
     private final String author;
     private final String subject;
@@ -17,13 +19,15 @@ public class Post {
     private final String gender;
     private final String numberOfPosts;
     private final String personalText;
-    private int numberOfStars;
+    private final int numberOfStars;
     private final int userColor;
+    private final ArrayList<String> attachedFiles;
 
     public Post(String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, String rank
             , String special_rank, String gender, String numberOfPosts
-            , String personalText, int numberOfStars, int userColor) {
+            , String personalText, int numberOfStars, int userColor
+            , ArrayList<String> attachedFiles) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -39,10 +43,12 @@ public class Post {
         this.personalText = personalText;
         this.numberOfStars = numberOfStars;
         this.userColor = userColor;
+        this.attachedFiles = attachedFiles;
     }
 
     public Post(String thumbnailUrl, String author, String subject, String content
-            , int postIndex, int postNumber, String postDate, int userColor) {
+            , int postIndex, int postNumber, String postDate, int userColor
+            , ArrayList<String> attachedFiles) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -57,6 +63,8 @@ public class Post {
         gender = "Gender";
         numberOfPosts = "Posts: 0";
         personalText = "";
+        numberOfStars = 0;
+        this.attachedFiles = attachedFiles;
     }
 
     //Getters
@@ -76,19 +84,25 @@ public class Post {
         return subject;
     }
 
-    public String getPostDate() { return postDate;}
+    public String getPostDate() {
+        return postDate;
+    }
 
     public int getPostNumber() {
         return postNumber;
     }
 
-    public int getPostIndex() { return postIndex;}
+    public int getPostIndex() {
+        return postIndex;
+    }
 
     public boolean isDeleted() {
         return isDeleted;
     }
 
-    public String getRank() {return rank; }
+    public String getRank() {
+        return rank;
+    }
 
     public String getSpecialRank() {
         return specialRank;
@@ -106,7 +120,15 @@ public class Post {
         return personalText;
     }
 
-    public int getNumberOfStars() {return numberOfStars; }
+    public int getNumberOfStars() {
+        return numberOfStars;
+    }
 
-    public int getUserColor() {return userColor; }
+    public int getUserColor() {
+        return userColor;
+    }
+
+    public ArrayList<String> getAttachedFiles() {
+        return attachedFiles;
+    }
 }

@@ -28,7 +28,6 @@
     <color name="primary_dark">#333333</color>
     <color name="primary_light">#3C3F41</color>
     <color name="accent">#BF4040</color>
-    <!--<color name="accent">#6797BB</color>-->
     <color name="primary_text">#E7E7E7</color>
     <color name="secondary_text">#757575</color>
     <color name="background">#303234</color>

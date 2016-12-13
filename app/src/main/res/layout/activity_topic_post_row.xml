@@ -191,7 +191,7 @@
             </LinearLayout>
 
             <View
-                android:id="@+id/divider"
+                android:id="@+id/header_body_devider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginBottom="9dp"
@@ -217,6 +217,27 @@
                     android:text="@string/post"
                     />
             </FrameLayout>
+
+            <View
+                android:id="@+id/body_footer_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="9dp"
+                android:background="@color/divider"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/post_footer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="9dp">
+            </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>

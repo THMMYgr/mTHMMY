@@ -11,7 +11,9 @@ import android.os.Handler;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -66,6 +68,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         final ImageButton quoteToggle;
         final RelativeLayout header;
         final LinearLayout userExtraInfo;
+        final View bodyFooterDivider;
+        final LinearLayout postFooter;
 
         final TextView specialRank, rank, gender, numberOfPosts, personalText, stars;
 
@@ -83,6 +87,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             subject = (TextView) view.findViewById(R.id.subject);
             post = (WebView) view.findViewById(R.id.post);
             quoteToggle = (ImageButton) view.findViewById(R.id.toggle_quote_button);
+            bodyFooterDivider = view.findViewById(R.id.body_footer_divider);
+            postFooter = (LinearLayout) view.findViewById(R.id.post_footer);
 
             //User's extra
             header = (RelativeLayout) view.findViewById(R.id.header);
@@ -187,6 +193,23 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             }
         });
 
+        if (currentPost.getAttachedFiles().size() != 0) {
+            holder.bodyFooterDivider.setVisibility(View.VISIBLE);
+            for (String attachedFile : currentPost.getAttachedFiles()) {
+                TextView attached = new TextView(context);
+                attached.setTextSize(10f);
+                attached.setClickable(true);
+                attached.setMovementMethod(LinkMovementMethod.getInstance());
+
+                attached.setText(Html.fromHtml(attachedFile));
+
+                holder.postFooter.addView(attached);
+            }
+        } else {
+            holder.bodyFooterDivider.setVisibility(View.GONE);
+            holder.postFooter.removeAllViews();
+        }
+
         //If user is not deleted then we have more to do
         if (!currentPost.isDeleted()) { //Set extra info
             //Variables with content
@@ -239,8 +262,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             if (viewProperties.get(position)[isUserExtraInfoVisibile]) { //Expanded
                 holder.userExtraInfo.setVisibility(View.VISIBLE);
                 holder.userExtraInfo.setAlpha(1.0f);
-            }
-            else { //Collapsed
+            } else { //Collapsed
                 holder.userExtraInfo.setVisibility(View.GONE);
                 holder.userExtraInfo.setAlpha(0.0f);
             }
@@ -495,5 +517,4 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         }
     }
 //------------------------------------CUSTOM WEBVIEW CLIENT END-------------------------------------
-
 }

@@ -431,6 +431,7 @@ public class TopicActivity extends BaseActivity {
                 }
             }
         }
+        replyFAB.setEnabled(true);
     }
 
 //--------------------------------------POPULATE UI METHOD END--------------------------------------
