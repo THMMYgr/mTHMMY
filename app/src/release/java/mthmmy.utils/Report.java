@@ -73,7 +73,7 @@ public class Report
     private static void exception(String level, String TAG, String message, Throwable tr)
     {
         FirebaseCrash.log(level + "/" + TAG + ": " + message + ": " + tr.getMessage());
-        if(level.equals("E"))   //report only serious exceptions
+        if(level.equals("E")||level.equals("WTF"))   //report only serious exceptions
             FirebaseCrash.report(tr);
     }
 

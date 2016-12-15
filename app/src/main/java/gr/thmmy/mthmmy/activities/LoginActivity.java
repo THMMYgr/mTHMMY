@@ -93,21 +93,21 @@ public class LoginActivity extends BaseActivity {
         });
 
 
-        GifDrawable gifFromPath  = null;
+        //GIF logo init
+        GifImageView gifImageView = (GifImageView) findViewById(R.id.logo);
         try {
-            gifFromPath = new GifDrawable( getResources(), R.drawable.logo_animated );
-            gifFromPath.setSpeed(0.75f);
+            final GifDrawable gifFromPath = new GifDrawable(getResources(), R.drawable.logo_animated);
+            gifFromPath.setSpeed(0.7f);
             gifFromPath.addAnimationListener(new AnimationListener() {
                 @Override
                 public void onAnimationCompleted(int loopNumber) {
-                    recreate();
+                    gifFromPath.reset();
                 }
             });
+            gifImageView.setImageDrawable(gifFromPath);
         } catch (IOException e) {
-            e.printStackTrace();
+            Report.wtf(TAG,"IO at animated logo (?)");
         }
-        GifImageView gifImageView = (GifImageView) findViewById(R.id.logo);
-        gifImageView.setImageDrawable(gifFromPath);
     }
 
     @Override

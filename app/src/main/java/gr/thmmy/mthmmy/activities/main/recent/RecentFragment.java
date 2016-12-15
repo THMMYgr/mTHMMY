@@ -58,6 +58,8 @@ public class RecentFragment extends Fragment {
 
     private OkHttpClient client;
 
+    private RecentTask recentTask;
+
     // Required empty public constructor
     public RecentFragment() {
     }
@@ -102,9 +104,11 @@ public class RecentFragment extends Fragment {
         if (sectionNumber == 1)//temp
         {
             if (topicSummaries.isEmpty())
-                new RecentTask().execute();
+            {
+                recentTask =new RecentTask();
+                recentTask.execute();
 
-
+            }
         }
         Report.d(TAG, "onActivityCreated");
     }
@@ -158,7 +162,10 @@ public class RecentFragment extends Fragment {
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override
                         public void onRefresh() {
-                            new RecentTask().execute();
+                            if(recentTask!=null&&recentTask.getStatus()!= AsyncTask.Status.RUNNING) {
+                                recentTask = new RecentTask();
+                                recentTask.execute();
+                            }
 
                         }
 
@@ -182,6 +189,14 @@ public class RecentFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(recentTask!=null&&recentTask.getStatus()!= AsyncTask.Status.RUNNING)
+            recentTask.cancel(true);
+    }
+
 
     @Override
     public void onDetach() {
@@ -215,7 +230,6 @@ public class RecentFragment extends Fragment {
         }
 
         protected Integer doInBackground(Void... voids) {
-
             Request request = new Request.Builder()
                     .url(thmmyUrl)
                     .build();
@@ -225,10 +239,10 @@ public class RecentFragment extends Fragment {
                 parse(document);
                 return 0;
             } catch (IOException e) {
-                Report.d("DEB", "ERROR", e);
+                Report.d(TAG, "ERROR", e);
                 return 1;
             } catch (Exception e) {
-                Report.d("DEB", "ERROR", e);
+                Report.d(TAG, "ERROR", e);
                 return 2;
             }
 
