@@ -11,9 +11,14 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import mthmmy.utils.Report;
+import pl.droidsonroids.gif.AnimationListener;
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
 import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;
@@ -86,6 +91,23 @@ public class LoginActivity extends BaseActivity {
                 overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
         });
+
+
+        GifDrawable gifFromPath  = null;
+        try {
+            gifFromPath = new GifDrawable( getResources(), R.drawable.logo_animated );
+            gifFromPath.setSpeed(0.75f);
+            gifFromPath.addAnimationListener(new AnimationListener() {
+                @Override
+                public void onAnimationCompleted(int loopNumber) {
+                    recreate();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        GifImageView gifImageView = (GifImageView) findViewById(R.id.logo);
+        gifImageView.setImageDrawable(gifFromPath);
     }
 
     @Override

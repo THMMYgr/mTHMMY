@@ -42,6 +42,7 @@ dependencies {
         transitive = true
     }
     compile 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.3'
 }
 
 apply plugin: 'com.google.gms.google-services'
