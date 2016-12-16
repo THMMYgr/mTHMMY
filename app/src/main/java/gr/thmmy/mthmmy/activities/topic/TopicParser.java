@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -92,7 +91,7 @@ class TopicParser {
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
-            ArrayList<String> p_attachedFiles;
+            ArrayList<String[]> p_attachedFiles;
 
             //Initialize variables
             p_rank = "Rank";
@@ -185,17 +184,24 @@ class TopicParser {
             //Find attached file's urls, names and info, if present
             Elements postAttachments = item.select("div:containsOwn(downloaded)");
             if (postAttachments != null) {
-                for (Element attached : postAttachments) {
+                Elements attachedFiles = postAttachments.select("a");
+                String postAttachmentsText = postAttachments.text();
+
+                for(int i = 0; i<attachedFiles.size(); ++i){
+                    String[] attachedArray = new String[3];
+
                     //Get file's url and filename
-                    Element tmpAttachedFileUrlAndName = attached.select("a").first();
-                    tmpAttachedFileUrlAndName.select("img").remove().first();
+                    Element tmpAttachedFileUrlAndName = attachedFiles.get(i);
+                    attachedArray[0] = tmpAttachedFileUrlAndName.attr("href");
+                    attachedArray[1] = tmpAttachedFileUrlAndName.text().substring(1);
 
                     //Get file's info (size and download count)
-                    String tmpAttachedFileInfo = attached.text().trim();
-                    tmpAttachedFileInfo = tmpAttachedFileInfo.substring(
-                            tmpAttachedFileInfo.indexOf("("));
+                    String postAttachmentsTextSbstr = postAttachmentsText.substring(
+                            postAttachmentsText.indexOf(attachedArray[1]));
+                    attachedArray[2] = postAttachmentsTextSbstr.substring(attachedArray[1].length()
+                            , postAttachmentsTextSbstr.indexOf("times.)"));
 
-                    p_attachedFiles.add(tmpAttachedFileUrlAndName + "  " + tmpAttachedFileInfo);
+                    p_attachedFiles.add(attachedArray);
                 }
             }
 

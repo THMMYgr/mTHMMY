@@ -5,15 +5,14 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,15 +36,14 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.Post;
 import gr.thmmy.mthmmy.utils.CircleTransform;
-import gr.thmmy.mthmmy.utils.FontManager;
 import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.NO_POST_FOCUS;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.downloadFileAsync;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.postFocus;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
-import static gr.thmmy.mthmmy.utils.FontManager.FONTAWESOME;
 
 class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     private static final String TAG = "TopicAdapter";
@@ -54,7 +52,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     private final Context context;
     private final List<Post> postsList;
     private boolean foundPostFocus = false;
-    private ArrayList<boolean[]> viewProperties = new ArrayList<>();
+    private final ArrayList<boolean[]> viewProperties = new ArrayList<>();
     private static final int isPostDateAndNumberVisibile = 0;
     private static final int isUserExtraInfoVisibile = 1;
     private static final int isQuoteButtonChecked = 2;
@@ -195,13 +193,29 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         if (currentPost.getAttachedFiles().size() != 0) {
             holder.bodyFooterDivider.setVisibility(View.VISIBLE);
-            for (String attachedFile : currentPost.getAttachedFiles()) {
-                TextView attached = new TextView(context);
+            String faFile = context.getResources().getString(R.string.fa_file);
+            int filesTextColor = context.getResources().getColor(R.color.accent);
+
+            for (final String[] attachedFile : currentPost.getAttachedFiles()) {
+                final TextView attached = new TextView(context);
                 attached.setTextSize(10f);
                 attached.setClickable(true);
-                attached.setMovementMethod(LinkMovementMethod.getInstance());
+                attached.setTypeface(Typeface.createFromAsset(context.getAssets()
+                        , "fonts/fontawesome-webfont.ttf"));
+                attached.setText(faFile + " " + attachedFile[1] + attachedFile[2]);
+                attached.setTextColor(filesTextColor);
+                attached.setPadding(0, 3, 0, 3);
 
-                attached.setText(Html.fromHtml(attachedFile));
+                attached.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            downloadFileAsync(attachedFile[0], attachedFile[1], context);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
 
                 holder.postFooter.addView(attached);
             }
@@ -243,7 +257,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 holder.personalText.setVisibility(View.GONE);
 
             if (c_numberOfStars != 0) {
-                holder.stars.setTypeface(FontManager.getTypeface(context, FONTAWESOME));
+                holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
+                        , "fonts/fontawesome-webfont.ttf"));
 
                 String aStar = context.getResources().getString(R.string.fa_icon_star);
                 String usersStars = "";

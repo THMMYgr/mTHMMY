@@ -1,19 +1,24 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -22,6 +27,9 @@ import android.widget.Toast;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,9 +41,12 @@ import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.data.Post;
 import mthmmy.utils.Report;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGIN_STATUS;
 
@@ -79,11 +90,14 @@ public class TopicActivity extends BaseActivity {
     private String parsedTitle;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
+    static String PACKAGE_NAME;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
+
+        PACKAGE_NAME = getApplicationContext().getPackageName();
 
         Bundle extras = getIntent().getExtras();
         topicTitle = getIntent().getExtras().getString("TOPIC_TITLE");
@@ -165,7 +179,7 @@ public class TopicActivity extends BaseActivity {
             }
         });
 
-        recyclerView = (RecyclerView)findViewById(R.id.topic_recycler_view);
+        recyclerView = (RecyclerView) findViewById(R.id.topic_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -452,4 +466,75 @@ public class TopicActivity extends BaseActivity {
         }
     }
 //--------------------------------------REPETITIVE UPDATER END--------------------------------------
+
+//------------------------------METHODS FOR DOWNLOADING ATTACHED FILES------------------------------
+
+    /**
+     * Create a File
+     */
+    static void downloadFileAsync(final String downloadUrl, final String fileName, final Context context) {
+        Request request = new Request.Builder().url(downloadUrl).build();
+        //final File[] tmpFile = new File[1];
+
+        getClient().newCall(request).enqueue(new Callback() {
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Failed to download file: " + response);
+                }
+                File tmpFile = getOutputMediaFile(PACKAGE_NAME, fileName);
+                if (tmpFile == null) {
+                    Report.d(TAG
+                            , "Error creating media file, check storage permissions!");
+                } else {
+                    FileOutputStream fos = new FileOutputStream(tmpFile);
+                    fos.write(response.body().bytes());
+                    fos.close();
+
+                    String filePath = tmpFile.getAbsolutePath();
+                    String extension = MimeTypeMap.getFileExtensionFromUrl(
+                            filePath.substring(filePath.lastIndexOf("/")));
+                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+
+                    Intent intent = new Intent();
+                    intent.setAction(android.content.Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(tmpFile), mime);
+                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                }
+            }
+        });
+    }
+
+    /**
+     * Create a File
+     */
+    private static File getOutputMediaFile(String packageName, String fileName) {
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                + "/Android/data/"
+                + PACKAGE_NAME //TODO
+                + "/Downloads");
+
+        // This location works best if you want the created files to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d(TAG, "problem!");
+                return null;
+            }
+        }
+        // Create a media file name
+        File mediaFile;
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + fileName);
+        return mediaFile;
+    }
+
+//----------------------------METHODS FOR DOWNLOADING ATTACHED FILES END----------------------------
 }

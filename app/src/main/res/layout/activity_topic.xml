@@ -39,7 +39,7 @@
         tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity">
     </android.support.v7.widget.RecyclerView>
 
-    <LinearLayout
+    <android.support.v7.widget.FitWindowsLinearLayout
         android:id="@+id/bottom_navigation_bar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -91,16 +91,18 @@
             android:layout_weight="0.8"
             android:contentDescription="@string/text_last"
             app:srcCompat="@drawable/page_last"/>
-    </LinearLayout>
+    </android.support.v7.widget.FitWindowsLinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_gravity="center"
-        android:background="@drawable/progress_bar_bg"
+        android:indeterminate="true"
+        android:theme="@style/AppTheme"
         android:visibility="invisible"/>
 
     <android.support.design.widget.FloatingActionButton

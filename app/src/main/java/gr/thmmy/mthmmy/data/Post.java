@@ -21,13 +21,13 @@ public class Post {
     private final String personalText;
     private final int numberOfStars;
     private final int userColor;
-    private final ArrayList<String> attachedFiles;
+    private final ArrayList<String[]> attachedFiles;
 
     public Post(String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, String rank
             , String special_rank, String gender, String numberOfPosts
             , String personalText, int numberOfStars, int userColor
-            , ArrayList<String> attachedFiles) {
+            , ArrayList<String[]> attachedFiles) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -48,7 +48,7 @@ public class Post {
 
     public Post(String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, int userColor
-            , ArrayList<String> attachedFiles) {
+            , ArrayList<String[]> attachedFiles) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -128,7 +128,7 @@ public class Post {
         return userColor;
     }
 
-    public ArrayList<String> getAttachedFiles() {
+    public ArrayList<String[]> getAttachedFiles() {
         return attachedFiles;
     }
 }
