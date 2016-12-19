@@ -89,7 +89,8 @@
                             android:contentDescription="@string/thumbnail"
                             android:maxHeight="@dimen/thumbnail_size"
                             android:maxWidth="@dimen/thumbnail_size"
-                            android:src="@drawable/ic_default_user_thumbnail"/>
+                            android:src="@drawable/ic_default_user_thumbnail"
+                            android:transitionName="user_thumbnail"/>
                     </FrameLayout>
 
                     <TextView
@@ -234,9 +235,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:paddingBottom="9dp"
                 android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingBottom="9dp">
+                android:paddingRight="16dp">
             </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>

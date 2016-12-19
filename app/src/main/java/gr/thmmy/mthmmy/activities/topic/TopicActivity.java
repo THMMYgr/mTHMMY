@@ -131,7 +131,7 @@ public class TopicActivity extends BaseActivity {
         nextPage.setEnabled(false);
         lastPage.setEnabled(false);
 
-        replyFAB = (FloatingActionButton) findViewById(R.id.fab);
+        replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
 
         replyFAB.setOnClickListener(new View.OnClickListener() {
@@ -316,7 +316,7 @@ public class TopicActivity extends BaseActivity {
     }
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
 
-    //---------------------------------------TOPIC ASYNC TASK-------------------------------------------
+//---------------------------------------TOPIC ASYNC TASK-------------------------------------------
     public class TopicTask extends AsyncTask<String, Void, Boolean> {
         //Class variables
         private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
@@ -350,7 +350,9 @@ public class TopicActivity extends BaseActivity {
             try {
                 Response response = client.newCall(request).execute();
                 document = Jsoup.parse(response.body().string());
+                //long parseStartTime = System.nanoTime();
                 parse(document); //Parse data
+                //long parseEndTime = System.nanoTime();
                 return true;
             } catch (SSLHandshakeException e) {
                 Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
@@ -517,7 +519,7 @@ public class TopicActivity extends BaseActivity {
         // using Environment.getExternalStorageState() before doing this.
         File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
                 + "/Android/data/"
-                + PACKAGE_NAME //TODO
+                + packageName
                 + "/Downloads");
 
         // This location works best if you want the created files to be shared

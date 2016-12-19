@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".activities.main.MainActivity">
+    tools:context=".activities.topic.TopicActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -24,7 +24,6 @@
             android:transitionName="toolbar"
             app:popupTheme="@style/ToolbarTheme">
         </android.support.v7.widget.Toolbar>
-
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
@@ -98,19 +97,19 @@
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center"
         android:indeterminate="true"
         android:theme="@style/AppTheme"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        app:layout_anchor="@id/appbar"
+        app:layout_anchorGravity="bottom|center"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/topic_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="42dp"
+        android:layout_marginBottom="54dp"
+        android:layout_marginEnd="@dimen/fab_margins"
         android:transitionName="fab"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_add_fab"/>

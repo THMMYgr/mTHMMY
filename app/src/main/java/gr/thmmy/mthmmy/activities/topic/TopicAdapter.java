@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.data.Post;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import mthmmy.utils.Report;
@@ -285,6 +287,19 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.header.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (viewProperties.get(holder.getAdapterPosition())[isUserExtraInfoVisibile] &&
+                            !currentPost.isDeleted()) {
+
+                        Intent intent = new Intent(context, ProfileActivity.class);
+                        Bundle b = new Bundle();
+                        b.putString("PROFILE_URL", currentPost.getProfileURL()); //Profile url
+                        intent.putExtras(b); //Put url to next Intent
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                        //((Activity) context).overridePendingTransition(
+                                //R.anim.push_right_in, R.anim.push_left_out);
+                    }
+
                     //Change post's viewProperties accordingly
                     boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
                     tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];

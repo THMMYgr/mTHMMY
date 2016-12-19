@@ -23,6 +23,8 @@ class TopicParser {
     private static int postDateSubstrSelection;
     private static String postNumberSelection;
     private static int postNumSubstrSelection;
+    private static String postAttachedDiv;
+    private static String postAttachedSubstr;
     private static String numberOfPostsSelection;
     private static String genderSelection;
     private static String genderAltMale;
@@ -40,7 +42,7 @@ class TopicParser {
     private static final String TAG = "TopicParser";
 
     static int parseCurrentPageIndex(Document doc) {
-        defineLanguange(doc);
+        defineLanguage(doc);
 
         int returnPage = 1;
         //Contains pages
@@ -57,7 +59,7 @@ class TopicParser {
     }
 
     static int parseTopicNumberOfPages(Document doc, int thisPage) {
-        defineLanguange(doc);
+        defineLanguage(doc);
 
         //Method's variables
         int returnPages = 1;
@@ -76,7 +78,7 @@ class TopicParser {
     }
 
     static ArrayList<Post> parseTopic(Document doc) {
-        defineLanguange(doc);
+        defineLanguage(doc);
 
         //Method's variables
         final int NO_INDEX = -1;
@@ -87,13 +89,14 @@ class TopicParser {
 
         for (Element item : rows) { //For every post
             //Variables to pass
-            String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_rank,
+            String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_profileURL, p_rank,
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
             ArrayList<String[]> p_attachedFiles;
 
             //Initialize variables
+            p_profileURL = null;
             p_rank = "Rank";
             p_specialRank = "Special rank";
             p_gender = "";
@@ -113,8 +116,10 @@ class TopicParser {
                         .first().text();
                 p_userName = p_userName.substring(0, p_userName.indexOf(" " + guestSelection));
                 p_userColor = USER_COLOR_BLACK;
-            } else
+            } else {
                 p_userName = userName.html();
+                p_profileURL = userName.attr("href");
+            }
 
             //Find thumbnail url
             Element thumbnailUrl = item.select("img.avatar").first();
@@ -182,7 +187,8 @@ class TopicParser {
             }
 
             //Find attached file's urls, names and info, if present
-            Elements postAttachments = item.select("div:containsOwn(downloaded)");
+            Elements postAttachments = item.select("div:containsOwn(" + postAttachedDiv
+                    + "):containsOwn(" + postAttachedSubstr + ")");
             if (postAttachments != null) {
                 Elements attachedFiles = postAttachments.select("a");
                 String postAttachmentsText = postAttachments.text();
@@ -199,7 +205,7 @@ class TopicParser {
                     String postAttachmentsTextSbstr = postAttachmentsText.substring(
                             postAttachmentsText.indexOf(attachedArray[1]));
                     attachedArray[2] = postAttachmentsTextSbstr.substring(attachedArray[1].length()
-                            , postAttachmentsTextSbstr.indexOf("times.)"));
+                            , postAttachmentsTextSbstr.indexOf(postAttachedSubstr));
 
                     p_attachedFiles.add(attachedArray);
                 }
@@ -262,7 +268,7 @@ class TopicParser {
                 }
                 //Add new post in postsList, extended information needed
                 returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post
-                        , p_postIndex, p_postNum, p_postDate, p_rank
+                        , p_postIndex, p_postNum, p_postDate, p_profileURL, p_rank
                         , p_specialRank, p_gender, p_numberOfPosts, p_personalText
                         , p_numberOfStars, p_userColor, p_attachedFiles));
 
@@ -275,12 +281,14 @@ class TopicParser {
         return returnList;
     }
 
-    private static void defineLanguange(Document doc){
+    private static void defineLanguage(Document doc){
         //English parsing variables
         final String en_currentPage = "Pages:";
         final String en_postRowSelection = "on";
         final String en_userNameSelection = "View the profile of";
         final String en_guestSelection = "Guest";
+        final String en_postAttachedDiv = "downloaded";
+        final String en_postAttachedSubstr = "times.\\)";
         final String en_postsNumberSelection = "Reply #";
         final String en_numberOfPostsSelection = "Posts:";
         final String en_genderSelection = "Gender:";
@@ -292,6 +300,8 @@ class TopicParser {
         final String gr_postRowSelection = "στις";
         final String gr_userNameSelection = "Εμφάνιση προφίλ του μέλους";
         final String gr_guestSelection = "Επισκέπτης";
+        final String gr_postAttachedDiv = "έγινε λήψη";
+        final String gr_postAttachedSubstr = "φορές.\\)";
         final String gr_postsNumberSelection = "Απάντηση #";
         final String gr_numberOfPostsSelection = "Μηνύματα:";
         final String gr_genderSelection = "Φύλο:";
@@ -303,6 +313,8 @@ class TopicParser {
             postRowSelection = gr_postRowSelection;
             userNameSelection = gr_userNameSelection;
             guestSelection = gr_guestSelection;
+            postAttachedDiv = gr_postAttachedDiv;
+            postAttachedSubstr = gr_postAttachedSubstr;
             postDateSubstrSelection = 6;
             postNumberSelection = gr_postsNumberSelection;
             postNumSubstrSelection = 12;
@@ -311,11 +323,13 @@ class TopicParser {
             genderAltMale = gr_genderAltMale;
             genderAltFemale = gr_genderAltFemale;
         }
-        else{ //Means default is english (eg. guest's language)
+        else{ //Default is english (eg. guest's language)
             currentPage = en_currentPage;
             postRowSelection = en_postRowSelection;
             userNameSelection = en_userNameSelection;
             guestSelection = en_guestSelection;
+            postAttachedDiv = en_postAttachedDiv;
+            postAttachedSubstr = en_postAttachedSubstr;
             postDateSubstrSelection = 4;
             postNumberSelection = en_postsNumberSelection;
             postNumSubstrSelection = 9;

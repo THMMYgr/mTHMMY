@@ -11,6 +11,7 @@ public class Post {
     private final int postIndex;
 
     //Extra info
+    private final String profileURL;
     private final int postNumber;
     private final String postDate;
     private final boolean isDeleted;
@@ -24,7 +25,7 @@ public class Post {
     private final ArrayList<String[]> attachedFiles;
 
     public Post(String thumbnailUrl, String author, String subject, String content
-            , int postIndex, int postNumber, String postDate, String rank
+            , int postIndex, int postNumber, String postDate, String profileURl, String rank
             , String special_rank, String gender, String numberOfPosts
             , String personalText, int numberOfStars, int userColor
             , ArrayList<String[]> attachedFiles) {
@@ -36,6 +37,7 @@ public class Post {
         this.postNumber = postNumber;
         this.postDate = postDate;
         this.isDeleted = false;
+        this.profileURL = profileURl;
         this.rank = rank;
         this.specialRank = special_rank;
         this.gender = gender;
@@ -57,6 +59,7 @@ public class Post {
         this.postNumber = postNumber;
         this.postDate = postDate;
         this.isDeleted = true;
+        profileURL = null;
         this.userColor = userColor;
         rank = "Rank";
         specialRank = "Special rank";
@@ -98,6 +101,10 @@ public class Post {
 
     public boolean isDeleted() {
         return isDeleted;
+    }
+
+    public String getProfileURL() {
+        return profileURL;
     }
 
     public String getRank() {
