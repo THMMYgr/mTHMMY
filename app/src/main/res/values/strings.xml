@@ -25,8 +25,17 @@
     <string name="text_next">next</string>
     <string name="text_last">last</string>
     <string name="home">Home</string>
+
     <string name="fa_icon_star">&#xf005;</string>
     <string name="fa_file">&#xf15b;</string>
+    <string name="fa_file_image_o">&#xf1c5;</string>
+    <string name="fa_file_pdf_o">&#xf1c1;</string>
+    <string name="fa_file_zip_o">&#xf1c6;</string>
+    <string name="fa_file_text_o">&#xf0f6;</string>
+    <string name="fa_file_word_o">&#xf1c2;</string>
+    <string name="fa_file_powerpoint_o">&#xf1c4;</string>
+    <string name="fa_file_excel_o">&#xf1c3;</string>
+    <string name="fa_file_video_o">&#xf1c8;</string>
 
     <string name="user_number_of_posts">#%1$d</string>
 </resources>

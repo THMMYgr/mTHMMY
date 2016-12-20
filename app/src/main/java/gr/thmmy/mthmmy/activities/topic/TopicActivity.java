@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -476,7 +477,6 @@ public class TopicActivity extends BaseActivity {
      */
     static void downloadFileAsync(final String downloadUrl, final String fileName, final Context context) {
         Request request = new Request.Builder().url(downloadUrl).build();
-        //final File[] tmpFile = new File[1];
 
         getClient().newCall(request).enqueue(new Callback() {
             public void onFailure(Call call, IOException e) {
@@ -514,6 +514,7 @@ public class TopicActivity extends BaseActivity {
     /**
      * Create a File
      */
+    @Nullable
     private static File getOutputMediaFile(String packageName, String fileName) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.

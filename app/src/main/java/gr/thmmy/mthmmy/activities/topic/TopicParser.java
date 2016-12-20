@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -204,8 +205,10 @@ class TopicParser {
                     //Get file's info (size and download count)
                     String postAttachmentsTextSbstr = postAttachmentsText.substring(
                             postAttachmentsText.indexOf(attachedArray[1]));
+
                     attachedArray[2] = postAttachmentsTextSbstr.substring(attachedArray[1].length()
-                            , postAttachmentsTextSbstr.indexOf(postAttachedSubstr));
+                            , postAttachmentsTextSbstr.indexOf(postAttachedSubstr))
+                            + postAttachedSubstr + ")";
 
                     p_attachedFiles.add(attachedArray);
                 }
@@ -288,7 +291,7 @@ class TopicParser {
         final String en_userNameSelection = "View the profile of";
         final String en_guestSelection = "Guest";
         final String en_postAttachedDiv = "downloaded";
-        final String en_postAttachedSubstr = "times.\\)";
+        final String en_postAttachedSubstr = "times.";
         final String en_postsNumberSelection = "Reply #";
         final String en_numberOfPostsSelection = "Posts:";
         final String en_genderSelection = "Gender:";
@@ -301,7 +304,7 @@ class TopicParser {
         final String gr_userNameSelection = "Εμφάνιση προφίλ του μέλους";
         final String gr_guestSelection = "Επισκέπτης";
         final String gr_postAttachedDiv = "έγινε λήψη";
-        final String gr_postAttachedSubstr = "φορές.\\)";
+        final String gr_postAttachedSubstr = "φορές.";
         final String gr_postsNumberSelection = "Απάντηση #";
         final String gr_numberOfPostsSelection = "Μηνύματα:";
         final String gr_genderSelection = "Φύλο:";

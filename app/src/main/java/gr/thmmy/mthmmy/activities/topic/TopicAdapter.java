@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -195,7 +196,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         if (currentPost.getAttachedFiles().size() != 0) {
             holder.bodyFooterDivider.setVisibility(View.VISIBLE);
-            String faFile = context.getResources().getString(R.string.fa_file);
             int filesTextColor = context.getResources().getColor(R.color.accent);
 
             for (final String[] attachedFile : currentPost.getAttachedFiles()) {
@@ -204,7 +204,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 attached.setClickable(true);
                 attached.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));
-                attached.setText(faFile + " " + attachedFile[1] + attachedFile[2]);
+                attached.setText(faIconFromExtension(attachedFile[1]) + " " + attachedFile[1] + attachedFile[2]);
                 attached.setTextColor(filesTextColor);
                 attached.setPadding(0, 3, 0, 3);
 
@@ -547,4 +547,29 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         }
     }
 //------------------------------------CUSTOM WEBVIEW CLIENT END-------------------------------------
+
+    @NonNull
+    private String faIconFromExtension(String filename) {
+        filename = filename.toLowerCase();
+
+        if (filename.contains("jpg") || filename.contains("gif") || filename.contains("jpeg")
+                || filename.contains("png"))
+            return context.getResources().getString(R.string.fa_file_image_o);
+        else if (filename.contains("pdf"))
+            return context.getResources().getString(R.string.fa_file_pdf_o);
+        else if (filename.contains("zip") || filename.contains("rar") || filename.contains("tar.gz"))
+            return context.getResources().getString(R.string.fa_file_zip_o);
+        else if (filename.contains("txt"))
+            return context.getResources().getString(R.string.fa_file_text_o);
+        else if (filename.contains("doc") || filename.contains("docx"))
+            return context.getResources().getString(R.string.fa_file_word_o);
+        else if (filename.contains("xls") || filename.contains("xlsx"))
+            return context.getResources().getString(R.string.fa_file_excel_o);
+        else if (filename.contains("pps"))
+            return context.getResources().getString(R.string.fa_file_powerpoint_o);
+        else if (filename.contains("mpg"))
+            return context.getResources().getString(R.string.fa_file_video_o);
+
+        return context.getResources().getString(R.string.fa_file);
+    }
 }
