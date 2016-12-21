@@ -21,7 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            android:transitionName="toolbar"
             app:popupTheme="@style/ToolbarTheme">
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
@@ -44,7 +43,6 @@
         android:layout_height="50dp"
         android:layout_gravity="bottom|end"
         android:layout_marginTop="-2dp"
-        android:transitionName="bottom_navigation_bar"
         app:elevation="8dp">
 
         <ImageButton
@@ -110,7 +108,9 @@
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="54dp"
         android:layout_marginEnd="@dimen/fab_margins"
-        android:transitionName="fab"
+        app:borderWidth="0dp"
+        app:layout_anchor="@id/topic_recycler_view"
+        app:layout_anchorGravity="bottom|right|end"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_add_fab"/>
 </android.support.design.widget.CoordinatorLayout>
