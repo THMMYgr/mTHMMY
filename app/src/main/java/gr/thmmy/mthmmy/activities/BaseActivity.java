@@ -34,6 +34,8 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
+import java.util.concurrent.TimeUnit;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -45,6 +47,9 @@ public class BaseActivity extends AppCompatActivity
 {
     // Client & Cookies
     protected static OkHttpClient client;
+    private static final long connectTimeout = 30;  //TimeUnit.SECONDS for all three
+    private static final long writeTimeout = 30;
+    private static final long readTimeout = 30;
     protected static Picasso picasso;
     private static PersistentCookieJar cookieJar;
     private static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
@@ -73,6 +78,9 @@ public class BaseActivity extends AppCompatActivity
             cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
             client = new OkHttpClient.Builder()
                     .cookieJar(cookieJar)
+                    .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                    .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                    .readTimeout(readTimeout, TimeUnit.SECONDS)
                     .build();
             sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs);
             picasso = new Picasso.Builder(BaseActivity.this)

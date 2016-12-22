@@ -31,6 +31,7 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +56,7 @@ import static gr.thmmy.mthmmy.session.SessionManager.LOGIN_STATUS;
 public class TopicActivity extends BaseActivity {
 
 //-----------------------------------------CLASS VARIABLES------------------------------------------
+    private TopicTask topicTask;
 
     /* --Posts-- */
     private List<Post> postsList;
@@ -186,7 +188,8 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), postsList));
 
-        new TopicTask().execute(extras.getString("TOPIC_URL")); //Attempt data parsing
+        topicTask = new TopicTask();
+        topicTask.execute(extras.getString("TOPIC_URL")); //Attempt data parsing
     }
 
     @Override
@@ -205,8 +208,10 @@ public class TopicActivity extends BaseActivity {
     }
 
     @Override
-    protected void onDestroy() { //When finished cancel whatever request can still be canceled
+    protected void onDestroy() {
         super.onDestroy();
+        if(topicTask!=null&&topicTask.getStatus()!= AsyncTask.Status.RUNNING)
+            topicTask.cancel(true);
     }
 
 
@@ -312,15 +317,23 @@ public class TopicActivity extends BaseActivity {
 
     private void changePage(int pageRequested) {
         if (pageRequested != thisPage - 1) {
-            new TopicTask().execute(pagesUrls.get(pageRequested)); //Attempt data parsing
+            if(topicTask!=null&&topicTask.getStatus()!= AsyncTask.Status.RUNNING)
+                topicTask.cancel(true);
+
+            topicTask = new TopicTask();
+            topicTask.execute(pagesUrls.get(pageRequested)); //Attempt data parsing
+
         }
     }
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
 
 //---------------------------------------TOPIC ASYNC TASK-------------------------------------------
-    public class TopicTask extends AsyncTask<String, Void, Boolean> {
+    public class TopicTask extends AsyncTask<String, Void, Integer> {
         //Class variables
         private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
+        private static final int SUCCESS = 0;
+        private static final int NETWORK_ERROR = 1;
+        private static final int OTHER_ERROR = 2;
 
         //Show a progress bar until done
         protected void onPreExecute() {
@@ -328,7 +341,7 @@ public class TopicActivity extends BaseActivity {
             replyFAB.setEnabled(false);
         }
 
-        protected Boolean doInBackground(String... strings) {
+        protected Integer doInBackground(String... strings) {
             Document document;
             base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //This topic's base url
             String pageUrl = strings[0]; //This page's url
@@ -351,41 +364,47 @@ public class TopicActivity extends BaseActivity {
             try {
                 Response response = client.newCall(request).execute();
                 document = Jsoup.parse(response.body().string());
-                //long parseStartTime = System.nanoTime();
                 parse(document); //Parse data
-                //long parseEndTime = System.nanoTime();
-                return true;
-            } catch (SSLHandshakeException e) {
-                Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
+                return SUCCESS;
+            } catch (IOException e) {
+                Report.i(TAG, "IO Exception",e);
+                return NETWORK_ERROR;
             } catch (Exception e) {
-                Report.e("TAG", "ERROR", e);
+                Report.e(TAG, "Exception", e);
+                return OTHER_ERROR;
             }
-            return false;
         }
 
-        protected void onPostExecute(Boolean result) {
-            if (!result) { //Parse failed!
-                //Should never happen
-                Toast.makeText(getBaseContext()
-                        , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
-                finish();
+        protected void onPostExecute(Integer result) {
+            switch (result) {
+                case SUCCESS:
+                    //Parse was successful
+                    progressBar.setVisibility(ProgressBar.INVISIBLE); //Hide progress bar
+                    populateLayout(); //Show parsed data
+
+                    //Set current page
+                    pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
+                    pageRequestValue = thisPage;
+                    if (numberOfPages >= 1000)
+                        pageIndicator.setTextSize(16);
+
+                    firstPage.setEnabled(true);
+                    previousPage.setEnabled(true);
+                    nextPage.setEnabled(true);
+                    lastPage.setEnabled(true);
+
+                    if (topicTitle == null || Objects.equals(topicTitle, ""))
+                        toolbar.setTitle(parsedTitle);
+                    break;
+                case NETWORK_ERROR:
+                    Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    //Parse failed - should never happen
+                    Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
+                    finish();
+                    break;
             }
-            //Parse was successful
-            progressBar.setVisibility(ProgressBar.INVISIBLE); //Hide progress bar
-            populateLayout(); //Show parsed data
-            //Set current page
-            pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
-            pageRequestValue = thisPage;
-            if (numberOfPages >= 1000)
-                pageIndicator.setTextSize(16);
-
-            firstPage.setEnabled(true);
-            previousPage.setEnabled(true);
-            nextPage.setEnabled(true);
-            lastPage.setEnabled(true);
-
-            if (topicTitle == null || Objects.equals(topicTitle, ""))
-                toolbar.setTitle(parsedTitle);
         }
 
         /* Parse method */
