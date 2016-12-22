@@ -17,6 +17,7 @@ import gr.thmmy.mthmmy.data.Post;
 
 class TopicParser {
     //Parsing variables
+    private static String usersViewingTopic;
     private static String currentPage;
     private static String postRowSelection;
     private static String userNameSelection;
@@ -41,6 +42,12 @@ class TopicParser {
 
     @SuppressWarnings("unused")
     private static final String TAG = "TopicParser";
+
+    static String parseUsersViewingThisTopic(Document doc){
+        defineLanguage(doc);
+        Log.d(TAG, doc.select("td:containsOwn(" + usersViewingTopic + ")").first().text());
+        return doc.select("td:containsOwn(" + usersViewingTopic + ")").first().html();
+    }
 
     static int parseCurrentPageIndex(Document doc) {
         defineLanguage(doc);
@@ -286,6 +293,7 @@ class TopicParser {
 
     private static void defineLanguage(Document doc){
         //English parsing variables
+        final String en_usersViewingTopic = "are viewing this topic";
         final String en_currentPage = "Pages:";
         final String en_postRowSelection = "on";
         final String en_userNameSelection = "View the profile of";
@@ -299,6 +307,7 @@ class TopicParser {
         final String en_genderAltFemale = "Female";
 
         //Greek parsing variables
+        final String gr_usersViewingTopic = "διαβάζουν αυτό το θέμα";
         final String gr_currentPage = "Σελίδες:";
         final String gr_postRowSelection = "στις";
         final String gr_userNameSelection = "Εμφάνιση προφίλ του μέλους";
@@ -312,6 +321,7 @@ class TopicParser {
         final String gr_genderAltFemale = "Γυναίκα";
 
         if(doc.select("h3").text().contains("Καλώς ορίσατε")){
+            usersViewingTopic = gr_usersViewingTopic;
             currentPage = gr_currentPage;
             postRowSelection = gr_postRowSelection;
             userNameSelection = gr_userNameSelection;
@@ -327,6 +337,7 @@ class TopicParser {
             genderAltFemale = gr_genderAltFemale;
         }
         else{ //Default is english (eg. guest's language)
+            usersViewingTopic = en_usersViewingTopic;
             currentPage = en_currentPage;
             postRowSelection = en_postRowSelection;
             userNameSelection = en_userNameSelection;
