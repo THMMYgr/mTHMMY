@@ -12,6 +12,7 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import mthmmy.utils.Report;
 

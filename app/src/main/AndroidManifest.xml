@@ -49,7 +49,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity"/>
         </activity>
-        <activity android:name=".activities.BaseActivity"/>
+        <activity android:name=".activities.base.BaseActivity"/>
         <activity
             android:name=".activities.profile.ProfileActivity"
             android:theme="@style/AppTheme.NoActionBar">

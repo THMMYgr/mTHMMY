@@ -1,9 +1,7 @@
 package gr.thmmy.mthmmy.activities.main.forum;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -24,30 +22,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.BaseActivity;
+import gr.thmmy.mthmmy.activities.base.BaseFragment;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import mthmmy.utils.Report;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A {@link BaseFragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ForumFragment.OnListFragmentInteractionListener} interface
+ * {@link ForumFragment.ForumFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link ForumFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ForumFragment extends Fragment
+public class ForumFragment extends BaseFragment
 {
     private static final String TAG = "ForumFragment";
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
-    private static final String ARG_SECTION_NUMBER = "SectionNumber";
-    private int sectionNumber;
 
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -55,13 +50,10 @@ public class ForumFragment extends Fragment
 
     private List<TopicSummary> topicSummaries;
 
-    private OnListFragmentInteractionListener mListener;
-
-    private OkHttpClient client;
+    private ForumTask forumTask;
 
     // Required empty public constructor
-    public ForumFragment() {
-    }
+    public ForumFragment() {}
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -73,28 +65,16 @@ public class ForumFragment extends Fragment
     public static ForumFragment newInstance(int sectionNumber) {
         ForumFragment fragment = new ForumFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_TAG, TAG);
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public int getSectionNumber() {
-        return sectionNumber;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-
-        client = BaseActivity.getClient();
-
         topicSummaries = new ArrayList<>();
-
-
-        if (sectionNumber == 1)    //?
-            Report.d(TAG, "onCreate");
     }
 
     @Override
@@ -102,42 +82,10 @@ public class ForumFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
         if (sectionNumber == 1)//temp
         {
-            if (topicSummaries.isEmpty())
-                new RecentTask().execute();
-
-
+            if (topicSummaries.isEmpty()) new ForumTask().execute();
         }
         Report.d(TAG, "onActivityCreated");
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (sectionNumber == 1)
-            Report.d(TAG, "onStart");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (sectionNumber == 1)
-            Report.d(TAG, "onResume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (sectionNumber == 1)
-            Report.d(TAG, "onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (sectionNumber == 1)
-            Report.d(TAG, "onStop");
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -148,7 +96,7 @@ public class ForumFragment extends Fragment
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
-            forumAdapter = new ForumAdapter(topicSummaries, mListener);
+            forumAdapter = new ForumAdapter(topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
             recyclerView.setLayoutManager(new LinearLayoutManager(rootView.findViewById(R.id.list).getContext()));
@@ -159,52 +107,32 @@ public class ForumFragment extends Fragment
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override
                         public void onRefresh() {
-                            new RecentTask().execute();
-
+                            if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING) {
+                                forumTask = new ForumTask();
+                                forumTask.execute();
+                            }
                         }
 
                     }
             );
-
-
         }
-
         return rootView;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+    protected void cancelTask() {
+        if(forumTask!=null&&forumTask.getStatus()!= AsyncTask.Status.RUNNING)
+            forumTask.cancel(true);
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
+    public interface ForumFragmentInteractionListener extends FragmentInteractionListener{
         void onFragmentInteraction(TopicSummary topicSummary);
     }
 
     //---------------------------------------ASYNC TASK-----------------------------------
 
-    public class RecentTask extends AsyncTask<Void, Void, Integer> {
-        private static final String TAG = "RecentTask";
+    public class ForumTask extends AsyncTask<Void, Void, Integer> {
+        private static final String TAG = "ForumTask";
         private final HttpUrl thmmyUrl = SessionManager.indexUrl;
 
         private Document document;
@@ -226,10 +154,10 @@ public class ForumFragment extends Fragment
                 parse(document);
                 return 0;
             } catch (IOException e) {
-                Report.d("DEB", "ERROR", e);
+                Report.d(TAG, "Network Error", e);
                 return 1;
             } catch (Exception e) {
-                Report.d("DEB", "ERROR", e);
+                Report.d(TAG, "ERROR", e);
                 return 2;
             }
 

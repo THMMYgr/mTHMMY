@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities;
 
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.widget.DrawerLayout;
@@ -15,6 +14,7 @@ import android.widget.Toast;
 
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.base.BaseActivity;
 
 public class AboutActivity extends BaseActivity {
     private static final int TIME_INTERVAL = 1000;

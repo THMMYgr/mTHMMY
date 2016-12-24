@@ -9,20 +9,21 @@ import android.widget.TextView;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.base.BaseFragment;
 import gr.thmmy.mthmmy.data.TopicSummary;
 
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link TopicSummary} and makes a call to the
- * specified {@link RecentFragment.OnListFragmentInteractionListener}.
+ * specified {@link RecentFragment.RecentFragmentInteractionListener}.
  */
-public class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
+class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     private final List<TopicSummary> recentList;
-    private final RecentFragment.OnListFragmentInteractionListener mListener;
+    private final RecentFragment.RecentFragmentInteractionListener mListener;
 
-    public RecentAdapter(List<TopicSummary> topicSummaryList, RecentFragment.OnListFragmentInteractionListener listener) {
+    RecentAdapter(List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
         this.recentList = topicSummaryList;
-        mListener = listener;
+        mListener = (RecentFragment.RecentFragmentInteractionListener) listener;
     }
 
 
@@ -63,24 +64,19 @@ public class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder
         return recentList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mTitleView;
-        public final TextView mUserView;
-        public final TextView mDateTimeView;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
+        final TextView mTitleView;
+        final TextView mUserView;
+        final TextView mDateTimeView;
         public TopicSummary topic;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mTitleView = (TextView) view.findViewById(R.id.title);
             mUserView = (TextView) view.findViewById(R.id.lastUser);
             mDateTimeView = (TextView) view.findViewById(R.id.dateTime);
         }
-
-//        @Override
-//        public String toString() {
-//            return super.toString() + " '" + mContentView.getText() + "'";
-//        }
     }
 }

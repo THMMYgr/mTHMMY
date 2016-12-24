@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities;
+package gr.thmmy.mthmmy.activities.base;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -37,13 +37,15 @@ import com.squareup.picasso.Picasso;
 import java.util.concurrent.TimeUnit;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.AboutActivity;
+import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.session.SessionManager;
 import okhttp3.OkHttpClient;
 
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 
-public class BaseActivity extends AppCompatActivity
+public abstract class BaseActivity extends AppCompatActivity
 {
     // Client & Cookies
     protected static OkHttpClient client;

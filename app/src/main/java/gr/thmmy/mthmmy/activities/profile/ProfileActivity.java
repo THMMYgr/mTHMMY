@@ -10,7 +10,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -28,8 +27,8 @@ import java.util.ArrayList;
 import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import mthmmy.utils.Report;
 import okhttp3.Request;

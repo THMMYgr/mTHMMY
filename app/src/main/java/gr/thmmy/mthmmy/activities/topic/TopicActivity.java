@@ -31,16 +31,13 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.net.ssl.SSLHandshakeException;
-
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.BaseActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.data.Post;
 import mthmmy.utils.Report;
 import okhttp3.Call;
