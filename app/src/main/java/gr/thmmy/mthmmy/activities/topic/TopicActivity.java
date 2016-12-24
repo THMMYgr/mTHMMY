@@ -406,6 +406,8 @@ public class TopicActivity extends BaseActivity {
 
         /* Parse method */
         private void parse(Document document) {
+            String language = TopicParser.defineLanguage(document);
+
             //Find topic title if missing
             if (topicTitle == null || Objects.equals(topicTitle, "")) {
                 parsedTitle = document.select("td[id=top_subject]").first().text();
@@ -420,10 +422,10 @@ public class TopicActivity extends BaseActivity {
             }
 
             { //Find current page's index
-                thisPage = TopicParser.parseCurrentPageIndex(document);
+                thisPage = TopicParser.parseCurrentPageIndex(document, language);
             }
             { //Find number of pages
-                numberOfPages = TopicParser.parseTopicNumberOfPages(document, thisPage);
+                numberOfPages = TopicParser.parseTopicNumberOfPages(document, thisPage, language);
 
                 for (int i = 0; i < numberOfPages; i++) {
                     //Generate each page's url from topic's base url +".15*numberOfPage"
@@ -431,7 +433,7 @@ public class TopicActivity extends BaseActivity {
                 }
             }
 
-            postsList = TopicParser.parseTopic(document);
+            postsList = TopicParser.parseTopic(document, language);
         }
         /* Parse method end */
     }
