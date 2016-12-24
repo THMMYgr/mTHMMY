@@ -196,7 +196,11 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         if (currentPost.getAttachedFiles().size() != 0) {
             holder.bodyFooterDivider.setVisibility(View.VISIBLE);
-            int filesTextColor = context.getResources().getColor(R.color.accent);
+            int filesTextColor = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                filesTextColor = context.getResources().getColor(R.color.accent, null);
+            } else //noinspection deprecation
+                filesTextColor = context.getResources().getColor(R.color.accent);
 
             for (final String[] attachedFile : currentPost.getAttachedFiles()) {
                 final TextView attached = new TextView(context);
@@ -297,7 +301,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                         //((Activity) context).overridePendingTransition(
-                                //R.anim.push_right_in, R.anim.push_left_out);
+                        //R.anim.push_right_in, R.anim.push_left_out);
                     }
 
                     //Change post's viewProperties accordingly
@@ -500,6 +504,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         }
 
         //Handle url clicks
+        @SuppressWarnings("SameReturnValue")
         private boolean handleUri(final Uri uri) {
             //Method always returns true as we don't want any url to be loaded in WebViews
 

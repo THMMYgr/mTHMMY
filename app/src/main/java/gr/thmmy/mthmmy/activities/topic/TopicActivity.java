@@ -52,7 +52,7 @@ import static gr.thmmy.mthmmy.session.SessionManager.LOGIN_STATUS;
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity {
 
-//-----------------------------------------CLASS VARIABLES------------------------------------------
+    //-----------------------------------------CLASS VARIABLES------------------------------------------
     private TopicTask topicTask;
 
     /* --Posts-- */
@@ -106,8 +106,10 @@ public class TopicActivity extends BaseActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(topicTitle);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         createDrawer();
 
@@ -207,7 +209,7 @@ public class TopicActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(topicTask!=null&&topicTask.getStatus()!= AsyncTask.Status.RUNNING)
+        if (topicTask != null && topicTask.getStatus() != AsyncTask.Status.RUNNING)
             topicTask.cancel(true);
     }
 
@@ -314,7 +316,7 @@ public class TopicActivity extends BaseActivity {
 
     private void changePage(int pageRequested) {
         if (pageRequested != thisPage - 1) {
-            if(topicTask!=null&&topicTask.getStatus()!= AsyncTask.Status.RUNNING)
+            if (topicTask != null && topicTask.getStatus() != AsyncTask.Status.RUNNING)
                 topicTask.cancel(true);
 
             topicTask = new TopicTask();
@@ -324,7 +326,7 @@ public class TopicActivity extends BaseActivity {
     }
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
 
-//---------------------------------------TOPIC ASYNC TASK-------------------------------------------
+    //---------------------------------------TOPIC ASYNC TASK-------------------------------------------
     public class TopicTask extends AsyncTask<String, Void, Integer> {
         //Class variables
         private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
@@ -364,7 +366,7 @@ public class TopicActivity extends BaseActivity {
                 parse(document); //Parse data
                 return SUCCESS;
             } catch (IOException e) {
-                Report.i(TAG, "IO Exception",e);
+                Report.i(TAG, "IO Exception", e);
                 return NETWORK_ERROR;
             } catch (Exception e) {
                 Report.e(TAG, "Exception", e);

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:paddingEnd="4dp"
               android:paddingStart="4dp"
@@ -25,7 +25,8 @@
             android:paddingStart="5dp"
             android:text=""
             android:textColor="@color/card_expand_text_color"
-            android:textSize="8sp"/>
+            android:textSize="8sp"
+            />
 
         <TextView
             android:id="@+id/post_number"
@@ -90,7 +91,8 @@
                             android:contentDescription="@string/thumbnail"
                             android:maxHeight="@dimen/thumbnail_size"
                             android:maxWidth="@dimen/thumbnail_size"
-                            android:src="@drawable/ic_default_user_thumbnail"/>
+                            android:src="@drawable/ic_default_user_thumbnail"
+                            android:transitionName="user_thumbnail"/>
                     </FrameLayout>
 
                     <TextView

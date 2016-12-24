@@ -4,13 +4,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -66,15 +69,15 @@ public class ProfileActivity extends BaseActivity {
         PACKAGE_NAME = getApplicationContext().getPackageName();
 
         Bundle extras = getIntent().getExtras();
-        //username = getIntent().getExtras().getString("TOPIC_TITLE");
 
         //Initialize toolbar, drawer and ProgressBar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(null);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         createDrawer();
 
@@ -148,8 +151,7 @@ public class ProfileActivity extends BaseActivity {
 
         protected Boolean doInBackground(String... strings) {
             Document document;
-            String pageUrl = strings[0]; //This page's url
-
+            String pageUrl = strings[0] + ";wap"; //Profile's page wap url
 
             Request request = new Request.Builder()
                     .url(pageUrl)
@@ -184,6 +186,7 @@ public class ProfileActivity extends BaseActivity {
 
     private void populateLayout() {
         if (parsedProfileData.get(THUMBNAIL_URL) != null)
+            //noinspection ConstantConditions
             Picasso.with(this)
                     .load(parsedProfileData.get(THUMBNAIL_URL))
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
@@ -194,7 +197,9 @@ public class ProfileActivity extends BaseActivity {
                             , R.drawable.ic_default_user_thumbnail, null))
                     .transform(new CircleTransform())
                     .into(userThumbnail);
+
         userName.setText(parsedProfileData.get(NAME_INDEX));
+
         if (parsedProfileData.get(PERSONAL_TEXT_INDEX) != null) {
             personalText.setVisibility(View.VISIBLE);
             personalText.setText(parsedProfileData.get(PERSONAL_TEXT_INDEX));
@@ -202,11 +207,30 @@ public class ProfileActivity extends BaseActivity {
             personalText.setVisibility(View.GONE);
         }
 
-        for (int i = PERSONAL_TEXT_INDEX; i < parsedProfileData.size(); ++i) {
+        for (int i = PERSONAL_TEXT_INDEX + 1; i < parsedProfileData.size(); ++i) {
+            if (parsedProfileData.get(i).contains("Signature")
+                    || parsedProfileData.get(i).contains("Υπογραφή")) {
+                WebView signatureEntry = new WebView(this);
+                signatureEntry.loadDataWithBaseURL("file:///android_asset/", parsedProfileData.get(i), "text/html", "UTF-8", null);
+            }
             TextView entry = new TextView(this);
-            entry.setTextColor(getResources().getColor(R.color.primary_text));
-            entry.setText(Html.fromHtml(parsedProfileData.get(i)));
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                entry.setTextColor(getResources().getColor(R.color.primary_text, null));
+            } else {
+                //noinspection deprecation
+                entry.setTextColor(getResources().getColor(R.color.primary_text));
+
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                entry.setText(Html.fromHtml(parsedProfileData.get(i), Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                //noinspection deprecation
+                entry.setText(Html.fromHtml(parsedProfileData.get(i)));
+            }
+
             mainContent.addView(entry);
+            Log.d(TAG, "new: " + parsedProfileData.get(i));
         }
     }
 }

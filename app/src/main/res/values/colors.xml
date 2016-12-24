@@ -34,9 +34,7 @@
     <color name="card_background">#3C3F41</color>
     <color name="divider">#8B8B8B</color>
 
-    <color name="transparent">#00000000</color>
     <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
     <color name="iron">#CCCCCC</color>
     <color name="card_expand_text_color">#E7E7E7</color>
     <color name="dialog_bg_semi_transparent">#80BF4040</color>
