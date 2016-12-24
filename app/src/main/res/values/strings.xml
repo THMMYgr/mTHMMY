@@ -39,4 +39,6 @@
     <string name="fa_file_video_o">&#xf1c8;</string>
 
     <string name="user_number_of_posts">#%1$d</string>
+
+    <string name="byUser">by %1$s</string>
 </resources>

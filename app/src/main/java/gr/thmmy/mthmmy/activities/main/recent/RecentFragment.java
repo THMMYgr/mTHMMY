@@ -57,8 +57,6 @@ public class RecentFragment extends BaseFragment {
     /**
      * Use ONLY this factory method to create a new instance of
      * this fragment using the provided parameters.
-     *
-     * @param sectionNumber
      * @return A new instance of fragment Recent.
      */
     public static RecentFragment newInstance(int sectionNumber) {
@@ -79,14 +77,11 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (sectionNumber == 1)//temp
+        if (topicSummaries.isEmpty())
         {
-            if (topicSummaries.isEmpty())
-            {
-                recentTask =new RecentTask();
-                recentTask.execute();
+            recentTask =new RecentTask();
+            recentTask.execute();
 
-            }
         }
         Report.d(TAG, "onActivityCreated");
     }
@@ -101,7 +96,7 @@ public class RecentFragment extends BaseFragment {
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
-            recentAdapter = new RecentAdapter(topicSummaries, fragmentInteractionListener);
+            recentAdapter = new RecentAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
             recyclerView.setLayoutManager(new LinearLayoutManager(rootView.findViewById(R.id.list).getContext()));
@@ -126,10 +121,12 @@ public class RecentFragment extends BaseFragment {
     }
 
     @Override
-    protected void cancelTask() {
+    public void onDestroy() {
+        super.onDestroy();
         if(recentTask!=null&&recentTask.getStatus()!= AsyncTask.Status.RUNNING)
             recentTask.cancel(true);
     }
+
 
     public interface RecentFragmentInteractionListener extends FragmentInteractionListener {
         void onFragmentInteraction(TopicSummary topicSummary);
@@ -162,7 +159,7 @@ public class RecentFragment extends BaseFragment {
                 Report.d(TAG, "Network Error", e);
                 return 1;
             } catch (Exception e) {
-                Report.d(TAG, "ERROR", e);
+                Report.d(TAG, "Exception", e);
                 return 2;
             }
 

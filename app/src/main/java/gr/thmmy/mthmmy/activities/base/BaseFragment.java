@@ -52,12 +52,6 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        cancelTask();
-    }
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof FragmentInteractionListener) {
@@ -74,8 +68,6 @@ public abstract class BaseFragment extends Fragment {
         super.onDetach();
         fragmentInteractionListener = null;
     }
-
-    protected abstract void cancelTask();
 
     /**
      * This interface MUST be extended by the fragment subclass AND implemented by

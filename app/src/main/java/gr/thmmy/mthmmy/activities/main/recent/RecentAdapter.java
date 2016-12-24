@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +19,12 @@ import gr.thmmy.mthmmy.data.TopicSummary;
  * specified {@link RecentFragment.RecentFragmentInteractionListener}.
  */
 class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
+    private final Context context;
     private final List<TopicSummary> recentList;
     private final RecentFragment.RecentFragmentInteractionListener mListener;
 
-    RecentAdapter(List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
+    RecentAdapter(Context context, List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
+        this.context = context;
         this.recentList = topicSummaryList;
         mListener = (RecentFragment.RecentFragmentInteractionListener) listener;
     }
@@ -40,7 +43,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
         holder.mTitleView.setText(recentList.get(position).getTitle());
         holder.mDateTimeView.setText(recentList.get(position).getDateTimeModified());
-        holder.mUserView.setText("by " + recentList.get(position).getLastUser());
+        holder.mUserView.setText(context.getString(R.string.byUser, recentList.get(position).getLastUser()));
 
         holder.topic = recentList.get(position);
 
