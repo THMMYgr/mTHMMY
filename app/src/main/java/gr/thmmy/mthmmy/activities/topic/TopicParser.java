@@ -14,12 +14,27 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.data.Post;
 
+/**
+ * Singleton used for parsing a topic.
+ * <p>Class contains the methods:<ul><li>{@link #parseUsersViewingThisTopic(Document, String)}</li>
+ * <li>{@link #parseCurrentPageIndex(Document, String)}</li>
+ * <li>{@link #parseTopicNumberOfPages(Document, int, String)}</li>
+ * <li>{@link #parseTopic(Document, String)}</li>
+ * <li>{@link #defineLanguage(Document)}</li>
+ * <li>(private) {@link #colorPicker(String)}</li></ul></p>
+ */
 class TopicParser {
     //Languages supported
+    /**
+     * String constant containing one of the supported forum languages
+     */
     private static final String LANGUAGE_GREEK = "Greek";
+    /**
+     * String constant containing one of the supported forum languages
+     */
     private static final String LANGUAGE_ENGLISH = "English";
 
-    //User colors variables
+    //User colors
     private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
     private static final int USER_COLOR_RED = Color.parseColor("#F44336");
     private static final int USER_COLOR_GREEN = Color.parseColor("#4CAF50");
@@ -27,64 +42,91 @@ class TopicParser {
     private static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
     private static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
 
+    /**
+     * Debug Tag for logging debug output to LogCat
+     */
     @SuppressWarnings("unused")
     private static final String TAG = "TopicParser";
 
-    static String parseUsersViewingThisTopic(Document doc, String language) {
+    /**
+     * Returns users currently viewing this topic.
+     *
+     * @param topic    {@link Document} object containing this topic's source code
+     * @param language a String containing this topic's language set, this is returned by
+     *                 {@link #defineLanguage(Document)}
+     * @return String containing html with the usernames of users
+     * @see org.jsoup.Jsoup Jsoup
+     */
+    static String parseUsersViewingThisTopic(Document topic, String language) {
         if (Objects.equals(language, LANGUAGE_GREEK))
-            return doc.select("td:containsOwn(διαβάζουν αυτό το θέμα)").first().html();
-        return doc.select("td:containsOwn(are viewing this topic)").first().html();
+            return topic.select("td:containsOwn(διαβάζουν αυτό το θέμα)").first().html();
+        return topic.select("td:containsOwn(are viewing this topic)").first().html();
     }
 
-    static int parseCurrentPageIndex(Document doc, String language) {
-        int returnPage = 1;
+    /**
+     * Returns current topic's page index.
+     *
+     * @param topic    {@link Document} object containing this topic's source code
+     * @param language a String containing this topic's language set, this is returned by
+     *                 {@link #defineLanguage(Document)}
+     * @return int containing parsed topic's current page
+     * @see org.jsoup.Jsoup Jsoup
+     */
+    static int parseCurrentPageIndex(Document topic, String language) {
+        int parsedPage = 1;
 
         if (Objects.equals(language, LANGUAGE_GREEK)) {
-            //Contains pages
-            Elements findCurrentPage = doc.select("td:contains(Σελίδες:)>b");
+            Elements findCurrentPage = topic.select("td:contains(Σελίδες:)>b");
 
             for (Element item : findCurrentPage) {
-                if (!item.text().contains("...") //It's not "..."
-                        && !item.text().contains("Σελίδες:")) { //Nor "Σελίδες:"
-                    returnPage = Integer.parseInt(item.text());
+                if (!item.text().contains("...")
+                        && !item.text().contains("Σελίδες:")) {
+                    parsedPage = Integer.parseInt(item.text());
                     break;
                 }
             }
         } else {
-            Elements findCurrentPage = doc.select("td:contains(Pages:)>b");
+            Elements findCurrentPage = topic.select("td:contains(Pages:)>b");
 
             for (Element item : findCurrentPage) {
                 if (!item.text().contains("...") && !item.text().contains("Pages:")) {
-                    returnPage = Integer.parseInt(item.text());
+                    parsedPage = Integer.parseInt(item.text());
                     break;
                 }
             }
         }
 
-        return returnPage;
+        return parsedPage;
     }
 
-    static int parseTopicNumberOfPages(Document doc, int thisPage, String language) {
-        //Method's variables
+    /**
+     * Returns the number of this topic's pages.
+     *
+     * @param topic       {@link Document} object containing this topic's source code
+     * @param currentPage an int containing current page of this topic
+     * @param language    a String containing this topic's language set, this is returned by
+     *                    {@link #defineLanguage(Document)}
+     * @return int containing the number of pages
+     * @see org.jsoup.Jsoup Jsoup
+     */
+    static int parseTopicNumberOfPages(Document topic, int currentPage, String language) {
         int returnPages = 1;
 
         if (Objects.equals(language, LANGUAGE_GREEK)) {
-            //Contains all pages
-            Elements pages = doc.select("td:contains(Σελίδες:)>a.navPages");
+            Elements pages = topic.select("td:contains(Σελίδες:)>a.navPages");
 
             if (pages.size() != 0) {
-                returnPages = thisPage; //Initialize the number
-                for (Element item : pages) { //Just a max
+                returnPages = currentPage;
+                for (Element item : pages) {
                     if (Integer.parseInt(item.text()) > returnPages)
                         returnPages = Integer.parseInt(item.text());
                 }
             }
         } else {
-            //Contains all pages
-            Elements pages = doc.select("td:contains(Pages:)>a.navPages");
+            Elements pages = topic.select("td:contains(Pages:)>a.navPages");
 
             if (pages.size() != 0) {
-                returnPages = thisPage;
+                returnPages = currentPage;
                 for (Element item : pages) {
                     if (Integer.parseInt(item.text()) > returnPages)
                         returnPages = Integer.parseInt(item.text());
@@ -95,20 +137,30 @@ class TopicParser {
         return returnPages;
     }
 
-    static ArrayList<Post> parseTopic(Document doc, String language) {
+    /**
+     * This method parses all the information of a topic and it's posts.
+     *
+     * @param topic    {@link Document} object containing this topic's source code
+     * @param language a String containing this topic's language set, this is returned by
+     *                 {@link #defineLanguage(Document)}
+     * @return {@link ArrayList} of {@link Post}s
+     * @see org.jsoup.Jsoup Jsoup
+     */
+    static ArrayList<Post> parseTopic(Document topic, String language) {
         //Method's variables
         final int NO_INDEX = -1;
-        ArrayList<Post> returnList = new ArrayList<>();
-        Elements rows;
+        ArrayList<Post> parsedPostsList = new ArrayList<>();
+        Elements postRows;
 
+        //Each row is a post
         if (Objects.equals(language, LANGUAGE_GREEK))
-            rows = doc.select("form[id=quickModForm]>table>tbody>tr:matches(στις)");
+            postRows = topic.select("form[id=quickModForm]>table>tbody>tr:matches(στις)");
         else {
-            rows = doc.select("form[id=quickModForm]>table>tbody>tr:matches(on)");
+            postRows = topic.select("form[id=quickModForm]>table>tbody>tr:matches(on)");
         }
 
-        for (Element item : rows) { //For every post
-            //Variables to pass
+        for (Element item : postRows) {
+            //Variables for Post constructor
             String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_profileURL, p_rank,
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
@@ -127,20 +179,20 @@ class TopicParser {
             p_attachedFiles = new ArrayList<>();
 
             //Language independent parsing
-            //Find thumbnail url
+            //Finds thumbnail url
             Element thumbnailUrl = item.select("img.avatar").first();
             p_thumbnailUrl = null; //In case user doesn't have an avatar
             if (thumbnailUrl != null) {
                 p_thumbnailUrl = thumbnailUrl.attr("abs:src");
             }
 
-            //Find subject
+            //Finds subject
             p_subject = item.select("div[id^=subject_]").first().select("a").first().text();
 
-            //Find post's text
+            //Finds post's text
             p_post = item.select("div").select(".post").first().outerHtml();
 
-            { //Fix embedded videos
+            { //Fixes embedded videos
                 Elements noembedTag = item.select("div").select(".post").first().select("noembed");
                 ArrayList<String> embededVideosUrls = new ArrayList<>();
 
@@ -172,6 +224,8 @@ class TopicParser {
             p_post = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + p_post);
 
             //Find post's index
+            //This is an int assigned by the forum used for post focusing and quotes, it is not
+            //the same as reply index.
             Element postIndex = item.select("a[name^=msg]").first();
             if (postIndex == null)
                 p_postIndex = NO_INDEX;
@@ -183,7 +237,7 @@ class TopicParser {
             //Language dependent parsing
             Element userName;
             if (Objects.equals(language, LANGUAGE_GREEK)) {
-                //Find username
+                //Finds username and profile's url
                 userName = item.select("a[title^=Εμφάνιση προφίλ του μέλους]").first();
                 if (userName == null) { //Deleted profile
                     p_isDeleted = true;
@@ -197,13 +251,13 @@ class TopicParser {
                     p_profileURL = userName.attr("href");
                 }
 
-                //Find post's submit date
+                //Finds post's submit date
                 Element postDate = item.select("div.smalltext:matches(στις:)").first();
                 p_postDate = postDate.text();
                 p_postDate = p_postDate.substring(p_postDate.indexOf("στις:") + 6
                         , p_postDate.indexOf(" »"));
 
-                //Find post's number
+                //Finds post's reply index number
                 Element postNum = item.select("div.smalltext:matches(Απάντηση #)").first();
                 if (postNum == null) { //Topic starter
                     p_postNum = 0;
@@ -213,7 +267,7 @@ class TopicParser {
                 }
 
 
-                //Find attached file's urls, names and info, if present
+                //Finds attached file's urls, names and info, if present
                 Elements postAttachments = item.select("div:containsOwn(έγινε λήψη):containsOwn(φορές.)");
                 if (postAttachments != null) {
                     Elements attachedFiles = postAttachments.select("a");
@@ -222,12 +276,12 @@ class TopicParser {
                     for (int i = 0; i < attachedFiles.size(); ++i) {
                         String[] attachedArray = new String[3];
 
-                        //Get file's url and filename
+                        //Gets file's url and filename
                         Element tmpAttachedFileUrlAndName = attachedFiles.get(i);
                         attachedArray[0] = tmpAttachedFileUrlAndName.attr("href");
                         attachedArray[1] = tmpAttachedFileUrlAndName.text().substring(1);
 
-                        //Get file's info (size and download count)
+                        //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
                                 postAttachmentsText.indexOf(attachedArray[1]));
 
@@ -238,7 +292,7 @@ class TopicParser {
                     }
                 }
             } else {
-                //Find username
+                //Finds username
                 userName = item.select("a[title^=View the profile of]").first();
                 if (userName == null) { //Deleted profile
                     p_isDeleted = true;
@@ -252,13 +306,13 @@ class TopicParser {
                     p_profileURL = userName.attr("href");
                 }
 
-                //Find post's submit date
+                //Finds post's submit date
                 Element postDate = item.select("div.smalltext:matches(on:)").first();
                 p_postDate = postDate.text();
                 p_postDate = p_postDate.substring(p_postDate.indexOf("on:") + 4
                         , p_postDate.indexOf(" »"));
 
-                //Find post's number
+                //Finds post's reply index number
                 Element postNum = item.select("div.smalltext:matches(Reply #)").first();
                 if (postNum == null) { //Topic starter
                     p_postNum = 0;
@@ -268,7 +322,7 @@ class TopicParser {
                 }
 
 
-                //Find attached file's urls, names and info, if present
+                //Finds attached file's urls, names and info, if present
                 Elements postAttachments = item.select("div:containsOwn(downloaded):containsOwn(times.)");
                 if (postAttachments != null) {
                     Elements attachedFiles = postAttachments.select("a");
@@ -277,12 +331,12 @@ class TopicParser {
                     for (int i = 0; i < attachedFiles.size(); ++i) {
                         String[] attachedArray = new String[3];
 
-                        //Get file's url and filename
+                        //Gets file's url and filename
                         Element tmpAttachedFileUrlAndName = attachedFiles.get(i);
                         attachedArray[0] = tmpAttachedFileUrlAndName.attr("href");
                         attachedArray[1] = tmpAttachedFileUrlAndName.text().substring(1);
 
-                        //Get file's info (size and download count)
+                        //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
                                 postAttachmentsText.indexOf(attachedArray[1]));
 
@@ -295,12 +349,12 @@ class TopicParser {
             }
 
             if (!p_isDeleted) { //Active user
-                //Get extra info
+                //Gets extra info
                 int postsLineIndex = -1;
                 int starsLineIndex = -1;
 
-                Element info = userName.parent().nextElementSibling(); //Get sibling "div"
-                List<String> infoList = Arrays.asList(info.html().split("<br>"));
+                Element usersExtraInfo = userName.parent().nextElementSibling(); //Get sibling "div"
+                List<String> infoList = Arrays.asList(usersExtraInfo.html().split("<br>"));
 
                 if (Objects.equals(language, LANGUAGE_GREEK)) {
                     for (String line : infoList) {
@@ -349,7 +403,6 @@ class TopicParser {
                 //If this member has no stars yet ==> New member,
                 //or is just a member
                 if (starsLineIndex == -1 || starsLineIndex == 1) {
-                    //In this case:
                     p_rank = infoList.get(0).trim(); //First line has the rank
                     p_specialRank = null; //They don't have a special rank
                 } else if (starsLineIndex == 2) { //This member has a special rank
@@ -357,43 +410,53 @@ class TopicParser {
                     p_rank = infoList.get(1).trim(); //Second line has the rank
                 }
                 for (int i = postsLineIndex + 1; i < infoList.size() - 1; ++i) {
-                    //Search under "Posts:"
+                    //Searches under "Posts:"
                     //and above "Personal Message", "View Profile" etc buttons
-
                     String thisLine = infoList.get(i);
-                    //If this line isn't empty and doesn't contain user's avatar
                     if (!Objects.equals(thisLine, "") && thisLine != null
                             && !Objects.equals(thisLine, " \n")
                             && !thisLine.contains("avatar")
                             && !thisLine.contains("<a href=")) {
-                        p_personalText = thisLine; //Then this line has user's personal text
-                        //Remove any line breaks and spaces on the start and end
+                        p_personalText = thisLine;
                         p_personalText = p_personalText.replace("\n", "").replace("\r", "").trim();
                     }
                 }
                 //Add new post in postsList, extended information needed
-                returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
+                parsedPostsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
                         , p_attachedFiles));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
-                returnList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
+                parsedPostsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_userColor, p_attachedFiles));
             }
         }
-        return returnList;
+        return parsedPostsList;
     }
 
-    static String defineLanguage(Document doc) {
-        if (doc.select("h3").text().contains("Καλώς ορίσατε")) {
+    /**
+     * Returns one of the supported forum languages.
+     * <p>Forum supports: <ul><li>{@link #LANGUAGE_ENGLISH}</li>
+     * <li>{@link #LANGUAGE_GREEK}</li></ul></p>
+     * @param topic {@link Document} object containing this topic's source code
+     * @return String containing the language of a topic
+     * @see org.jsoup.Jsoup Jsoup
+     */
+    static String defineLanguage(Document topic) {
+        if (topic.select("h3").text().contains("Καλώς ορίσατε")) {
             return LANGUAGE_GREEK;
         } else { //Default is english (eg. guest's language)
             return LANGUAGE_ENGLISH;
         }
     }
 
+    /**
+     * Returns the color of a user according to user's rank on forum.
+     * @param starsUrl String containing the URL of a user's stars
+     * @return an int corresponding to the right color
+     */
     private static int colorPicker(String starsUrl) {
         if (starsUrl.contains("/star.gif"))
             return USER_COLOR_YELLOW;

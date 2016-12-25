@@ -42,6 +42,7 @@ import gr.thmmy.mthmmy.utils.CircleTransform;
 import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.EXTRAS_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.NO_POST_FOCUS;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.downloadFileAsync;
@@ -296,7 +297,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
                         Intent intent = new Intent(context, ProfileActivity.class);
                         Bundle b = new Bundle();
-                        b.putString("PROFILE_URL", currentPost.getProfileURL()); //Profile url
+                        b.putString(EXTRAS_PROFILE_URL, currentPost.getProfileURL()); //Profile url
                         intent.putExtras(b); //Put url to next Intent
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);

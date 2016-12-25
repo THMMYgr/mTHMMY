@@ -37,16 +37,19 @@ import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static gr.thmmy.mthmmy.activities.profile.ProfileParser.NAME_INDEX;
 import static gr.thmmy.mthmmy.activities.profile.ProfileParser.PERSONAL_TEXT_INDEX;
-import static gr.thmmy.mthmmy.activities.profile.ProfileParser.THUMBNAIL_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileParser.parseProfile;
+import static gr.thmmy.mthmmy.activities.profile.ProfileParser.THUMBNAIL_URL_INDEX;
+import static gr.thmmy.mthmmy.activities.profile.ProfileParser.USERNAME_INDEX;
+import static gr.thmmy.mthmmy.activities.profile.ProfileParser.parseProfileSummary;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGIN_STATUS;
 
+/**
+ * Activity for user's profile. When creating an Intent of this activity you need to bundle a <b>String</b>
+ * containing this user's profile url using the key {@link #EXTRAS_PROFILE_URL}.
+ */
 public class ProfileActivity extends BaseActivity {
-
-    //Graphic elements
+    //Graphic element variables
     private ImageView userThumbnail;
     private TextView userName;
     private TextView personalText;
@@ -55,10 +58,20 @@ public class ProfileActivity extends BaseActivity {
     private FloatingActionButton replyFAB;
 
     //Other variables
-    private ArrayList<String> parsedProfileData;
+    /**
+     * Debug Tag for logging debug output to LogCat
+     */
     @SuppressWarnings("unused")
     private static final String TAG = "ProfileActivity";
     static String PACKAGE_NAME;
+    /**
+     * The key to use when putting profile's url String to {@link ProfileActivity}'s Bundle.
+     */
+    public static final String EXTRAS_PROFILE_URL = "PROFILE_URL";
+    /**
+     * {@link ArrayList} of Strings used to hold profile's information. Data are added in {@link ProfileTask}.
+     */
+    private ArrayList<String> parsedProfileData;
     private static final int THUMBNAIL_SIZE = 200;
 
     @Override
@@ -67,10 +80,9 @@ public class ProfileActivity extends BaseActivity {
         setContentView(R.layout.activity_profile);
 
         PACKAGE_NAME = getApplicationContext().getPackageName();
-
         Bundle extras = getIntent().getExtras();
 
-        //Initialize toolbar, drawer and ProgressBar
+        //Initialize graphic elements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(null);
         setSupportActionBar(toolbar);
@@ -78,9 +90,7 @@ public class ProfileActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
         createDrawer();
-
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         userThumbnail = (ImageView) findViewById(R.id.user_thumbnail);
@@ -136,22 +146,32 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
-        new ProfileTask().execute(extras.getString("PROFILE_URL")); //Attempt data parsing
+        new ProfileTask().execute(extras.getString(EXTRAS_PROFILE_URL)); //Attempt data parsing
     }
 
+    /**
+     * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing it's
+     * data. {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #populateLayout()}
+     * to build graphics.
+     * <p>
+     * <p>Calling ProfileTask's {@link AsyncTask#execute execute} method needs to have profile's url
+     * as String parameter!</p>
+     */
     public class ProfileTask extends AsyncTask<String, Void, Boolean> {
         //Class variables
+        /**
+         * Debug Tag for logging debug output to LogCat
+         */
         private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
 
-        //Show a progress bar until done
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
             replyFAB.setEnabled(false);
         }
 
-        protected Boolean doInBackground(String... strings) {
+        protected Boolean doInBackground(String... profileUrl) {
             Document document;
-            String pageUrl = strings[0] + ";wap"; //Profile's page wap url
+            String pageUrl = profileUrl[0] + ";wap"; //Profile's page wap url
 
             Request request = new Request.Builder()
                     .url(pageUrl)
@@ -160,7 +180,7 @@ public class ProfileActivity extends BaseActivity {
                 Response response = client.newCall(request).execute();
                 document = Jsoup.parse(response.body().string());
                 //long parseStartTime = System.nanoTime();
-                parsedProfileData = parseProfile(document); //Parse data
+                parsedProfileData = parseProfileSummary(document);
                 //long parseEndTime = System.nanoTime();
                 return true;
             } catch (SSLHandshakeException e) {
@@ -173,22 +193,26 @@ public class ProfileActivity extends BaseActivity {
 
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!
-                //Should never happen
                 Toast.makeText(getBaseContext()
                         , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
                 finish();
             }
             //Parse was successful
-            progressBar.setVisibility(ProgressBar.INVISIBLE); //Hide progress bar
-            populateLayout(); //Show parsed data
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            populateLayout();
         }
     }
 
+    /**
+     * Simple method that builds the UI of a {@link ProfileActivity}.
+     * <p>Use this method <b>only after</b> parsing profile's data with {@link ProfileTask} as it
+     * reads from {@link #parsedProfileData}</p>
+     */
     private void populateLayout() {
-        if (parsedProfileData.get(THUMBNAIL_URL) != null)
+        if (parsedProfileData.get(THUMBNAIL_URL_INDEX) != null)
             //noinspection ConstantConditions
             Picasso.with(this)
-                    .load(parsedProfileData.get(THUMBNAIL_URL))
+                    .load(parsedProfileData.get(THUMBNAIL_URL_INDEX))
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(this.getResources()
@@ -198,7 +222,7 @@ public class ProfileActivity extends BaseActivity {
                     .transform(new CircleTransform())
                     .into(userThumbnail);
 
-        userName.setText(parsedProfileData.get(NAME_INDEX));
+        userName.setText(parsedProfileData.get(USERNAME_INDEX));
 
         if (parsedProfileData.get(PERSONAL_TEXT_INDEX) != null) {
             personalText.setVisibility(View.VISIBLE);

@@ -7,6 +7,10 @@ import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 
+/**
+ * Extends FloatingActionButton's behavior so the button will hide when scrolling down and show
+ * otherwise.
+ */
 public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingActionButton>  {
     public ScrollAwareFABBehavior(Context context, AttributeSet attrs) {
         super();
