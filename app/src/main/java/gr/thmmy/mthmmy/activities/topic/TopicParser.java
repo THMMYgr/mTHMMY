@@ -7,12 +7,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.data.Post;
+import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
+import mthmmy.utils.Report;
 
 /**
  * Singleton used for parsing a topic.
@@ -20,8 +24,7 @@ import gr.thmmy.mthmmy.data.Post;
  * <li>{@link #parseCurrentPageIndex(Document, String)}</li>
  * <li>{@link #parseTopicNumberOfPages(Document, int, String)}</li>
  * <li>{@link #parseTopic(Document, String)}</li>
- * <li>{@link #defineLanguage(Document)}</li>
- * <li>(private) {@link #colorPicker(String)}</li></ul></p>
+ * <li>{@link #defineLanguage(Document)}</li></ul></p>
  */
 class TopicParser {
     //Languages supported
@@ -165,7 +168,7 @@ class TopicParser {
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
-            ArrayList<String[]> p_attachedFiles;
+            ArrayList<ThmmyFile> p_attachedFiles;
 
             //Initialize variables
             p_profileURL = null;
@@ -274,21 +277,26 @@ class TopicParser {
                     String postAttachmentsText = postAttachments.text();
 
                     for (int i = 0; i < attachedFiles.size(); ++i) {
-                        String[] attachedArray = new String[3];
+                        URL attachedUrl;
 
                         //Gets file's url and filename
                         Element tmpAttachedFileUrlAndName = attachedFiles.get(i);
-                        attachedArray[0] = tmpAttachedFileUrlAndName.attr("href");
-                        attachedArray[1] = tmpAttachedFileUrlAndName.text().substring(1);
+                        try {
+                            attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
+                        } catch (MalformedURLException e) {
+                            Report.e(TAG,"Attached file malformed url", e);
+                            break;
+                        }
+                        String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
 
                         //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
-                                postAttachmentsText.indexOf(attachedArray[1]));
+                                postAttachmentsText.indexOf(attachedFileName));
 
-                        attachedArray[2] = postAttachmentsTextSbstr.substring(attachedArray[1]
+                        String attachedFileInfo = postAttachmentsTextSbstr.substring(attachedFileName
                                 .length(), postAttachmentsTextSbstr.indexOf("φορές.")) + "φορές.)";
 
-                        p_attachedFiles.add(attachedArray);
+                        p_attachedFiles.add(new ThmmyFile(attachedUrl,attachedFileName,attachedFileInfo));
                     }
                 }
             } else {
@@ -329,21 +337,26 @@ class TopicParser {
                     String postAttachmentsText = postAttachments.text();
 
                     for (int i = 0; i < attachedFiles.size(); ++i) {
-                        String[] attachedArray = new String[3];
+                        URL attachedUrl;
 
                         //Gets file's url and filename
                         Element tmpAttachedFileUrlAndName = attachedFiles.get(i);
-                        attachedArray[0] = tmpAttachedFileUrlAndName.attr("href");
-                        attachedArray[1] = tmpAttachedFileUrlAndName.text().substring(1);
+                        try {
+                            attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
+                        } catch (MalformedURLException e) {
+                            Report.e(TAG,"Attached file malformed url", e);
+                            break;
+                        }
+                        String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
 
                         //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
-                                postAttachmentsText.indexOf(attachedArray[1]));
+                                postAttachmentsText.indexOf(attachedFileName));
 
-                        attachedArray[2] = postAttachmentsTextSbstr.substring(attachedArray[1]
+                        String attachedFileInfo = postAttachmentsTextSbstr.substring(attachedFileName
                                 .length(), postAttachmentsTextSbstr.indexOf("times.")) + "times.)";
 
-                        p_attachedFiles.add(attachedArray);
+                        p_attachedFiles.add(new ThmmyFile(attachedUrl,attachedFileName,attachedFileInfo));
                     }
                 }
             }

@@ -1,25 +1,19 @@
 package gr.thmmy.mthmmy.activities.topic;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -28,8 +22,6 @@ import android.widget.Toast;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,34 +32,47 @@ import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.data.Post;
 import mthmmy.utils.Report;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGIN_STATUS;
 
+/**
+ * Activity for topics. When creating an Intent of this activity you need to bundle a <b>String</b>
+ * containing this topics's url using the key {@link #EXTRAS_TOPIC_URL} and a <b>String</b> containing
+ * this topic's title using the key {@link #EXTRAS_TOPIC_TITLE}.
+ */
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity {
-
-    //-----------------------------------------CLASS VARIABLES------------------------------------------
+    //Class variables
+    /**
+     * Debug Tag for logging debug output to LogCat
+     */
+    @SuppressWarnings("unused")
+    private static final String TAG = "TopicActivity";
+    /**
+     * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
+     */
+    public static final String EXTRAS_TOPIC_URL = "TOPIC_URL";
+    /**
+     * The key to use when putting topic's title String to {@link TopicActivity}'s Bundle.
+     */
+    public static final String EXTRAS_TOPIC_TITLE = "TOPIC_TITLE";
+    static String PACKAGE_NAME;
     private TopicTask topicTask;
-
-    /* --Posts-- */
+    //About posts
     private List<Post> postsList;
     static final int NO_POST_FOCUS = -1;
     static int postFocus = NO_POST_FOCUS;
-    //Quote
+    //Quotes
     public static final ArrayList<Integer> toQuoteList = new ArrayList<>();
-    /* --Topic's pages-- */
+    //Topic's pages
     private int thisPage = 1;
     public static String base_url = "";
     private int numberOfPages = 1;
     private final SparseArray<String> pagesUrls = new SparseArray<>();
     //Page select
-    private TextView pageIndicator;
     private final Handler repeatUpdateHandler = new Handler();
     private final long INITIAL_DELAY = 500;
     private boolean autoIncrement = false;
@@ -75,22 +80,20 @@ public class TopicActivity extends BaseActivity {
     private static final int SMALL_STEP = 1;
     private static final int LARGE_STEP = 10;
     private Integer pageRequestValue;
-
+    //Bottom navigation graphics
     private ImageButton firstPage;
     private ImageButton previousPage;
+    private TextView pageIndicator;
     private ImageButton nextPage;
     private ImageButton lastPage;
-
     //Other variables
     private ProgressBar progressBar;
-    @SuppressWarnings("unused")
-    private static final String TAG = "TopicActivity";
     private String topicTitle;
     private FloatingActionButton replyFAB;
     private String parsedTitle;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    static String PACKAGE_NAME;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,11 +101,10 @@ public class TopicActivity extends BaseActivity {
         setContentView(R.layout.activity_topic);
 
         PACKAGE_NAME = getApplicationContext().getPackageName();
-
         Bundle extras = getIntent().getExtras();
-        topicTitle = getIntent().getExtras().getString("TOPIC_TITLE");
+        topicTitle = extras.getString("TOPIC_TITLE");
 
-        //Initialize toolbar, drawer and ProgressBar
+        //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(topicTitle);
         setSupportActionBar(toolbar);
@@ -115,44 +117,29 @@ public class TopicActivity extends BaseActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        postsList = new ArrayList<>();
+        postsList  = new ArrayList<>();
 
-        firstPage = (ImageButton) findViewById(R.id.page_first_button);
-        previousPage = (ImageButton) findViewById(R.id.page_previous_button);
-        pageIndicator = (TextView) findViewById(R.id.page_indicator);
-        nextPage = (ImageButton) findViewById(R.id.page_next_button);
-        lastPage = (ImageButton) findViewById(R.id.page_last_button);
-
-        initDecrementButton(firstPage, LARGE_STEP);
-        initDecrementButton(previousPage, SMALL_STEP);
-        initIncrementButton(nextPage, SMALL_STEP);
-        initIncrementButton(lastPage, LARGE_STEP);
-
-        firstPage.setEnabled(false);
-        previousPage.setEnabled(false);
-        nextPage.setEnabled(false);
-        lastPage.setEnabled(false);
+        recyclerView = (RecyclerView) findViewById(R.id.topic_recycler_view);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), postsList));
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
-
         replyFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
                 int tmp_curr_status = sharedPrefs.getInt(LOGIN_STATUS, -1);
                 if (tmp_curr_status == -1) {
+                    Report.e(TAG, "Error while getting LOGIN_STATUS");
                     new AlertDialog.Builder(TopicActivity.this)
                             .setTitle("ERROR!")
-                            .setMessage("An error occurred while trying to find your LOGIN_STATUS.\n" +
-                                    "Please sent below info to developers:\n"
-                                    + getLocalClassName() + "." + "l"
-                                    + Thread.currentThread().getStackTrace()[1].getLineNumber())
+                            .setMessage("An error occurred while trying to find your LOGIN_STATUS.")
                             .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    //Todo
-                                    //Maybe sent info back to developers?
                                 }
                             })
                             .show();
@@ -181,14 +168,26 @@ public class TopicActivity extends BaseActivity {
             }
         });
 
-        recyclerView = (RecyclerView) findViewById(R.id.topic_recycler_view);
-        recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), postsList));
+        //Sets bottom navigation bar
+        firstPage = (ImageButton) findViewById(R.id.page_first_button);
+        previousPage = (ImageButton) findViewById(R.id.page_previous_button);
+        pageIndicator = (TextView) findViewById(R.id.page_indicator);
+        nextPage = (ImageButton) findViewById(R.id.page_next_button);
+        lastPage = (ImageButton) findViewById(R.id.page_last_button);
 
+        initDecrementButton(firstPage, LARGE_STEP);
+        initDecrementButton(previousPage, SMALL_STEP);
+        initIncrementButton(nextPage, SMALL_STEP);
+        initIncrementButton(lastPage, LARGE_STEP);
+
+        firstPage.setEnabled(false);
+        previousPage.setEnabled(false);
+        nextPage.setEnabled(false);
+        lastPage.setEnabled(false);
+
+        //Gets posts
         topicTask = new TopicTask();
-        topicTask.execute(extras.getString("TOPIC_URL")); //Attempt data parsing
+        topicTask.execute(extras.getString(EXTRAS_TOPIC_URL)); //Attempt data parsing
     }
 
     @Override
@@ -260,8 +259,8 @@ public class TopicActivity extends BaseActivity {
                     changePage(0);
                     return;
                 }
-                //Clicked and holden
-                autoDecrement = false; //Stop incrementing
+                //Clicked and hold
+                autoDecrement = false; //Stop decrementing
                 decrementPageRequestValue(step);
                 changePage(pageRequestValue - 1);
             }
@@ -296,10 +295,6 @@ public class TopicActivity extends BaseActivity {
         } else
             pageRequestValue = numberOfPages;
         pageIndicator.setText(pageRequestValue + "/" + String.valueOf(numberOfPages));
-        if (pageRequestValue >= 1000)
-            pageIndicator.setTextSize(16);
-        else
-            pageIndicator.setTextSize(20);
     }
 
     private void decrementPageRequestValue(int step) {
@@ -308,10 +303,6 @@ public class TopicActivity extends BaseActivity {
         else
             pageRequestValue = 1;
         pageIndicator.setText(pageRequestValue + "/" + String.valueOf(numberOfPages));
-        if (numberOfPages >= 1000)
-            pageIndicator.setTextSize(16);
-        else
-            pageIndicator.setTextSize(20);
     }
 
     private void changePage(int pageRequested) {
@@ -326,15 +317,24 @@ public class TopicActivity extends BaseActivity {
     }
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
 
-    //---------------------------------------TOPIC ASYNC TASK-------------------------------------------
+    /**
+     * An {@link AsyncTask} that handles asynchronous fetching of a topic page and parsing it's
+     * data. {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link RecyclerView#swapAdapter}
+     * to build graphics.
+     * <p>
+     * <p>Calling ProfileTask's {@link AsyncTask#execute execute} method needs to have profile's url
+     * as String parameter!</p>
+     */
     public class TopicTask extends AsyncTask<String, Void, Integer> {
         //Class variables
+        /**
+         * Debug Tag for logging debug output to LogCat
+         */
         private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
         private static final int SUCCESS = 0;
         private static final int NETWORK_ERROR = 1;
         private static final int OTHER_ERROR = 2;
 
-        //Show a progress bar until done
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
             replyFAB.setEnabled(false);
@@ -343,9 +343,9 @@ public class TopicActivity extends BaseActivity {
         protected Integer doInBackground(String... strings) {
             Document document;
             base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //This topic's base url
-            String pageUrl = strings[0]; //This page's url
+            String pageUrl = strings[0];
 
-            //Find message focus if present
+            //Finds message focus if present
             {
                 postFocus = NO_POST_FOCUS;
                 if (pageUrl.contains("msg")) {
@@ -363,7 +363,7 @@ public class TopicActivity extends BaseActivity {
             try {
                 Response response = client.newCall(request).execute();
                 document = Jsoup.parse(response.body().string());
-                parse(document); //Parse data
+                parse(document);
                 return SUCCESS;
             } catch (IOException e) {
                 Report.i(TAG, "IO Exception", e);
@@ -374,18 +374,26 @@ public class TopicActivity extends BaseActivity {
             }
         }
 
-        protected void onPostExecute(Integer result) {
-            switch (result) {
+        protected void onPostExecute(Integer parseResult) {
+            switch (parseResult) {
                 case SUCCESS:
-                    //Parse was successful
-                    progressBar.setVisibility(ProgressBar.INVISIBLE); //Hide progress bar
-                    populateLayout(); //Show parsed data
+                    progressBar.setVisibility(ProgressBar.INVISIBLE);
+
+                    recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), postsList), false);
+                    //Set post focus
+                    if (postFocus != NO_POST_FOCUS) {
+                        for (int i = postsList.size() - 1; i >= 0; --i) {
+                            int currentPostIndex = postsList.get(i).getPostIndex();
+                            if (currentPostIndex == postFocus) {
+                                layoutManager.scrollToPosition(i);
+                            }
+                        }
+                    }
+                    replyFAB.setEnabled(true);
 
                     //Set current page
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
-                    if (numberOfPages >= 1000)
-                        pageIndicator.setTextSize(16);
 
                     firstPage.setEnabled(true);
                     previousPage.setEnabled(true);
@@ -406,13 +414,18 @@ public class TopicActivity extends BaseActivity {
             }
         }
 
-        /* Parse method */
-        private void parse(Document document) {
-            String language = TopicParser.defineLanguage(document);
+        /**
+         * All the parsing a topic needs.
+         *
+         * @param topic {@link Document} object containing this topic's source code
+         * @see org.jsoup.Jsoup Jsoup
+         */
+        private void parse(Document topic) {
+            String language = TopicParser.defineLanguage(topic);
 
-            //Find topic title if missing
+            //Finds topic title if missing
             if (topicTitle == null || Objects.equals(topicTitle, "")) {
-                parsedTitle = document.select("td[id=top_subject]").first().text();
+                parsedTitle = topic.select("td[id=top_subject]").first().text();
                 if (parsedTitle.contains("Topic:")) {
                     parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Topic:") + 7
                             , parsedTitle.indexOf("(Read") - 2);
@@ -423,11 +436,11 @@ public class TopicActivity extends BaseActivity {
                 }
             }
 
-            { //Find current page's index
-                thisPage = TopicParser.parseCurrentPageIndex(document, language);
+            { //Finds current page's index
+                thisPage = TopicParser.parseCurrentPageIndex(topic, language);
             }
-            { //Find number of pages
-                numberOfPages = TopicParser.parseTopicNumberOfPages(document, thisPage, language);
+            { //Finds number of pages
+                numberOfPages = TopicParser.parseTopicNumberOfPages(topic, thisPage, language);
 
                 for (int i = 0; i < numberOfPages; i++) {
                     //Generate each page's url from topic's base url +".15*numberOfPage"
@@ -435,44 +448,20 @@ public class TopicActivity extends BaseActivity {
                 }
             }
 
-            postsList = TopicParser.parseTopic(document, language);
+            postsList = TopicParser.parseTopic(topic, language);
         }
-        /* Parse method end */
-    }
-//-------------------------------------TOPIC ASYNC TASK END-----------------------------------------
-
-//----------------------------------------POPULATE UI METHOD----------------------------------------
-
-    /**
-     * This method runs on the main thread. It reads from the postsList and dynamically
-     * adds a card for each post to the ScrollView.
-     */
-    private void populateLayout() {
-        recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), postsList), false);
-
-        //Set post focus
-        if (postFocus != NO_POST_FOCUS) {
-            for (int i = postsList.size() - 1; i >= 0; --i) {
-                int currentPostIndex = postsList.get(i).getPostIndex();
-                if (currentPostIndex == postFocus) {
-                    layoutManager.scrollToPosition(i);
-                }
-            }
-        }
-        replyFAB.setEnabled(true);
     }
 
-//--------------------------------------POPULATE UI METHOD END--------------------------------------
-
-//----------------------------------------REPETITIVE UPDATER----------------------------------------
-
     /**
-     * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue of page value
-     * when long pressing one of the page navigation buttons.
+     * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue
+     * of page value when long pressing one of the page navigation buttons.
      */
     class RepetitiveUpdater implements Runnable {
         private final int step;
 
+        /**
+         * @param step number of pages to add/subtract on each repetition
+         */
         RepetitiveUpdater(int step) {
             this.step = step;
         }
@@ -488,76 +477,4 @@ public class TopicActivity extends BaseActivity {
             }
         }
     }
-//--------------------------------------REPETITIVE UPDATER END--------------------------------------
-
-//------------------------------METHODS FOR DOWNLOADING ATTACHED FILES------------------------------
-
-    /**
-     * Create a File
-     */
-    static void downloadFileAsync(final String downloadUrl, final String fileName, final Context context) {
-        Request request = new Request.Builder().url(downloadUrl).build();
-
-        getClient().newCall(request).enqueue(new Callback() {
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    throw new IOException("Failed to download file: " + response);
-                }
-                File tmpFile = getOutputMediaFile(PACKAGE_NAME, fileName);
-                if (tmpFile == null) {
-                    Report.d(TAG
-                            , "Error creating media file, check storage permissions!");
-                } else {
-                    FileOutputStream fos = new FileOutputStream(tmpFile);
-                    fos.write(response.body().bytes());
-                    fos.close();
-
-                    String filePath = tmpFile.getAbsolutePath();
-                    String extension = MimeTypeMap.getFileExtensionFromUrl(
-                            filePath.substring(filePath.lastIndexOf("/")));
-                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-
-                    Intent intent = new Intent();
-                    intent.setAction(android.content.Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(tmpFile), mime);
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                }
-            }
-        });
-    }
-
-    /**
-     * Create a File
-     */
-    @Nullable
-    private static File getOutputMediaFile(String packageName, String fileName) {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-                + "/Android/data/"
-                + packageName
-                + "/Downloads");
-
-        // This location works best if you want the created files to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d(TAG, "problem!");
-                return null;
-            }
-        }
-        // Create a media file name
-        File mediaFile;
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + fileName);
-        return mediaFile;
-    }
-
-//----------------------------METHODS FOR DOWNLOADING ATTACHED FILES END----------------------------
 }

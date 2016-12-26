@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -31,6 +33,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -39,13 +43,14 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.data.Post;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
 import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.EXTRAS_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.NO_POST_FOCUS;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.PACKAGE_NAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.downloadFileAsync;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.postFocus;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
 
@@ -197,30 +202,28 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         if (currentPost.getAttachedFiles().size() != 0) {
             holder.bodyFooterDivider.setVisibility(View.VISIBLE);
-            int filesTextColor = 0;
+            int filesTextColor;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 filesTextColor = context.getResources().getColor(R.color.accent, null);
             } else //noinspection deprecation
                 filesTextColor = context.getResources().getColor(R.color.accent);
 
-            for (final String[] attachedFile : currentPost.getAttachedFiles()) {
+            for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
                 final TextView attached = new TextView(context);
                 attached.setTextSize(10f);
                 attached.setClickable(true);
                 attached.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));
-                attached.setText(faIconFromExtension(attachedFile[1]) + " " + attachedFile[1] + attachedFile[2]);
+                attached.setText(faIconFromExtension(attachedFile.getFilename()) + " "
+                        + attachedFile.getFilename() + attachedFile.getFileInfo());
                 attached.setTextColor(filesTextColor);
                 attached.setPadding(0, 3, 0, 3);
 
                 attached.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        try {
-                            downloadFileAsync(attachedFile[0], attachedFile[1], context);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        DownloadTask downloadTask = new DownloadTask();
+                        downloadTask.execute(attachedFile);
                     }
                 });
 
@@ -577,5 +580,32 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             return context.getResources().getString(R.string.fa_file_video_o);
 
         return context.getResources().getString(R.string.fa_file);
+    }
+
+    private class DownloadTask extends AsyncTask<ThmmyFile, Void, Void> {
+        //Class variables
+        /**
+         * Debug Tag for logging debug output to LogCat
+         */
+        private static final String TAG = "DownloadTask"; //Separate tag for AsyncTask
+
+        protected Void doInBackground(ThmmyFile... files) {
+            try {
+                File tmpFile = files[0].download(PACKAGE_NAME);
+                if (tmpFile != null) {
+                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                            files[0].getExtension());
+
+                    Intent intent = new Intent();
+                    intent.setAction(android.content.Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(tmpFile), mime);
+                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                }
+            } catch (IOException e) {
+                Report.e(TAG, "Error while trying to download a file", e);
+            }
+            return null;
+        }
     }
 }

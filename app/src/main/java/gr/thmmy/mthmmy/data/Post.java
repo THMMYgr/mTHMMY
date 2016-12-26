@@ -2,6 +2,8 @@ package gr.thmmy.mthmmy.data;
 
 import java.util.ArrayList;
 
+import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
+
 public class Post {
     //Standard info (exists in every post)
     private final String thumbnailUrl;
@@ -22,13 +24,13 @@ public class Post {
     private final String personalText;
     private final int numberOfStars;
     private final int userColor;
-    private final ArrayList<String[]> attachedFiles;
+    private final ArrayList<ThmmyFile> attachedFiles;
 
     public Post(String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, String profileURl, String rank
             , String special_rank, String gender, String numberOfPosts
             , String personalText, int numberOfStars, int userColor
-            , ArrayList<String[]> attachedFiles) {
+            , ArrayList<ThmmyFile> attachedFiles) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -50,7 +52,7 @@ public class Post {
 
     public Post(String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, int userColor
-            , ArrayList<String[]> attachedFiles) {
+            , ArrayList<ThmmyFile> attachedFiles) {
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
         this.subject = subject;
@@ -135,7 +137,7 @@ public class Post {
         return userColor;
     }
 
-    public ArrayList<String[]> getAttachedFiles() {
+    public ArrayList<ThmmyFile> getAttachedFiles() {
         return attachedFiles;
     }
 }

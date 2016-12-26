@@ -72,6 +72,7 @@ public class ProfileActivity extends BaseActivity {
      * {@link ArrayList} of Strings used to hold profile's information. Data are added in {@link ProfileTask}.
      */
     private ArrayList<String> parsedProfileData;
+    private ProfileTask profileTask;
     private static final int THUMBNAIL_SIZE = 200;
 
     @Override
@@ -82,7 +83,7 @@ public class ProfileActivity extends BaseActivity {
         PACKAGE_NAME = getApplicationContext().getPackageName();
         Bundle extras = getIntent().getExtras();
 
-        //Initialize graphic elements
+        //Initializes graphic elements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(null);
         setSupportActionBar(toolbar);
@@ -90,7 +91,9 @@ public class ProfileActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
         createDrawer();
+
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         userThumbnail = (ImageView) findViewById(R.id.user_thumbnail);
@@ -100,24 +103,19 @@ public class ProfileActivity extends BaseActivity {
 
         replyFAB = (FloatingActionButton) findViewById(R.id.profile_fab);
         replyFAB.setEnabled(false);
-
         replyFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
                 int tmp_curr_status = sharedPrefs.getInt(LOGIN_STATUS, -1);
                 if (tmp_curr_status == -1) {
+                    Report.e(TAG, "Error while getting LOGIN_STATUS");
                     new AlertDialog.Builder(ProfileActivity.this)
                             .setTitle("ERROR!")
-                            .setMessage("An error occurred while trying to find your LOGIN_STATUS.\n" +
-                                    "Please sent below info to developers:\n"
-                                    + getLocalClassName() + "." + "l"
-                                    + Thread.currentThread().getStackTrace()[1].getLineNumber())
+                            .setMessage("An error occurred while trying to find your LOGIN_STATUS.")
                             .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    //Todo
-                                    //Maybe sent info back to developers?
                                 }
                             })
                             .show();
@@ -146,7 +144,17 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
-        new ProfileTask().execute(extras.getString(EXTRAS_PROFILE_URL)); //Attempt data parsing
+        //Gets info
+        parsedProfileData = new ArrayList<>();
+        profileTask = new ProfileTask();
+        profileTask.execute(extras.getString(EXTRAS_PROFILE_URL)); //Attempt data parsing
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (profileTask != null && profileTask.getStatus() != AsyncTask.Status.RUNNING)
+            profileTask.cancel(true);
     }
 
     /**
