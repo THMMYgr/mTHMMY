@@ -1,16 +1,24 @@
 package gr.thmmy.mthmmy.activities.main.forum;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bignerdranch.expandablerecyclerview.ChildViewHolder;
+import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
+import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
+import gr.thmmy.mthmmy.data.Board;
+import gr.thmmy.mthmmy.data.Category;
 import gr.thmmy.mthmmy.data.TopicSummary;
 
 
@@ -18,68 +26,90 @@ import gr.thmmy.mthmmy.data.TopicSummary;
  * {@link RecyclerView.Adapter} that can display a {@link TopicSummary} and makes a call to the
  * specified {@link ForumFragment.ForumFragmentInteractionListener}.
  */
-class ForumAdapter extends RecyclerView.Adapter<ForumAdapter.ViewHolder> {
+class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapter.CategoryViewHolder, ForumAdapter.BoardViewHolder> {
     private final Context context;
-    private final List<TopicSummary> recentList;
+    private final LayoutInflater layoutInflater;
+
+    private final List<Category> categories;
     private final ForumFragment.ForumFragmentInteractionListener mListener;
 
-    ForumAdapter(Context context, List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
+    ForumAdapter(Context context, @NonNull List<Category> categories, BaseFragment.FragmentInteractionListener listener) {
+        super(categories);
         this.context = context;
-        this.recentList = topicSummaryList;
+        this.categories = categories;
         mListener = (ForumFragment.ForumFragmentInteractionListener)listener;
+        layoutInflater = LayoutInflater.from(context);
+    }
+
+    @NonNull
+    @Override
+    public CategoryViewHolder onCreateParentViewHolder(@NonNull ViewGroup parentViewGroup, int viewType) {
+        View categoryView = layoutInflater.inflate(R.layout.fragment_forum_category_row, parentViewGroup, false);
+        return new CategoryViewHolder(categoryView);
+    }
+
+    @NonNull
+    @Override
+    public BoardViewHolder onCreateChildViewHolder(@NonNull ViewGroup childViewGroup, int viewType) {
+        View boardView = layoutInflater.inflate(R.layout.fragment_forum_board_row, childViewGroup, false);
+        return new BoardViewHolder(boardView);
+    }
+
+    @Override
+    public void onBindParentViewHolder(@NonNull CategoryViewHolder parentViewHolder, int parentPosition, @NonNull Category parent) {
+        parentViewHolder.bind(parent);
+    }
+
+    @Override
+    public void onBindChildViewHolder(@NonNull BoardViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull Board child) {
+        childViewHolder.bind(child);
     }
 
 
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_recent_row, parent, false);
-        return new ViewHolder(view);
-    }
+    class CategoryViewHolder extends ParentViewHolder {
 
+        private TextView categoryTextview;
+        private ImageView arrowImageView;
 
-    @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+        CategoryViewHolder(View itemView) {
+            super(itemView);
+            categoryTextview = (TextView) itemView.findViewById(R.id.category);
 
-        holder.mTitleView.setText(recentList.get(position).getTitle());
-        holder.mDateTimeView.setText(recentList.get(position).getDateTimeModified());
-        holder.mUserView.setText(context.getString(R.string.byUser, recentList.get(position).getLastUser()));
-
-        holder.topic = recentList.get(position);
-
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onFragmentInteraction(holder.topic);  //?
-
+            arrowImageView = (ImageView) itemView.findViewById(R.id.arrow); //todo animated arrow up/down
+            arrowImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isExpanded()) {
+                        collapseView();
+                    } else {
+                        expandView();
+                    }
                 }
+            });
+        }
 
-            }
-        });
+        void bind(Category category) {
+            categoryTextview.setText(category.getName());
+        }
+
+        @Override
+        public boolean shouldItemViewClickToggleExpansion() {
+            return false;
+        }
+
     }
 
-    @Override
-    public int getItemCount() {
-        return recentList.size();
-    }
+    class BoardViewHolder extends ChildViewHolder {
 
-    class ViewHolder extends RecyclerView.ViewHolder {
-        final View mView;
-        final TextView mTitleView;
-        final TextView mUserView;
-        final TextView mDateTimeView;
-        public TopicSummary topic;
+        private TextView boardTextView;
 
-        ViewHolder(View view) {
-            super(view);
-            mView = view;
-            mTitleView = (TextView) view.findViewById(R.id.title);
-            mUserView = (TextView) view.findViewById(R.id.lastUser);
-            mDateTimeView = (TextView) view.findViewById(R.id.dateTime);
+        BoardViewHolder(View itemView) {
+            super(itemView);
+            boardTextView = (TextView) itemView.findViewById(R.id.board);
+        }
+
+        void bind(Board board) {
+            boardTextView.setText(board.getName());
         }
     }
 }

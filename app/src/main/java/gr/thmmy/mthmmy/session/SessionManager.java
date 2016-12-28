@@ -36,6 +36,7 @@ public class SessionManager
 
     //Generic constants
     public static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php");
+    public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum");
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
     private static final String guestName = "Guest";
 

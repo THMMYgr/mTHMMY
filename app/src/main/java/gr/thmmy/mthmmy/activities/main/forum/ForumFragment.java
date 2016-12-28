@@ -2,8 +2,8 @@ package gr.thmmy.mthmmy.activities.main.forum;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,21 +11,23 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
+import gr.thmmy.mthmmy.data.Board;
+import gr.thmmy.mthmmy.data.Category;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
-import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import mthmmy.utils.Report;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -45,10 +47,9 @@ public class ForumFragment extends BaseFragment
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
 
     private ProgressBar progressBar;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private ForumAdapter forumAdapter;
 
-    private List<TopicSummary> topicSummaries;
+    private List<Category> categories;
 
     private ForumTask forumTask;
 
@@ -72,13 +73,13 @@ public class ForumFragment extends BaseFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        topicSummaries = new ArrayList<>();
+        categories = new ArrayList<>();
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (topicSummaries.isEmpty())
+        if (categories.isEmpty())
         {
             forumTask =new ForumTask();
             forumTask.execute();
@@ -91,30 +92,36 @@ public class ForumFragment extends BaseFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View rootView = inflater.inflate(R.layout.fragment_recent, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_forum, container, false);
 
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
-            forumAdapter = new ForumAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
+            forumAdapter = new ForumAdapter(getContext(), categories, fragmentInteractionListener);
+            forumAdapter.setExpandCollapseListener(new ExpandableRecyclerAdapter.ExpandCollapseListener() {
+                @Override
+                public void onParentExpanded(int parentPosition) {
+                    if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
+                        forumTask.cancel(true);
+                    forumTask =new ForumTask();
+                    forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
+                    forumTask.execute();
+                }
 
-            CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
+                @Override
+                public void onParentCollapsed(int parentPosition) {
+                    if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
+                        forumTask.cancel(true);
+                    forumTask =new ForumTask();
+                    forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
+                    forumTask.execute();
+                }
+            });
+
+            RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.list);
             recyclerView.setLayoutManager(new LinearLayoutManager(rootView.findViewById(R.id.list).getContext()));
             recyclerView.setAdapter(forumAdapter);
 
-            swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
-            swipeRefreshLayout.setOnRefreshListener(
-                    new SwipeRefreshLayout.OnRefreshListener() {
-                        @Override
-                        public void onRefresh() {
-                            if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING) {
-                                forumTask = new ForumTask();
-                                forumTask.execute();
-                            }
-                        }
-
-                    }
-            );
         }
         return rootView;
     }
@@ -134,25 +141,30 @@ public class ForumFragment extends BaseFragment
 
     public class ForumTask extends AsyncTask<Void, Void, Integer> {
         private static final String TAG = "ForumTask";
-        private final HttpUrl thmmyUrl = SessionManager.indexUrl;
-
+        private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
         private Document document;
 
+        private List<Category> fetchedCategories;
+
+        ForumTask() {
+            fetchedCategories = new ArrayList<>();
+        }
 
         protected void onPreExecute() {
-
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
         protected Integer doInBackground(Void... voids) {
-
             Request request = new Request.Builder()
-                    .url(thmmyUrl)
+                    .url(forumUrl)
                     .build();
             try {
                 Response response = client.newCall(request).execute();
                 document = Jsoup.parse(response.body().string());
                 parse(document);
+                categories.clear();
+                categories.addAll(fetchedCategories);
+                fetchedCategories.clear();
                 return 0;
             } catch (IOException e) {
                 Report.d(TAG, "Network Error", e);
@@ -168,51 +180,46 @@ public class ForumFragment extends BaseFragment
         protected void onPostExecute(Integer result) {
 
             if (result == 0)
-                forumAdapter.notifyDataSetChanged();
+                forumAdapter.notifyParentDataSetChanged(false);
             else if (result == 1)
                 Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
-            swipeRefreshLayout.setRefreshing(false);
         }
 
-        private void parse(Document document) {
-            Elements recent = document.select("#block8 :first-child div");
-            if (recent.size() == 30) {
-                topicSummaries.clear();
+        private void parse(Document document)
+        {
+            Elements categoryBlocks = document.select(".tborder:not([style])>table[cellpadding=5]");
+            if (categoryBlocks.size() != 0) {
+                for(Element categoryBlock: categoryBlocks)
+                {
+                    Element categoryElement = categoryBlock.select("td[colspan=2]>[name]").first();
+                    String categoryUrl = categoryElement.attr("href");
+                    Category category = new Category(categoryElement.text(), categoryUrl);
 
-                for (int i = 0; i < recent.size(); i += 3) {
-                    String link = recent.get(i).child(0).attr("href");
-                    String title = recent.get(i).child(0).attr("title");
-
-                    String lastUser = recent.get(i + 1).text();
-                    Pattern pattern = Pattern.compile("\\b (.*)");
-                    Matcher matcher = pattern.matcher(lastUser);
-                    if (matcher.find())
-                        lastUser = matcher.group(1);
-                    else {
-                        Report.e(TAG, "Parsing failed (lastUser)!");
-                        return;
+                    category.setExpanded(categoryUrl.contains("sa=collapse"));
+                    if(categoryUrl.contains("sa=collapse"))
+                    {
+                        category.setExpanded(true);
+                        Elements boardsElements = categoryBlock.select("b [name]");
+                        for(Element boardElement: boardsElements) {
+                            Board board = new Board(boardElement.text(), boardElement.attr("href"));
+                            category.getBoards().add(board);
+                        }
                     }
+                    else
+                        category.setExpanded(false);
 
-                    String dateTime = recent.get(i + 2).text();
-                    pattern = Pattern.compile("\\[(.*)\\]");
-                    matcher = pattern.matcher(dateTime);
-                    if (matcher.find())
-                        dateTime = matcher.group(1);
-                    else {
-                        Report.e(TAG, "Parsing failed (dateTime)!");
-                        return;
-                    }
-
-
-                    topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
+                    fetchedCategories.add(category);
                 }
-
-                return;
             }
-            Report.e(TAG, "Parsing failed!");
+            else
+                Report.e(TAG, "Parsing failed!");
+        }
+
+        public void setUrl(String string)
+        {
+            forumUrl = HttpUrl.parse(string);
         }
     }
-
 }

@@ -135,11 +135,9 @@ public class RecentFragment extends BaseFragment {
     //---------------------------------------ASYNC TASK-----------------------------------
 
     public class RecentTask extends AsyncTask<Void, Void, Integer> {
-        private static final String TAG = "ForumTask";
+        private static final String TAG = "RecentTask";
         private final HttpUrl thmmyUrl = SessionManager.indexUrl;
-
         private Document document;
-
 
         protected void onPreExecute() {
 

@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +24,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     private final List<TopicSummary> recentList;
     private final RecentFragment.RecentFragmentInteractionListener mListener;
 
-    RecentAdapter(Context context, List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
+    RecentAdapter(Context context, @NonNull List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
         this.context = context;
         this.recentList = topicSummaryList;
         mListener = (RecentFragment.RecentFragmentInteractionListener) listener;

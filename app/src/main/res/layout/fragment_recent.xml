@@ -11,10 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <view
+        <gr.thmmy.mthmmy.utils.CustomRecyclerView
             android:id="@+id/list"
             android:name="gr.thmmy.mthmmy.sections.recent.RecentFragment"
-            class="gr.thmmy.mthmmy.utils.CustomRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/background"
