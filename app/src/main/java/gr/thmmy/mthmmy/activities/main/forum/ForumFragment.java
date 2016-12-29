@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.main.forum;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -129,7 +130,11 @@ public class ForumFragment extends BaseFragment
             });
 
             RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.list);
-            recyclerView.setLayoutManager(new LinearLayoutManager(rootView.findViewById(R.id.list).getContext()));
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
+            recyclerView.setLayoutManager(linearLayoutManager);
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                    linearLayoutManager.getOrientation());
+            recyclerView.addItemDecoration(dividerItemDecoration);
             recyclerView.setAdapter(forumAdapter);
 
         }

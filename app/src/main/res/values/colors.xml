@@ -26,7 +26,8 @@
     <!--Dark-->
     <color name="primary">#2B2B2B</color>
     <color name="primary_dark">#333333</color>
-    <color name="primary_light">#3C3F41</color>
+    <color name="primary_light">#3C3C3C</color>
+    <color name="primary_lighter">#454545</color>
     <color name="accent">#26A69A</color>
     <color name="primary_text">#E7E7E7</color>
     <color name="secondary_text">#757575</color>

@@ -69,32 +69,14 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
     class CategoryViewHolder extends ParentViewHolder {
 
         private TextView categoryTextview;
-        private ImageView arrowImageView;
 
         CategoryViewHolder(View itemView) {
             super(itemView);
             categoryTextview = (TextView) itemView.findViewById(R.id.category);
-
-            arrowImageView = (ImageView) itemView.findViewById(R.id.arrow); //todo animated arrow up/down
-            arrowImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (isExpanded()) {
-                        collapseView();
-                    } else {
-                        expandView();
-                    }
-                }
-            });
         }
 
         void bind(Category category) {
             categoryTextview.setText(category.getName());
-        }
-
-        @Override
-        public boolean shouldItemViewClickToggleExpansion() {
-            return false;
         }
 
     }
