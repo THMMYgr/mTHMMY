@@ -31,6 +31,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.data.Post;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -87,7 +88,7 @@ public class TopicActivity extends BaseActivity {
     private ImageButton nextPage;
     private ImageButton lastPage;
     //Other variables
-    private ProgressBar progressBar;
+    private MaterialProgressBar progressBar;
     private String topicTitle;
     private FloatingActionButton replyFAB;
     private String parsedTitle;
@@ -115,7 +116,7 @@ public class TopicActivity extends BaseActivity {
 
         createDrawer();
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
         postsList  = new ArrayList<>();
 

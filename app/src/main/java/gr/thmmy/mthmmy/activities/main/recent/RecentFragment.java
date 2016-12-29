@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities.main.recent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import gr.thmmy.mthmmy.activities.base.BaseFragment;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -43,7 +45,7 @@ public class RecentFragment extends BaseFragment {
     private static final String TAG = "RecentFragment";
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
 
-    private ProgressBar progressBar;
+    private MaterialProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecentAdapter recentAdapter;
 
@@ -95,11 +97,15 @@ public class RecentFragment extends BaseFragment {
 
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
-            progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+            progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
             recentAdapter = new RecentAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
-            recyclerView.setLayoutManager(new LinearLayoutManager(rootView.findViewById(R.id.list).getContext()));
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
+            recyclerView.setLayoutManager(linearLayoutManager);
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                    linearLayoutManager.getOrientation());
+            recyclerView.addItemDecoration(dividerItemDecoration);
             recyclerView.setAdapter(recentAdapter);
 
             swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);

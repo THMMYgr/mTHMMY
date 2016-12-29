@@ -29,6 +29,7 @@ import gr.thmmy.mthmmy.data.Board;
 import gr.thmmy.mthmmy.data.Category;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -49,7 +50,7 @@ public class ForumFragment extends BaseFragment
     private static final String TAG = "ForumFragment";
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
 
-    private ProgressBar progressBar;
+    private MaterialProgressBar progressBar;
     private ForumAdapter forumAdapter;
 
     private List<Category> categories;
@@ -99,7 +100,7 @@ public class ForumFragment extends BaseFragment
 
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
-            progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+            progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
             forumAdapter = new ForumAdapter(getContext(), categories, fragmentInteractionListener);
             forumAdapter.setExpandCollapseListener(new ExpandableRecyclerAdapter.ExpandCollapseListener() {
                 @Override
