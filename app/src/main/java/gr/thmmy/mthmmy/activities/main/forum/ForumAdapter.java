@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder;
@@ -62,6 +61,7 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
 
     @Override
     public void onBindChildViewHolder(@NonNull BoardViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull Board child) {
+        childViewHolder.board = categories.get(parentPosition).getBoards().get(childPosition);
         childViewHolder.bind(child);
     }
 
@@ -76,7 +76,7 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
         }
 
         void bind(Category category) {
-            categoryTextview.setText(category.getName());
+            categoryTextview.setText(category.getTitle());
         }
 
     }
@@ -84,14 +84,30 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
     class BoardViewHolder extends ChildViewHolder {
 
         private TextView boardTextView;
+        public Board board;
 
         BoardViewHolder(View itemView) {
             super(itemView);
             boardTextView = (TextView) itemView.findViewById(R.id.board);
         }
 
-        void bind(Board board) {
-            boardTextView.setText(board.getName());
+        void bind(final Board board) {
+            boardTextView.setText(board.getTitle());
+
+
+            boardTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (null != mListener) {
+                        // Notify the active callbacks interface (the activity, if the
+                        // fragment is attached to one) that an item has been selected.
+                        mListener.onForumFragmentInteraction(board);  //?
+
+                    }
+
+                }
+            });
         }
     }
 }

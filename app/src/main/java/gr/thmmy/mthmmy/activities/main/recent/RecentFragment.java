@@ -135,7 +135,7 @@ public class RecentFragment extends BaseFragment {
 
 
     public interface RecentFragmentInteractionListener extends FragmentInteractionListener {
-        void onFragmentInteraction(TopicSummary topicSummary);
+        void onRecentFragmentInteraction(TopicSummary topicSummary);
     }
 
     //---------------------------------------ASYNC TASK-----------------------------------

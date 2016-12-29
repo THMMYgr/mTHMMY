@@ -9,13 +9,13 @@ import static android.R.attr.id;
 
 public class Category implements Parent<Board>
 {
-    private final String name;
+    private final String title;
     private final String categoryURL;
     private boolean expanded = false;
     private List<Board> boards;
 
-    public Category(String name, String categoryURL) {
-        this.name = name;
+    public Category(String title, String categoryURL) {
+        this.title = title;
         this.categoryURL = categoryURL;
         boards = new ArrayList<>();
     }
@@ -24,8 +24,8 @@ public class Category implements Parent<Board>
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     public String getCategoryURL() {

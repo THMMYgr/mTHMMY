@@ -149,7 +149,7 @@ public class ForumFragment extends BaseFragment
     }
 
     public interface ForumFragmentInteractionListener extends FragmentInteractionListener{
-        void onFragmentInteraction(TopicSummary topicSummary);
+        void onForumFragmentInteraction(Board board);
     }
 
     //---------------------------------------ASYNC TASK-----------------------------------
@@ -179,7 +179,6 @@ public class ForumFragment extends BaseFragment
                 parse(document);
                 categories.clear();
                 categories.addAll(fetchedCategories);
-                Report.d(TAG, "SIZE: " + String.valueOf(fetchedCategories.get(0).getBoards().size()));
                 fetchedCategories.clear();
                 return 0;
             } catch (IOException e) {

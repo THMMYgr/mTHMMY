@@ -13,11 +13,15 @@ import android.widget.Toast;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
+import gr.thmmy.mthmmy.data.Board;
 import gr.thmmy.mthmmy.data.TopicSummary;
 
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.EXTRAS_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.EXTRAS_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.EXTRAS_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.EXTRAS_TOPIC_URL;
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_OUT;
@@ -83,10 +87,18 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     }
 
     @Override
-    public void onFragmentInteraction(TopicSummary topicSummary) {
+    public void onRecentFragmentInteraction(TopicSummary topicSummary) {
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
         i.putExtra(EXTRAS_TOPIC_URL, topicSummary.getTopicUrl());
         i.putExtra(EXTRAS_TOPIC_TITLE, topicSummary.getTitle());
+        startActivity(i);
+    }
+
+    @Override
+    public void onForumFragmentInteraction(Board board) {
+        Intent i = new Intent(MainActivity.this, BoardActivity.class);
+        i.putExtra(EXTRAS_BOARD_URL, board.getBoardURL());
+        i.putExtra(EXTRAS_BOARD_TITLE, board.getTitle());
         startActivity(i);
     }
 
