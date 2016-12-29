@@ -93,6 +93,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             username = (TextView) view.findViewById(R.id.username);
             subject = (TextView) view.findViewById(R.id.subject);
             post = (WebView) view.findViewById(R.id.post);
+            post.setBackgroundColor(Color.argb(1, 255, 255, 255));
             quoteToggle = (ImageButton) view.findViewById(R.id.toggle_quote_button);
             bodyFooterDivider = view.findViewById(R.id.body_footer_divider);
             postFooter = (LinearLayout) view.findViewById(R.id.post_footer);

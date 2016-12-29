@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
 import gr.thmmy.mthmmy.data.Board;
 import gr.thmmy.mthmmy.data.Category;
@@ -32,6 +33,8 @@ import mthmmy.utils.Report;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 
 /**
  * A {@link BaseFragment} subclass.
@@ -101,20 +104,26 @@ public class ForumFragment extends BaseFragment
             forumAdapter.setExpandCollapseListener(new ExpandableRecyclerAdapter.ExpandCollapseListener() {
                 @Override
                 public void onParentExpanded(int parentPosition) {
-                    if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
-                        forumTask.cancel(true);
-                    forumTask =new ForumTask();
-                    forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
-                    forumTask.execute();
+                    if(BaseActivity.getSessionManager().getLogStatus()== LOGGED_IN)
+                    {
+                        if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
+                            forumTask.cancel(true);
+                        forumTask =new ForumTask();
+                        forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
+                        forumTask.execute();
+                    }
                 }
 
                 @Override
                 public void onParentCollapsed(int parentPosition) {
-                    if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
-                        forumTask.cancel(true);
-                    forumTask =new ForumTask();
-                    forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
-                    forumTask.execute();
+                    if(BaseActivity.getSessionManager().getLogStatus()== LOGGED_IN)
+                    {
+                        if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
+                            forumTask.cancel(true);
+                        forumTask =new ForumTask();
+                        forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
+                        forumTask.execute();
+                    }
                 }
             });
 
@@ -164,6 +173,7 @@ public class ForumFragment extends BaseFragment
                 parse(document);
                 categories.clear();
                 categories.addAll(fetchedCategories);
+                Report.d(TAG, "SIZE: " + String.valueOf(fetchedCategories.get(0).getBoards().size()));
                 fetchedCategories.clear();
                 return 0;
             } catch (IOException e) {
@@ -197,8 +207,7 @@ public class ForumFragment extends BaseFragment
                     String categoryUrl = categoryElement.attr("href");
                     Category category = new Category(categoryElement.text(), categoryUrl);
 
-                    category.setExpanded(categoryUrl.contains("sa=collapse"));
-                    if(categoryUrl.contains("sa=collapse"))
+                    if(categoryUrl.contains("sa=collapse")|| BaseActivity.getSessionManager().getLogStatus()!= LOGGED_IN)
                     {
                         category.setExpanded(true);
                         Elements boardsElements = categoryBlock.select("b [name]");

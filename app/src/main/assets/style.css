@@ -63,22 +63,10 @@ ul#catlist li
 	margin: 0;
 }
 
-/* TP rss feed styles */
-.rss_title{
- font-weight: bold;
-}
-
-.rss_body{
-	margin-bottom: 1ex;
-}
-
-.rss_image{
-	margin: 4px 0 4px 0;
-}
 /* Normal, standard links. */
 a:link, a:visited
 {
-	color: #004080;
+	color: #26A69A;
 	text-decoration: none;
 }
 a:hover
@@ -170,9 +158,9 @@ a img
 .quote
 {	
 	font-family: tahoma, sans-serif;
-	color: #000000;
-	background-color: #D7DAEC;
-	border: 1px solid #000000;
+	color: #FFFFFF;
+	background-color: #404D50;
+	border: 1px solid #E7E7E7;
 	margin: 1px;
 	padding: 1px;
 	font-size: x-small;
@@ -332,132 +320,6 @@ a img
 	line-height: 1.3em;
 }
 
-/* Sometimes there will be an error when you post */
-.error
-{
-	color: red;
-}
-
-
-/* definitions for the main tab, active means the tab reflects which page is displayed */
-.maintab_first, .maintab_back, .maintab_last, .maintab_active_first, .maintab_active_back, .maintab_active_last
-{
-	text-transform: uppercase;
-	vertical-align: top;
-}
-.maintab_back, .maintab_active_back
-{
-	text-decoration: none;
-	font-size:  9px;
-	vertical-align: top;
-	padding: 2px 6px 6px 6px;
-	font-family: Trebuchet, sans-serif;
-}
-
-.maintab_first
-{
-	display: none;
-}
-.maintab_back
-{
-}
-.maintab_last
-{
-	display: none;
-}
-.maintab_active_first
-{
-	display: none;
-}
-.maintab_active_back
-{
-	background: #ffd;
-}
-.maintab_active_last
-{
-	display: none;
-}
-
-/* how links behave in main tab. */
-.maintab_back a:link , .maintab_back a:visited, .maintab_active_back a:link , .maintab_active_back a:visited
-{
-	color: black;
-	text-decoration: none;
-}
-
-.maintab_back a:hover, .maintab_active_back a:hover
-{
-	text-decoration: underline;
-}
-/* definitions for the mirror tab */
-.mirrortab_first, .mirrortab_back, .mirrortab_last, .mirrortab_active_first, .mirrortab_active_back, .mirrortab_active_last
-{
-	color: black;
-	text-transform: uppercase;
-	vertical-align: top;
-}
-.mirrortab_back, .mirrortab_active_back
-{
-	text-decoration: none;
-	font-size: 9px;
-	vertical-align: bottom;
-	padding: 6px 6px 2px 6px;
-	font-family: Trebuchet, sans-serif;
-}
-
-.mirrortab_first
-{
-	display: none;
-}
-.mirrortab_back
-{
-}
-.mirrortab_last
-{
-	display: none;
-}
-.mirrortab_active_first
-{
-	display: none;
-}
-.mirrortab_active_back
-{
-	background: #ffd;
-}
-.mirrortab_active_last
-{
-	display: none;
-}
-
-/* how links behave in mirror tab. */
-.mirrortab_back a:link , .mirrortab_back a:visited, .mirrortab_active_back a:link , .mirrortab_active_back a:visited
-{
-	color: black;
-	text-decoration: none;
-}
-
-.mirrortab_back a:hover, .mirrortab_active_back a:hover
-{
-	text-decoration: underline;
-}
-
-/* The AJAX notifier */
-#ajax_in_progress
-{
-	background: #32CD32;
-	color: white;
-	text-align: center;
-	font-weight: bold;
-	font-size: 18pt;
-	padding: 3px;
-	width: 100%;
-	position: fixed;
-	top: 0;
-	left: 0;
-}
-
-/* ################################### */
-
 #left
 {
 	background: url(images/img2/leftbg.jpg) repeat-y white;
@@ -495,28 +357,7 @@ ul#menubox
 	top: 87px;
 	background: url(images/img2/leftbot.gif) no-repeat bottom left;
 }
-#smfshout
-{
-	padding: 6px;
-	font-size: xx-small;
-}
-.smfshout_delete
-{
-	border: solid 1px #888;
-	background: white;
-	padding: 1px;
-}
-.smfshout_body
-{
-	border: solid 1px #888;
-	background: white;
-	padding: 3px;
-	text-align: left;
-}
-.smfshout_frame
-{
-	padding: 5px 0 0 0;
-}
+
 ul#menubox li
 {
 	padding: 0 0 0 8px;
@@ -560,188 +401,6 @@ ul#menubox li.m5
 	padding-left: 18px;
 }
 
-/* home button */
-a#homebtn
-{
-	background: url(images/features/home.gif) no-repeat;
-}
-a#homebtn:hover
-{
-	background: url(images/features/home-over.gif) no-repeat;
-}
-a.chosen#homebtn
-{
-	background: url(images/features/home-select.gif) no-repeat;
-}
-/* help button */
-a#helpbtn
-{
-	background: url(images/features/help.gif) no-repeat;
-}
-a#helpbtn:hover
-{
-	background: url(images/features/help-over.gif) no-repeat;
-}
-a.chosen#helpbtn
-{
-	background: url(images/features/help-select.gif) no-repeat;
-}
-/* forum button */
-a#forumbtn
-{
-	background: url(images/features/forum.gif) no-repeat;
-}
-a#forumbtn:hover
-{
-	background: url(images/features/forum-over.gif) no-repeat;
-}
-a.chosen#forumbtn
-{
-	background: url(images/features/forum-select.gif) no-repeat;
-}
-/* search button */
-a#searchbtn
-{
-	background: url(images/features/search.gif) no-repeat;
-}
-a#searchbtn:hover
-{
-	background: url(images/features/search-over.gif) no-repeat;
-}
-a.chosen#searchbtn
-{
-	background: url(images/features/search-select.gif) no-repeat;
-}
-/* profile button */
-a#profilebtn
-{
-	background: url(images/features/profile.gif) no-repeat;
-}
-a#profilebtn:hover
-{
-	background: url(images/features/profile-over.gif) no-repeat;
-}
-a.chosen#profilebtn
-{
-	background: url(images/features/profile-select.gif) no-repeat;
-}
-/* admin button */
-a#adminbtn
-{
-	background: url(images/features/admin.gif) no-repeat;
-}
-a#adminbtn:hover
-{
-	background: url(images/features/admin-over.gif) no-repeat;
-}
-a.chosen#adminbtn
-{
-	background: url(images/features/admin-select.gif) no-repeat;
-}
-/* pm button */
-a#pmbtn
-{
-	background: url(images/features/pm.gif) no-repeat;
-}
-a#pmbtn:hover
-{
-	background: url(images/features/pm-over.gif) no-repeat;
-}
-a.chosen#pmbtn
-{
-	background: url(images/features/pm-select.gif) no-repeat;
-}
-/* calendar button */
-a#calendarbtn
-{
-	background: url(images/features/calendar.gif) no-repeat;
-}
-a#calendarbtn:hover
-{
-	background: url(images/features/calendar-over.gif) no-repeat;
-}
-a.chosen#calendarbtn
-{
-	background: url(images/features/calendar-select.gif) no-repeat;
-}
-/* register button */
-a#registerbtn
-{
-	background: url(images/features/register.gif) no-repeat;
-}
-a#registerbtn:hover
-{
-	background: url(images/features/register-over.gif) no-repeat;
-}
-a.chosen#registerbtn
-{
-	background: url(images/features/register-select.gif) no-repeat;
-}
-/* login button */
-a#loginbtn
-{
-	background: url(images/features/login.gif) no-repeat;
-}
-a#loginbtn:hover
-{
-	background: url(images/features/login-over.gif) no-repeat;
-}
-a.chosen#loginbtn
-{
-	background: url(images/features/login-select.gif) no-repeat;
-}
-/* logout button */
-a#logoutbtn
-{
-	background: url(images/features/logout.gif) no-repeat;
-}
-a#logoutbtn:hover
-{
-	background: url(images/features/logout-over.gif) no-repeat;
-}
-a.chosen#logoutbtn
-{
-	background: url(images/features/logout-select.gif) no-repeat;
-}
-/* shop button */
-a#shopbtn
-{
-	background: url(images/features/shop.gif) no-repeat;
-}
-a#shopbtn:hover
-{
-	background: url(images/features/shop-over.gif) no-repeat;
-}
-a.chosen#shopbtn
-{
-	background: url(images/features/shop-select.gif) no-repeat;
-}
-/* arcade button */
-a#arcadebtn
-{
-	background: url(images/features/arcade.gif) no-repeat;
-}
-a#arcadebtn:hover
-{
-	background: url(images/features/arcade-over.gif) no-repeat;
-}
-a.chosen#arcadebtn
-{
-	background: url(images/features/arcade-select.gif) no-repeat;
-}
-/* gallery button */
-a#gallerybtn
-{
-	background: url(images/features/gallery.gif) no-repeat;
-}
-a#gallerybtn:hover
-{
-	background: url(images/features/gallery-over.gif) no-repeat;
-}
-a.chosen#gallerybtn
-{
-	background: url(images/features/gallery-select.gif) no-repeat;
-}
 
 #myuser
 {
@@ -839,6 +498,7 @@ ul#topmenu li a:hover
 	width: 100%;
 }
 
+/* Additions */
 img
 {
     max-width:100% !important;

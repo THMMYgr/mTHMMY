@@ -134,6 +134,11 @@ public abstract class BaseActivity extends AppCompatActivity
         return client;
     }
 
+    public static SessionManager getSessionManager()
+    {
+        return sessionManager;
+    }
+
     //TODO: move stuff below
     //------------------------------------------DRAWER STUFF----------------------------------------
     protected static final int HOME_ID=0;
