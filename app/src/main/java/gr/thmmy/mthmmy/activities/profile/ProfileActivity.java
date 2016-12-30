@@ -33,6 +33,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -54,7 +55,7 @@ public class ProfileActivity extends BaseActivity {
     private TextView userName;
     private TextView personalText;
     private LinearLayout mainContent;
-    private ProgressBar progressBar;
+    private MaterialProgressBar progressBar;
     private FloatingActionButton replyFAB;
 
     //Other variables
@@ -94,7 +95,7 @@ public class ProfileActivity extends BaseActivity {
 
         createDrawer();
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
         userThumbnail = (ImageView) findViewById(R.id.user_thumbnail);
         userName = (TextView) findViewById(R.id.profile_act_username);

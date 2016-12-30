@@ -61,7 +61,7 @@ public class TopicActivity extends BaseActivity {
      */
     public static final String EXTRAS_TOPIC_TITLE = "TOPIC_TITLE";
     static String PACKAGE_NAME;
-    private TopicTask topicTask;
+    private static TopicTask topicTask;
     //About posts
     private List<Post> postsList;
     static final int NO_POST_FOCUS = -1;
@@ -124,7 +124,7 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), postsList));
+        recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), progressBar, postsList));
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
@@ -209,6 +209,7 @@ public class TopicActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        recyclerView.setAdapter(null);
         if (topicTask != null && topicTask.getStatus() != AsyncTask.Status.RUNNING)
             topicTask.cancel(true);
     }
@@ -311,7 +312,7 @@ public class TopicActivity extends BaseActivity {
             if (topicTask != null && topicTask.getStatus() != AsyncTask.Status.RUNNING)
                 topicTask.cancel(true);
 
-            topicTask = new TopicTask();
+            //topicTask = new TopicTask();
             topicTask.execute(pagesUrls.get(pageRequested)); //Attempt data parsing
 
         }
@@ -326,7 +327,7 @@ public class TopicActivity extends BaseActivity {
      * <p>Calling ProfileTask's {@link AsyncTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
-    public class TopicTask extends AsyncTask<String, Void, Integer> {
+    class TopicTask extends AsyncTask<String, Void, Integer> {
         //Class variables
         /**
          * Debug Tag for logging debug output to LogCat
@@ -380,7 +381,7 @@ public class TopicActivity extends BaseActivity {
                 case SUCCESS:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
 
-                    recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), postsList), false);
+                    recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), progressBar, postsList), false);
                     //Set post focus
                     if (postFocus != NO_POST_FOCUS) {
                         for (int i = postsList.size() - 1; i >= 0; --i) {

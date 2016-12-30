@@ -162,8 +162,7 @@ public class ThmmyFile {
         // using Environment.getExternalStorageState() before doing this.
         File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
                 + "/Android/data/gr.thmmy.mthmmy/"
-                + "Downloads/"
-                + packageName);
+                + "Downloads/");
 
         // This location works best if you want the created files to be shared
         // between applications and persist after your app has been uninstalled.

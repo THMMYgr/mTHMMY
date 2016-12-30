@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
@@ -28,8 +29,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -44,6 +47,7 @@ import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.data.Post;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -54,18 +58,49 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.postFocus;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
 
+/**
+ * Custom {@link android.support.v7.widget.RecyclerView.Adapter} used for topics.
+ */
 class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
+    /**
+     * Debug Tag for logging debug output to LogCat
+     */
     private static final String TAG = "TopicAdapter";
-
+    /**
+     * Int that holds thumbnail's size defined in R.dimen
+     */
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private final List<Post> postsList;
+    /**
+     * True if there is a post to focus to, false otherwise
+     */
     private boolean foundPostFocus = false;
+    /**
+     * Used to hold the state of visibility and other attributes for views that are animated or
+     * otherwise changed. Used in combination with {@link #isPostDateAndNumberVisibile},
+     * {@link #isUserExtraInfoVisibile} and {@link #isQuoteButtonChecked}.
+     */
     private final ArrayList<boolean[]> viewProperties = new ArrayList<>();
+    /**
+     * Index of state indicator in the boolean array. If true post is expanded and post's date and
+     * number are visible.
+     */
     private static final int isPostDateAndNumberVisibile = 0;
+    /**
+     * Index of state indicator in the boolean array. If true user's extra info are expanded and
+     * visible.
+     */
     private static final int isUserExtraInfoVisibile = 1;
+    /**
+     * Index of state indicator in the boolean array. If true quote button for this post is checked.
+     */
     private static final int isQuoteButtonChecked = 2;
+    private final MaterialProgressBar progressBar;
 
+    /**
+     * Custom {@link RecyclerView.ViewHolder} implementation
+     */
     class MyViewHolder extends RecyclerView.ViewHolder {
         final CardView cardView;
         final FrameLayout postDateAndNumberExp;
@@ -82,9 +117,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         MyViewHolder(View view) {
             super(view);
-
-            //Initialize layout's graphic elements
-            //Basic stuff
+            //Initializes layout's graphic elements
+            //Standard stuff
             cardView = (CardView) view.findViewById(R.id.card_view);
             postDateAndNumberExp = (FrameLayout) view.findViewById(R.id.post_date_and_number_exp);
             postDate = (TextView) view.findViewById(R.id.post_date);
@@ -98,7 +132,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             bodyFooterDivider = view.findViewById(R.id.body_footer_divider);
             postFooter = (LinearLayout) view.findViewById(R.id.post_footer);
 
-            //User's extra
+            //User's extra info
             header = (RelativeLayout) view.findViewById(R.id.header);
             userExtraInfo = (LinearLayout) view.findViewById(R.id.user_extra_info);
             specialRank = (TextView) view.findViewById(R.id.special_rank);
@@ -110,29 +144,39 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         }
 
         /**
-         * Possible cleanup needed (like so:)
-         * https://stackoverflow.com/questions/24897441/picasso-how-to-cancel-all-image-requests-made-in-an-adapter
-         * TODO
+         * Cancels all pending Picasso requests
          */
+        void cleanup() {
+            Picasso.with(context).cancelRequest(thumbnail);
+            thumbnail.setImageDrawable(null);
+        }
     }
 
-
-    TopicAdapter(Context context, List<Post> postsList) {
+    /**
+     * @param context   the context of the {@link RecyclerView}
+     * @param postsList List of {@link Post} objects to use
+     */
+    TopicAdapter(Context context, MaterialProgressBar progressBar, List<Post> postsList) {
         this.context = context;
         this.postsList = postsList;
 
         THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
         for (int i = 0; i < postsList.size(); ++i) {
-            //Initialize properties, array's values will be false by default
+            //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
+        this.progressBar = progressBar;
+    }
+
+    @Override
+    public void onViewRecycled(final MyViewHolder holder) {
+        holder.cleanup();
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.activity_topic_post_row, parent, false);
-
         return new MyViewHolder(itemView);
     }
 
@@ -141,15 +185,15 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         final Post currentPost = postsList.get(position);
 
-        //Post's WebView parameters set
+        //Post's WebView parameters
         holder.post.setClickable(true);
         holder.post.setWebViewClient(new LinkLauncher());
         holder.post.getSettings().setJavaScriptEnabled(true);
 
-        //Avoiding errors about layout having 0 width/height
+        //Avoids errors about layout having 0 width/height
         holder.thumbnail.setMinimumWidth(1);
         holder.thumbnail.setMinimumHeight(1);
-        //Set thumbnail size
+        //Sets thumbnail size
         holder.thumbnail.setMaxWidth(THUMBNAIL_SIZE);
         holder.thumbnail.setMaxHeight(THUMBNAIL_SIZE);
 
@@ -165,42 +209,16 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 .transform(new CircleTransform())
                 .into(holder.thumbnail);
 
-        //Username set
+        //Sets username,submit date, index number, subject, post's and attached files texts
         holder.username.setText(currentPost.getAuthor());
-
-        //Post's submit date set
         holder.postDate.setText(currentPost.getPostDate());
-
-        //Post's index number set
         if (currentPost.getPostNumber() != 0)
             holder.postNum.setText(context.getString(
                     R.string.user_number_of_posts, currentPost.getPostNumber()));
         else
             holder.postNum.setText("");
-
-        //Post's subject set
         holder.subject.setText(currentPost.getSubject());
-
-        //Post's text set
         holder.post.loadDataWithBaseURL("file:///android_asset/", currentPost.getContent(), "text/html", "UTF-8", null);
-
-        holder.quoteToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (view.isSelected()) {
-                    if (toQuoteList.contains(currentPost.getPostNumber())) {
-                        toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
-                        view.setSelected(false);
-                    } else
-                        Report.i(TAG, "An error occurred while trying to exclude post from" +
-                                "toQuoteList, post wasn't there!");
-                } else {
-                    toQuoteList.add(currentPost.getPostNumber());
-                    view.setSelected(true);
-                }
-            }
-        });
-
         if (currentPost.getAttachedFiles().size() != 0) {
             holder.bodyFooterDivider.setVisibility(View.VISIBLE);
             int filesTextColor;
@@ -215,7 +233,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 attached.setClickable(true);
                 attached.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));
-                attached.setText(faIconFromExtension(attachedFile.getFilename()) + " "
+                attached.setText(faIconFromFilename(attachedFile.getFilename()) + " "
                         + attachedFile.getFilename() + attachedFile.getFileInfo());
                 attached.setTextColor(filesTextColor);
                 attached.setPadding(0, 3, 0, 3);
@@ -235,94 +253,83 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.postFooter.removeAllViews();
         }
 
-        //If user is not deleted then we have more to do
-        if (!currentPost.isDeleted()) { //Set extra info
-            //Variables with content
-            String c_specialRank = currentPost.getSpecialRank(), c_rank = currentPost.getRank(), c_gender = currentPost.getGender(), c_numberOfPosts = currentPost.getNumberOfPosts(), c_personalText = currentPost.getPersonalText();
-            int c_numberOfStars = currentPost.getNumberOfStars(), c_userColor = currentPost.getUserColor();
+        if (!currentPost.isDeleted()) { //Sets user's extra info
+            String mSpecialRank = currentPost.getSpecialRank(), mRank = currentPost.getRank(), mGender = currentPost.getGender(), mNumberOfPosts = currentPost.getNumberOfPosts(), mPersonalText = currentPost.getPersonalText();
+            int mNumberOfStars = currentPost.getNumberOfStars(), mUserColor = currentPost.getUserColor();
 
-            if (!Objects.equals(c_specialRank, "") && c_specialRank != null) {
-                holder.specialRank.setText(c_specialRank);
+            if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
+                holder.specialRank.setText(mSpecialRank);
                 holder.specialRank.setVisibility(View.VISIBLE);
             } else
                 holder.specialRank.setVisibility(View.GONE);
-            if (!Objects.equals(c_rank, "") && c_rank != null) {
-                holder.rank.setText(c_rank);
+            if (!Objects.equals(mRank, "") && mRank != null) {
+                holder.rank.setText(mRank);
                 holder.rank.setVisibility(View.VISIBLE);
             } else
                 holder.rank.setVisibility(View.GONE);
-            if (!Objects.equals(c_gender, "") && c_gender != null) {
-                holder.gender.setText(c_gender);
+            if (!Objects.equals(mGender, "") && mGender != null) {
+                holder.gender.setText(mGender);
                 holder.gender.setVisibility(View.VISIBLE);
             } else
                 holder.gender.setVisibility(View.GONE);
-            if (!Objects.equals(c_numberOfPosts, "") && c_numberOfPosts != null) {
-                holder.numberOfPosts.setText(c_numberOfPosts);
+            if (!Objects.equals(mNumberOfPosts, "") && mNumberOfPosts != null) {
+                holder.numberOfPosts.setText(mNumberOfPosts);
                 holder.numberOfPosts.setVisibility(View.VISIBLE);
             } else
                 holder.numberOfPosts.setVisibility(View.GONE);
-            if (!Objects.equals(c_personalText, "") && c_personalText != null) {
-                holder.personalText.setText("\"" + c_personalText + "\"");
+            if (!Objects.equals(mPersonalText, "") && mPersonalText != null) {
+                holder.personalText.setText("\"" + mPersonalText + "\"");
                 holder.personalText.setVisibility(View.VISIBLE);
             } else
                 holder.personalText.setVisibility(View.GONE);
-
-            if (c_numberOfStars != 0) {
+            if (mNumberOfStars != 0) {
                 holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));
 
                 String aStar = context.getResources().getString(R.string.fa_icon_star);
                 String usersStars = "";
-                for (int i = 0; i < c_numberOfStars; ++i) {
+                for (int i = 0; i < mNumberOfStars; ++i) {
                     usersStars += aStar;
                 }
                 holder.stars.setText(usersStars);
-                holder.stars.setTextColor(c_userColor);
+                holder.stars.setTextColor(mUserColor);
                 holder.stars.setVisibility(View.VISIBLE);
             } else
                 holder.stars.setVisibility(View.GONE);
 
-            /* --Header expand/collapse functionality-- */
-
-            //Check if current post's header is expanded
-            if (viewProperties.get(position)[isUserExtraInfoVisibile]) { //Expanded
+            //Avoid's view's visibility recycling
+            if (viewProperties.get(position)[isUserExtraInfoVisibile]) {
                 holder.userExtraInfo.setVisibility(View.VISIBLE);
                 holder.userExtraInfo.setAlpha(1.0f);
-            } else { //Collapsed
+            } else {
                 holder.userExtraInfo.setVisibility(View.GONE);
                 holder.userExtraInfo.setAlpha(0.0f);
             }
-
+            //Sets graphics behavior
             holder.header.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (viewProperties.get(holder.getAdapterPosition())[isUserExtraInfoVisibile] &&
-                            !currentPost.isDeleted()) {
+                    //Clicking an expanded header starts profile activity
+                    if (viewProperties.get(holder.getAdapterPosition())[isUserExtraInfoVisibile]) {
 
                         Intent intent = new Intent(context, ProfileActivity.class);
                         Bundle b = new Bundle();
-                        b.putString(EXTRAS_PROFILE_URL, currentPost.getProfileURL()); //Profile url
-                        intent.putExtras(b); //Put url to next Intent
+                        b.putString(EXTRAS_PROFILE_URL, currentPost.getProfileURL());
+                        intent.putExtras(b);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
-                        //((Activity) context).overridePendingTransition(
-                        //R.anim.push_right_in, R.anim.push_left_out);
                     }
 
-                    //Change post's viewProperties accordingly
                     boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
                     tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];
                     viewProperties.set(holder.getAdapterPosition(), tmp);
-
                     TopicAnimations.animateUserExtraInfoVisibility(holder.userExtraInfo);
                 }
             });
-
-            //Clicking the expanded part of a header should collapse the extra info
+            //Clicking the expanded part of a header (the extra info) makes it collapse
             holder.userExtraInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //Change post's viewProperties accordingly
                     boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
                     tmp[1] = false;
                     viewProperties.set(holder.getAdapterPosition(), tmp);
@@ -330,12 +337,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                     TopicAnimations.animateUserExtraInfoVisibility(v);
                 }
             });
-            /* --Header expand/collapse functionality end-- */
-        }
-
-            /* --Card expand/collapse functionality-- */
-
-        //Check if current post is expanded
+        }//End of deleted profiles
+        //Avoid's view's visibility recycling
         if (viewProperties.get(position)[isPostDateAndNumberVisibile]) { //Expanded
             holder.postDateAndNumberExp.setVisibility(View.VISIBLE);
             holder.postDateAndNumberExp.setAlpha(1.0f);
@@ -359,8 +362,24 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.subject.setMaxLines(1);
             holder.subject.setEllipsize(TextUtils.TruncateAt.END);
         }
-
-        //Should expand/collapse when card is touched
+        //Sets graphics behavior
+        holder.quoteToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view.isSelected()) {
+                    if (toQuoteList.contains(currentPost.getPostNumber())) {
+                        toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
+                        view.setSelected(false);
+                    } else
+                        Report.i(TAG, "An error occurred while trying to exclude post from" +
+                                "toQuoteList, post wasn't there!");
+                } else {
+                    toQuoteList.add(currentPost.getPostNumber());
+                    view.setSelected(true);
+                }
+            }
+        });
+        //Card expand/collapse when card is touched
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -375,10 +394,10 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                         , Color.parseColor("#757575"));
             }
         });
-
         //Also when post is clicked
         holder.post.setOnTouchListener(new CustomTouchListener(holder.post, holder.cardView, holder.quoteToggle));
 
+        //Focuses
         if (postFocus != NO_POST_FOCUS && !foundPostFocus) {
             if (currentPost.getPostIndex() == postFocus) {
                 holder.cardView.requestFocus();
@@ -392,16 +411,13 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         return postsList.size();
     }
 
-//--------------------------------------CUSTOM TOUCH LISTENER---------------------------------------
-
     /**
-     * This class is a gesture detector for WebViews.
-     * It handles post's clicks, long clicks and touch and drag.
+     * This class is a gesture detector for WebViews. It handles post's clicks, long clicks and
+     * touch and drag.
      */
-
     private class CustomTouchListener implements View.OnTouchListener {
         //Long press handling
-        private final int LONG_PRESS_DURATION = 650;
+        private final int LONG_PRESS_REQUIRED_DURATION = 650;
         private final Handler webViewLongClickHandler = new Handler();
         private boolean wasLongClick = false;
         private float downCoordinateX;
@@ -434,65 +450,58 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-
             switch (motionEvent.getAction()) {
-
                 case MotionEvent.ACTION_DOWN:
+                    //Logs XY
                     downCoordinateX = motionEvent.getX();
                     downCoordinateY = motionEvent.getY();
+
                     if (fingerState == FINGER_RELEASED)
                         fingerState = FINGER_TOUCHED;
                     else
                         fingerState = FINGER_UNDEFINED;
-                    //Start long click runnable
-                    webViewLongClickHandler.postDelayed(WebViewLongClick
-                            , LONG_PRESS_DURATION);
-                    break;
 
+                    webViewLongClickHandler.postDelayed(WebViewLongClick
+                            , LONG_PRESS_REQUIRED_DURATION);
+                    break;
                 case MotionEvent.ACTION_UP:
                     webViewLongClickHandler.removeCallbacks(WebViewLongClick);
 
                     if (!wasLongClick && fingerState != FINGER_DRAGGING) {
-                        //If this was a link don't expand the card
+                        //Doesn't expand the card if this was a link
                         WebView.HitTestResult htResult = post.getHitTestResult();
                         if (htResult.getExtra() != null
-                                && htResult.getExtra() != null)
+                                && htResult.getExtra() != null) {
+                            fingerState = FINGER_RELEASED;
                             return false;
-                        //Else expand/collapse card
+                        }
+
                         cardView.performClick();
                     } else
                         wasLongClick = false;
                     fingerState = FINGER_RELEASED;
                     break;
-
                 case MotionEvent.ACTION_MOVE:
-                    //If finger moved too much, cancel long click
+                    //Cancels long click if finger moved too much
                     if (((Math.abs(downCoordinateX - motionEvent.getX()) > SCROLL_THRESHOLD ||
                             Math.abs(downCoordinateY - motionEvent.getY()) > SCROLL_THRESHOLD))) {
                         webViewLongClickHandler.removeCallbacks(WebViewLongClick);
                         fingerState = FINGER_DRAGGING;
                     } else fingerState = FINGER_UNDEFINED;
                     break;
-
                 default:
                     fingerState = FINGER_UNDEFINED;
-
             }
             return false;
         }
     }
-//------------------------------------CUSTOM TOUCH LISTENER END-------------------------------------
-
-//--------------------------------------CUSTOM WEBVIEW CLIENT---------------------------------------
 
     /**
-     * This class is used to handle link clicks in WebViews.
-     * When link url is one that the app can handle internally, it does.
-     * Otherwise user is prompt to open the link in a browser.
+     * This class is used to handle link clicks in WebViews. When link url is one that the app can
+     * handle internally, it does. Otherwise user is prompt to open the link in a browser.
      */
     @SuppressWarnings("unchecked")
-    private class LinkLauncher extends WebViewClient { //Used to handle link clicks
-        //Older versions
+    private class LinkLauncher extends WebViewClient {
         @SuppressWarnings("deprecation")
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -500,7 +509,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             return handleUri(uri);
         }
 
-        //Newest versions
         @TargetApi(Build.VERSION_CODES.N)
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -508,32 +516,24 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             return handleUri(uri);
         }
 
-        //Handle url clicks
         @SuppressWarnings("SameReturnValue")
         private boolean handleUri(final Uri uri) {
-            //Method always returns true as we don't want any url to be loaded in WebViews
-
-            Report.i(TAG, "Uri clicked = " + uri);
-            final String host = uri.getHost(); //Get requested url's host
+            final String host = uri.getHost();
             final String uriString = uri.toString();
 
-            //Determine if you are going to pass the url to a
-            //host's application activity or load it in a browser.
+            //Checks if app can handle this url
             if (Objects.equals(host, "www.thmmy.gr")) {
-                //This is my web site, so figure out what Activity should launch
                 if (uriString.contains("topic=")) { //This url points to a topic
-                    //Is the link pointing to current topic?
-                    if (Objects.equals(
-                            uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
-
-                        //Get uri's targeted message's index number
+                    //Checks if this is the current topic
+                    if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
+                        //Gets uri's targeted message's index number
                         String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
                         if (msgIndexReq.contains("#"))
                             msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf("#"));
                         else
                             msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf(";"));
 
-                        //Is this post already shown now? (is it in current page?)
+                        //Checks if this post is in the current topic's page
                         for (Post post : postsList) {
                             if (post.getPostIndex() == Integer.parseInt(msgIndexReq)) {
                                 //Don't restart Activity
@@ -548,18 +548,25 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 }
                 return true;
             }
-            //Otherwise, the link is not for a page on my site, so launch
-            //another Activity that handles URLs
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
+
+            //Method always returns true as no url should be loaded in the WebViews
             return true;
         }
     }
-//------------------------------------CUSTOM WEBVIEW CLIENT END-------------------------------------
 
+    /**
+     * Returns a String with a single FontAwesome typeface character corresponding to this file's
+     * extension.
+     *
+     * @param filename String with filename <b>containing file's extension</b>
+     * @return FontAwesome character according to file's type
+     * @see <a href="http://fontawesome.io/">FontAwesome</a>
+     */
     @NonNull
-    private String faIconFromExtension(String filename) {
+    private String faIconFromFilename(String filename) {
         filename = filename.toLowerCase();
 
         if (filename.contains("jpg") || filename.contains("gif") || filename.contains("jpeg")
@@ -583,30 +590,54 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         return context.getResources().getString(R.string.fa_file);
     }
 
-    private class DownloadTask extends AsyncTask<ThmmyFile, Void, Void> {
+    private class DownloadTask extends AsyncTask<ThmmyFile, Void, String> {
         //Class variables
         /**
          * Debug Tag for logging debug output to LogCat
          */
         private static final String TAG = "DownloadTask"; //Separate tag for AsyncTask
+        private PowerManager.WakeLock mWakeLock;
 
-        protected Void doInBackground(ThmmyFile... files) {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //Locks CPU to prevent going off
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    getClass().getName());
+            mWakeLock.acquire();
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(ThmmyFile... files) {
             try {
-                File tmpFile = files[0].download(PACKAGE_NAME);
-                if (tmpFile != null) {
+                File tempFile = files[0].download(PACKAGE_NAME);
+                if (tempFile != null) {
                     String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                             files[0].getExtension());
 
                     Intent intent = new Intent();
                     intent.setAction(android.content.Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(tmpFile), mime);
+                    intent.setDataAndType(Uri.fromFile(tempFile), mime);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
                 }
             } catch (IOException e) {
                 Report.e(TAG, "Error while trying to download a file", e);
+                return e.toString();
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            mWakeLock.release();
+            if (result != null)
+                Toast.makeText(context, "Error! Download not complete.", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(context, "Download complete", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 }

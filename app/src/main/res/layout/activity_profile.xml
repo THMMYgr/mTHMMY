@@ -72,16 +72,17 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-    <ProgressBar
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:theme="@style/AppTheme"
         android:visibility="invisible"
         app:layout_anchor="@id/appbar"
-        app:layout_anchorGravity="bottom|center"/>
+        app:layout_anchorGravity="bottom|center"
+        app:mpb_indeterminateTint="@color/accent"
+        app:mpb_progressStyle="horizontal"/>
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
