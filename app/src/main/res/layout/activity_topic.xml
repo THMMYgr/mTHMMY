@@ -90,7 +90,6 @@
             app:srcCompat="@drawable/page_last"/>
     </android.support.v7.widget.FitWindowsLinearLayout>
 
-
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
         style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"

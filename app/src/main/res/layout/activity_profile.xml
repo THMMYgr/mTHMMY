@@ -17,7 +17,7 @@
         android:theme="@style/ToolbarTheme">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/main.collapsing"
+            android:id="@+id/main_collapsing"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
@@ -45,7 +45,7 @@
                     app:layout_collapseMode="parallax"/>
 
                 <TextView
-                    android:id="@+id/profile_act_personal_text"
+                    android:id="@+id/profile_activity_personal_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -72,19 +72,8 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-        android:id="@+id/progressBar"
-        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="invisible"
-        app:layout_anchor="@id/appbar"
-        app:layout_anchorGravity="bottom|center"
-        app:mpb_indeterminateTint="@color/accent"
-        app:mpb_progressStyle="horizontal"/>
-
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/nested_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
@@ -97,13 +86,25 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
-            android:id="@+id/profile_act_content"
+            android:id="@+id/profile_activity_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical">
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_anchor="@id/nested_scroll"
+        app:layout_anchorGravity="top|center"
+        app:mpb_indeterminateTint="@color/accent"
+        app:mpb_progressStyle="horizontal"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/profile_fab"

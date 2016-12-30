@@ -89,7 +89,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     public void onRecentFragmentInteraction(TopicSummary topicSummary) {
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
-        i.putExtra(EXTRAS_TOPIC_URL, topicSummary.getTopicUrl());
+        i.putExtra(EXTRAS_TOPIC_URL, "https://www.thmmy.gr/smf/index.php?topic=67565.0");
         i.putExtra(EXTRAS_TOPIC_TITLE, topicSummary.getTitle());
         startActivity(i);
     }

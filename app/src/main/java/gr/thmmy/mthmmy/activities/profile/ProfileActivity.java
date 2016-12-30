@@ -99,8 +99,8 @@ public class ProfileActivity extends BaseActivity {
 
         userThumbnail = (ImageView) findViewById(R.id.user_thumbnail);
         userName = (TextView) findViewById(R.id.profile_act_username);
-        personalText = (TextView) findViewById(R.id.profile_act_personal_text);
-        mainContent = (LinearLayout) findViewById(R.id.profile_act_content);
+        personalText = (TextView) findViewById(R.id.profile_activity_personal_text);
+        mainContent = (LinearLayout) findViewById(R.id.profile_activity_content);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.profile_fab);
         replyFAB.setEnabled(false);

@@ -17,7 +17,7 @@
         android:theme="@style/ToolbarTheme">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/main.collapsing"
+            android:id="@+id/main_collapsing"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
@@ -46,7 +46,7 @@
                     app:layout_collapseMode="parallax"/>
 
                 <TextView
-                    android:id="@+id/profile_act_personal_text"
+                    android:id="@+id/profile_activity_personal_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -97,7 +97,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
-            android:id="@+id/profile_act_content"
+            android:id="@+id/profile_activity_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
