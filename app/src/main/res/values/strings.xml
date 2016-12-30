@@ -10,7 +10,7 @@
     <string name="about">About</string>
     <string name="version">v%1$s</string>
     <string name="logo">Logo</string>
-    <string name="trollGif">You should watch a funny gif!</string>
+    <string name="trollPic">You should watch a funny pic!</string>
     <string name="login">Login</string>
     <string name="login_spinner">Authenticating&#8230;</string>
     <string name="logout">Logout</string>

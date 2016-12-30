@@ -312,7 +312,7 @@ public class TopicActivity extends BaseActivity {
             if (topicTask != null && topicTask.getStatus() != AsyncTask.Status.RUNNING)
                 topicTask.cancel(true);
 
-            //topicTask = new TopicTask();
+            topicTask = new TopicTask();
             topicTask.execute(pagesUrls.get(pageRequested)); //Attempt data parsing
 
         }

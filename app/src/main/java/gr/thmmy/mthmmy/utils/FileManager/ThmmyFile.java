@@ -107,23 +107,8 @@ public class ThmmyFile {
     /**
      * Used to download the file. If download is successful file's extension and path will be assigned
      * to object's fields and can be accessed using getter methods.
-     * <p>File is stored in sdcard1/Android/data/Downloads/{@link #NO_PACKAGE_FOLDER_NAME}</p>
-     *
-     * @return the {@link File} if successful, null otherwise
-     * @throws IOException
-     * @throws SecurityException
-     */
-    @Nullable
-    public File download() throws IOException, SecurityException {
-        return download(NO_PACKAGE_FOLDER_NAME);
-    }
-
-    /**
-     * Used to download the file. If download is successful file's extension and path will be assigned
-     * to object's fields and can be accessed using getter methods.
      * <p>File is stored in sdcard1/Android/data/Downloads/packageName</p>
      *
-     * @param packageName package's name to use as folder name for file's path
      * @return the {@link File} if successful, null otherwise
      * @throws IOException       if the request could not be executed due to cancellation, a connectivity
      *                           problem or timeout. Because networks can fail during an exchange, it is possible that the
@@ -131,7 +116,7 @@ public class ThmmyFile {
      * @throws SecurityException if the requested file is not hosted by the forum.
      */
     @Nullable
-    public File download(final String packageName) throws IOException, SecurityException {
+    public File download() throws IOException, SecurityException {
         if (!Objects.equals(fileUrl.getHost(), "www.thmmy.gr"))
             throw new SecurityException("Downloading files from other sources is not supported");
 
@@ -141,7 +126,7 @@ public class ThmmyFile {
         if (!response.isSuccessful()) {
             throw new IOException("Failed to download file: " + response);
         }
-        file = getOutputMediaFile(packageName, filename);
+        file = getOutputMediaFile(filename);
         if (file == null) {
             Report.d(TAG, "Error creating media file, check storage permissions!");
         } else {
@@ -157,7 +142,7 @@ public class ThmmyFile {
     }
 
     @Nullable
-    private static File getOutputMediaFile(String packageName, String fileName) {
+    private static File getOutputMediaFile(String fileName) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
         File mediaStorageDir = new File(Environment.getExternalStorageDirectory()

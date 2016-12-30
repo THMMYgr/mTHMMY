@@ -44,7 +44,7 @@ public class AboutActivity extends BaseActivity {
         drawer.setSelection(ABOUT_ID);
 
         final ScrollView mainContent = (ScrollView) findViewById(R.id.scrollview);
-        trollGif = (FrameLayout) findViewById(R.id.trollGifFrame);
+        trollGif = (FrameLayout) findViewById(R.id.trollPicFrame);
 
         TextView tv = (TextView) findViewById(R.id.version);
         if (tv != null)

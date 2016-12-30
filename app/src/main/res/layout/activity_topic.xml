@@ -30,20 +30,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
-        android:layout_marginBottom="50dp"
         android:layout_marginTop="64dp"
         android:background="@color/background"
         android:scrollbars="none"
         tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity">
     </android.support.v7.widget.RecyclerView>
 
-    <android.support.v7.widget.FitWindowsLinearLayout
+    <LinearLayout
         android:id="@+id/bottom_navigation_bar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_gravity="bottom|end"
-        android:layout_marginTop="-2dp"
-        app:elevation="8dp">
+        android:background="@color/primary"
+        app:elevation="8dp"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareLinearBehavior">
 
         <ImageButton
             android:id="@+id/page_first_button"
@@ -88,7 +88,7 @@
             android:layout_weight="0.8"
             android:contentDescription="@string/text_last"
             app:srcCompat="@drawable/page_last"/>
-    </android.support.v7.widget.FitWindowsLinearLayout>
+    </LinearLayout>
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
@@ -107,11 +107,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="54dp"
+        android:layout_marginBottom="50dp"
         android:layout_marginEnd="@dimen/fab_margins"
-        app:borderWidth="0dp"
-        app:layout_anchor="@id/topic_recycler_view"
-        app:layout_anchorGravity="bottom|right|end"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_add_fab"/>
 </android.support.design.widget.CoordinatorLayout>

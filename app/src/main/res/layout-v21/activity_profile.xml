@@ -73,18 +73,8 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:theme="@style/AppTheme"
-        android:visibility="invisible"
-        app:layout_anchor="@id/appbar"
-        app:layout_anchorGravity="bottom|center"/>
-
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/nested_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
@@ -104,6 +94,18 @@
             android:orientation="vertical">
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_anchor="@id/nested_scroll"
+        app:layout_anchorGravity="top|center"
+        app:mpb_indeterminateTint="@color/accent"
+        app:mpb_progressStyle="horizontal"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/profile_fab"

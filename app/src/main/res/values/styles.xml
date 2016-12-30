@@ -38,9 +38,9 @@
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorAccent">@color/accent</item>
+        <item name="colorAccent">@color/iron</item>
         <item name="android:textColorPrimary">@color/primary_text</item>
-        <item name="android:background">@color/dialog_bg_semi_transparent</item>
+        <item name="android:colorBackground">@color/dialog_bg_semi_transparent</item>
     </style>
 
 </resources>

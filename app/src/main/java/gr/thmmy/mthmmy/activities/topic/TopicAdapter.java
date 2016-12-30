@@ -29,7 +29,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -612,7 +611,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         @Override
         protected String doInBackground(ThmmyFile... files) {
             try {
-                File tempFile = files[0].download(PACKAGE_NAME);
+                File tempFile = files[0].download();
                 if (tempFile != null) {
                     String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                             files[0].getExtension());

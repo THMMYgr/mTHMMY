@@ -5,24 +5,6 @@
     in the style.css file!
     -->
 
-    <!--Indigo-->
-    <!--<color name="primary">#3F51B5</color>
-    <color name="primary_dark">#303F9F</color>
-    <color name="primary_light">#C5CAE9</color>
-    <color name="accent">#009688</color>
-    <color name="primary_text">#000000</color>
-    <color name="secondary_text">#757575</color>
-    <color name="card_background">#FFFFFF</color>
-    <color name="divider">#8B8B8B</color>
-
-    <color name="transparent">#00000000</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-    <color name="iron">#CCCCCC</color>
-    <color name="card_expand_text_color">#464646</color>
-    <color name="background">#D3D3D3</color>
-    <color name="dialog_bg_semi_transparent">#80212c6f</color>-->
-
     <!--Dark-->
     <color name="primary">#2B2B2B</color>
     <color name="primary_dark">#333333</color>
@@ -38,5 +20,5 @@
     <color name="white">#FFFFFF</color>
     <color name="iron">#CCCCCC</color>
     <color name="card_expand_text_color">#E7E7E7</color>
-    <color name="dialog_bg_semi_transparent">#8026A69A</color>
+    <color name="dialog_bg_semi_transparent">#D926A69A</color>
 </resources>
