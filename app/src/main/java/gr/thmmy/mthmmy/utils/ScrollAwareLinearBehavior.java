@@ -10,14 +10,13 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 
 /**
- * CoordinatorLayout Behavior for bottom navigation bar.
+ * Extends LinearLayout's behavior. Used for bottom navigation bar.
  * <p>When a nested ScrollView is scrolled down, the view will disappear.
  * When the ScrollView is scrolled back up, the view will reappear.</p>
  */
+@SuppressWarnings("WeakerAccess")
 public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> {
-    private int mDySinceDirectionChange;
-    private boolean mIsShowing;
-    private boolean mIsHiding;
+    private static final int ANIMATION_DURATION = 100;
 
     public ScrollAwareLinearBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -29,32 +28,26 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
     }
 
     @Override
-    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, View child, View target, int dx, int dy, int[] consumed) {
-        if (dy > 0 && mDySinceDirectionChange < 0
-                || dy < 0 && mDySinceDirectionChange > 0) {
-            child.animate().cancel();
-            mDySinceDirectionChange = 0;
-        }
-
-        mDySinceDirectionChange += dy;
-
-        if (mDySinceDirectionChange > child.getHeight()
-                && child.getVisibility() == View.VISIBLE
-                && !mIsHiding) {
-            hide(child);
-        } else if (mDySinceDirectionChange < 0
-                && child.getVisibility() == View.INVISIBLE
-                && !mIsShowing) {
-            show(child);
+    public void onNestedScroll (CoordinatorLayout coordinatorLayout, View bottomNavBar, View target,
+                         int dxConsumed, int dyConsumed,
+                         int dxUnconsumed, int dyUnconsumed){
+        super.onNestedScroll(coordinatorLayout, bottomNavBar, target, dxConsumed, dyConsumed,dxUnconsumed, dyUnconsumed);
+        if (dyConsumed > 0 && bottomNavBar.getVisibility() == View.VISIBLE) {
+            hide(bottomNavBar);
+        } else if (dyConsumed < 0 && bottomNavBar.getVisibility() != View.VISIBLE) {
+            show(bottomNavBar);
         }
     }
 
-    private void hide(final View view) {
-        mIsHiding = true;
-        ViewPropertyAnimator animator = view.animate()
-                .translationY(view.getHeight())
+    /**
+     * Animates the hiding of a bottom navigation bar.
+     * @param bottomNavBar bottom navigation bar View
+     */
+    private void hide(final View bottomNavBar) {
+        ViewPropertyAnimator animator = bottomNavBar.animate()
+                .translationY(bottomNavBar.getHeight())
                 .setInterpolator(new FastOutSlowInInterpolator())
-                .setDuration(100);
+                .setDuration(ANIMATION_DURATION);
 
         animator.setListener(new Animator.AnimatorListener() {
             @Override
@@ -63,18 +56,11 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                // Prevent drawing the View after it is gone
-                mIsHiding = false;
-                view.setVisibility(View.INVISIBLE);
+                bottomNavBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onAnimationCancel(Animator animator) {
-                // Canceling a hide should show the view
-                mIsHiding = false;
-                if (!mIsShowing) {
-                    show(view);
-                }
             }
 
             @Override
@@ -85,31 +71,28 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
         animator.start();
     }
 
-    private void show(final View view) {
-        mIsShowing = true;
-        ViewPropertyAnimator animator = view.animate()
+    /**
+     * Animates the showing of a bottom navigation bar.
+     * @param bottomNavBar bottom navigation bar View
+     */
+    private void show(final View bottomNavBar) {
+        ViewPropertyAnimator animator = bottomNavBar.animate()
                 .translationY(0)
                 .setInterpolator(new FastOutSlowInInterpolator())
-                .setDuration(100);
+                .setDuration(ANIMATION_DURATION);
 
         animator.setListener(new Animator.AnimatorListener() {
             @Override
-            public void onAnimationStart(Animator animator) {
-                view.setVisibility(View.VISIBLE);
+            public void onAnimationStart(Animator animator){
+                bottomNavBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                mIsShowing = false;
             }
 
             @Override
             public void onAnimationCancel(Animator animator) {
-                // Canceling a show should hide the view
-                mIsShowing = false;
-                if (!mIsHiding) {
-                    hide(view);
-                }
             }
 
             @Override

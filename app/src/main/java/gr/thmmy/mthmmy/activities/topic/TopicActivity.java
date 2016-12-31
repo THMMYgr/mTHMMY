@@ -60,12 +60,12 @@ public class TopicActivity extends BaseActivity {
      * The key to use when putting topic's title String to {@link TopicActivity}'s Bundle.
      */
     public static final String EXTRAS_TOPIC_TITLE = "TOPIC_TITLE";
-    static String PACKAGE_NAME;
     private static TopicTask topicTask;
     //About posts
     private List<Post> postsList;
-    static final int NO_POST_FOCUS = -1;
-    static int postFocus = NO_POST_FOCUS;
+    private static final int NO_POST_FOCUS = -1;
+    private static int postFocus = NO_POST_FOCUS;
+    private static int postFocusPosition = 0;
     //Quotes
     public static final ArrayList<Integer> toQuoteList = new ArrayList<>();
     //Topic's pages
@@ -93,7 +93,7 @@ public class TopicActivity extends BaseActivity {
     private FloatingActionButton replyFAB;
     private String parsedTitle;
     private RecyclerView recyclerView;
-    private RecyclerView.LayoutManager layoutManager;
+    private String loadedPageUrl = "";
 
 
     @Override
@@ -101,7 +101,6 @@ public class TopicActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
 
-        PACKAGE_NAME = getApplicationContext().getPackageName();
         Bundle extras = getIntent().getExtras();
         topicTitle = extras.getString("TOPIC_TITLE");
 
@@ -118,13 +117,14 @@ public class TopicActivity extends BaseActivity {
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
-        postsList  = new ArrayList<>();
+        postsList = new ArrayList<>();
 
         recyclerView = (RecyclerView) findViewById(R.id.topic_recycler_view);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(getApplicationContext());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), progressBar, postsList));
+        recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), progressBar, postsList,
+                new TopicTask()));
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
@@ -336,6 +336,7 @@ public class TopicActivity extends BaseActivity {
         private static final int SUCCESS = 0;
         private static final int NETWORK_ERROR = 1;
         private static final int OTHER_ERROR = 2;
+        private static final int SAME_PAGE = 3;
 
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -345,13 +346,13 @@ public class TopicActivity extends BaseActivity {
         protected Integer doInBackground(String... strings) {
             Document document;
             base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //This topic's base url
-            String pageUrl = strings[0];
+            String newPageUrl = strings[0];
 
             //Finds message focus if present
             {
                 postFocus = NO_POST_FOCUS;
-                if (pageUrl.contains("msg")) {
-                    String tmp = pageUrl.substring(pageUrl.indexOf("msg") + 3);
+                if (newPageUrl.contains("msg")) {
+                    String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
                     if (tmp.contains(";"))
                         postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
                     else
@@ -359,21 +360,29 @@ public class TopicActivity extends BaseActivity {
                 }
             }
 
-            Request request = new Request.Builder()
-                    .url(pageUrl)
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                document = Jsoup.parse(response.body().string());
-                parse(document);
-                return SUCCESS;
-            } catch (IOException e) {
-                Report.i(TAG, "IO Exception", e);
-                return NETWORK_ERROR;
-            } catch (Exception e) {
-                Report.e(TAG, "Exception", e);
-                return OTHER_ERROR;
-            }
+            if (!loadedPageUrl.contains(base_url)) {
+                Request request = new Request.Builder()
+                        .url(newPageUrl)
+                        .build();
+                try {
+                    Response response = client.newCall(request).execute();
+                    document = Jsoup.parse(response.body().string());
+                    parse(document);
+                    for (int i = 0; i < postsList.size(); ++i) {
+                        if (postsList.get(i).getPostIndex() == postFocus) {
+                            postFocusPosition = i;
+                            break;
+                        }
+                    }
+                    return SUCCESS;
+                } catch (IOException e) {
+                    Report.i(TAG, "IO Exception", e);
+                    return NETWORK_ERROR;
+                } catch (Exception e) {
+                    Report.e(TAG, "Exception", e);
+                    return OTHER_ERROR;
+                }
+            } else return SAME_PAGE;
         }
 
         protected void onPostExecute(Integer parseResult) {
@@ -381,16 +390,9 @@ public class TopicActivity extends BaseActivity {
                 case SUCCESS:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
 
-                    recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), progressBar, postsList), false);
-                    //Set post focus
-                    if (postFocus != NO_POST_FOCUS) {
-                        for (int i = postsList.size() - 1; i >= 0; --i) {
-                            int currentPostIndex = postsList.get(i).getPostIndex();
-                            if (currentPostIndex == postFocus) {
-                                layoutManager.scrollToPosition(i);
-                            }
-                        }
-                    }
+                    recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), progressBar,
+                            postsList, new TopicTask()), false);
+
                     replyFAB.setEnabled(true);
 
                     //Set current page
@@ -407,6 +409,8 @@ public class TopicActivity extends BaseActivity {
                     break;
                 case NETWORK_ERROR:
                     Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
+                    break;
+                case SAME_PAGE:
                     break;
                 default:
                     //Parse failed - should never happen

@@ -11,7 +11,9 @@ import android.view.View;
  * Extends FloatingActionButton's behavior so the button will hide when scrolling down and show
  * otherwise.
  */
+@SuppressWarnings("WeakerAccess")
 public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingActionButton>  {
+    @SuppressWarnings("UnusedParameters")
     public ScrollAwareFABBehavior(Context context, AttributeSet attrs) {
         super();
     }

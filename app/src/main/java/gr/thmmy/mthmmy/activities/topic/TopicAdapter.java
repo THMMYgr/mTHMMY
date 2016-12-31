@@ -51,10 +51,7 @@ import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.EXTRAS_PROFILE_URL;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.NO_POST_FOCUS;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.PACKAGE_NAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.postFocus;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
 
 /**
@@ -71,10 +68,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private final List<Post> postsList;
-    /**
-     * True if there is a post to focus to, false otherwise
-     */
-    private boolean foundPostFocus = false;
     /**
      * Used to hold the state of visibility and other attributes for views that are animated or
      * otherwise changed. Used in combination with {@link #isPostDateAndNumberVisibile},
@@ -96,6 +89,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      */
     private static final int isQuoteButtonChecked = 2;
     private final MaterialProgressBar progressBar;
+    private DownloadTask downloadTask;
+    private final TopicActivity.TopicTask topicTask;
 
     /**
      * Custom {@link RecyclerView.ViewHolder} implementation
@@ -155,7 +150,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
-    TopicAdapter(Context context, MaterialProgressBar progressBar, List<Post> postsList) {
+    TopicAdapter(Context context, MaterialProgressBar progressBar, List<Post> postsList,
+                 TopicActivity.TopicTask topicTask) {
         this.context = context;
         this.postsList = postsList;
 
@@ -165,6 +161,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             viewProperties.add(new boolean[3]);
         }
         this.progressBar = progressBar;
+        downloadTask = new DownloadTask();
+        this.topicTask = topicTask;
     }
 
     @Override
@@ -240,7 +238,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 attached.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        DownloadTask downloadTask = new DownloadTask();
+                        downloadTask = new DownloadTask();
                         downloadTask.execute(attachedFile);
                     }
                 });
@@ -395,14 +393,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         });
         //Also when post is clicked
         holder.post.setOnTouchListener(new CustomTouchListener(holder.post, holder.cardView, holder.quoteToggle));
-
-        //Focuses
-        if (postFocus != NO_POST_FOCUS && !foundPostFocus) {
-            if (currentPost.getPostIndex() == postFocus) {
-                holder.cardView.requestFocus();
-                foundPostFocus = true;
-            }
-        }
     }
 
     @Override
@@ -542,8 +532,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                             }
                         }
                     }
-                    //Restart activity with new data
-                    //TODO
+                    topicTask.execute(uri.toString());
                 }
                 return true;
             }
