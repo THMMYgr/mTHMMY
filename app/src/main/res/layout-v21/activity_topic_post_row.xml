@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:paddingEnd="4dp"
               android:paddingStart="4dp"
@@ -125,8 +125,10 @@
                     android:layout_height="@dimen/quote_button"
                     android:layout_marginEnd="9dp"
                     android:layout_marginTop="9dp"
-                    android:background="@drawable/ic_toggle_quote_bg"
-                    android:contentDescription="@string/quote"/>
+                    android:background="@color/card_background"
+                    android:clickable="true"
+                    android:contentDescription="@string/quote"
+                    android:src="@drawable/ic_format_quote_unchecked"/>
             </LinearLayout>
 
             <LinearLayout

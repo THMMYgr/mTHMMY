@@ -214,8 +214,7 @@ public class TopicActivity extends BaseActivity {
             topicTask.cancel(true);
     }
 
-
-    //--------------------------------------BOTTOM NAV BAR METHODS--------------------------------------
+//--------------------------------------BOTTOM NAV BAR METHODS--------------------------------------
     private void initIncrementButton(ImageButton increment, final int step) {
         // Increment once for a click
         increment.setOnClickListener(new View.OnClickListener() {
@@ -361,6 +360,7 @@ public class TopicActivity extends BaseActivity {
             }
 
             if (!loadedPageUrl.contains(base_url)) {
+                loadedPageUrl = newPageUrl;
                 Request request = new Request.Builder()
                         .url(newPageUrl)
                         .build();

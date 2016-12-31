@@ -10,13 +10,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -179,7 +179,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, int position) {
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final Post currentPost = postsList.get(position);
 
         //Post's WebView parameters
@@ -359,27 +359,38 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.subject.setMaxLines(1);
             holder.subject.setEllipsize(TextUtils.TruncateAt.END);
         }
+        if(viewProperties.get(position)[isQuoteButtonChecked])
+            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
+        else
+            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
         //Sets graphics behavior
         holder.quoteToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (view.isSelected()) {
+                boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
+                Log.d(TAG, "GOT");
+                if (tmp[isQuoteButtonChecked]) {
                     if (toQuoteList.contains(currentPost.getPostNumber())) {
                         toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
-                        view.setSelected(false);
+                        Log.d(TAG, "GOT1");
                     } else
-                        Report.i(TAG, "An error occurred while trying to exclude post from" +
-                                "toQuoteList, post wasn't there!");
+                        Log.d(TAG, "GOT2");
+                        //Report.i(TAG, "An error occurred while trying to exclude post from" +
+                        //        "toQuoteList, post wasn't there!");
+                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                 } else {
+                    Log.d(TAG, "GOT3");
                     toQuoteList.add(currentPost.getPostNumber());
-                    view.setSelected(true);
+                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
                 }
+                tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
+                viewProperties.set(holder.getAdapterPosition(), tmp);
             }
         });
         //Card expand/collapse when card is touched
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 //Change post's viewProperties accordingly
                 boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
                 tmp[isPostDateAndNumberVisibile] = !tmp[isPostDateAndNumberVisibile];
@@ -392,7 +403,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             }
         });
         //Also when post is clicked
-        holder.post.setOnTouchListener(new CustomTouchListener(holder.post, holder.cardView, holder.quoteToggle));
+        holder.post.setOnTouchListener(new CustomTouchListener(holder.post, holder.cardView));
     }
 
     @Override
@@ -406,15 +417,11 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      */
     private class CustomTouchListener implements View.OnTouchListener {
         //Long press handling
-        private final int LONG_PRESS_REQUIRED_DURATION = 650;
-        private final Handler webViewLongClickHandler = new Handler();
-        private boolean wasLongClick = false;
         private float downCoordinateX;
         private float downCoordinateY;
         private final float SCROLL_THRESHOLD = 7;
         final private WebView post;
         final private CardView cardView;
-        final private ImageButton quoteToggle;
 
         //Other variables
         final static int FINGER_RELEASED = 0;
@@ -424,18 +431,10 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         private int fingerState = FINGER_RELEASED;
 
-        CustomTouchListener(WebView pPost, CardView pCard, ImageButton pQuoteToggle) {
+        CustomTouchListener(WebView pPost, CardView pCard) {
             post = pPost;
             cardView = pCard;
-            quoteToggle = pQuoteToggle;
         }
-
-        final Runnable WebViewLongClick = new Runnable() {
-            public void run() {
-                wasLongClick = true;
-                quoteToggle.performClick();
-            }
-        };
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -449,14 +448,9 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                         fingerState = FINGER_TOUCHED;
                     else
                         fingerState = FINGER_UNDEFINED;
-
-                    webViewLongClickHandler.postDelayed(WebViewLongClick
-                            , LONG_PRESS_REQUIRED_DURATION);
                     break;
                 case MotionEvent.ACTION_UP:
-                    webViewLongClickHandler.removeCallbacks(WebViewLongClick);
-
-                    if (!wasLongClick && fingerState != FINGER_DRAGGING) {
+                    if (fingerState != FINGER_DRAGGING) {
                         //Doesn't expand the card if this was a link
                         WebView.HitTestResult htResult = post.getHitTestResult();
                         if (htResult.getExtra() != null
@@ -464,17 +458,14 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                             fingerState = FINGER_RELEASED;
                             return false;
                         }
-
                         cardView.performClick();
-                    } else
-                        wasLongClick = false;
+                    }
                     fingerState = FINGER_RELEASED;
                     break;
                 case MotionEvent.ACTION_MOVE:
                     //Cancels long click if finger moved too much
                     if (((Math.abs(downCoordinateX - motionEvent.getX()) > SCROLL_THRESHOLD ||
                             Math.abs(downCoordinateY - motionEvent.getY()) > SCROLL_THRESHOLD))) {
-                        webViewLongClickHandler.removeCallbacks(WebViewLongClick);
                         fingerState = FINGER_DRAGGING;
                     } else fingerState = FINGER_UNDEFINED;
                     break;
