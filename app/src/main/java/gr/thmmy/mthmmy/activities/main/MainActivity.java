@@ -24,7 +24,6 @@ import static gr.thmmy.mthmmy.activities.board.BoardActivity.EXTRAS_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.EXTRAS_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.EXTRAS_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.EXTRAS_TOPIC_URL;
-import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_OUT;
 
 public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener {
 
@@ -38,7 +37,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (sessionManager.getLogStatus()== LOGGED_OUT) { //If not logged in
+        if (sessionManager.isLoginScreenDefault()) {
             //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);

@@ -174,7 +174,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
         //Drawer Items
         homeItem = new PrimaryDrawerItem().withIdentifier(HOME_ID).withName(R.string.home).withIcon(homeIcon);
-        if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
+        if (!sessionManager.isLoggedIn()) //When logged out
             loginLogoutItem = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.login).withIcon(loginIcon).withSelectable(false);
         else
             loginLogoutItem = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.logout).withIcon(logoutIcon).withSelectable(false);
@@ -218,7 +218,7 @@ public abstract class BaseActivity extends AppCompatActivity
                         }
                         else if(drawerItem.equals(LOG_ID))
                         {
-                            if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
+                            if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
                             {
                                 Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
                                 startActivity(intent);
@@ -258,7 +258,7 @@ public abstract class BaseActivity extends AppCompatActivity
     {
         if(drawer!=null)
         {
-            if (sessionManager.getLogStatus()!= LOGGED_IN) //When logged out or if user is guest
+            if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername()).withIcon(new IconicsDrawable(this)

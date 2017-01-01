@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.session;
 
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
@@ -49,11 +50,6 @@ public class SessionManager
     public static final int CONNECTION_ERROR = 5;
     public static final int EXCEPTION = 6;
 
-    //Login status codes
-    public static final int LOGGED_OUT = 0;
-    public static final int LOGGED_IN = 1;  //Logged in (as a normal user)
-    public static final int AS_GUEST = 2;   //User chose to continue as guest
-
     // Client & Cookies
     private OkHttpClient client;
     private PersistentCookieJar cookieJar;
@@ -65,7 +61,8 @@ public class SessionManager
     public static final String AVATAR_LINK = "AvatarLink";
     public static final String HAS_AVATAR = "HasAvatar";
     public static final String LOGOUT_LINK = "LogoutLink";
-    public static final String LOGIN_STATUS = "IsLoggedIn";
+    public static final String LOGGED_IN = "LoggedIn";
+    public static final String LOGIN_SCREEN_AS_DEFAULT = "LoginScreenAsDefault";
 
     //Constructor
     public SessionManager(OkHttpClient client, PersistentCookieJar cookieJar,
@@ -124,7 +121,8 @@ public class SessionManager
                 setPersistentCookieSession();   //Store cookies
 
                 //Edit SharedPreferences, save session's data
-                sharedPrefs.edit().putInt(LOGIN_STATUS, LOGGED_IN).apply();
+                sharedPrefs.edit().putBoolean(LOGGED_IN, true).apply();
+                sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
                 sharedPrefs.edit().putString(USERNAME, extractUserName(document)).apply();
                 String avatar = extractAvatarLink(document);
                 if (avatar!=null)
@@ -178,7 +176,7 @@ public class SessionManager
 
     /**
      *  A function that checks the validity of the current saved session (if it exists).
-     *  If LOGIN_STATUS is true, it will call login() with cookies. On failure, this can only return
+     *  If isLoggedIn() is true, it will call login() with cookies. On failure, this can only return
      *  the code FAILURE. CANCELLED, CONNECTION_ERROR and EXCEPTION are simply considered a SUCCESS
      *  (e.g. no internet connection), at least until a more thorough handling of different
      *  exceptions is implemented (if considered mandatory).
@@ -189,17 +187,16 @@ public class SessionManager
     {
         Report.i(TAG, "Validating session...");
 
-        //Check if user is currently logged in
-        int status = sharedPrefs.getInt(LOGIN_STATUS,LOGGED_OUT);
-        if(status==LOGGED_IN)
+        if(isLoggedIn())
         {
             int loginResult = login();
             if(loginResult != FAILURE)
                 return;
         }
-        else if(status==AS_GUEST)
+        else if(isLoginScreenDefault())
             return;
 
+        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, true).apply();
         clearSessionData();
     }
 
@@ -210,7 +207,7 @@ public class SessionManager
     {
         Report.i("TAG", "Continuing as a guest, as chosen by the user.");
         clearSessionData();
-        sharedPrefs.edit().putInt(LOGIN_STATUS, AS_GUEST).apply();
+        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
     }
 
 
@@ -266,8 +263,12 @@ public class SessionManager
         return sharedPrefs.getBoolean(HAS_AVATAR, false);
     }
 
-    public int getLogStatus() {
-        return sharedPrefs.getInt(LOGIN_STATUS, LOGGED_OUT);
+    public boolean isLoggedIn() {
+        return sharedPrefs.getBoolean(LOGGED_IN, false);
+    }
+
+    public boolean isLoginScreenDefault() {
+        return sharedPrefs.getBoolean(LOGIN_SCREEN_AS_DEFAULT, true);
     }
 
     //--------------------------------------GETTERS END---------------------------------------------
@@ -299,10 +300,11 @@ public class SessionManager
         cookieJar.clear();
         sharedPrefs.edit().clear().apply(); //Clear session data
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
-        sharedPrefs.edit().putInt(LOGIN_STATUS, LOGGED_OUT).apply(); //User logs out
+        sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
         Report.i(TAG,"Session data cleared.");
     }
 
+    @Nullable
     private String extractUserName(Document doc)
     {
         if (doc != null) {
@@ -321,6 +323,7 @@ public class SessionManager
         return null;
     }
 
+    @Nullable
     private String extractAvatarLink(Document doc)
     {
         if (doc != null) {

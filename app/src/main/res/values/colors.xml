@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-    When changing the colors be sure to also change lines 322 & 323
-    in the style.css file!
+    When changing the colors be sure to also change lines "color" and "background" from
+    ".post, .personalmessage", in style.css
     -->
 
     <!--Dark-->
@@ -13,7 +13,7 @@
     <color name="accent">#26A69A</color>
     <color name="primary_text">#E7E7E7</color>
     <color name="secondary_text">#757575</color>
-    <color name="background">#303234</color>
+    <color name="background">#323232</color>
     <color name="card_background">#3C3F41</color>
     <color name="divider">#8B8B8B</color>
 

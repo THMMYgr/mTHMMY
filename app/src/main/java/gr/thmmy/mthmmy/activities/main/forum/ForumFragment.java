@@ -106,7 +106,7 @@ public class ForumFragment extends BaseFragment
             forumAdapter.setExpandCollapseListener(new ExpandableRecyclerAdapter.ExpandCollapseListener() {
                 @Override
                 public void onParentExpanded(int parentPosition) {
-                    if(BaseActivity.getSessionManager().getLogStatus()== LOGGED_IN)
+                    if(BaseActivity.getSessionManager().isLoggedIn())
                     {
                         if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
                             forumTask.cancel(true);
@@ -118,7 +118,7 @@ public class ForumFragment extends BaseFragment
 
                 @Override
                 public void onParentCollapsed(int parentPosition) {
-                    if(BaseActivity.getSessionManager().getLogStatus()== LOGGED_IN)
+                    if(BaseActivity.getSessionManager().isLoggedIn())
                     {
                         if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
                             forumTask.cancel(true);
@@ -212,7 +212,7 @@ public class ForumFragment extends BaseFragment
                     String categoryUrl = categoryElement.attr("href");
                     Category category = new Category(categoryElement.text(), categoryUrl);
 
-                    if(categoryUrl.contains("sa=collapse")|| BaseActivity.getSessionManager().getLogStatus()!= LOGGED_IN)
+                    if(categoryUrl.contains("sa=collapse")|| !BaseActivity.getSessionManager().isLoggedIn())
                     {
                         category.setExpanded(true);
                         Elements boardsElements = categoryBlock.select("b [name]");

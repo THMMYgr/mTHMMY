@@ -37,7 +37,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
-import static gr.thmmy.mthmmy.session.SessionManager.LOGIN_STATUS;
 
 /**
  * Activity for topics. When creating an Intent of this activity you need to bundle a <b>String</b>
@@ -126,25 +125,15 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), progressBar, postsList,
                 new TopicTask()));
 
-        replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
+        replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab); //TODO hide fab while logged out
         replyFAB.setEnabled(false);
         replyFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
-                int tmp_curr_status = sharedPrefs.getInt(LOGIN_STATUS, -1);
-                if (tmp_curr_status == -1) {
-                    Report.e(TAG, "Error while getting LOGIN_STATUS");
-                    new AlertDialog.Builder(TopicActivity.this)
-                            .setTitle("ERROR!")
-                            .setMessage("An error occurred while trying to find your LOGIN_STATUS.")
-                            .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                }
-                            })
-                            .show();
-                } else if (tmp_curr_status != LOGGED_IN) {
+                if (sessionManager.isLoggedIn()) {
+                    //TODO
+                    //Reply
+                } else {
                     new AlertDialog.Builder(TopicActivity.this)
                             .setMessage("You need to be logged in to reply!")
                             .setPositiveButton("Login", new DialogInterface.OnClickListener() {
@@ -162,9 +151,6 @@ public class TopicActivity extends BaseActivity {
                                 }
                             })
                             .show();
-                } else {
-                    //TODO
-                    //Reply
                 }
             }
         });
