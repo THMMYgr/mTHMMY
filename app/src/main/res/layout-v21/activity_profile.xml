@@ -64,36 +64,29 @@
             app:popupTheme="@style/ToolbarTheme">
 
             <TextView
-                android:id="@+id/profile_act_username"
+                android:id="@+id/profile_activity_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textColor="@color/accent"
                 android:textSize="25sp"/>
         </android.support.v7.widget.Toolbar>
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/profile_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/nested_scroll"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/profile_tab_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
         android:background="@color/background"
-        android:paddingEnd="16dp"
-        android:paddingStart="16dp"
-        android:scrollbars="none"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|center"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <LinearLayout
-            android:id="@+id/profile_activity_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-        </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"

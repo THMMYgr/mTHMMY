@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -53,9 +54,9 @@ public class ProfileActivity extends BaseActivity {
     private ImageView userThumbnail;
     private TextView userName;
     private TextView personalText;
-    private LinearLayout mainContent;
     private MaterialProgressBar progressBar;
     private FloatingActionButton replyFAB;
+    private ViewPager viewPager;
 
     //Other variables
     /**
@@ -97,9 +98,8 @@ public class ProfileActivity extends BaseActivity {
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
         userThumbnail = (ImageView) findViewById(R.id.user_thumbnail);
-        userName = (TextView) findViewById(R.id.profile_act_username);
+        userName = (TextView) findViewById(R.id.profile_activity_username);
         personalText = (TextView) findViewById(R.id.profile_activity_personal_text);
-        mainContent = (LinearLayout) findViewById(R.id.profile_activity_content);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.profile_fab); //TODO hide fab while logged out
         replyFAB.setEnabled(false);
@@ -149,7 +149,7 @@ public class ProfileActivity extends BaseActivity {
      * data. {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #populateLayout()}
      * to build graphics.
      * <p>
-     * <p>Calling ProfileTask's {@link AsyncTask#execute execute} method needs to have profile's url
+     * <p>Calling ProfileSummaryTask's {@link AsyncTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
     public class ProfileTask extends AsyncTask<String, Void, Boolean> {
@@ -224,32 +224,6 @@ public class ProfileActivity extends BaseActivity {
             personalText.setText(parsedProfileData.get(PERSONAL_TEXT_INDEX));
         } else {
             personalText.setVisibility(View.GONE);
-        }
-
-        for (int i = PERSONAL_TEXT_INDEX + 1; i < parsedProfileData.size(); ++i) {
-            if (parsedProfileData.get(i).contains("Signature")
-                    || parsedProfileData.get(i).contains("Υπογραφή")) {
-                WebView signatureEntry = new WebView(this);
-                signatureEntry.loadDataWithBaseURL("file:///android_asset/", parsedProfileData.get(i), "text/html", "UTF-8", null);
-            }
-            TextView entry = new TextView(this);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                entry.setTextColor(getResources().getColor(R.color.primary_text, null));
-            } else {
-                //noinspection deprecation
-                entry.setTextColor(getResources().getColor(R.color.primary_text));
-
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                entry.setText(Html.fromHtml(parsedProfileData.get(i), Html.FROM_HTML_MODE_LEGACY));
-            } else {
-                //noinspection deprecation
-                entry.setText(Html.fromHtml(parsedProfileData.get(i)));
-            }
-
-            mainContent.addView(entry);
-            Log.d(TAG, "new: " + parsedProfileData.get(i));
         }
     }
 }
