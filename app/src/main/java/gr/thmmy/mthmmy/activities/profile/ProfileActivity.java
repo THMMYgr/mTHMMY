@@ -33,6 +33,7 @@ import javax.net.ssl.SSLHandshakeException;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -73,6 +74,7 @@ public class ProfileActivity extends BaseActivity {
     private static final int THUMBNAIL_SIZE = 200;
     private ProfileTask profileTask;
     private String personalText;
+    private String profileUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,7 @@ public class ProfileActivity extends BaseActivity {
         Bundle extras = getIntent().getExtras();
         String thumbnailUrl = extras.getString(BUNDLE_THUMBNAIL_URL);
         String username = extras.getString(BUNDLE_USERNAME);
+        profileUrl = extras.getString(BUNDLE_PROFILE_URL);
 
         //Initializes graphic elements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -146,7 +149,7 @@ public class ProfileActivity extends BaseActivity {
         });
 
         profileTask = new ProfileTask();
-        profileTask.execute(extras.getString(BUNDLE_PROFILE_URL)); //Attempt data parsing
+        profileTask.execute(profileUrl); //Attempt data parsing
     }
 
     @Override
@@ -235,7 +238,7 @@ public class ProfileActivity extends BaseActivity {
     private void setupViewPager(ViewPager viewPager, Document profilePage) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(SummaryFragment.newInstance(profilePage), "SUMMARY");
-        //adapter.addFrag(new );
+        adapter.addFrag(LatestPostsFragment.newInstance(profileUrl), "LATEST POSTS");
         //adapter.addFrag(new );
         viewPager.setAdapter(adapter);
     }

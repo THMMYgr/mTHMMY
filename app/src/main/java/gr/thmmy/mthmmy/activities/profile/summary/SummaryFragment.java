@@ -40,7 +40,8 @@ public class SummaryFragment extends Fragment {
      */
     static final String PROFILE_DOCUMENT = "PROFILE_DOCUMENT";
     /**
-     * {@link ArrayList} of Strings used to hold profile's information. Data are added in {@link ProfileActivity.ProfileTask}.
+     * {@link ArrayList} of Strings used to hold profile's information. Data are added in
+     * {@link SummaryFragment.ProfileSummaryTask}.
      */
     private ArrayList<String> parsedProfileSummaryData;
     /**
