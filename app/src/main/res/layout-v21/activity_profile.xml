@@ -95,7 +95,7 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="invisible"
-        app:layout_anchor="@id/nested_scroll"
+        app:layout_anchor="@id/profile_tab_container"
         app:layout_anchorGravity="top|center"
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal"/>

@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities.profile.summary;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,45 +22,48 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.base.BaseFragment;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 
 
 /**
- * A {@link BaseFragment} subclass.
- * Use the {@link SummaryFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Use the {@link SummaryFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class SummaryFragment extends BaseFragment {
-    static final String PROFILE_DOCUMENT = "PROFILE_DOCUMENT";
+public class SummaryFragment extends Fragment {
+    /**
+     * Debug Tag for logging debug output to LogCat
+     */
+    @SuppressWarnings("unused")
     private static final String TAG = "SummaryFragment";
+    /**
+     * The key to use when putting profile's source code String to {@link SummaryFragment}'s Bundle.
+     */
+    static final String PROFILE_DOCUMENT = "PROFILE_DOCUMENT";
     /**
      * {@link ArrayList} of Strings used to hold profile's information. Data are added in {@link ProfileActivity.ProfileTask}.
      */
+    private ArrayList<String> parsedProfileSummaryData;
+    /**
+     * A {@link Document} holding this profile's source code.
+     */
     private Document profileSummaryDocument;
     private ProfileSummaryTask profileSummaryTask;
-    private ArrayList<String> parsedProfileSummaryData;
     private LinearLayout mainContent;
-    private MaterialProgressBar progressBar;
 
     public SummaryFragment() {
         // Required empty public constructor
-        this.profileSummaryDocument = Jsoup.parse(getArguments().getString(PROFILE_DOCUMENT));
     }
 
     /**
-     * Use ONLY this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Use ONLY this factory method to create a new instance of this fragment using the provided
+     * parameters.
      *
+     * @param profileSummaryDocument a {@link Document} containing this profile's parsed page
      * @return A new instance of fragment Summary.
      */
-    public static SummaryFragment newInstance(int sectionNumber, Document profileSummaryDocument) {
+    public static SummaryFragment newInstance(Document profileSummaryDocument) {
         SummaryFragment fragment = new SummaryFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_TAG, TAG);
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         args.putString(PROFILE_DOCUMENT, profileSummaryDocument.toString());
         fragment.setArguments(args);
         return fragment;
@@ -68,6 +72,7 @@ public class SummaryFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        profileSummaryDocument = Jsoup.parse(getArguments().getString(PROFILE_DOCUMENT));
         parsedProfileSummaryData = new ArrayList<>();
     }
 
@@ -77,7 +82,6 @@ public class SummaryFragment extends BaseFragment {
         if (parsedProfileSummaryData.isEmpty()) {
             profileSummaryTask = new ProfileSummaryTask();
             profileSummaryTask.execute(profileSummaryDocument);
-
         }
         Report.d(TAG, "onActivityCreated");
     }
@@ -93,15 +97,13 @@ public class SummaryFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.profile_fragment_summary, container, false);
-        progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
         mainContent = (LinearLayout) rootView.findViewById(R.id.profile_activity_content);
-        populateLayout();
         return rootView;
     }
 
     /**
-     * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing it's
-     * data. {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #populateLayout()}
+     * An {@link AsyncTask} that handles asynchronous parsing of a profile page's data.
+     * {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #populateLayout()}
      * to build graphics.
      * <p>
      * <p>Calling ProfileSummaryTask's {@link AsyncTask#execute execute} method needs to have profile's url
@@ -112,11 +114,8 @@ public class SummaryFragment extends BaseFragment {
         /**
          * Debug Tag for logging debug output to LogCat
          */
+        @SuppressWarnings("unused")
         private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
-
-        protected void onPreExecute() {
-            progressBar.setVisibility(MaterialProgressBar.VISIBLE);
-        }
 
         protected Void doInBackground(Document... profileSummaryPage) {
             parsedProfileSummaryData = parseProfileSummary(profileSummaryPage[0]);
@@ -124,16 +123,11 @@ public class SummaryFragment extends BaseFragment {
         }
 
         protected void onPostExecute(Void result) {
-            progressBar.setVisibility(MaterialProgressBar.INVISIBLE);
             populateLayout();
         }
 
         /**
-         * Returns an {@link ArrayList} of {@link String}s. This method is used to parse all available
-         * information in a user profile.
-         * <p>
-         * User's thumbnail image url, username and personal text are placed at Array's indexes defined
-         * by public constants THUMBNAIL_URL_INDEX, USERNAME_INDEX and PERSONAL_TEXT_INDEX respectively.
+         * This method is used to parse all available information in a user profile.
          *
          * @param profile {@link Document} object containing this profile's source code
          * @return ArrayList containing this profile's parsed information
@@ -200,7 +194,7 @@ public class SummaryFragment extends BaseFragment {
     }
 
     /**
-     * Simple method that builds the UI of a {@link ProfileActivity}.
+     * Simple method that builds the UI of a {@link SummaryFragment}.
      * <p>Use this method <b>only after</b> parsing profile's data with
      * {@link gr.thmmy.mthmmy.activities.profile.ProfileActivity.ProfileTask} as it reads from
      * {@link #parsedProfileSummaryData}</p>
@@ -210,7 +204,8 @@ public class SummaryFragment extends BaseFragment {
             if (profileSummaryRow.contains("Signature")
                     || profileSummaryRow.contains("Υπογραφή")) {
                 WebView signatureEntry = new WebView(this.getContext());
-                signatureEntry.loadDataWithBaseURL("file:///android_asset/", profileSummaryRow, "text/html", "UTF-8", null);
+                signatureEntry.loadDataWithBaseURL("file:///android_asset/", profileSummaryRow,
+                        "text/html", "UTF-8", null);
             }
             TextView entry = new TextView(this.getContext());
 
