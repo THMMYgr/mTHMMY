@@ -162,7 +162,7 @@ class TopicParser {
             postRows = topic.select("form[id=quickModForm]>table>tbody>tr:matches(on)");
         }
 
-        for (Element item : postRows) {
+        for (Element thisRow : postRows) {
             //Variables for Post constructor
             String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_profileURL, p_rank,
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts;
@@ -183,20 +183,20 @@ class TopicParser {
 
             //Language independent parsing
             //Finds thumbnail url
-            Element thumbnailUrl = item.select("img.avatar").first();
+            Element thumbnailUrl = thisRow.select("img.avatar").first();
             p_thumbnailUrl = null; //In case user doesn't have an avatar
             if (thumbnailUrl != null) {
                 p_thumbnailUrl = thumbnailUrl.attr("abs:src");
             }
 
             //Finds subject
-            p_subject = item.select("div[id^=subject_]").first().select("a").first().text();
+            p_subject = thisRow.select("div[id^=subject_]").first().select("a").first().text();
 
             //Finds post's text
-            p_post = item.select("div").select(".post").first().outerHtml();
+            p_post = thisRow.select("div").select(".post").first().outerHtml();
 
             { //Fixes embedded videos
-                Elements noembedTag = item.select("div").select(".post").first().select("noembed");
+                Elements noembedTag = thisRow.select("div").select(".post").first().select("noembed");
                 ArrayList<String> embededVideosUrls = new ArrayList<>();
 
                 for (Element _noembed : noembedTag) {
@@ -231,7 +231,7 @@ class TopicParser {
             //Find post's index
             //This is an int assigned by the forum used for post focusing and quotes, it is not
             //the same as reply index.
-            Element postIndex = item.select("a[name^=msg]").first();
+            Element postIndex = thisRow.select("a[name^=msg]").first();
             if (postIndex == null)
                 p_postIndex = NO_INDEX;
             else {
@@ -243,10 +243,10 @@ class TopicParser {
             Element userName;
             if (Objects.equals(language, LANGUAGE_GREEK)) {
                 //Finds username and profile's url
-                userName = item.select("a[title^=Εμφάνιση προφίλ του μέλους]").first();
+                userName = thisRow.select("a[title^=Εμφάνιση προφίλ του μέλους]").first();
                 if (userName == null) { //Deleted profile
                     p_isDeleted = true;
-                    p_userName = item
+                    p_userName = thisRow
                             .select("td:has(div.smalltext:containsOwn(Επισκέπτης))[style^=overflow]")
                             .first().text();
                     p_userName = p_userName.substring(0, p_userName.indexOf(" Επισκέπτης"));
@@ -257,13 +257,13 @@ class TopicParser {
                 }
 
                 //Finds post's submit date
-                Element postDate = item.select("div.smalltext:matches(στις:)").first();
+                Element postDate = thisRow.select("div.smalltext:matches(στις:)").first();
                 p_postDate = postDate.text();
                 p_postDate = p_postDate.substring(p_postDate.indexOf("στις:") + 6
                         , p_postDate.indexOf(" »"));
 
                 //Finds post's reply index number
-                Element postNum = item.select("div.smalltext:matches(Απάντηση #)").first();
+                Element postNum = thisRow.select("div.smalltext:matches(Απάντηση #)").first();
                 if (postNum == null) { //Topic starter
                     p_postNum = 0;
                 } else {
@@ -273,7 +273,7 @@ class TopicParser {
 
 
                 //Finds attached file's urls, names and info, if present
-                Elements postAttachments = item.select("div:containsOwn(έγινε λήψη):containsOwn(φορές.)");
+                Elements postAttachments = thisRow.select("div:containsOwn(έγινε λήψη):containsOwn(φορές.)");
                 if (postAttachments != null) {
                     Elements attachedFiles = postAttachments.select("a");
                     String postAttachmentsText = postAttachments.text();
@@ -303,10 +303,10 @@ class TopicParser {
                 }
             } else {
                 //Finds username
-                userName = item.select("a[title^=View the profile of]").first();
+                userName = thisRow.select("a[title^=View the profile of]").first();
                 if (userName == null) { //Deleted profile
                     p_isDeleted = true;
-                    p_userName = item
+                    p_userName = thisRow
                             .select("td:has(div.smalltext:containsOwn(Guest))[style^=overflow]")
                             .first().text();
                     p_userName = p_userName.substring(0, p_userName.indexOf(" Guest"));
@@ -317,13 +317,13 @@ class TopicParser {
                 }
 
                 //Finds post's submit date
-                Element postDate = item.select("div.smalltext:matches(on:)").first();
+                Element postDate = thisRow.select("div.smalltext:matches(on:)").first();
                 p_postDate = postDate.text();
                 p_postDate = p_postDate.substring(p_postDate.indexOf("on:") + 4
                         , p_postDate.indexOf(" »"));
 
                 //Finds post's reply index number
-                Element postNum = item.select("div.smalltext:matches(Reply #)").first();
+                Element postNum = thisRow.select("div.smalltext:matches(Reply #)").first();
                 if (postNum == null) { //Topic starter
                     p_postNum = 0;
                 } else {
@@ -333,7 +333,7 @@ class TopicParser {
 
 
                 //Finds attached file's urls, names and info, if present
-                Elements postAttachments = item.select("div:containsOwn(downloaded):containsOwn(times.)");
+                Elements postAttachments = thisRow.select("div:containsOwn(downloaded):containsOwn(times.)");
                 if (postAttachments != null) {
                     Elements attachedFiles = postAttachments.select("a");
                     String postAttachmentsText = postAttachments.text();
