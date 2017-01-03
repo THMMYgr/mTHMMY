@@ -2,20 +2,19 @@ package gr.thmmy.mthmmy.activities.profile;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.util.Log;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,64 +23,68 @@ import com.squareup.picasso.Picasso;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment;
+import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static gr.thmmy.mthmmy.activities.profile.ProfileParser.PERSONAL_TEXT_INDEX;
-import static gr.thmmy.mthmmy.activities.profile.ProfileParser.THUMBNAIL_URL_INDEX;
-import static gr.thmmy.mthmmy.activities.profile.ProfileParser.USERNAME_INDEX;
-import static gr.thmmy.mthmmy.activities.profile.ProfileParser.parseProfileSummary;
-import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
-
 /**
- * Activity for user's profile. When creating an Intent of this activity you need to bundle a <b>String</b>
- * containing this user's profile url using the key {@link #EXTRAS_PROFILE_URL}.
+ * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>
+ * containing this user's profile url using the key {@link #BUNDLE_PROFILE_URL}, a <b>String</b> containing
+ * this user's avatar url and a <b>String</b> containing the username.
  */
 public class ProfileActivity extends BaseActivity {
-    //Graphic element variables
-    private ImageView userThumbnail;
-    private TextView userName;
-    private TextView personalText;
-    private LinearLayout mainContent;
+    //Graphics
+    private TextView personalTextView;
     private MaterialProgressBar progressBar;
     private FloatingActionButton replyFAB;
-
-    //Other variables
+    private ViewPager viewPager;
+    //Other variables and constants
     /**
      * Debug Tag for logging debug output to LogCat
      */
     @SuppressWarnings("unused")
     private static final String TAG = "ProfileActivity";
-    static String PACKAGE_NAME;
     /**
      * The key to use when putting profile's url String to {@link ProfileActivity}'s Bundle.
      */
-    public static final String EXTRAS_PROFILE_URL = "PROFILE_URL";
+    public static final String BUNDLE_PROFILE_URL = "PROFILE_URL";
     /**
-     * {@link ArrayList} of Strings used to hold profile's information. Data are added in {@link ProfileTask}.
+     * The key to use when putting user's thumbnail url String to {@link ProfileActivity}'s Bundle.
+     * If user doesn't have a thumbnail put an empty string.
      */
-    private ArrayList<String> parsedProfileData;
-    private ProfileTask profileTask;
+    public static final String BUNDLE_THUMBNAIL_URL = "THUMBNAIL_URL";
+    /**
+     * The key to use when putting username String to {@link ProfileActivity}'s Bundle.
+     */
+    public static final String BUNDLE_USERNAME = "USERNAME";
     private static final int THUMBNAIL_SIZE = 200;
+    private ProfileTask profileTask;
+    private String personalText;
+    private String profileUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        PACKAGE_NAME = getApplicationContext().getPackageName();
         Bundle extras = getIntent().getExtras();
+        String thumbnailUrl = extras.getString(BUNDLE_THUMBNAIL_URL);
+        String username = extras.getString(BUNDLE_USERNAME);
+        profileUrl = extras.getString(BUNDLE_PROFILE_URL);
 
         //Initializes graphic elements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -96,10 +99,24 @@ public class ProfileActivity extends BaseActivity {
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
-        userThumbnail = (ImageView) findViewById(R.id.user_thumbnail);
-        userName = (TextView) findViewById(R.id.profile_act_username);
-        personalText = (TextView) findViewById(R.id.profile_activity_personal_text);
-        mainContent = (LinearLayout) findViewById(R.id.profile_activity_content);
+        ImageView thumbnailView = (ImageView) findViewById(R.id.user_thumbnail);
+        if (thumbnailUrl != null)
+            //noinspection ConstantConditions
+            Picasso.with(this)
+                    .load(thumbnailUrl)
+                    .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                    .centerCrop()
+                    .error(ResourcesCompat.getDrawable(this.getResources()
+                            , R.drawable.ic_default_user_thumbnail, null))
+                    .placeholder(ResourcesCompat.getDrawable(this.getResources()
+                            , R.drawable.ic_default_user_thumbnail, null))
+                    .transform(new CircleTransform())
+                    .into(thumbnailView);
+        TextView usernameView = (TextView) findViewById(R.id.profile_activity_username);
+        usernameView.setText(username);
+        personalTextView = (TextView) findViewById(R.id.profile_activity_personal_text);
+
+        viewPager = (ViewPager) findViewById(R.id.profile_tab_container);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.profile_fab); //TODO hide fab while logged out
         replyFAB.setEnabled(false);
@@ -131,10 +148,8 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
-        //Gets info
-        parsedProfileData = new ArrayList<>();
         profileTask = new ProfileTask();
-        profileTask.execute(extras.getString(EXTRAS_PROFILE_URL)); //Attempt data parsing
+        profileTask.execute(profileUrl); //Attempt data parsing
     }
 
     @Override
@@ -145,19 +160,19 @@ public class ProfileActivity extends BaseActivity {
     }
 
     /**
-     * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing it's
-     * data. {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #populateLayout()}
-     * to build graphics.
-     * <p>
-     * <p>Calling ProfileTask's {@link AsyncTask#execute execute} method needs to have profile's url
-     * as String parameter!</p>
+     * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing this
+     * user's personal text.
+     * <p>ProfileTask's {@link AsyncTask#execute execute} method needs a profile's url as String
+     * parameter!</p>
      */
     public class ProfileTask extends AsyncTask<String, Void, Boolean> {
         //Class variables
         /**
          * Debug Tag for logging debug output to LogCat
          */
-        private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
+        @SuppressWarnings("unused")
+        private static final String TAG = "ProfileTask"; //Separate tag for AsyncTask
+        Document profilePage;
 
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -165,7 +180,6 @@ public class ProfileActivity extends BaseActivity {
         }
 
         protected Boolean doInBackground(String... profileUrl) {
-            Document document;
             String pageUrl = profileUrl[0] + ";wap"; //Profile's page wap url
 
             Request request = new Request.Builder()
@@ -173,10 +187,18 @@ public class ProfileActivity extends BaseActivity {
                     .build();
             try {
                 Response response = client.newCall(request).execute();
-                document = Jsoup.parse(response.body().string());
-                //long parseStartTime = System.nanoTime();
-                parsedProfileData = parseProfileSummary(document);
-                //long parseEndTime = System.nanoTime();
+                profilePage = Jsoup.parse(response.body().string());
+                { //Finds personal text
+                    Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
+                    if (tmpEl != null) {
+                        personalText = tmpEl.text().trim();
+                    } else {
+                        //Should never get here!
+                        //Something is wrong.
+                        Report.e(TAG, "An error occurred while trying to find profile's personal text.");
+                        personalText = null;
+                    }
+                }
                 return true;
             } catch (SSLHandshakeException e) {
                 Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
@@ -194,62 +216,55 @@ public class ProfileActivity extends BaseActivity {
             }
             //Parse was successful
             progressBar.setVisibility(ProgressBar.INVISIBLE);
-            populateLayout();
+
+            if (personalText != null) {
+                personalTextView.setVisibility(View.VISIBLE);
+                personalTextView.setText(personalText);
+            } else {
+                personalTextView.setVisibility(View.GONE);
+            }
+
+            setupViewPager(viewPager, profilePage);
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.profile_tabs);
+            tabLayout.setupWithViewPager(viewPager);
         }
     }
 
     /**
-     * Simple method that builds the UI of a {@link ProfileActivity}.
-     * <p>Use this method <b>only after</b> parsing profile's data with {@link ProfileTask} as it
-     * reads from {@link #parsedProfileData}</p>
+     * Simple method that sets up the {@link ViewPager} of a {@link ProfileActivity}
+     * @param viewPager the ViewPager to be setup
+     * @param profilePage this profile's parsed page
      */
-    private void populateLayout() {
-        if (parsedProfileData.get(THUMBNAIL_URL_INDEX) != null)
-            //noinspection ConstantConditions
-            Picasso.with(this)
-                    .load(parsedProfileData.get(THUMBNAIL_URL_INDEX))
-                    .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                    .centerCrop()
-                    .error(ResourcesCompat.getDrawable(this.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
-                    .placeholder(ResourcesCompat.getDrawable(this.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
-                    .transform(new CircleTransform())
-                    .into(userThumbnail);
+    private void setupViewPager(ViewPager viewPager, Document profilePage) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFrag(SummaryFragment.newInstance(profilePage), "SUMMARY");
+        adapter.addFrag(LatestPostsFragment.newInstance(profileUrl), "LATEST POSTS");
+        //adapter.addFrag(new );
+        viewPager.setAdapter(adapter);
+    }
 
-        userName.setText(parsedProfileData.get(USERNAME_INDEX));
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
 
-        if (parsedProfileData.get(PERSONAL_TEXT_INDEX) != null) {
-            personalText.setVisibility(View.VISIBLE);
-            personalText.setText(parsedProfileData.get(PERSONAL_TEXT_INDEX));
-        } else {
-            personalText.setVisibility(View.GONE);
+        ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
         }
-
-        for (int i = PERSONAL_TEXT_INDEX + 1; i < parsedProfileData.size(); ++i) {
-            if (parsedProfileData.get(i).contains("Signature")
-                    || parsedProfileData.get(i).contains("Υπογραφή")) {
-                WebView signatureEntry = new WebView(this);
-                signatureEntry.loadDataWithBaseURL("file:///android_asset/", parsedProfileData.get(i), "text/html", "UTF-8", null);
-            }
-            TextView entry = new TextView(this);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                entry.setTextColor(getResources().getColor(R.color.primary_text, null));
-            } else {
-                //noinspection deprecation
-                entry.setTextColor(getResources().getColor(R.color.primary_text));
-
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                entry.setText(Html.fromHtml(parsedProfileData.get(i), Html.FROM_HTML_MODE_LEGACY));
-            } else {
-                //noinspection deprecation
-                entry.setText(Html.fromHtml(parsedProfileData.get(i)));
-            }
-
-            mainContent.addView(entry);
-            Log.d(TAG, "new: " + parsedProfileData.get(i));
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+        void addFrag(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
         }
     }
 }

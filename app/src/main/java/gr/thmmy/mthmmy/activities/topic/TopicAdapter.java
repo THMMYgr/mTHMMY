@@ -50,7 +50,9 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.EXTRAS_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
 
@@ -309,9 +311,14 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                     if (viewProperties.get(holder.getAdapterPosition())[isUserExtraInfoVisibile]) {
 
                         Intent intent = new Intent(context, ProfileActivity.class);
-                        Bundle b = new Bundle();
-                        b.putString(EXTRAS_PROFILE_URL, currentPost.getProfileURL());
-                        intent.putExtras(b);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
+                        if(currentPost.getThumbnailUrl() == null)
+                            extras.putString(BUNDLE_THUMBNAIL_URL, "");
+                        else
+                            extras.putString(BUNDLE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
+                        extras.putString(BUNDLE_USERNAME, currentPost.getAuthor());
+                        intent.putExtras(extras);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                     }

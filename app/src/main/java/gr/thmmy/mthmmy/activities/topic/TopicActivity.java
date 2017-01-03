@@ -306,7 +306,7 @@ public class TopicActivity extends BaseActivity {
      * data. {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link RecyclerView#swapAdapter}
      * to build graphics.
      * <p>
-     * <p>Calling ProfileTask's {@link AsyncTask#execute execute} method needs to have profile's url
+     * <p>Calling TopicTask's {@link AsyncTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
     class TopicTask extends AsyncTask<String, Void, Integer> {

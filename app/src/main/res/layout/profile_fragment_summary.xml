@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nested_scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:id="@+id/profile_activity_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>

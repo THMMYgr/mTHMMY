@@ -5,6 +5,7 @@ public class TopicSummary {
     private final String title;
     private final String lastUser;
     private final String dateTimeModified;
+    private final String post;
 
 
     public TopicSummary(String topicUrl, String title, String lastUser, String dateTimeModified) {
@@ -12,6 +13,16 @@ public class TopicSummary {
         this.title = title;
         this.lastUser = lastUser;
         this.dateTimeModified = dateTimeModified;
+        this.post = "";
+    }
+
+    public TopicSummary(String topicUrl, String title, String username, String dateTimeModified,
+                        String post) {
+        this.topicUrl = topicUrl;
+        this.title = title;
+        this.lastUser = username;
+        this.dateTimeModified = dateTimeModified;
+        this.post = post;
     }
 
     public String getTopicUrl() {
@@ -29,4 +40,6 @@ public class TopicSummary {
     public String getDateTimeModified() {
         return dateTimeModified;
     }
+
+    public String getPost(){ return post;}
 }
