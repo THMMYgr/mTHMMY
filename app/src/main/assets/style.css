@@ -505,9 +505,15 @@ img
     height:auto !important;
 }
 
-.embedded-video-play{
-   display: block;
-   width: 5%;
-   opacity: 0.7;
-   z-index: 2;
+.yt {
+  position: relative;
+}
+
+.embedded-video-play {
+  position: absolute;
+  top: 22%;
+  left: 10%;
+  width: 20%;
+  opacity: 0.7;
+  z-index: 2;
 }

@@ -211,13 +211,15 @@ class TopicParser {
                         break;
                     p_post = p_post.replace(
                             p_post.substring(p_post.indexOf("<embed"), p_post.indexOf("/noembed>") + 9)
-                            , "<div class=\"embedded-video\">"
+                            , "<div class=\"yt\">"
                                     + "<a href=\"https://www.youtube.com/"
                                     + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
-                                    + "<img src=\"https://img.youtube.com/vi/"
-                                    + embededVideosUrls.get(tmp_counter) + "/default.jpg\" alt=\"\" border=\"0\">"
+                                    + "<img class=\"embedded-video-play\" "
+                                    + "src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\""
                                     + "</a>"
-                                    //+ "<img class=\"embedded-video-play\" src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\">"
+                                    + "<img src=\"https://img.youtube.com/vi/"
+                                    + embededVideosUrls.get(tmp_counter)
+                                    + "/default.jpg\" alt=\"\" border=\"0\" width=\"40%\">"
                                     + "</div>");
                 }
             }
@@ -284,7 +286,7 @@ class TopicParser {
                         try {
                             attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
                         } catch (MalformedURLException e) {
-                            Report.e(TAG,"Attached file malformed url", e);
+                            Report.e(TAG, "Attached file malformed url", e);
                             break;
                         }
                         String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
@@ -296,7 +298,7 @@ class TopicParser {
                         String attachedFileInfo = postAttachmentsTextSbstr.substring(attachedFileName
                                 .length(), postAttachmentsTextSbstr.indexOf("φορές.")) + "φορές.)";
 
-                        p_attachedFiles.add(new ThmmyFile(attachedUrl,attachedFileName,attachedFileInfo));
+                        p_attachedFiles.add(new ThmmyFile(attachedUrl, attachedFileName, attachedFileInfo));
                     }
                 }
             } else {
@@ -344,7 +346,7 @@ class TopicParser {
                         try {
                             attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
                         } catch (MalformedURLException e) {
-                            Report.e(TAG,"Attached file malformed url", e);
+                            Report.e(TAG, "Attached file malformed url", e);
                             break;
                         }
                         String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
@@ -356,7 +358,7 @@ class TopicParser {
                         String attachedFileInfo = postAttachmentsTextSbstr.substring(attachedFileName
                                 .length(), postAttachmentsTextSbstr.indexOf("times.")) + "times.)";
 
-                        p_attachedFiles.add(new ThmmyFile(attachedUrl,attachedFileName,attachedFileInfo));
+                        p_attachedFiles.add(new ThmmyFile(attachedUrl, attachedFileName, attachedFileInfo));
                     }
                 }
             }
@@ -453,6 +455,7 @@ class TopicParser {
      * Returns one of the supported forum languages.
      * <p>Forum supports: <ul><li>{@link #LANGUAGE_ENGLISH}</li>
      * <li>{@link #LANGUAGE_GREEK}</li></ul></p>
+     *
      * @param topic {@link Document} object containing this topic's source code
      * @return String containing the language of a topic
      * @see org.jsoup.Jsoup Jsoup
@@ -467,6 +470,7 @@ class TopicParser {
 
     /**
      * Returns the color of a user according to user's rank on forum.
+     *
      * @param starsUrl String containing the URL of a user's stars
      * @return an int corresponding to the right color
      */

@@ -115,13 +115,15 @@ class ProfileParser {
                             break;
                         pHtml = pHtml.replace(
                                 pHtml.substring(pHtml.indexOf("<embed"), pHtml.indexOf("/noembed>") + 9)
-                                , "<div class=\"embedded-video\">"
+                                , "<div class=\"yt\">"
                                         + "<a href=\"https://www.youtube.com/"
                                         + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
-                                        + "<img src=\"https://img.youtube.com/vi/"
-                                        + embededVideosUrls.get(tmp_counter) + "/default.jpg\" alt=\"\" border=\"0\">"
+                                        + "<img class=\"embedded-video-play\" "
+                                        + "src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\""
                                         + "</a>"
-                                        //+ "<img class=\"embedded-video-play\" src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\">"
+                                        + "<img src=\"https://img.youtube.com/vi/"
+                                        + embededVideosUrls.get(tmp_counter)
+                                        + "/default.jpg\" alt=\"\" border=\"0\" width=\"40%\">"
                                         + "</div>");
                     }
                 }

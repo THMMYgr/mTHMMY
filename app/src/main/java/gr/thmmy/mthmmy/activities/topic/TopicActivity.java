@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,8 +34,6 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 
 /**
  * Activity for topics. When creating an Intent of this activity you need to bundle a <b>String</b>
@@ -200,7 +197,7 @@ public class TopicActivity extends BaseActivity {
             topicTask.cancel(true);
     }
 
-//--------------------------------------BOTTOM NAV BAR METHODS--------------------------------------
+    //--------------------------------------BOTTOM NAV BAR METHODS--------------------------------------
     private void initIncrementButton(ImageButton increment, final int step) {
         // Increment once for a click
         increment.setOnClickListener(new View.OnClickListener() {
@@ -333,7 +330,7 @@ public class TopicActivity extends BaseActivity {
             base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //This topic's base url
             String newPageUrl = strings[0];
 
-            //Finds message focus if present
+            //Finds the index of message focus if present
             {
                 postFocus = NO_POST_FOCUS;
                 if (newPageUrl.contains("msg")) {
@@ -345,33 +342,43 @@ public class TopicActivity extends BaseActivity {
                 }
             }
 
-            if (!loadedPageUrl.contains(base_url)) {
-                loadedPageUrl = newPageUrl;
-                Request request = new Request.Builder()
-                        .url(newPageUrl)
-                        .build();
-                try {
-                    Response response = client.newCall(request).execute();
-                    document = Jsoup.parse(response.body().string());
-                    parse(document);
-                    for (int i = 0; i < postsList.size(); ++i) {
-                        if (postsList.get(i).getPostIndex() == postFocus) {
-                            postFocusPosition = i;
-                            break;
-                        }
-                    }
-                    return SUCCESS;
-                } catch (IOException e) {
-                    Report.i(TAG, "IO Exception", e);
-                    return NETWORK_ERROR;
-                } catch (Exception e) {
-                    Report.e(TAG, "Exception", e);
-                    return OTHER_ERROR;
-                }
-            } else return SAME_PAGE;
+            //Checks if the page to be loaded is the one already shown
+            if (!Objects.equals(loadedPageUrl, "") && !loadedPageUrl.contains(base_url)) {
+                if (newPageUrl.contains("topicseen#new"))
+                    if (Integer.parseInt(loadedPageUrl.substring(base_url.length())) == numberOfPages)
+                        return SAME_PAGE;
+                if (Objects.equals(loadedPageUrl.substring(base_url.length())
+                        , newPageUrl.substring(base_url.length())))
+                    return SAME_PAGE;
+            }
+
+            loadedPageUrl = newPageUrl;
+            Request request = new Request.Builder()
+                    .url(newPageUrl)
+                    .build();
+            try {
+                Response response = client.newCall(request).execute();
+                document = Jsoup.parse(response.body().string());
+                parse(document);
+                return SUCCESS;
+            } catch (IOException e) {
+                Report.i(TAG, "IO Exception", e);
+                return NETWORK_ERROR;
+            } catch (Exception e) {
+                Report.e(TAG, "Exception", e);
+                return OTHER_ERROR;
+            }
         }
 
         protected void onPostExecute(Integer parseResult) {
+            //Finds the position of the focused message if present
+            for (int i = 0; i < postsList.size(); ++i) {
+                if (postsList.get(i).getPostIndex() == postFocus) {
+                    postFocusPosition = i;
+                    break;
+                }
+            }
+
             switch (parseResult) {
                 case SUCCESS:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -397,6 +404,7 @@ public class TopicActivity extends BaseActivity {
                     Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
                     break;
                 case SAME_PAGE:
+                    //TODO change focus
                     break;
                 default:
                     //Parse failed - should never happen
