@@ -1,19 +1,24 @@
 package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
+import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.data.TopicSummary;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 import static gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment.parsedTopicSummaries;
 
 class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = "LatestPostsAdapter";
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     private OnLoadMoreListener mOnLoadMoreListener;
@@ -38,6 +43,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     inflate(R.layout.profile_fragment_latest_posts_row, parent, false);
             return new LatestPostViewHolder(view);
         } else if (viewType == VIEW_TYPE_LOADING) {
+            Log.d(TAG, "GOT");
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.recycler_loading_item, parent, false);
             return new LoadingViewHolder(view);
@@ -45,14 +51,16 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return null;
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof LatestPostViewHolder) {
             TopicSummary topic = parsedTopicSummaries.get(position);
-            LatestPostViewHolder latestPostViewHolder = (LatestPostViewHolder) holder;
+            final LatestPostViewHolder latestPostViewHolder = (LatestPostViewHolder) holder;
             latestPostViewHolder.postTitle.setText(topic.getTitle());
             latestPostViewHolder.postDate.setText(topic.getDateTimeModified());
-            //latestPostViewHolder.post.
+            latestPostViewHolder.post.loadDataWithBaseURL("file:///android_asset/"
+                    , topic.getPost(), "text/html", "UTF-8", null);
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressBar.setIndeterminate(true);
@@ -78,11 +86,11 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private static class LoadingViewHolder extends RecyclerView.ViewHolder {
-        ProgressBar progressBar;
+        MaterialProgressBar progressBar;
 
         LoadingViewHolder(View itemView) {
             super(itemView);
-            progressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);
+            progressBar = (MaterialProgressBar) itemView.findViewById(R.id.recycler_progress_bar);
         }
     }
 }

@@ -3,8 +3,10 @@ package gr.thmmy.mthmmy.activities.profile.latestPosts;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,13 +48,13 @@ public class LatestPostsFragment extends Fragment {
      * are added in {@link LatestPostsFragment.ProfileLatestPostsTask}.
      */
     static ArrayList<TopicSummary> parsedTopicSummaries;
-    private RecyclerView mainContent;
     private LatestPostsAdapter latestPostsAdapter = new LatestPostsAdapter();
     private int numberOfPages = -1;
+    private int pagesLoaded = 0;
     private String profileUrl;
     private ProfileLatestPostsTask profileLatestPostsTask;
     private MaterialProgressBar progressBar;
-    private boolean isLoading;
+    private boolean isLoadingMore;
     static int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
 
@@ -83,11 +85,59 @@ public class LatestPostsFragment extends Fragment {
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        final View rootView = inflater.inflate(R.layout.profile_fragment_latest_posts, container, false);
+
+        RecyclerView mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
+        mainContent.setAdapter(latestPostsAdapter);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        mainContent.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mainContent.getContext(),
+                layoutManager.getOrientation());
+        mainContent.addItemDecoration(dividerItemDecoration);
+
+        final LatestPostsAdapter.OnLoadMoreListener onLoadMoreListener = new LatestPostsAdapter.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                if (pagesLoaded < numberOfPages) {
+                    parsedTopicSummaries.add(null);
+                    latestPostsAdapter.notifyItemInserted(parsedTopicSummaries.size() - 1);
+
+                    //Load data
+                    profileLatestPostsTask = new ProfileLatestPostsTask();
+                    profileLatestPostsTask.execute(profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
+                    ++pagesLoaded;
+                }
+            }
+        };
+
+        latestPostsAdapter.setOnLoadMoreListener(onLoadMoreListener);
+        mainContent.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                totalItemCount = layoutManager.getItemCount();
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+
+                if (!isLoadingMore && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                    isLoadingMore = true;
+                    onLoadMoreListener.onLoadMore();
+                }
+            }
+        });
+        progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
+        return rootView;
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (parsedTopicSummaries.isEmpty()) {
             profileLatestPostsTask = new ProfileLatestPostsTask();
-            profileLatestPostsTask.execute(profileUrl);
+            profileLatestPostsTask.execute(profileUrl + ";sa=showPosts");
+            pagesLoaded = 1;
         }
         Report.d(TAG, "onActivityCreated");
     }
@@ -97,50 +147,6 @@ public class LatestPostsFragment extends Fragment {
         super.onDestroy();
         if (profileLatestPostsTask != null && profileLatestPostsTask.getStatus() != AsyncTask.Status.RUNNING)
             profileLatestPostsTask.cancel(true);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.profile_fragment_latest_posts, container, false);
-
-        mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
-        mainContent.setAdapter(latestPostsAdapter);
-
-        final LatestPostsAdapter.OnLoadMoreListener onLoadMoreListener = new LatestPostsAdapter.OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                parsedTopicSummaries.add(null);
-                latestPostsAdapter.notifyItemInserted(parsedTopicSummaries.size() - 1);
-
-                //Removes loading item
-                parsedTopicSummaries.remove(parsedTopicSummaries.size() - 1);
-                latestPostsAdapter.notifyItemRemoved(parsedTopicSummaries.size());
-
-                //Load data
-                profileLatestPostsTask = new ProfileLatestPostsTask();
-                profileLatestPostsTask.execute(profileUrl);
-            }
-        };
-
-        latestPostsAdapter.setOnLoadMoreListener(onLoadMoreListener);
-        final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mainContent.getLayoutManager();
-        mainContent.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                totalItemCount = linearLayoutManager.getItemCount();
-                lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
-
-                if (!isLoading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                    onLoadMoreListener.onLoadMore();
-                    isLoading = true;
-                }
-            }
-        });
-        progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
-        return rootView;
     }
 
     /**
@@ -158,11 +164,14 @@ public class LatestPostsFragment extends Fragment {
         private static final String TAG = "ProfileLatestPostsTask"; //Separate tag for AsyncTask
 
         protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+            if (!isLoadingMore) {
+                Log.d(TAG, "false");
+                progressBar.setVisibility(ProgressBar.VISIBLE);
+            }
         }
 
         protected Boolean doInBackground(String... profileUrl) {
-            String pageUrl = profileUrl[0] + ";sa=showPosts"; //Profile's page wap url
+            String pageUrl = profileUrl[0];
 
             Request request = new Request.Builder()
                     .url(pageUrl)
@@ -187,7 +196,7 @@ public class LatestPostsFragment extends Fragment {
             //Parse was successful
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             latestPostsAdapter.notifyDataSetChanged();
-            isLoading = false;
+            isLoadingMore = false;
         }
 
         private boolean parseLatestPosts(Document latestPostsPage) {
@@ -197,10 +206,15 @@ public class LatestPostsFragment extends Fragment {
                 latestPostsRows = latestPostsPage.
                         select("td:has(table:Contains(Show Posts)):not([style]) > table");
 
+            //Removes loading item
+            if (isLoadingMore) {
+                parsedTopicSummaries.remove(parsedTopicSummaries.size() - 1);
+
+            }
+
             for (Element row : latestPostsRows) {
                 String pTopicUrl, pTopicTitle, pDateTime, pPost;
-
-                if (row.text().contains("Show Posts Pages: ") || row.text().contains("")) {
+                if (Integer.parseInt(row.attr("cellpadding")) == 4) {
                     if (numberOfPages == -1) {
                         Elements pages = row.select("tr.catbg3 a");
                         for (Element page : pages) {
@@ -217,7 +231,37 @@ public class LatestPostsFragment extends Fragment {
                         pTopicUrl = rowHeader.first().select("a").last().attr("href");
                         pDateTime = rowHeader.last().text();
                     }
-                    pPost = rowHeader.select("div.post").first().html();
+                    pPost = row.select("div.post").first().outerHtml();
+
+                    { //Fixes embedded videos
+                        Elements noembedTag = row.select("div").select(".post").first().select("noembed");
+                        ArrayList<String> embededVideosUrls = new ArrayList<>();
+
+                        for (Element _noembed : noembedTag) {
+                            embededVideosUrls.add(_noembed.text().substring(_noembed.text()
+                                            .indexOf("href=\"https://www.youtube.com/watch?") + 38
+                                    , _noembed.text().indexOf("target") - 2));
+                        }
+
+                        int tmp_counter = 0;
+                        while (pPost.contains("<embed")) {
+                            if (tmp_counter > embededVideosUrls.size())
+                                break;
+                            pPost = pPost.replace(
+                                    pPost.substring(pPost.indexOf("<embed"), pPost.indexOf("/noembed>") + 9)
+                                    , "<div class=\"embedded-video\">"
+                                            + "<a href=\"https://www.youtube.com/"
+                                            + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
+                                            + "<img src=\"https://img.youtube.com/vi/"
+                                            + embededVideosUrls.get(tmp_counter) + "/default.jpg\" alt=\"\" border=\"0\">"
+                                            + "</a>"
+                                            //+ "<img class=\"embedded-video-play\" src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\">"
+                                            + "</div>");
+                        }
+                    }
+                    //Add stuff to make it work in WebView
+                    //style.css
+                    pPost = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + pPost);
 
                     parsedTopicSummaries.add(new TopicSummary(pTopicUrl, pTopicTitle, "", pDateTime, pPost));
                 }
