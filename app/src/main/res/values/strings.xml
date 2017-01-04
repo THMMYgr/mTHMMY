@@ -41,4 +41,10 @@
     <string name="user_number_of_posts">#%1$d</string>
 
     <string name="byUser">by %1$s</string>
+
+    <string name="general_statistics_title">General Statistics</string>
+    <string name="general_statistics">Statistics</string>
+    <string name="posting_activity_by_time_title">Posting Activity</string>
+    <string name="most_popular_boards_by_posts_title">Most Popular Boards By Posts</string>
+    <string name="most_popular_boards_by_activity_title">Most Popular Boards By Activity</string>
 </resources>
