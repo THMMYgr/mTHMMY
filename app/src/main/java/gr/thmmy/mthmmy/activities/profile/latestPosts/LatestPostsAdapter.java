@@ -7,11 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.base.BaseFragment;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
@@ -21,14 +21,19 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "LatestPostsAdapter";
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    private OnLoadMoreListener mOnLoadMoreListener;
+    //private OnLoadMoreListener mOnLoadMoreListener;
+    private LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
 
-    public interface OnLoadMoreListener {
+    LatestPostsAdapter(BaseFragment.FragmentInteractionListener interactionListener){
+        this.interactionListener = (LatestPostsFragment.LatestPostsFragmentInteractionListener) interactionListener;
+    }
+
+    interface OnLoadMoreListener {
         void onLoadMore();
     }
 
-    public void setOnLoadMoreListener(OnLoadMoreListener mOnLoadMoreListener) {
-        this.mOnLoadMoreListener = mOnLoadMoreListener;
+    void setOnLoadMoreListener(OnLoadMoreListener mOnLoadMoreListener) {
+        //this.mOnLoadMoreListener = mOnLoadMoreListener;
     }
 
     @Override
@@ -43,7 +48,6 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     inflate(R.layout.profile_fragment_latest_posts_row, parent, false);
             return new LatestPostViewHolder(view);
         } else if (viewType == VIEW_TYPE_LOADING) {
-            Log.d(TAG, "GOT");
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.recycler_loading_item, parent, false);
             return new LoadingViewHolder(view);
@@ -53,14 +57,28 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof LatestPostViewHolder) {
             TopicSummary topic = parsedTopicSummaries.get(position);
             final LatestPostViewHolder latestPostViewHolder = (LatestPostViewHolder) holder;
+
             latestPostViewHolder.postTitle.setText(topic.getTitle());
             latestPostViewHolder.postDate.setText(topic.getDateTimeModified());
             latestPostViewHolder.post.loadDataWithBaseURL("file:///android_asset/"
                     , topic.getPost(), "text/html", "UTF-8", null);
+
+            latestPostViewHolder.latestPostsRow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (interactionListener != null) {
+                        // Notify the active callbacks interface (the activity, if the
+                        // fragment is attached to one) that a post has been selected.
+                        interactionListener.onLatestPostsFragmentInteraction(
+                                parsedTopicSummaries.get(holder.getAdapterPosition()));
+                    }
+
+                }
+            });
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressBar.setIndeterminate(true);
@@ -73,12 +91,14 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private static class LatestPostViewHolder extends RecyclerView.ViewHolder {
+        RelativeLayout latestPostsRow;
         TextView postTitle;
         TextView postDate;
         WebView post;
 
         LatestPostViewHolder(View itemView) {
             super(itemView);
+            latestPostsRow = (RelativeLayout) itemView.findViewById(R.id.latest_posts_row);
             postTitle = (TextView) itemView.findViewById(R.id.title);
             postDate = (TextView) itemView.findViewById(R.id.date);
             post = (WebView) itemView.findViewById(R.id.post);

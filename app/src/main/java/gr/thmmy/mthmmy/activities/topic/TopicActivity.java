@@ -37,8 +37,8 @@ import okhttp3.Response;
 
 /**
  * Activity for topics. When creating an Intent of this activity you need to bundle a <b>String</b>
- * containing this topics's url using the key {@link #EXTRAS_TOPIC_URL} and a <b>String</b> containing
- * this topic's title using the key {@link #EXTRAS_TOPIC_TITLE}.
+ * containing this topics's url using the key {@link #BUNDLE_TOPIC_URL} and a <b>String</b> containing
+ * this topic's title using the key {@link #BUNDLE_TOPIC_TITLE}.
  */
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity {
@@ -51,11 +51,11 @@ public class TopicActivity extends BaseActivity {
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
      */
-    public static final String EXTRAS_TOPIC_URL = "TOPIC_URL";
+    public static final String BUNDLE_TOPIC_URL = "TOPIC_URL";
     /**
      * The key to use when putting topic's title String to {@link TopicActivity}'s Bundle.
      */
-    public static final String EXTRAS_TOPIC_TITLE = "TOPIC_TITLE";
+    public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
     private static TopicTask topicTask;
     //About posts
     private List<Post> postsList;
@@ -171,7 +171,7 @@ public class TopicActivity extends BaseActivity {
 
         //Gets posts
         topicTask = new TopicTask();
-        topicTask.execute(extras.getString(EXTRAS_TOPIC_URL)); //Attempt data parsing
+        topicTask.execute(extras.getString(BUNDLE_TOPIC_URL)); //Attempt data parsing
     }
 
     @Override

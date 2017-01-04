@@ -22,8 +22,8 @@ import gr.thmmy.mthmmy.data.TopicSummary;
 
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.EXTRAS_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.EXTRAS_BOARD_URL;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.EXTRAS_TOPIC_TITLE;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.EXTRAS_TOPIC_URL;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener {
 
@@ -88,8 +88,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     public void onRecentFragmentInteraction(TopicSummary topicSummary) {
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
-        i.putExtra(EXTRAS_TOPIC_URL, topicSummary.getTopicUrl());
-        i.putExtra(EXTRAS_TOPIC_TITLE, topicSummary.getTitle());
+        i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
+        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getTitle());
         startActivity(i);
     }
 

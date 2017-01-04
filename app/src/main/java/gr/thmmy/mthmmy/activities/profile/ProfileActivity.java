@@ -35,18 +35,23 @@ import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
+import gr.thmmy.mthmmy.activities.topic.TopicActivity;
+import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+
 /**
  * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>
  * containing this user's profile url using the key {@link #BUNDLE_PROFILE_URL}, a <b>String</b> containing
  * this user's avatar url and a <b>String</b> containing the username.
  */
-public class ProfileActivity extends BaseActivity {
+public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener{
     //Graphics
     private TextView personalTextView;
     private MaterialProgressBar progressBar;
@@ -157,6 +162,14 @@ public class ProfileActivity extends BaseActivity {
         super.onDestroy();
         if (profileTask != null && profileTask.getStatus() != AsyncTask.Status.RUNNING)
             profileTask.cancel(true);
+    }
+
+    @Override
+    public void onLatestPostsFragmentInteraction(TopicSummary topicSummary) {
+        Intent i = new Intent(ProfileActivity.this, TopicActivity.class);
+        i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
+        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getTitle());
+        startActivity(i);
     }
 
     /**

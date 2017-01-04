@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +23,7 @@ import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.activities.base.BaseFragment;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
@@ -33,7 +33,7 @@ import okhttp3.Response;
 /**
  * Use the {@link LatestPostsFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class LatestPostsFragment extends Fragment {
+public class LatestPostsFragment extends BaseFragment {
     /**
      * Debug Tag for logging debug output to LogCat
      */
@@ -48,7 +48,7 @@ public class LatestPostsFragment extends Fragment {
      * are added in {@link LatestPostsFragment.ProfileLatestPostsTask}.
      */
     static ArrayList<TopicSummary> parsedTopicSummaries;
-    private LatestPostsAdapter latestPostsAdapter = new LatestPostsAdapter();
+    private LatestPostsAdapter latestPostsAdapter;
     private int numberOfPages = -1;
     private int pagesLoaded = 0;
     private String profileUrl;
@@ -89,6 +89,7 @@ public class LatestPostsFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.profile_fragment_latest_posts, container, false);
 
+        latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener);
         RecyclerView mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
         mainContent.setAdapter(latestPostsAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -149,6 +150,10 @@ public class LatestPostsFragment extends Fragment {
             profileLatestPostsTask.cancel(true);
     }
 
+    public interface LatestPostsFragmentInteractionListener extends FragmentInteractionListener {
+        void onLatestPostsFragmentInteraction(TopicSummary topicSummary);
+    }
+
     /**
      * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing this
      * user's personal text.
@@ -165,7 +170,6 @@ public class LatestPostsFragment extends Fragment {
 
         protected void onPreExecute() {
             if (!isLoadingMore) {
-                Log.d(TAG, "false");
                 progressBar.setVisibility(ProgressBar.VISIBLE);
             }
         }
