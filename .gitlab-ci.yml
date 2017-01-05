@@ -20,9 +20,22 @@ before_script:
   - export PATH=$PATH:$PWD/android-sdk-linux/platform-tools/
   - chmod +x ./gradlew
 
-build:
+build_develop:
   script:
     - ./gradlew assembleDebug
+  only:
+    - develop
   artifacts:
+    name: "${CI_BUILD_NAME}"
     paths:
-    - app/build/outputs/
+    - app/build/outputs/apk
+
+build_master:
+  script:
+    - ./gradlew assembleRelease
+  only:
+    - master
+  artifacts:
+    name: "${CI_BUILD_NAME}"
+    paths:
+    - app/build/outputs/apk
