@@ -27,6 +27,7 @@ import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -34,6 +35,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment;
+import gr.thmmy.mthmmy.activities.profile.stats.StatsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.data.TopicSummary;
@@ -105,7 +107,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
         ImageView thumbnailView = (ImageView) findViewById(R.id.user_thumbnail);
-        if (thumbnailUrl != null)
+        if (thumbnailUrl != null && !Objects.equals(thumbnailUrl, ""))
             //noinspection ConstantConditions
             Picasso.with(this)
                     .load(thumbnailUrl)
@@ -252,7 +254,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(SummaryFragment.newInstance(profilePage), "SUMMARY");
         adapter.addFrag(LatestPostsFragment.newInstance(profileUrl), "LATEST POSTS");
-        //adapter.addFrag(new );
+        adapter.addFrag(StatsFragment.newInstance(profileUrl), "STATS");
         viewPager.setAdapter(adapter);
     }
 

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -175,10 +174,8 @@ public class LatestPostsFragment extends BaseFragment {
         }
 
         protected Boolean doInBackground(String... profileUrl) {
-            String pageUrl = profileUrl[0];
-
             Request request = new Request.Builder()
-                    .url(pageUrl)
+                    .url(profileUrl[0])
                     .build();
             try {
                 Response response = BaseActivity.getClient().newCall(request).execute();

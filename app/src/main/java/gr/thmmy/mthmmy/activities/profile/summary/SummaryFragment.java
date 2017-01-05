@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import mthmmy.utils.Report;
 
 
@@ -78,6 +77,16 @@ public class SummaryFragment extends Fragment {
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        final View rootView = inflater.inflate(R.layout.profile_fragment_summary, container, false);
+        mainContent = (LinearLayout) rootView.findViewById(R.id.profile_activity_content);
+        if (!parsedProfileSummaryData.isEmpty())
+            populateLayout();
+        return rootView;
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (parsedProfileSummaryData.isEmpty()) {
@@ -92,14 +101,6 @@ public class SummaryFragment extends Fragment {
         super.onDestroy();
         if (profileSummaryTask != null && profileSummaryTask.getStatus() != AsyncTask.Status.RUNNING)
             profileSummaryTask.cancel(true);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.profile_fragment_summary, container, false);
-        mainContent = (LinearLayout) rootView.findViewById(R.id.profile_activity_content);
-        return rootView;
     }
 
     /**

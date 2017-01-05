@@ -75,9 +75,11 @@
             android:id="@+id/profile_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="fixed"
+            android:gravity="center"
             app:tabGravity="fill"
-            android:gravity="center"/>
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/accent"
+            app:tabTextColor="@color/white"/>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager

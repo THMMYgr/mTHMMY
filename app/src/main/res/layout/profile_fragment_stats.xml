@@ -1,79 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginBottom="4dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="4dp"
-    android:background="@color/background">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:background="@color/background">
 
-        <TextView
-            android:id="@+id/general_statistics_title"
+        <LinearLayout
+            android:id="@+id/main_content"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/card_background"
-            android:text="@string/general_statistics_title"
-            android:textAlignment="center"
-            android:textColor="@color/primary_text"
-            android:textStyle="bold"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/general_statistics"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/general_statistics"
-            android:textColor="@color/primary_text"/>
+            <TextView
+                android:id="@+id/general_statistics_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/card_background"
+                android:text="@string/general_statistics_title"
+                android:textAlignment="center"
+                android:textColor="@color/primary_text"
+                android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/posting_activity_by_time_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/card_background"
-            android:text="@string/posting_activity_by_time_title"
-            android:textAlignment="center"
-            android:textColor="@color/primary_text"
-            android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/general_statistics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/general_statistics"
+                android:textColor="@color/primary_text"/>
 
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/posting_activity_by_time_chart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/posting_activity_by_time_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/card_background"
+                android:text="@string/posting_activity_by_time_title"
+                android:textAlignment="center"
+                android:textColor="@color/primary_text"
+                android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/most_popular_boards_by_posts_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/card_background"
-            android:text="@string/most_popular_boards_by_posts_title"
-            android:textAlignment="center"
-            android:textColor="@color/primary_text"
-            android:textStyle="bold"/>
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/posting_activity_by_time_chart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginBottom="4dp"/>
 
-        <com.github.mikephil.charting.charts.HorizontalBarChart
-            android:id="@+id/most_popular_boards_by_posts_chart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/most_popular_boards_by_posts_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/card_background"
+                android:text="@string/most_popular_boards_by_posts_title"
+                android:textAlignment="center"
+                android:textColor="@color/primary_text"
+                android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/most_popular_boards_by_activity_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/card_background"
-            android:text="@string/most_popular_boards_by_activity_title"
-            android:textAlignment="center"
-            android:textColor="@color/primary_text"
-            android:textStyle="bold"/>
+            <com.github.mikephil.charting.charts.HorizontalBarChart
+                android:id="@+id/most_popular_boards_by_posts_chart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginBottom="4dp"/>
 
-        <com.github.mikephil.charting.charts.HorizontalBarChart
-            android:id="@+id/most_popular_boards_by_activity_chart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+            <TextView
+                android:id="@+id/most_popular_boards_by_activity_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/card_background"
+                android:text="@string/most_popular_boards_by_activity_title"
+                android:textAlignment="center"
+                android:textColor="@color/primary_text"
+                android:textStyle="bold"/>
+
+            <com.github.mikephil.charting.charts.HorizontalBarChart
+                android:id="@+id/most_popular_boards_by_activity_chart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginBottom="4dp"/>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:mpb_indeterminateTint="@color/accent"
+        app:mpb_progressStyle="horizontal"/>
+</RelativeLayout>
