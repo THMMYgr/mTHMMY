@@ -49,12 +49,13 @@
         android:layout_gravity="center"
         android:foreground="?android:attr/selectableItemBackground"
         card_view:cardBackgroundColor="@color/card_background"
-        card_view:cardCornerRadius="0dp"
+        card_view:cardCornerRadius="5dp"
         card_view:cardElevation="2dp"
-        card_view:cardPreventCornerOverlap="true"
+        card_view:cardPreventCornerOverlap="false"
         card_view:cardUseCompatPadding="true">
 
         <LinearLayout
+            android:id="@+id/card_child_linear"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">

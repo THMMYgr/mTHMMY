@@ -99,6 +99,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      */
     class MyViewHolder extends RecyclerView.ViewHolder {
         final CardView cardView;
+        final LinearLayout cardChildLinear;
         final FrameLayout postDateAndNumberExp;
         final TextView postDate, postNum, username, subject;
         final ImageView thumbnail;
@@ -116,6 +117,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             //Initializes layout's graphic elements
             //Standard stuff
             cardView = (CardView) view.findViewById(R.id.card_view);
+            cardChildLinear = (LinearLayout) view.findViewById(R.id.card_child_linear);
             postDateAndNumberExp = (FrameLayout) view.findViewById(R.id.post_date_and_number_exp);
             postDate = (TextView) view.findViewById(R.id.post_date);
             postNum = (TextView) view.findViewById(R.id.post_number);
@@ -220,7 +222,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         if (currentPost.getAttachedFiles().size() != 0) {
             holder.bodyFooterDivider.setVisibility(View.VISIBLE);
             int filesTextColor;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 filesTextColor = context.getResources().getColor(R.color.accent, null);
             } else //noinspection deprecation
                 filesTextColor = context.getResources().getColor(R.color.accent);
@@ -294,6 +296,14 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 holder.stars.setVisibility(View.VISIBLE);
             } else
                 holder.stars.setVisibility(View.GONE);
+            if (mUserColor == TopicParser.USER_COLOR_PINK) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    holder.cardChildLinear.setBackground(context.getResources().
+                            getDrawable(R.drawable.member_of_the_month_card, null));
+                } else //noinspection deprecation
+                    holder.cardChildLinear.setBackground(context.getResources().
+                            getDrawable(R.drawable.member_of_the_month_card));
+            } else holder.cardChildLinear.setBackground(null);
 
             //Avoid's view's visibility recycling
             if (viewProperties.get(position)[isUserExtraInfoVisibile]) {
@@ -313,7 +323,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                         Intent intent = new Intent(context, ProfileActivity.class);
                         Bundle extras = new Bundle();
                         extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
-                        if(currentPost.getThumbnailUrl() == null)
+                        if (currentPost.getThumbnailUrl() == null)
                             extras.putString(BUNDLE_THUMBNAIL_URL, "");
                         else
                             extras.putString(BUNDLE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
@@ -365,7 +375,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.subject.setMaxLines(1);
             holder.subject.setEllipsize(TextUtils.TruncateAt.END);
         }
-        if(viewProperties.get(position)[isQuoteButtonChecked])
+        if (viewProperties.get(position)[isQuoteButtonChecked])
             holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
         else
             holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
@@ -381,8 +391,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                         Log.d(TAG, "GOT1");
                     } else
                         Log.d(TAG, "GOT2");
-                        //Report.i(TAG, "An error occurred while trying to exclude post from" +
-                        //        "toQuoteList, post wasn't there!");
+                    //Report.i(TAG, "An error occurred while trying to exclude post from" +
+                    //        "toQuoteList, post wasn't there!");
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                 } else {
                     Log.d(TAG, "GOT3");

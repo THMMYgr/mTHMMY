@@ -42,7 +42,7 @@ class TopicParser {
     private static final int USER_COLOR_RED = Color.parseColor("#F44336");
     private static final int USER_COLOR_GREEN = Color.parseColor("#4CAF50");
     private static final int USER_COLOR_BLUE = Color.parseColor("#536DFE");
-    private static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
+    static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
     private static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
 
     /**
