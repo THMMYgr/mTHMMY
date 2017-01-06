@@ -51,15 +51,10 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 /**
  * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>
  * containing this user's profile url using the key {@link #BUNDLE_PROFILE_URL}, a <b>String</b> containing
- * this user's avatar url and a <b>String</b> containing the username.
+ * this user's avatar url using the key {@link #BUNDLE_THUMBNAIL_URL} and a <b>String</b> containing
+ * the username using the key {@link #BUNDLE_USERNAME}.
  */
-public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener{
-    //Graphics
-    private TextView personalTextView;
-    private MaterialProgressBar progressBar;
-    private FloatingActionButton replyFAB;
-    private ViewPager viewPager;
-    //Other variables and constants
+public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener {
     /**
      * Debug Tag for logging debug output to LogCat
      */
@@ -79,6 +74,12 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      */
     public static final String BUNDLE_USERNAME = "USERNAME";
     private static final int THUMBNAIL_SIZE = 200;
+
+    private TextView personalTextView;
+    private MaterialProgressBar progressBar;
+    private FloatingActionButton replyFAB;
+    private ViewPager viewPager;
+
     private ProfileTask profileTask;
     private String personalText;
     private String profileUrl;
@@ -90,6 +91,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         Bundle extras = getIntent().getExtras();
         String thumbnailUrl = extras.getString(BUNDLE_THUMBNAIL_URL);
+        if (thumbnailUrl == null) thumbnailUrl = "";
         String username = extras.getString(BUNDLE_USERNAME);
         profileUrl = extras.getString(BUNDLE_PROFILE_URL);
 
@@ -107,7 +109,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
         ImageView thumbnailView = (ImageView) findViewById(R.id.user_thumbnail);
-        if (thumbnailUrl != null && !Objects.equals(thumbnailUrl, ""))
+        if (!Objects.equals(thumbnailUrl, ""))
             //noinspection ConstantConditions
             Picasso.with(this)
                     .load(thumbnailUrl)
@@ -156,7 +158,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         });
 
         profileTask = new ProfileTask();
-        profileTask.execute(profileUrl); //Attempt data parsing
+        profileTask.execute(profileUrl); //Attempts data parsing
     }
 
     @Override
@@ -170,15 +172,19 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     public void onLatestPostsFragmentInteraction(TopicSummary topicSummary) {
         Intent i = new Intent(ProfileActivity.this, TopicActivity.class);
         i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
-        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getTitle());
+        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getTitle().substring(topicSummary.getTitle().
+                lastIndexOf("/ ") + 2));
         startActivity(i);
     }
 
     /**
      * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing this
-     * user's personal text.
+     * user's personal text. The {@link Document} resulting from the parse is stored for use in
+     * the {@link SummaryFragment}.
      * <p>ProfileTask's {@link AsyncTask#execute execute} method needs a profile's url as String
      * parameter!</p>
+     *
+     * @see Jsoup
      */
     public class ProfileTask extends AsyncTask<String, Void, Boolean> {
         //Class variables
@@ -225,6 +231,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!
+                Report.d(TAG, "Parse failed!");
                 Toast.makeText(getBaseContext()
                         , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
                 finish();
@@ -247,7 +254,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
     /**
      * Simple method that sets up the {@link ViewPager} of a {@link ProfileActivity}
-     * @param viewPager the ViewPager to be setup
+     *
+     * @param viewPager   the ViewPager to be setup
      * @param profilePage this profile's parsed page
      */
     private void setupViewPager(ViewPager viewPager, Document profilePage) {
@@ -265,18 +273,22 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
+
         @Override
         public Fragment getItem(int position) {
             return mFragmentList.get(position);
         }
+
         @Override
         public int getCount() {
             return mFragmentList.size();
         }
+
         void addFrag(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
+
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);

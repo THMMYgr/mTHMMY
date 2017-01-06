@@ -322,6 +322,7 @@ public class TopicActivity extends BaseActivity {
 
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
+            paginationEnable(false);
             replyFAB.setEnabled(false);
         }
 
@@ -392,10 +393,7 @@ public class TopicActivity extends BaseActivity {
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
 
-                    firstPage.setEnabled(true);
-                    previousPage.setEnabled(true);
-                    nextPage.setEnabled(true);
-                    lastPage.setEnabled(true);
+                    paginationEnable(true);
 
                     if (topicTitle == null || Objects.equals(topicTitle, ""))
                         toolbar.setTitle(parsedTitle);
@@ -408,6 +406,7 @@ public class TopicActivity extends BaseActivity {
                     break;
                 default:
                     //Parse failed - should never happen
+                    Report.d(TAG, "Parse failed!");
                     Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
@@ -476,5 +475,12 @@ public class TopicActivity extends BaseActivity {
                 repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
             }
         }
+    }
+
+    private void paginationEnable(boolean enabled) {
+        firstPage.setEnabled(enabled);
+        previousPage.setEnabled(enabled);
+        nextPage.setEnabled(enabled);
+        lastPage.setEnabled(enabled);
     }
 }

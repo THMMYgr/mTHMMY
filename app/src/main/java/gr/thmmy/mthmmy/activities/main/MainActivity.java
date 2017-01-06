@@ -20,8 +20,8 @@ import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.data.Board;
 import gr.thmmy.mthmmy.data.TopicSummary;
 
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.EXTRAS_BOARD_TITLE;
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.EXTRAS_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
@@ -96,8 +96,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     public void onForumFragmentInteraction(Board board) {
         Intent i = new Intent(MainActivity.this, BoardActivity.class);
-        i.putExtra(EXTRAS_BOARD_URL, board.getBoardURL());
-        i.putExtra(EXTRAS_BOARD_TITLE, board.getTitle());
+        i.putExtra(BUNDLE_BOARD_URL, board.getBoardURL());
+        i.putExtra(BUNDLE_BOARD_TITLE, board.getTitle());
         startActivity(i);
     }
 

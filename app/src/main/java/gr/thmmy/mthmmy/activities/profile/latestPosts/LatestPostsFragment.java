@@ -41,20 +41,20 @@ public class LatestPostsFragment extends BaseFragment {
     /**
      * The key to use when putting profile's url String to {@link LatestPostsFragment}'s Bundle.
      */
-    static final String PROFILE_URL = "PROFILE_DOCUMENT";
+    private static final String PROFILE_URL = "PROFILE_URL";
     /**
      * {@link ArrayList} of {@link TopicSummary} objects used to hold profile's latest posts. Data
-     * are added in {@link LatestPostsFragment.ProfileLatestPostsTask}.
+     * are added in {@link LatestPostsTask}.
      */
     static ArrayList<TopicSummary> parsedTopicSummaries;
     private LatestPostsAdapter latestPostsAdapter;
     private int numberOfPages = -1;
     private int pagesLoaded = 0;
     private String profileUrl;
-    private ProfileLatestPostsTask profileLatestPostsTask;
+    private LatestPostsTask profileLatestPostsTask;
     private MaterialProgressBar progressBar;
     private boolean isLoadingMore;
-    static int visibleThreshold = 5;
+    private static final int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
 
     public LatestPostsFragment() {
@@ -87,7 +87,6 @@ public class LatestPostsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.profile_fragment_latest_posts, container, false);
-
         latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener);
         RecyclerView mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
         mainContent.setAdapter(latestPostsAdapter);
@@ -105,19 +104,18 @@ public class LatestPostsFragment extends BaseFragment {
                     latestPostsAdapter.notifyItemInserted(parsedTopicSummaries.size() - 1);
 
                     //Load data
-                    profileLatestPostsTask = new ProfileLatestPostsTask();
+                    profileLatestPostsTask = new LatestPostsTask();
                     profileLatestPostsTask.execute(profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
                     ++pagesLoaded;
                 }
             }
         };
 
-        latestPostsAdapter.setOnLoadMoreListener(onLoadMoreListener);
+        //latestPostsAdapter.setOnLoadMoreListener();
         mainContent.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
                 totalItemCount = layoutManager.getItemCount();
                 lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 
@@ -135,7 +133,7 @@ public class LatestPostsFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (parsedTopicSummaries.isEmpty()) {
-            profileLatestPostsTask = new ProfileLatestPostsTask();
+            profileLatestPostsTask = new LatestPostsTask();
             profileLatestPostsTask.execute(profileUrl + ";sa=showPosts");
             pagesLoaded = 1;
         }
@@ -155,22 +153,20 @@ public class LatestPostsFragment extends BaseFragment {
 
     /**
      * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing this
-     * user's personal text.
-     * <p>ProfileTask's {@link AsyncTask#execute execute} method needs a profile's url as String
+     * user's latest posts.
+     * <p>LatestPostsTask's {@link AsyncTask#execute execute} method needs a profile's url as String
      * parameter!</p>
      */
-    public class ProfileLatestPostsTask extends AsyncTask<String, Void, Boolean> {
+    public class LatestPostsTask extends AsyncTask<String, Void, Boolean> {
         //Class variables
         /**
          * Debug Tag for logging debug output to LogCat
          */
         @SuppressWarnings("unused")
-        private static final String TAG = "ProfileLatestPostsTask"; //Separate tag for AsyncTask
+        private static final String TAG = "LatestPostsTask"; //Separate tag for AsyncTask
 
         protected void onPreExecute() {
-            if (!isLoadingMore) {
-                progressBar.setVisibility(ProgressBar.VISIBLE);
-            }
+            if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
         protected Boolean doInBackground(String... profileUrl) {
@@ -190,6 +186,7 @@ public class LatestPostsFragment extends BaseFragment {
 
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!
+                Report.d(TAG, "Parse failed!");
                 Toast.makeText(getContext()
                         , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
                 getActivity().finish();
@@ -203,14 +200,13 @@ public class LatestPostsFragment extends BaseFragment {
         private boolean parseLatestPosts(Document latestPostsPage) {
             Elements latestPostsRows = latestPostsPage.
                     select("td:has(table:Contains(Show Posts)):not([style]) > table");
-            if (latestPostsRows == null)
+            if (latestPostsRows.isEmpty()) {
                 latestPostsRows = latestPostsPage.
-                        select("td:has(table:Contains(Show Posts)):not([style]) > table");
-
+                        select("td:has(table:Contains(Εμφάνιση μηνυμάτων)):not([style]) > table");
+            }
             //Removes loading item
             if (isLoadingMore) {
                 parsedTopicSummaries.remove(parsedTopicSummaries.size() - 1);
-
             }
 
             for (Element row : latestPostsRows) {
@@ -219,7 +215,7 @@ public class LatestPostsFragment extends BaseFragment {
                     if (numberOfPages == -1) {
                         Elements pages = row.select("tr.catbg3 a");
                         for (Element page : pages) {
-                            if (Integer.parseInt(page.text()) >= numberOfPages)
+                            if (Integer.parseInt(page.text()) > numberOfPages)
                                 numberOfPages = Integer.parseInt(page.text());
                         }
                     }
@@ -228,7 +224,7 @@ public class LatestPostsFragment extends BaseFragment {
                     if (rowHeader.size() != 2) {
                         return false;
                     } else {
-                        pTopicTitle = rowHeader.text();
+                        pTopicTitle = rowHeader.first().text().trim();
                         pTopicUrl = rowHeader.first().select("a").last().attr("href");
                         pDateTime = rowHeader.last().text();
                     }
@@ -256,7 +252,6 @@ public class LatestPostsFragment extends BaseFragment {
                                             + "<img src=\"https://img.youtube.com/vi/"
                                             + embededVideosUrls.get(tmp_counter) + "/default.jpg\" alt=\"\" border=\"0\">"
                                             + "</a>"
-                                            //+ "<img class=\"embedded-video-play\" src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\">"
                                             + "</div>");
                         }
                     }

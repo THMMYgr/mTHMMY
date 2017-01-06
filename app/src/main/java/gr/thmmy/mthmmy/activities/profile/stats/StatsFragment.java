@@ -54,7 +54,7 @@ public class StatsFragment extends Fragment {
     /**
      * The key to use when putting profile's url String to {@link StatsFragment}'s Bundle.
      */
-    static final String PROFILE_URL = "PROFILE_DOCUMENT";
+    private static final String PROFILE_URL = "PROFILE_DOCUMENT";
     private String profileUrl;
     private ProfileStatsTask profileStatsTask;
     private LinearLayout mainContent;
@@ -62,9 +62,9 @@ public class StatsFragment extends Fragment {
     private boolean haveParsed = false;
 
     private String generalStatisticsTitle = "", generalStatistics = "", postingActivityByTimeTitle = "", mostPopularBoardsByPostsTitle = "", mostPopularBoardsByActivityTitle = "";
-    private List<Entry> postingActivityByTime = new ArrayList<>();
-    private List<BarEntry> mostPopularBoardsByPosts = new ArrayList<>(), mostPopularBoardsByActivity = new ArrayList<>();
-    private ArrayList<String> mostPopularBoardsByPostsLabels = new ArrayList<>(), mostPopularBoardsByActivityLabels = new ArrayList<>();
+    final private List<Entry> postingActivityByTime = new ArrayList<>();
+    final private List<BarEntry> mostPopularBoardsByPosts = new ArrayList<>(), mostPopularBoardsByActivity = new ArrayList<>();
+    final private ArrayList<String> mostPopularBoardsByPostsLabels = new ArrayList<>(), mostPopularBoardsByActivityLabels = new ArrayList<>();
 
     public StatsFragment() {
         // Required empty public constructor
@@ -124,7 +124,7 @@ public class StatsFragment extends Fragment {
      * {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #()}
      * to build graphics.
      * <p>
-     * <p>Calling ProfileSummaryTask's {@link AsyncTask#execute execute} method needs to have profile's url
+     * <p>Calling SummaryTask's {@link AsyncTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
     public class ProfileStatsTask extends AsyncTask<String, Void, Boolean> {
@@ -160,6 +160,7 @@ public class StatsFragment extends Fragment {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!
+                Report.d(TAG, "Parse failed!");
                 Toast.makeText(getContext()
                         , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
                 getActivity().finish();
@@ -170,17 +171,17 @@ public class StatsFragment extends Fragment {
         }
 
         private boolean parseStats(Document statsPage) {
-            if (statsPage.select("table.bordercolor>tbody>tr").size() != 6)
-                return false; //It's my profile
+            if (statsPage.select("table.bordercolor[align]>tbody>tr").size() != 6)
+                return false;
             {
-                Elements titleRows = statsPage.select("table.bordercolor>tbody>tr.titlebg");
+                Elements titleRows = statsPage.select("table.bordercolor[align]>tbody>tr.titlebg");
                 generalStatisticsTitle = titleRows.first().text();
                 postingActivityByTimeTitle = titleRows.get(1).text();
                 mostPopularBoardsByPostsTitle = titleRows.last().select("td").first().text();
                 mostPopularBoardsByActivityTitle = titleRows.last().select("td").last().text();
             }
             {
-                Elements statsRows = statsPage.select("table.bordercolor>tbody>tr:not(.titlebg)");
+                Elements statsRows = statsPage.select("table.bordercolor[align]>tbody>tr:not(.titlebg)");
                 {
                     Elements generalStatisticsRows = statsRows.first().select("tbody>tr");
                     for (Element generalStatisticsRow : generalStatisticsRows)
@@ -341,7 +342,7 @@ public class StatsFragment extends Fragment {
     }
 
     class MyXAxisValueFormatter implements IAxisValueFormatter {
-        private ArrayList<String> mValues;
+        private final ArrayList<String> mValues;
 
         MyXAxisValueFormatter(ArrayList<String> values) {
             this.mValues = values;

@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
-import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +15,15 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 import static gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment.parsedTopicSummaries;
 
+/**
+ * {@link RecyclerView.Adapter} that can display a {@link TopicSummary} and makes a call to the
+ * specified {@link LatestPostsFragment.LatestPostsFragmentInteractionListener}.
+ */
 class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "LatestPostsAdapter";
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    //private OnLoadMoreListener mOnLoadMoreListener;
-    private LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
+    final private LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
 
     LatestPostsAdapter(BaseFragment.FragmentInteractionListener interactionListener){
         this.interactionListener = (LatestPostsFragment.LatestPostsFragmentInteractionListener) interactionListener;
@@ -29,10 +31,6 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     interface OnLoadMoreListener {
         void onLoadMore();
-    }
-
-    void setOnLoadMoreListener(OnLoadMoreListener mOnLoadMoreListener) {
-        //this.mOnLoadMoreListener = mOnLoadMoreListener;
     }
 
     @Override
@@ -54,7 +52,6 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return null;
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof LatestPostViewHolder) {
@@ -90,10 +87,10 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private static class LatestPostViewHolder extends RecyclerView.ViewHolder {
-        RelativeLayout latestPostsRow;
-        TextView postTitle;
-        TextView postDate;
-        WebView post;
+        final RelativeLayout latestPostsRow;
+        final TextView postTitle;
+        final TextView postDate;
+        final WebView post;
 
         LatestPostViewHolder(View itemView) {
             super(itemView);
@@ -105,7 +102,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private static class LoadingViewHolder extends RecyclerView.ViewHolder {
-        MaterialProgressBar progressBar;
+        final MaterialProgressBar progressBar;
 
         LoadingViewHolder(View itemView) {
             super(itemView);

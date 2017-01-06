@@ -100,7 +100,7 @@ body
 /* By default (td, body..) use verdana in black. */
 body, td, th , tr
 {
-	color: #000000;
+	color: #FFFFFF;
 	font-size: small;
 	font-family: Trebuchet, sans-serif;
 }
@@ -110,7 +110,7 @@ body, td, th , tr
 /* Input boxes - just a bit smaller than normal so they align well. */
 input, textarea, button
 {
-	color: #000000;
+	color: #FFFFFF;
 	font-family: Trebuchet, sans-serif;
 	border: 1px solid #aaa;
 }
@@ -122,7 +122,7 @@ input, button
 textarea
 {
 	font-size: 100%;
-	color: #000000;
+	color: #FFFFFF;
 	font-family: Trebuchet, sans-serif;
 }
 
@@ -136,7 +136,7 @@ select
 {
 	font-size: 90%;
 	font-weight: normal;
-	color: #000000;
+	color: #FFFFFF;
 	font-family: Trebuchet, sans-serif;
 }
 
@@ -170,7 +170,7 @@ a img
 /* A code block - maybe even PHP ;). */
 .code
 {
-	color: #000000;
+	color: #26A69A;
 	background-color: #dddddd;
 	font-family: "Comic Sans MS", "times new roman", monospace;
 	font-size: x-small;
@@ -228,17 +228,17 @@ a img
 /* Alternating backgrounds for posts, and several other sections of the forum. */
 .windowbg
 {
-	color: #000000;
+	color: #FFFFFF;
 	background-color: #E3E6E1;
 }
 .windowbg2
 {
-	color: #000000;
+	color: #FFFFFF;
 	background-color: #F2F5F0;
 }
 .windowbg3
 {
-	color: #000000;
+	color: #FFFFFF;
 	background-color: #E1E8E0;
 }
 /* the today container in calendar */
@@ -267,7 +267,7 @@ a img
 {
 	font-weight: bold;
 	background-color: #e4e2e0;
-	color: #000000;
+	color: #FFFFFF;
 }
 /* This is used for tables that have a grid/border background color (such as the topic listing.) */
 .bordercolor
@@ -506,14 +506,18 @@ img
 }
 
 .yt {
-  position: relative;
+    position: relative;
 }
 
 .embedded-video-play {
-  position: absolute;
-  top: 22%;
-  left: 10%;
-  width: 20%;
-  opacity: 0.7;
-  z-index: 2;
+    position: absolute;
+    top: 22%;
+    left: 10%;
+    width: 20%;
+    opacity: 0.7;
+    z-index: 2;
+}
+
+.customSignature{
+    background: #323232;
 }

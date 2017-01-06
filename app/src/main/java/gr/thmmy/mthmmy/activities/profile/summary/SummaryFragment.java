@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,17 +36,17 @@ public class SummaryFragment extends Fragment {
     /**
      * The key to use when putting profile's source code String to {@link SummaryFragment}'s Bundle.
      */
-    static final String PROFILE_DOCUMENT = "PROFILE_DOCUMENT";
+    private static final String PROFILE_DOCUMENT = "PROFILE_DOCUMENT";
     /**
      * {@link ArrayList} of Strings used to hold profile's information. Data are added in
-     * {@link SummaryFragment.ProfileSummaryTask}.
+     * {@link SummaryTask}.
      */
     private ArrayList<String> parsedProfileSummaryData;
     /**
      * A {@link Document} holding this profile's source code.
      */
     private Document profileSummaryDocument;
-    private ProfileSummaryTask profileSummaryTask;
+    private SummaryTask summaryTask;
     private LinearLayout mainContent;
 
     public SummaryFragment() {
@@ -90,8 +89,8 @@ public class SummaryFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (parsedProfileSummaryData.isEmpty()) {
-            profileSummaryTask = new ProfileSummaryTask();
-            profileSummaryTask.execute(profileSummaryDocument);
+            summaryTask = new SummaryTask();
+            summaryTask.execute(profileSummaryDocument);
         }
         Report.d(TAG, "onActivityCreated");
     }
@@ -99,8 +98,8 @@ public class SummaryFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (profileSummaryTask != null && profileSummaryTask.getStatus() != AsyncTask.Status.RUNNING)
-            profileSummaryTask.cancel(true);
+        if (summaryTask != null && summaryTask.getStatus() != AsyncTask.Status.RUNNING)
+            summaryTask.cancel(true);
     }
 
     /**
@@ -108,16 +107,16 @@ public class SummaryFragment extends Fragment {
      * {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #populateLayout()}
      * to build graphics.
      * <p>
-     * <p>Calling ProfileSummaryTask's {@link AsyncTask#execute execute} method needs to have profile's url
+     * <p>Calling SummaryTask's {@link AsyncTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
-    public class ProfileSummaryTask extends AsyncTask<Document, Void, Void> {
+    public class SummaryTask extends AsyncTask<Document, Void, Void> {
         //Class variables
         /**
          * Debug Tag for logging debug output to LogCat
          */
         @SuppressWarnings("unused")
-        private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
+        private static final String TAG = "SummaryTask"; //Separate tag for AsyncTask
 
         protected Void doInBackground(Document... profileSummaryPage) {
             parsedProfileSummaryData = parseProfileSummary(profileSummaryPage[0]);
@@ -142,16 +141,15 @@ public class SummaryFragment extends Fragment {
             //Contains all summary's rows
             Elements summaryRows = profile.select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tr");
 
-            for (Element row : summaryRows) {
-                String rowText = row.text(), pHtml = "";
+            for (Element summaryRow : summaryRows) {
+                String rowText = summaryRow.text(), pHtml = "";
 
-                //Horizontal rule rows
-                if (row.select("td").size() == 1)
+                if (summaryRow.select("td").size() == 1) //Horizontal rule rows
                     pHtml = "";
                 else if (rowText.contains("Signature") || rowText.contains("Υπογραφή")) {
                     //This needs special handling since it may have css
                     { //Fix embedded videos
-                        Elements noembedTag = row.select("noembed");
+                        Elements noembedTag = summaryRow.select("noembed");
                         ArrayList<String> embededVideosUrls = new ArrayList<>();
 
                         for (Element _noembed : noembedTag) {
@@ -160,7 +158,7 @@ public class SummaryFragment extends Fragment {
                                     , _noembed.text().indexOf("target") - 2));
                         }
 
-                        pHtml = row.html();
+                        pHtml = summaryRow.html();
 
                         int tmp_counter = 0;
                         while (pHtml.contains("<embed")) {
@@ -181,13 +179,14 @@ public class SummaryFragment extends Fragment {
 
                     //Add stuff to make it work in WebView
                     //style.css
-                    pHtml = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + pHtml);
-                } else if (!rowText.contains("Name") && !rowText.contains("Όνομα")) { //Don't add username twice
-                    if (Objects.equals(row.select("td").get(1).text(), ""))
+                    pHtml = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +
+                            "<div class=\"customSignature\">\n" + pHtml + "\n</div>");
+                } else if (!rowText.contains("Name") && !rowText.contains("Όνομα")) { //Doesn't add username twice
+                    if (Objects.equals(summaryRow.select("td").get(1).text(), ""))
                         continue;
                     //Style parsed information with html
-                    pHtml = "<b>" + row.select("td").first().text() + "</b> "
-                            + row.select("td").get(1).text();
+                    pHtml = "<b>" + summaryRow.select("td").first().text() + "</b> "
+                            + summaryRow.select("td").get(1).text();
                 }
                 parsedInformation.add(pHtml);
             }
@@ -204,10 +203,12 @@ public class SummaryFragment extends Fragment {
     private void populateLayout() {
         for (String profileSummaryRow : parsedProfileSummaryData) {
             if (profileSummaryRow.contains("Signature")
-                    || profileSummaryRow.contains("Υπογραφή")) {
+                    || profileSummaryRow.contains("Υπογραφή")) { //This may contain css
                 WebView signatureEntry = new WebView(this.getContext());
                 signatureEntry.loadDataWithBaseURL("file:///android_asset/", profileSummaryRow,
                         "text/html", "UTF-8", null);
+                mainContent.addView(signatureEntry);
+                continue;
             }
             TextView entry = new TextView(this.getContext());
 
@@ -216,7 +217,6 @@ public class SummaryFragment extends Fragment {
             } else {
                 //noinspection deprecation
                 entry.setTextColor(getResources().getColor(R.color.primary_text));
-
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 entry.setText(Html.fromHtml(profileSummaryRow, Html.FROM_HTML_MODE_LEGACY));
@@ -226,7 +226,6 @@ public class SummaryFragment extends Fragment {
             }
 
             mainContent.addView(entry);
-            Log.d(TAG, "new: " + profileSummaryRow);
         }
     }
 }
