@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.activities.board;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
