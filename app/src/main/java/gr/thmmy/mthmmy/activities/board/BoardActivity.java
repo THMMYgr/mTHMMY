@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.board;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
@@ -15,11 +16,11 @@ public class BoardActivity extends BaseActivity {
     /**
      * The key to use when putting board's url String to {@link BoardActivity}'s Bundle.
      */
-    public static final String EXTRAS_BOARD_URL = "BOARD_URL";
+    public static final String BUNDLE_BOARD_URL = "BOARD_URL";
     /**
      * The key to use when putting board's title String to {@link BoardActivity}'s Bundle.
      */
-    public static final String EXTRAS_BOARD_TITLE = "BOARD_TITLE";
+    public static final String BUNDLE_BOARD_TITLE = "BOARD_TITLE";
 
     private MaterialProgressBar progressBar;
     private String boardTitle;
