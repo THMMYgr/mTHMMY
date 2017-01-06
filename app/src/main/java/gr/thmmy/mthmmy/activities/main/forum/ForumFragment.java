@@ -28,15 +28,12 @@ import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
 import gr.thmmy.mthmmy.data.Board;
 import gr.thmmy.mthmmy.data.Category;
-import gr.thmmy.mthmmy.data.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
 
 /**
  * A {@link BaseFragment} subclass.

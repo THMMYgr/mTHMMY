@@ -40,10 +40,14 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
+import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.session.SessionManager;
 import okhttp3.OkHttpClient;
 
-import static gr.thmmy.mthmmy.session.SessionManager.LOGGED_IN;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
 
 public abstract class BaseActivity extends AppCompatActivity
 {
@@ -129,6 +133,7 @@ public abstract class BaseActivity extends AppCompatActivity
             drawer.closeDrawer();
     }
 
+
     public static OkHttpClient getClient()
     {
         return client;
@@ -193,8 +198,21 @@ public abstract class BaseActivity extends AppCompatActivity
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
                     public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        //TODO: display profile stuff
-                        return true;    //don't close drawer (for now)
+                        if(sessionManager.isLoggedIn())
+                        {
+                            Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
+                            Bundle extras = new Bundle();
+                            extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
+                            if(!sessionManager.hasAvatar())
+                                extras.putString(BUNDLE_THUMBNAIL_URL, "");
+                            else
+                                extras.putString(BUNDLE_THUMBNAIL_URL, sessionManager.getAvatarLink());
+                            extras.putString(BUNDLE_USERNAME, sessionManager.getUsername());
+                            intent.putExtras(extras);
+                            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                        return false;
                     }
                 })
                 .build();
