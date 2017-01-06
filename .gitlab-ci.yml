@@ -23,17 +23,7 @@ before_script:
 build_develop:
   script:
     - ./gradlew assembleDebug
-  only:
-    - develop
-  artifacts:
-    name: "${CI_BUILD_NAME}"
-    paths:
-    - app/build/outputs/apk
-
-build_master:
-  script:
-    - ./gradlew assembleRelease
-  only:
+  except:
     - master
   artifacts:
     name: "${CI_BUILD_NAME}"

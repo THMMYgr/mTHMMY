@@ -10,25 +10,14 @@ android {
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 5
-        versionName "0.6"
+        versionName "0.7"
         archivesBaseName = "mTHMMY-v$versionName"
-    }
-
-    signingConfigs {
-        release {
-            storeFile rootProject.file('ThmmyNoLife.jks')
-            storePassword System.getenv("KEYSTORE_PASS")
-            keyAlias System.getenv("KEY_NAME")
-            keyPassword System.getenv("KEY_PASS")
-        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (System.getenv("CI"))
-                signingConfig signingConfigs.release
         }
         debug {
             def date = new Date().format('ddMMyy_HHmm');
