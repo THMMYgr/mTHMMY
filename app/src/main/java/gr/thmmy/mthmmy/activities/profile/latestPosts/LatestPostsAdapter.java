@@ -8,25 +8,33 @@ import android.webkit.WebView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
+import gr.thmmy.mthmmy.data.PostSummary;
 import gr.thmmy.mthmmy.data.TopicSummary;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
-import static gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment.parsedTopicSummaries;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link TopicSummary} and makes a call to the
  * specified {@link LatestPostsFragment.LatestPostsFragmentInteractionListener}.
  */
 class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    /**
+     * Debug Tag for logging debug output to LogCat
+     */
+    @SuppressWarnings("unused")
     private static final String TAG = "LatestPostsAdapter";
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     final private LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
+    private final ArrayList<PostSummary> parsedTopicSummaries;
 
-    LatestPostsAdapter(BaseFragment.FragmentInteractionListener interactionListener){
+    LatestPostsAdapter(BaseFragment.FragmentInteractionListener interactionListener,
+                       ArrayList<PostSummary> parsedTopicSummaries) {
         this.interactionListener = (LatestPostsFragment.LatestPostsFragmentInteractionListener) interactionListener;
+        this.parsedTopicSummaries = parsedTopicSummaries;
     }
 
     interface OnLoadMoreListener {
@@ -55,11 +63,11 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof LatestPostViewHolder) {
-            TopicSummary topic = parsedTopicSummaries.get(position);
+            PostSummary topic = parsedTopicSummaries.get(position);
             final LatestPostViewHolder latestPostViewHolder = (LatestPostViewHolder) holder;
 
             latestPostViewHolder.postTitle.setText(topic.getTitle());
-            latestPostViewHolder.postDate.setText(topic.getDateTimeModified());
+            latestPostViewHolder.postDate.setText(topic.getDateTime());
             latestPostViewHolder.post.loadDataWithBaseURL("file:///android_asset/"
                     , topic.getPost(), "text/html", "UTF-8", null);
 

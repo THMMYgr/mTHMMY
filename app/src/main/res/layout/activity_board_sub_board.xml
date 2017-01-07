@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/child_board_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/card_background"
+    android:clickable="true"
+    android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+
+    <TextView
+        android:id="@+id/child_board_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/child_board_title"
+        android:textColor="@color/accent"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/child_board_mods"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp"
+        android:text="@string/child_board_mods"
+        android:textColor="@color/secondary_text"/>
+
+    <TextView
+        android:id="@+id/child_board_stats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp"
+        android:text="@string/child_board_stats"
+        android:textColor="@color/secondary_text"/>
+
+    <TextView
+        android:id="@+id/child_board_last_post"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp"
+        android:text="@string/child_board_last_post"
+        android:textColor="@color/secondary_text"/>
+</LinearLayout>

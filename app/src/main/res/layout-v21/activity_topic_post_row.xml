@@ -89,7 +89,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:adjustViewBounds="true"
-                            android:contentDescription="@string/thumbnail"
+                            android:contentDescription="@string/post_thumbnail"
                             android:maxHeight="@dimen/thumbnail_size"
                             android:maxWidth="@dimen/thumbnail_size"
                             android:src="@drawable/ic_default_user_thumbnail"
@@ -104,7 +104,7 @@
                         android:layout_toEndOf="@+id/thumbnail_holder"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="@string/username"
+                        android:text="@string/post_author"
                         android:textColor="@color/primary_text"
                         android:textStyle="bold"/>
 
@@ -116,7 +116,7 @@
                         android:layout_toEndOf="@+id/thumbnail_holder"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="@string/subject"
+                        android:text="@string/post_subject"
                         />
                 </RelativeLayout>
 
@@ -128,7 +128,7 @@
                     android:layout_marginTop="9dp"
                     android:background="@color/card_background"
                     android:clickable="true"
-                    android:contentDescription="@string/quote"
+                    android:contentDescription="@string/post_quote_button"
                     android:src="@drawable/ic_format_quote_unchecked"/>
             </LinearLayout>
 

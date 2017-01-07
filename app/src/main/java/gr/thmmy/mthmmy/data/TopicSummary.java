@@ -1,36 +1,24 @@
 package gr.thmmy.mthmmy.data;
 
 public class TopicSummary {
-    private final String topicUrl;
-    private final String title;
-    private final String lastUser;
-    private final String dateTimeModified;
-    private final String post;
+    final String topicUrl;
+    final String subject;
+    final String lastUser;
+    final String dateTimeModified;
 
-
-    public TopicSummary(String topicUrl, String title, String lastUser, String dateTimeModified) {
+    public TopicSummary(String topicUrl, String subject, String lastUser, String dateTimeModified) {
         this.topicUrl = topicUrl;
-        this.title = title;
+        this.subject = subject;
         this.lastUser = lastUser;
         this.dateTimeModified = dateTimeModified;
-        this.post = "";
-    }
-
-    public TopicSummary(String topicUrl, String title, String username, String dateTimeModified,
-                        String post) {
-        this.topicUrl = topicUrl;
-        this.title = title;
-        this.lastUser = username;
-        this.dateTimeModified = dateTimeModified;
-        this.post = post;
     }
 
     public String getTopicUrl() {
         return topicUrl;
     }
 
-    public String getTitle() {
-        return title;
+    public String getSubject() {
+        return subject;
     }
 
     public String getLastUser() {
@@ -40,6 +28,4 @@ public class TopicSummary {
     public String getDateTimeModified() {
         return dateTimeModified;
     }
-
-    public String getPost(){ return post;}
 }

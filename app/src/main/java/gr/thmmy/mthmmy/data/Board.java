@@ -1,34 +1,33 @@
 package gr.thmmy.mthmmy.data;
 
-import java.util.ArrayList;
-
 public class Board {
-    private final String title;
-    private final String boardURL;
+    private final String url, title, mods, stats, lastPost;
 
-    private ArrayList <Board> subBoards;
-    private ArrayList <TopicSummary> topicSummaries;
-
-    public Board(String title, String boardURL) {
+    public Board(String url, String title, String mods, String stats, String lastPost) {
+        this.url = url;
         this.title = title;
-        this.boardURL = boardURL;
-        subBoards = new ArrayList<>();
-        topicSummaries = new ArrayList<>();
+        this.mods = mods;
+        this.stats = stats;
+        this.lastPost = lastPost;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String getBoardURL() {
-        return boardURL;
+    public String getMods() {
+        return mods;
     }
 
-    public ArrayList<Board> getSubBoards() {
-        return subBoards;
+    public String getStats() {
+        return stats;
     }
 
-    public ArrayList<TopicSummary> getTopicSummaries() {
-        return topicSummaries;
+    public String getLastPost() {
+        return lastPost;
     }
 }

@@ -41,8 +41,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-
-        holder.mTitleView.setText(recentList.get(position).getTitle());
+        holder.mTitleView.setText(recentList.get(position).getSubject());
         holder.mDateTimeView.setText(recentList.get(position).getDateTimeModified());
         holder.mUserView.setText(context.getString(R.string.byUser, recentList.get(position).getLastUser()));
 

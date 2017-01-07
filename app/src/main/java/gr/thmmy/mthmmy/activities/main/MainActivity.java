@@ -89,14 +89,14 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     public void onRecentFragmentInteraction(TopicSummary topicSummary) {
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
         i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
-        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getTitle());
+        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
         startActivity(i);
     }
 
     @Override
     public void onForumFragmentInteraction(Board board) {
         Intent i = new Intent(MainActivity.this, BoardActivity.class);
-        i.putExtra(BUNDLE_BOARD_URL, board.getBoardURL());
+        i.putExtra(BUNDLE_BOARD_URL, board.getUrl());
         i.putExtra(BUNDLE_BOARD_TITLE, board.getTitle());
         startActivity(i);
     }

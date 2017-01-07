@@ -36,60 +36,6 @@
         tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity">
     </android.support.v7.widget.RecyclerView>
 
-    <LinearLayout
-        android:id="@+id/bottom_navigation_bar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_gravity="bottom|end"
-        android:background="@color/primary"
-        app:elevation="8dp"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareLinearBehavior">
-
-        <ImageButton
-            android:id="@+id/page_first_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.8"
-            android:contentDescription="@string/text_first"
-            app:srcCompat="@drawable/page_first"/>
-
-        <ImageButton
-            android:id="@+id/page_previous_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.8"
-            android:contentDescription="@string/text_previous"
-            app:srcCompat="@drawable/page_previous"/>
-
-        <TextView
-            android:id="@+id/page_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:hint="@string/text_page"
-            android:maxLines="1"
-            android:textColor="@color/white"
-            android:textSize="22sp"/>
-
-        <ImageButton
-            android:id="@+id/page_next_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.8"
-            android:contentDescription="@string/text_next"
-            app:srcCompat="@drawable/page_next"/>
-
-        <ImageButton
-            android:id="@+id/page_last_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.8"
-            android:contentDescription="@string/text_last"
-            app:srcCompat="@drawable/page_last"/>
-    </LinearLayout>
-
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
         style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
@@ -107,8 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="50dp"
-        android:layout_marginEnd="@dimen/fab_margins"
+        android:layout_margin="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_add_fab"/>
 </android.support.design.widget.CoordinatorLayout>

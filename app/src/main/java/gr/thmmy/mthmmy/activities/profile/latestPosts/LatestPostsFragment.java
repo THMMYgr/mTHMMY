@@ -23,7 +23,7 @@ import javax.net.ssl.SSLHandshakeException;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
-import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.data.PostSummary;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
@@ -32,7 +32,7 @@ import okhttp3.Response;
 /**
  * Use the {@link LatestPostsFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class LatestPostsFragment extends BaseFragment {
+public class LatestPostsFragment extends BaseFragment implements LatestPostsAdapter.OnLoadMoreListener{
     /**
      * Debug Tag for logging debug output to LogCat
      */
@@ -43,10 +43,11 @@ public class LatestPostsFragment extends BaseFragment {
      */
     private static final String PROFILE_URL = "PROFILE_URL";
     /**
-     * {@link ArrayList} of {@link TopicSummary} objects used to hold profile's latest posts. Data
+     * {@link ArrayList} of {@link PostSummary} objects used to hold profile's latest posts. Data
      * are added in {@link LatestPostsTask}.
      */
-    static ArrayList<TopicSummary> parsedTopicSummaries;
+    private ArrayList<PostSummary> parsedTopicSummaries;
+    private RecyclerView mainContent;
     private LatestPostsAdapter latestPostsAdapter;
     private int numberOfPages = -1;
     private int pagesLoaded = 0;
@@ -87,29 +88,14 @@ public class LatestPostsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.profile_fragment_latest_posts, container, false);
-        latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener);
-        RecyclerView mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
+        latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener, parsedTopicSummaries);
+        mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
         mainContent.setAdapter(latestPostsAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mainContent.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mainContent.getContext(),
                 layoutManager.getOrientation());
         mainContent.addItemDecoration(dividerItemDecoration);
-
-        final LatestPostsAdapter.OnLoadMoreListener onLoadMoreListener = new LatestPostsAdapter.OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                if (pagesLoaded < numberOfPages) {
-                    parsedTopicSummaries.add(null);
-                    latestPostsAdapter.notifyItemInserted(parsedTopicSummaries.size() - 1);
-
-                    //Load data
-                    profileLatestPostsTask = new LatestPostsTask();
-                    profileLatestPostsTask.execute(profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
-                    ++pagesLoaded;
-                }
-            }
-        };
 
         //latestPostsAdapter.setOnLoadMoreListener();
         mainContent.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -121,12 +107,25 @@ public class LatestPostsFragment extends BaseFragment {
 
                 if (!isLoadingMore && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
                     isLoadingMore = true;
-                    onLoadMoreListener.onLoadMore();
+                    onLoadMore();
                 }
             }
         });
         progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
         return rootView;
+    }
+
+    @Override
+    public void onLoadMore() {
+        if (pagesLoaded < numberOfPages) {
+            parsedTopicSummaries.add(null);
+            latestPostsAdapter.notifyItemInserted(parsedTopicSummaries.size() - 1);
+
+            //Load data
+            profileLatestPostsTask = new LatestPostsTask();
+            profileLatestPostsTask.execute(profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
+            ++pagesLoaded;
+        }
     }
 
     @Override
@@ -148,7 +147,7 @@ public class LatestPostsFragment extends BaseFragment {
     }
 
     public interface LatestPostsFragmentInteractionListener extends FragmentInteractionListener {
-        void onLatestPostsFragmentInteraction(TopicSummary topicSummary);
+        void onLatestPostsFragmentInteraction(PostSummary postSummary);
     }
 
     /**
@@ -193,7 +192,9 @@ public class LatestPostsFragment extends BaseFragment {
             }
             //Parse was successful
             progressBar.setVisibility(ProgressBar.INVISIBLE);
-            latestPostsAdapter.notifyDataSetChanged();
+            latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener, parsedTopicSummaries);
+            mainContent.swapAdapter(latestPostsAdapter, false);
+            //latestPostsAdapter.notifyDataSetChanged();
             isLoadingMore = false;
         }
 
@@ -259,7 +260,7 @@ public class LatestPostsFragment extends BaseFragment {
                     //style.css
                     pPost = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + pPost);
 
-                    parsedTopicSummaries.add(new TopicSummary(pTopicUrl, pTopicTitle, "", pDateTime, pPost));
+                    parsedTopicSummaries.add(new PostSummary(pTopicUrl, pTopicTitle, pDateTime, pPost));
                 }
             }
             return true;

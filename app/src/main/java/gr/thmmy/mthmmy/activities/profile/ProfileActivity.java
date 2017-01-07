@@ -38,7 +38,7 @@ import gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment;
 import gr.thmmy.mthmmy.activities.profile.stats.StatsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
-import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.data.PostSummary;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
@@ -169,10 +169,10 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     }
 
     @Override
-    public void onLatestPostsFragmentInteraction(TopicSummary topicSummary) {
+    public void onLatestPostsFragmentInteraction(PostSummary postSummary) {
         Intent i = new Intent(ProfileActivity.this, TopicActivity.class);
-        i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
-        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getTitle().substring(topicSummary.getTitle().
+        i.putExtra(BUNDLE_TOPIC_URL, postSummary.getTopicUrl());
+        i.putExtra(BUNDLE_TOPIC_TITLE, postSummary.getTitle().substring(postSummary.getTitle().
                 lastIndexOf("/ ") + 2));
         startActivity(i);
     }

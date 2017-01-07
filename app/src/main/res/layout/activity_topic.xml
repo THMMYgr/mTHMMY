@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:contentDescription="@string/text_first"
+            android:contentDescription="@string/button_first"
             app:srcCompat="@drawable/page_first"/>
 
         <ImageButton
@@ -58,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:contentDescription="@string/text_previous"
+            android:contentDescription="@string/button_previous"
             app:srcCompat="@drawable/page_previous"/>
 
         <TextView
@@ -68,7 +68,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="center"
-            android:hint="@string/text_page"
+            android:hint="@string/button_page"
             android:maxLines="1"
             android:textColor="@color/white"
             android:textSize="22sp"/>
@@ -78,7 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:contentDescription="@string/text_next"
+            android:contentDescription="@string/button_next"
             app:srcCompat="@drawable/page_next"/>
 
         <ImageButton
@@ -86,7 +86,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:contentDescription="@string/text_last"
+            android:contentDescription="@string/button_last"
             app:srcCompat="@drawable/page_last"/>
     </LinearLayout>
 

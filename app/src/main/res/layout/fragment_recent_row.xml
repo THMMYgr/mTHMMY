@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              >
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-        <RelativeLayout
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_light"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:paddingBottom="6dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="6dp">
+
+        <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/primary_light"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:paddingBottom="6dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="6dp">
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="@color/primary_text"/>
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:textAppearance="?attr/textAppearanceListItem"
-                android:textColor="@color/primary_text"/>
+        <Space
+            android:id="@+id/spacer"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_alignParentBottom="@+id/title"
+            android:layout_below="@+id/title"
+            android:layout_toEndOf="@+id/dateTime"/>
 
-            <Space
-                android:id="@+id/spacer"
-                android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:layout_alignParentBottom="@+id/title"
-                android:layout_below="@+id/title"
-                android:layout_toEndOf="@+id/dateTime"/>
+        <TextView
+            android:id="@+id/dateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/spacer"
+            android:textColor="@color/secondary_text"/>
 
-            <TextView
-                android:id="@+id/dateTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/spacer"
-                android:textColor="@color/secondary_text"/>
-
-            <TextView
-                android:id="@+id/lastUser"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/dateTime"
-                android:layout_alignBottom="@+id/dateTime"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/secondary_text"
-                android:textStyle="italic"/>
-        </RelativeLayout>
+        <TextView
+            android:id="@+id/lastUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/dateTime"
+            android:layout_alignBottom="@+id/dateTime"
+            android:layout_alignParentEnd="true"
+            android:textColor="@color/secondary_text"
+            android:textStyle="italic"/>
+    </RelativeLayout>
 
 </LinearLayout>

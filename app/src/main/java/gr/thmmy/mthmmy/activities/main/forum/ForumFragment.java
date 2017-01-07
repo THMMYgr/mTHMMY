@@ -156,7 +156,7 @@ public class ForumFragment extends BaseFragment
         private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
         private Document document;
 
-        private List<Category> fetchedCategories;
+        private final List<Category> fetchedCategories;
 
         ForumTask() {
             fetchedCategories = new ArrayList<>();
@@ -214,7 +214,7 @@ public class ForumFragment extends BaseFragment
                         category.setExpanded(true);
                         Elements boardsElements = categoryBlock.select("b [name]");
                         for(Element boardElement: boardsElements) {
-                            Board board = new Board(boardElement.text(), boardElement.attr("href"));
+                            Board board = new Board(boardElement.attr("href"), boardElement.text(), null, null, null);
                             category.getBoards().add(board);
                         }
                     }

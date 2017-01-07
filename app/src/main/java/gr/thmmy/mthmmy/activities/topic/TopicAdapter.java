@@ -319,7 +319,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 public void onClick(View v) {
                     //Clicking an expanded header starts profile activity
                     if (viewProperties.get(holder.getAdapterPosition())[isUserExtraInfoVisibile]) {
-
                         Intent intent = new Intent(context, ProfileActivity.class);
                         Bundle extras = new Bundle();
                         extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());

@@ -21,17 +21,13 @@ import static gr.thmmy.mthmmy.activities.base.BaseActivity.getClient;
  * <p>Class has one constructor: <ul><li>{@link #ThmmyFile(URL, String, String)}</li></ul>
  * and the methods:<ul><li>getters</li>
  * <li>{@link #download()}</li>
- * <li>{@link #download(String)}</li></ul></p>
+ * <li>{@link #download()}</li></ul></p>
  */
 public class ThmmyFile {
     /**
      * Debug Tag for logging debug output to LogCat
      */
     private static final String TAG = "ThmmyFile";
-    /**
-     * Folder name used when downloading files without a package name.
-     */
-    private static final String NO_PACKAGE_FOLDER_NAME = "Other";
     private final URL fileUrl;
     private final String filename, fileInfo;
     private String extension, filePath;
@@ -39,7 +35,7 @@ public class ThmmyFile {
 
     /**
      * This constructor only creates a ThmmyFile object and <b>does not download</b> the file. To download
-     * the file use {@link #download(String)} or {@link #download()}!
+     * the file use {@link #download()} or {@link #download()}!
      *
      * @param fileUrl  {@link URL} object with file's url
      * @param filename {@link String} with desired file name
@@ -67,7 +63,7 @@ public class ThmmyFile {
     }
 
     /**
-     * This is null until {@link #download(String)} or {@link #download()} is called and has succeeded.
+     * This is null until {@link #download()} or {@link #download()} is called and has succeeded.
      *
      * @return String with file's extension or null
      */
@@ -77,7 +73,7 @@ public class ThmmyFile {
     }
 
     /**
-     * This is null until {@link #download(String)} or {@link #download()} is called and has succeeded.
+     * This is null until {@link #download()} or {@link #download()} is called and has succeeded.
      *
      * @return String with file's path or null
      */
@@ -87,7 +83,7 @@ public class ThmmyFile {
     }
 
     /**
-     * This is null until {@link #download(String)} or {@link #download()} is called and has succeeded.
+     * This is null until {@link #download()} or {@link #download()} is called and has succeeded.
      *
      * @return {@link File} or null
      */
