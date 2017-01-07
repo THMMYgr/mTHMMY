@@ -153,37 +153,76 @@ public abstract class BaseActivity extends AppCompatActivity
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
     private PrimaryDrawerItem homeItem, loginLogoutItem, aboutItem;
-    private IconicsDrawable homeIcon,loginIcon,logoutIcon, aboutIcon;
+    private IconicsDrawable homeIcon, homeIconSelected, loginIcon, logoutIcon,
+            aboutIcon, aboutIconSelected;
 
     /**
      * Call only after initializing Toolbar
      */
-    protected void createDrawer()//TODO
+    protected void createDrawer()
     {
+        final int primaryColor = ContextCompat.getColor(this, R.color.iron);
+        final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
+        final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
+
         //Drawer Icons
         homeIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_home)
-                .color(Color.BLACK);
+                .color(primaryColor);
+
+        homeIconSelected =new IconicsDrawable(this)
+                .icon(FontAwesome.Icon.faw_home)
+                .color(selectedSecondaryColor);
 
         loginIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_sign_in)
-                .color(Color.BLACK);
+                .color(primaryColor);
 
         logoutIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_sign_out)
-                .color(Color.BLACK);
+                .color(primaryColor);
 
         aboutIcon =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_info_circle)
-                .color(Color.BLACK);
+                .color(primaryColor);
+
+        aboutIconSelected =new IconicsDrawable(this)
+                .icon(FontAwesome.Icon.faw_info_circle)
+                .color(selectedSecondaryColor);
 
         //Drawer Items
-        homeItem = new PrimaryDrawerItem().withIdentifier(HOME_ID).withName(R.string.home).withIcon(homeIcon);
+        homeItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(HOME_ID)
+                .withName(R.string.home)
+                .withIcon(homeIcon)
+                .withSelectedIcon(homeIconSelected);
+
         if (!sessionManager.isLoggedIn()) //When logged out
-            loginLogoutItem = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.login).withIcon(loginIcon).withSelectable(false);
+            loginLogoutItem = new PrimaryDrawerItem()
+                    .withTextColor(primaryColor)
+                    .withSelectedColor(selectedSecondaryColor)
+                    .withIdentifier(LOG_ID).withName(R.string.login)
+                    .withIcon(loginIcon)
+                    .withSelectable(false);
         else
-            loginLogoutItem = new PrimaryDrawerItem().withIdentifier(LOG_ID).withName(R.string.logout).withIcon(logoutIcon).withSelectable(false);
-        aboutItem = new PrimaryDrawerItem().withIdentifier(ABOUT_ID).withName(R.string.about).withIcon(aboutIcon);
+            loginLogoutItem = new PrimaryDrawerItem()
+                    .withTextColor(primaryColor)
+                    .withSelectedColor(selectedSecondaryColor)
+                    .withIdentifier(LOG_ID)
+                    .withName(R.string.logout)
+                    .withIcon(logoutIcon)
+                    .withSelectable(false);
+        aboutItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(ABOUT_ID)
+                .withName(R.string.about)
+                .withIcon(aboutIcon)
+                .withSelectedIcon(aboutIconSelected);
 
         //Profile
         profileDrawerItem = new ProfileDrawerItem().withName(sessionManager.getUsername());
@@ -211,8 +250,10 @@ public abstract class BaseActivity extends AppCompatActivity
                             intent.putExtras(extras);
                             intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
+                            return false;
                         }
-                        return false;
+                        return true;
+
                     }
                 })
                 .build();
@@ -221,6 +262,7 @@ public abstract class BaseActivity extends AppCompatActivity
         drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
+                .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
                 .withAccountHeader(accountHeader)
                 .addDrawerItems(homeItem,loginLogoutItem,aboutItem)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
