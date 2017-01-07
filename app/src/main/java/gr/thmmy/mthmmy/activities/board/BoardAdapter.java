@@ -108,9 +108,9 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     Intent intent = new Intent(context, TopicActivity.class);
                     Bundle extras = new Bundle();
                     extras.putString(BUNDLE_TOPIC_URL, parsedTopics.get(holder.
-                            getAdapterPosition()).getUrl());
+                            getAdapterPosition() - parsedSubBoards.size()).getUrl());
                     extras.putString(BUNDLE_TOPIC_TITLE, parsedTopics.get(holder.
-                            getAdapterPosition()).getSubject());
+                            getAdapterPosition() - parsedSubBoards.size()).getSubject());
                     intent.putExtras(extras);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);

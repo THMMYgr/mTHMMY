@@ -29,7 +29,7 @@ import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMoreListener{
+public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMoreListener {
     /**
      * Debug Tag for logging debug output to LogCat
      */
@@ -144,7 +144,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         @Override
         protected Boolean doInBackground(String... boardUrl) {
-            Log.d(TAG, boardUrl[0]);
             Request request = new Request.Builder()
                     .url(boardUrl[0])
                     .build();
@@ -179,17 +178,20 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             if (isLoadingMore) {
                 parsedTopics.remove(parsedTopics.size() - 1);
             }
-
             //Finds number of pages
             if (numberOfPages == -1) {
-                Elements pages = boardPage.select("table.tborder td.catbg[height=30]").first()
-                        .select("a.navPages");
                 numberOfPages = 1;
-                if (pages != null && !pages.isEmpty()) {
-                    for (Element page : pages) {
-                        if (Integer.parseInt(page.text()) > numberOfPages)
-                            numberOfPages = Integer.parseInt(page.text());
+                try {
+                    Elements pages = boardPage.select("table.tborder td.catbg[height=30]").first()
+                            .select("a.navPages");
+                    if (pages != null && !pages.isEmpty()) {
+                        for (Element page : pages) {
+                            if (Integer.parseInt(page.text()) > numberOfPages)
+                                numberOfPages = Integer.parseInt(page.text());
+                        }
                     }
+                } catch (NullPointerException nullP) {
+                    //It just means this board has only one page of topics.
                 }
             }
             { //Finds sub boards
@@ -197,7 +199,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                 if (subBoardRows != null && !subBoardRows.isEmpty()) {
                     for (Element subBoardRow : subBoardRows) {
                         if (!Objects.equals(subBoardRow.className(), "titlebg")) {
-                            String pUrl = "", pTitle = "", pMods = "", pStats = "", pLastPost = "";
+                            String pUrl = "", pTitle = "", pMods = "", pStats = "",
+                                    pLastPost = "No posts yet";
                             Elements subBoardColumns = subBoardRow.select(">td");
                             for (Element subBoardCol : subBoardColumns) {
                                 if (Objects.equals(subBoardCol.className(), "windowbg"))
@@ -223,7 +226,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             String pTopicUrl, pSubject, pStartedBy, pLastPost, pStats;
                             boolean pLocked = false, pSticky = false;
                             Elements topicColumns = topicRow.select(">td");
-                            if (topicColumns.size() != 7) return false;
+                            //if (topicColumns.size() != 7) return false;
                             {
                                 Element column = topicColumns.get(2);
                                 Element tmp = column.select("span[id^=msg_] a").first();
