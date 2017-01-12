@@ -2,6 +2,8 @@ package gr.thmmy.mthmmy.activities.board;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,9 +31,11 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
  */
 class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "BoardAdapter";
-    private final int VIEW_TYPE_SUB_BOARD = 0;
-    private final int VIEW_TYPE_TOPIC = 1;
-    private final int VIEW_TYPE_LOADING = 2;
+    private final int VIEW_TYPE_SUB_BOARD_TITLE = 0;
+    private final int VIEW_TYPE_SUB_BOARD = 1;
+    private final int VIEW_TYPE_TOPIC_TITLE = 2;
+    private final int VIEW_TYPE_TOPIC = 3;
+    private final int VIEW_TYPE_LOADING = 4;
 
     private final Context context;
     private ArrayList<Board> parsedSubBoards = new ArrayList<>();
@@ -49,27 +53,62 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (position < parsedSubBoards.size())
+        if (position <= parsedSubBoards.size()) {
+            if (position == 0) return VIEW_TYPE_SUB_BOARD_TITLE;
             return VIEW_TYPE_SUB_BOARD;
-        else if (parsedTopics.get(position - parsedSubBoards.size()) != null)
-            return VIEW_TYPE_TOPIC;
-        else return VIEW_TYPE_LOADING;
+        } else if (position <= parsedSubBoards.size() + parsedTopics.size() + 1) {
+            if (position == parsedSubBoards.size() + 1) return VIEW_TYPE_TOPIC_TITLE;
+            if (parsedTopics.get(position - parsedSubBoards.size() - 1 - 1) != null)
+                return VIEW_TYPE_TOPIC;
+        }
+        return VIEW_TYPE_LOADING;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_SUB_BOARD) {
-            View view = LayoutInflater.from(parent.getContext()).
+        if (viewType == VIEW_TYPE_SUB_BOARD_TITLE) {
+            TextView subBoardTitle = new TextView(context);
+            subBoardTitle.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                    , LinearLayout.LayoutParams.WRAP_CONTENT));
+            subBoardTitle.setText(context.getString(R.string.child_board_title));
+            subBoardTitle.setTypeface(subBoardTitle.getTypeface(), Typeface.BOLD);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                subBoardTitle.setBackgroundColor(context.getColor(R.color.card_background));
+                subBoardTitle.setTextColor(context.getColor(R.color.accent));
+            } else {
+                //noinspection deprecation
+                subBoardTitle.setBackgroundColor(context.getResources().getColor(R.color.card_background));
+                //noinspection deprecation
+                subBoardTitle.setTextColor(context.getResources().getColor(R.color.accent));
+            }
+            subBoardTitle.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            subBoardTitle.setTextSize(20f);
+
+            return new TitlesViewHolder(subBoardTitle);
+        } else if (viewType == VIEW_TYPE_SUB_BOARD) {
+            View subBoard = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_board_sub_board, parent, false);
-            return new SubBoardViewHolder(view);
+            return new SubBoardViewHolder(subBoard);
+        } else if (viewType == VIEW_TYPE_TOPIC_TITLE) {
+            TextView topicTitle = new TextView(context);
+            topicTitle.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                    , LinearLayout.LayoutParams.WRAP_CONTENT));
+            topicTitle.setText(context.getString(R.string.topic_title));
+            topicTitle.setTypeface(topicTitle.getTypeface(), Typeface.BOLD);
+            topicTitle.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            topicTitle.setTextSize(20f);
+
+            return new TitlesViewHolder(topicTitle);
         } else if (viewType == VIEW_TYPE_TOPIC) {
-            View view = LayoutInflater.from(parent.getContext()).
+            View topic = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_board_topic, parent, false);
-            return new TopicViewHolder(view);
+            return new TopicViewHolder(topic);
         } else if (viewType == VIEW_TYPE_LOADING) {
-            View view = LayoutInflater.from(parent.getContext()).
+            View loading = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.recycler_loading_item, parent, false);
-            return new LoadingViewHolder(view);
+            return new LoadingViewHolder(loading);
         }
         return null;
     }
@@ -77,7 +116,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof SubBoardViewHolder) {
-            Board subBoard = parsedSubBoards.get(position);
+            final Board subBoard = parsedSubBoards.get(position - 1);
             final SubBoardViewHolder subBoardViewHolder = (SubBoardViewHolder) holder;
 
             subBoardViewHolder.boardRow.setOnClickListener(new View.OnClickListener() {
@@ -85,10 +124,8 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 public void onClick(View view) {
                     Intent intent = new Intent(context, BoardActivity.class);
                     Bundle extras = new Bundle();
-                    extras.putString(BUNDLE_BOARD_URL, parsedSubBoards.get(holder.
-                            getAdapterPosition()).getUrl());
-                    extras.putString(BUNDLE_BOARD_TITLE, parsedSubBoards.get(holder.
-                            getAdapterPosition()).getTitle());
+                    extras.putString(BUNDLE_BOARD_URL, subBoard.getUrl());
+                    extras.putString(BUNDLE_BOARD_TITLE, subBoard.getTitle());
                     intent.putExtras(extras);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
@@ -99,7 +136,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             subBoardViewHolder.boardStats.setText(subBoard.getStats());
             subBoardViewHolder.boardLastPost.setText(subBoard.getLastPost());
         } else if (holder instanceof TopicViewHolder) {
-            Topic topic = parsedTopics.get(position - parsedSubBoards.size());
+            final Topic topic = parsedTopics.get(position - parsedSubBoards.size() - 1 - 1);
             final TopicViewHolder topicViewHolder = (TopicViewHolder) holder;
 
             topicViewHolder.topicRow.setOnClickListener(new View.OnClickListener() {
@@ -107,10 +144,8 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 public void onClick(View view) {
                     Intent intent = new Intent(context, TopicActivity.class);
                     Bundle extras = new Bundle();
-                    extras.putString(BUNDLE_TOPIC_URL, parsedTopics.get(holder.
-                            getAdapterPosition() - parsedSubBoards.size()).getUrl());
-                    extras.putString(BUNDLE_TOPIC_TITLE, parsedTopics.get(holder.
-                            getAdapterPosition() - parsedSubBoards.size()).getSubject());
+                    extras.putString(BUNDLE_TOPIC_URL, topic.getUrl());
+                    extras.putString(BUNDLE_TOPIC_TITLE, topic.getSubject());
                     intent.putExtras(extras);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
@@ -134,10 +169,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        if (parsedSubBoards == null && parsedTopics == null) return 0;
-        else if (parsedSubBoards == null) return parsedTopics.size();
-        else if (parsedTopics == null) return parsedSubBoards.size();
-        else return parsedSubBoards.size() + parsedTopics.size();
+        int items = 0;
+        if (parsedSubBoards != null) items += parsedSubBoards.size() + 1;
+        if (parsedTopics != null) items += parsedTopics.size() + 1;
+        return items;
     }
 
     private static class SubBoardViewHolder extends RecyclerView.ViewHolder {
@@ -166,6 +201,12 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicStartedBy = (TextView) itemView.findViewById(R.id.topic_started_by);
             topicStats = (TextView) itemView.findViewById(R.id.topic_stats);
             topicLastPost = (TextView) itemView.findViewById(R.id.topic_last_post);
+        }
+    }
+
+    private static class TitlesViewHolder extends RecyclerView.ViewHolder {
+        TitlesViewHolder(View title) {
+            super(title);
         }
     }
 

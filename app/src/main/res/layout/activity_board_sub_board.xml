@@ -15,8 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/child_board_title"
-        android:textColor="@color/accent"
-        android:textStyle="bold"/>
+        android:textColor="@color/accent"/>
 
     <TextView
         android:id="@+id/child_board_mods"

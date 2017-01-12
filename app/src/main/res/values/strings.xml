@@ -18,13 +18,14 @@
     <string name="byUser">by %1$s</string>
 
     <!--Board Activity-->
-    <string name="child_board_title">Child Board</string>
+    <string name="child_board_title">Child Boards</string>
     <string name="child_board_mods">Moderators: %1$s</string>
     <string name="child_board_stats">Stats</string>
     <string name="child_board_last_post">Last post</string>
+    <string name="topic_title">Topics</string>
     <string name="topic_subject">Subject</string>
     <string name="topic_locked_sticky">Locked/Sticky</string>
-    <string name="topic_started_by">Started By: %1$s</string>
+    <string name="topic_started_by">Started by: %1$s</string>
     <string name="topic_stats">Stats</string>
     <string name="topic_last_post">Last post on: %1$s</string>
 

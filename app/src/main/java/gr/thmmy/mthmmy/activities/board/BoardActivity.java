@@ -6,7 +6,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -110,7 +109,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
     public void onLoadMore() {
         if (pagesLoaded < numberOfPages) {
             parsedTopics.add(null);
-            boardAdapter.notifyItemInserted(parsedSubBoards.size() + parsedTopics.size() - 1);
+            boardAdapter.notifyItemInserted(parsedSubBoards.size() + parsedTopics.size());
 
             //Load data
             boardTask = new BoardTask();
@@ -176,7 +175,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         private boolean parseBoard(Document boardPage) {
             //Removes loading item
             if (isLoadingMore) {
-                parsedTopics.remove(parsedTopics.size() - 1);
+                if (parsedTopics.size() > 0) parsedTopics.remove(parsedTopics.size() - 1);
             }
             //Finds number of pages
             if (numberOfPages == -1) {
