@@ -94,7 +94,7 @@ public class StatsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.profile_fragment_stats, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_stats, container, false);
         mainContent = (LinearLayout) rootView.findViewById(R.id.main_content);
         progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
         if (haveParsed)

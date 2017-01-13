@@ -45,7 +45,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
     private MaterialProgressBar progressBar;
     private BoardTask boardTask;
-    private RecyclerView mainContent;
     private BoardAdapter boardAdapter;
     private final ArrayList<Board> parsedSubBoards = new ArrayList<>();
     private final ArrayList<Topic> parsedTopics = new ArrayList<>();
@@ -77,7 +76,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         createDrawer();
 
         boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
-        mainContent = (RecyclerView) findViewById(R.id.board_recycler_view);
+        RecyclerView mainContent = (RecyclerView) findViewById(R.id.board_recycler_view);
         mainContent.setAdapter(boardAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mainContent.setLayoutManager(layoutManager);
@@ -167,8 +166,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             ++pagesLoaded;
             //Parse was successful
             progressBar.setVisibility(ProgressBar.INVISIBLE);
-            boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
-            mainContent.swapAdapter(boardAdapter, false);
+            boardAdapter.notifyDataSetChanged();
             isLoadingMore = false;
         }
 
@@ -225,15 +223,14 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             String pTopicUrl, pSubject, pStartedBy, pLastPost, pStats;
                             boolean pLocked = false, pSticky = false;
                             Elements topicColumns = topicRow.select(">td");
-                            //if (topicColumns.size() != 7) return false;
                             {
                                 Element column = topicColumns.get(2);
                                 Element tmp = column.select("span[id^=msg_] a").first();
                                 pTopicUrl = tmp.attr("href");
                                 pSubject = tmp.text();
-                                if (topicColumns.get(1).select("img[id^=stickyicon]").first() != null)
+                                if (column.select("img[id^=stickyicon]").first() != null)
                                     pSticky = true;
-                                if (topicColumns.get(1).select("img[id^=lockicon]").first() != null)
+                                if (column.select("img[id^=lockicon]").first() != null)
                                     pLocked = true;
                             }
                             pStartedBy = topicColumns.get(3).text();

@@ -87,7 +87,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.profile_fragment_latest_posts, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_latest_posts, container, false);
         latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener, parsedTopicSummaries);
         mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
         mainContent.setAdapter(latestPostsAdapter);

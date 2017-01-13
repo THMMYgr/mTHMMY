@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -40,6 +41,8 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
     private ArrayList<Board> parsedSubBoards = new ArrayList<>();
     private ArrayList<Topic> parsedTopics = new ArrayList<>();
+    private final ArrayList<Boolean> boardExpandableVisibility = new ArrayList<>();
+    private final ArrayList<Boolean> topicExpandableVisibility = new ArrayList<>();
 
     BoardAdapter(Context context, ArrayList<Board> parsedSubBoards, ArrayList<Topic> parsedTopics) {
         this.context = context;
@@ -119,6 +122,11 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             final Board subBoard = parsedSubBoards.get(position - 1);
             final SubBoardViewHolder subBoardViewHolder = (SubBoardViewHolder) holder;
 
+            if (boardExpandableVisibility.size() != parsedSubBoards.size()) {
+                for (int i = boardExpandableVisibility.size(); i < parsedSubBoards.size(); ++i)
+                    boardExpandableVisibility.add(false);
+            }
+
             subBoardViewHolder.boardRow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -131,13 +139,39 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     context.startActivity(intent);
                 }
             });
+            if (boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1)) {
+                subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
+                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+            } else {
+                subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
+                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+            }
+            subBoardViewHolder.showHideExpandable.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1);
+                    if (visible) {
+                        subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
+                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                    } else {
+                        subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
+                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                    }
+                    boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition() - 1, !visible);
+                }
+            });
             subBoardViewHolder.boardTitle.setText(subBoard.getTitle());
-            subBoardViewHolder.boardMods.setText(context.getString(R.string.child_board_mods, subBoard.getMods()));
+            subBoardViewHolder.boardMods.setText(subBoard.getMods());
             subBoardViewHolder.boardStats.setText(subBoard.getStats());
             subBoardViewHolder.boardLastPost.setText(subBoard.getLastPost());
         } else if (holder instanceof TopicViewHolder) {
             final Topic topic = parsedTopics.get(position - parsedSubBoards.size() - 1 - 1);
             final TopicViewHolder topicViewHolder = (TopicViewHolder) holder;
+
+            if (topicExpandableVisibility.size() != parsedTopics.size()) {
+                for (int i = topicExpandableVisibility.size(); i < parsedTopics.size(); ++i)
+                    topicExpandableVisibility.add(false);
+            }
 
             topicViewHolder.topicRow.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -151,13 +185,40 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     context.startActivity(intent);
                 }
             });
-            topicViewHolder.topicSubject.setText(topic.getSubject());
-            String lockedSticky = "";
+            if (topicExpandableVisibility.get(topicViewHolder.getAdapterPosition() - parsedSubBoards
+                    .size() - 2)) {
+                topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
+                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+            } else {
+                topicViewHolder.topicExpandable.setVisibility(View.GONE);
+                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+            }
+            topicViewHolder.showHideExpandable.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final boolean visible = topicExpandableVisibility.get(topicViewHolder.
+                            getAdapterPosition() - parsedSubBoards.size() - 2);
+                    if (visible) {
+                        topicViewHolder.topicExpandable.setVisibility(View.GONE);
+                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                    } else {
+                        topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
+                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                    }
+                    topicExpandableVisibility.set(topicViewHolder.getAdapterPosition() -
+                            parsedSubBoards.size() - 2, !visible);
+                }
+            });
+            topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()
+                    , "fonts/fontawesome-webfont.ttf"));
+            String lockedSticky = topic.getSubject();
             if (topic.isLocked())
-                lockedSticky += context.getResources().getString(R.string.fa_lock);
-            if (topic.isSticky())
-                lockedSticky += context.getResources().getString(R.string.fa_sticky);
-            topicViewHolder.topicLockedSticky.setText(lockedSticky);
+                lockedSticky += " " + context.getResources().getString(R.string.fa_lock);
+            if (topic.isSticky()) {
+                //topicViewHolder.topicSubject.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_pin, 0);
+                lockedSticky += " " + context.getResources().getString(R.string.fa_sticky);
+            }
+            topicViewHolder.topicSubject.setText(lockedSticky);
             topicViewHolder.topicStartedBy.setText(context.getString(R.string.topic_started_by, topic.getStarter()));
             topicViewHolder.topicStats.setText(topic.getStats());
             topicViewHolder.topicLastPost.setText(context.getString(R.string.topic_last_post, topic.getLastPost()));
@@ -176,31 +237,36 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private static class SubBoardViewHolder extends RecyclerView.ViewHolder {
-        final LinearLayout boardRow;
+        final LinearLayout boardRow, boardExpandable;
         final TextView boardTitle, boardMods, boardStats, boardLastPost;
+        final ImageButton showHideExpandable;
 
-        SubBoardViewHolder(View itemView) {
-            super(itemView);
-            boardRow = (LinearLayout) itemView.findViewById(R.id.child_board_row);
-            boardTitle = (TextView) itemView.findViewById(R.id.child_board_title);
-            boardMods = (TextView) itemView.findViewById(R.id.child_board_mods);
-            boardStats = (TextView) itemView.findViewById(R.id.child_board_stats);
-            boardLastPost = (TextView) itemView.findViewById(R.id.child_board_last_post);
+        SubBoardViewHolder(View board) {
+            super(board);
+            boardRow = (LinearLayout) board.findViewById(R.id.child_board_row);
+            boardExpandable = (LinearLayout) board.findViewById(R.id.child_board_expandable);
+            showHideExpandable = (ImageButton) board.findViewById(R.id.child_board_expand_collapse_button);
+            boardTitle = (TextView) board.findViewById(R.id.child_board_title);
+            boardMods = (TextView) board.findViewById(R.id.child_board_mods);
+            boardStats = (TextView) board.findViewById(R.id.child_board_stats);
+            boardLastPost = (TextView) board.findViewById(R.id.child_board_last_post);
         }
     }
 
     private static class TopicViewHolder extends RecyclerView.ViewHolder {
-        final LinearLayout topicRow;
-        final TextView topicSubject, topicLockedSticky, topicStartedBy, topicStats, topicLastPost;
+        final LinearLayout topicRow, topicExpandable;
+        final TextView topicSubject, topicStartedBy, topicStats, topicLastPost;
+        final ImageButton showHideExpandable;
 
-        TopicViewHolder(View itemView) {
-            super(itemView);
-            topicRow = (LinearLayout) itemView.findViewById(R.id.topic_row_linear);
-            topicSubject = (TextView) itemView.findViewById(R.id.topic_subject);
-            topicLockedSticky = (TextView) itemView.findViewById(R.id.topic_locked_sticky);
-            topicStartedBy = (TextView) itemView.findViewById(R.id.topic_started_by);
-            topicStats = (TextView) itemView.findViewById(R.id.topic_stats);
-            topicLastPost = (TextView) itemView.findViewById(R.id.topic_last_post);
+        TopicViewHolder(View topic) {
+            super(topic);
+            topicRow = (LinearLayout) topic.findViewById(R.id.topic_row_linear);
+            topicExpandable = (LinearLayout) topic.findViewById(R.id.topic_expandable);
+            showHideExpandable = (ImageButton) topic.findViewById(R.id.topic_expand_collapse_button);
+            topicSubject = (TextView) topic.findViewById(R.id.topic_subject);
+            topicStartedBy = (TextView) topic.findViewById(R.id.topic_started_by);
+            topicStats = (TextView) topic.findViewById(R.id.topic_stats);
+            topicLastPost = (TextView) topic.findViewById(R.id.topic_last_post);
         }
     }
 

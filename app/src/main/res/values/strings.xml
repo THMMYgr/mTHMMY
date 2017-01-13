@@ -19,7 +19,8 @@
 
     <!--Board Activity-->
     <string name="child_board_title">Child Boards</string>
-    <string name="child_board_mods">Moderators: %1$s</string>
+    <string name="child_board_button">Exp/Coll</string>
+    <string name="child_board_mods">Moderators</string>
     <string name="child_board_stats">Stats</string>
     <string name="child_board_last_post">Last post</string>
     <string name="topic_title">Topics</string>
