@@ -40,6 +40,7 @@
         android:id="@+id/child_board_expandable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -47,22 +48,32 @@
             android:id="@+id/child_board_mods"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp"
             android:text="@string/child_board_mods"
             android:textColor="@color/secondary_text"
+            android:textSize="12sp"
             android:textStyle="italic"/>
 
         <TextView
             android:id="@+id/child_board_stats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp"
             android:text="@string/child_board_stats"
-            android:textColor="@color/secondary_text"/>
+            android:textColor="@color/secondary_text"
+            android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/child_board_last_post"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp"
+            android:clickable="true"
             android:text="@string/child_board_last_post"
-            android:textColor="@color/secondary_text"/>
+            android:textColor="@color/primary_text"
+            android:textSize="12sp"/>
     </LinearLayout>
 </LinearLayout>

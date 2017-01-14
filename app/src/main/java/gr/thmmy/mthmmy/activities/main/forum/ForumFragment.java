@@ -214,7 +214,7 @@ public class ForumFragment extends BaseFragment
                         category.setExpanded(true);
                         Elements boardsElements = categoryBlock.select("b [name]");
                         for(Element boardElement: boardsElements) {
-                            Board board = new Board(boardElement.attr("href"), boardElement.text(), null, null, null);
+                            Board board = new Board(boardElement.attr("href"), boardElement.text(), null, null, null, null);
                             category.getBoards().add(board);
                         }
                     }

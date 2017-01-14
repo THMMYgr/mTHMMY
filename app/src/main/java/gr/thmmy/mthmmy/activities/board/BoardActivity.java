@@ -6,6 +6,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -197,20 +198,34 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     for (Element subBoardRow : subBoardRows) {
                         if (!Objects.equals(subBoardRow.className(), "titlebg")) {
                             String pUrl = "", pTitle = "", pMods = "", pStats = "",
-                                    pLastPost = "No posts yet";
+                                    pLastPost = "No posts yet", pLastPostUrl = "";
                             Elements subBoardColumns = subBoardRow.select(">td");
                             for (Element subBoardCol : subBoardColumns) {
                                 if (Objects.equals(subBoardCol.className(), "windowbg"))
                                     pStats = subBoardCol.text();
-                                else if (Objects.equals(subBoardCol.className(), "smalltext"))
+                                else if (Objects.equals(subBoardCol.className(), "smalltext")) {
                                     pLastPost = subBoardCol.text();
-                                else {
+                                    if (pLastPost.contains(" in ")) {
+                                        pLastPost = pLastPost.substring(0, pLastPost.indexOf(" in ")) +
+                                                "\n" +
+                                                pLastPost.substring(pLastPost.indexOf(" in ") + 1, pLastPost.indexOf(" by ")) +
+                                                "\n" +
+                                                pLastPost.substring(pLastPost.lastIndexOf(" by ") + 1);
+                                    } else {
+                                        pLastPost = pLastPost.substring(0, pLastPost.indexOf(" σε ")) +
+                                                "\n" +
+                                                pLastPost.substring(pLastPost.indexOf(" σε ") + 1, pLastPost.indexOf(" από ")) +
+                                                "\n" +
+                                                pLastPost.substring(pLastPost.lastIndexOf(" από ") + 1);
+                                    }
+                                    pLastPostUrl = subBoardCol.select("a").first().attr("href");
+                                } else {
                                     pUrl = subBoardCol.select("a").first().attr("href");
                                     pTitle = subBoardCol.select("a").first().text();
                                     pMods = subBoardCol.select("div.smalltext").first().text();
                                 }
                             }
-                            parsedSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost));
+                            parsedSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
                         }
                     }
                 }
@@ -220,7 +235,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                 if (topicRows != null && !topicRows.isEmpty()) {
                     for (Element topicRow : topicRows) {
                         if (!Objects.equals(topicRow.className(), "titlebg")) {
-                            String pTopicUrl, pSubject, pStartedBy, pLastPost, pStats;
+                            String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
                             boolean pLocked = false, pSticky = false;
                             Elements topicColumns = topicRow.select(">td");
                             {
@@ -235,8 +250,17 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             }
                             pStartedBy = topicColumns.get(3).text();
                             pStats = "Replies " + topicColumns.get(4).text() + ", Views " + topicColumns.get(5).text();
+
                             pLastPost = topicColumns.last().text();
-                            parsedTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost,
+                            if (pLastPost.contains("by")) {
+                                pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
+                                        "\n" + pLastPost.substring(pLastPost.indexOf("by"));
+                            } else {
+                                pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
+                                        "\n" + pLastPost.substring(pLastPost.indexOf("από"));
+                            }
+                            pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
+                            parsedTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
                                     pStats, pLocked, pSticky));
                         }
                     }

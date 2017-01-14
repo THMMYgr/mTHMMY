@@ -39,6 +39,7 @@
         android:id="@+id/topic_expandable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -46,21 +47,31 @@
             android:id="@+id/topic_started_by"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp"
             android:text="@string/topic_started_by"
-            android:textColor="@color/secondary_text"/>
+            android:textColor="@color/secondary_text"
+            android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/topic_stats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp"
             android:text="@string/topic_stats"
-            android:textColor="@color/secondary_text"/>
+            android:textColor="@color/secondary_text"
+            android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/topic_last_post"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp"
+            android:clickable="true"
             android:text="@string/topic_last_post"
-            android:textColor="@color/secondary_text"/>
+            android:textColor="@color/primary_text"
+            android:textSize="12sp"/>
     </LinearLayout>
 </LinearLayout>
