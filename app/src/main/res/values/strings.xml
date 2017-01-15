@@ -25,7 +25,6 @@
     <string name="child_board_last_post">Last post</string>
     <string name="topic_title">Topics</string>
     <string name="topic_subject">Subject</string>
-    <string name="topic_locked_sticky">Locked/Sticky</string>
     <string name="topic_started_by">Started by: %1$s</string>
     <string name="topic_stats">Stats</string>
     <string name="topic_last_post">Last post on: %1$s</string>
@@ -44,6 +43,7 @@
     <string name="button_last">last</string>
 
     <!--Profile Activity-->
+    <string name="username">Username</string>
     <string name="general_statistics_title">General Statistics</string>
     <string name="general_statistics">Statistics</string>
     <string name="posting_activity_by_time_title">Posting Activity</string>

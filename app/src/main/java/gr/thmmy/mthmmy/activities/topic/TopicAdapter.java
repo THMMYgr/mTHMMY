@@ -425,6 +425,15 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         holder.post.setOnTouchListener(new CustomTouchListener(holder.post, holder.cardView));
     }
 
+    void customNotifyDataSetChanged() {
+        viewProperties.clear();
+        for (int i = 0; i < postsList.size(); ++i) {
+            //Initializes properties, array's values will be false by default
+            viewProperties.add(new boolean[3]);
+        }
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         return postsList.size();

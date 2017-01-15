@@ -12,7 +12,7 @@ public class Category implements Parent<Board>
     private final String title;
     private final String categoryURL;
     private boolean expanded = false;
-    private List<Board> boards;
+    private final List<Board> boards;
 
     public Category(String title, String categoryURL) {
         this.title = title;

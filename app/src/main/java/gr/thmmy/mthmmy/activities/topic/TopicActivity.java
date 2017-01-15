@@ -23,13 +23,13 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
+import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
@@ -58,7 +58,8 @@ public class TopicActivity extends BaseActivity {
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
     private static TopicTask topicTask;
     //About posts
-    private List<Post> postsList;
+    private TopicAdapter topicAdapter;
+    private ArrayList<Post> postsList;
     private static final int NO_POST_FOCUS = -1;
     private static int postFocus = NO_POST_FOCUS;
     private static int postFocusPosition = 0;
@@ -119,8 +120,9 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new TopicAdapter(getApplicationContext(), progressBar, postsList,
-                new TopicTask()));
+        topicAdapter = new TopicAdapter(getApplicationContext(), progressBar, postsList,
+                topicTask);
+        recyclerView.setAdapter(topicAdapter);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab); //TODO hide fab while logged out
         replyFAB.setEnabled(false);
@@ -383,11 +385,7 @@ public class TopicActivity extends BaseActivity {
             switch (parseResult) {
                 case SUCCESS:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
-
-
-                    recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), progressBar,
-                            postsList, new TopicTask()), false);
-
+                    topicAdapter.customNotifyDataSetChanged();
                     replyFAB.setEnabled(true);
 
                     //Set current page
@@ -421,7 +419,7 @@ public class TopicActivity extends BaseActivity {
          * @see org.jsoup.Jsoup Jsoup
          */
         private void parse(Document topic) {
-            String language = TopicParser.defineLanguage(topic);
+            ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
             //Finds topic title if missing
             if (topicTitle == null || Objects.equals(topicTitle, "")) {
@@ -448,7 +446,9 @@ public class TopicActivity extends BaseActivity {
                 }
             }
 
-            postsList = TopicParser.parseTopic(topic, language);
+            postsList.clear();
+            postsList.addAll(TopicParser.parseTopic(topic, language));
+            //postsList = TopicParser.parseTopic(topic, language);
         }
     }
 

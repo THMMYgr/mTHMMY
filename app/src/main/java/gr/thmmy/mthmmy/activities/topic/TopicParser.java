@@ -21,23 +21,13 @@ import mthmmy.utils.Report;
 
 /**
  * Singleton used for parsing a topic.
- * <p>Class contains the methods:<ul><li>{@link #parseUsersViewingThisTopic(Document, String)}</li>
- * <li>{@link #parseCurrentPageIndex(Document, String)}</li>
- * <li>{@link #parseTopicNumberOfPages(Document, int, String)}</li>
- * <li>{@link #parseTopic(Document, String)}</li>
- * <li>{@link #defineLanguage(Document)}</li></ul></p>
+ * <p>Class contains the methods:<ul><li>{@link #parseUsersViewingThisTopic(Document,
+ * gr.thmmy.mthmmy.utils.ParseHelpers.Language)}</li>
+ * <li>{@link #parseCurrentPageIndex(Document, gr.thmmy.mthmmy.utils.ParseHelpers.Language)}</li>
+ * <li>{@link #parseTopicNumberOfPages(Document, int, gr.thmmy.mthmmy.utils.ParseHelpers.Language)}</li>
+ * <li>{@link #parseTopic(Document, gr.thmmy.mthmmy.utils.ParseHelpers.Language)}</li>
  */
 class TopicParser {
-    //Languages supported
-    /**
-     * String constant containing one of the supported forum languages
-     */
-    private static final String LANGUAGE_GREEK = "Greek";
-    /**
-     * String constant containing one of the supported forum languages
-     */
-    private static final String LANGUAGE_ENGLISH = "English";
-
     //User colors
     private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
     private static final int USER_COLOR_RED = Color.parseColor("#F44336");
@@ -56,13 +46,14 @@ class TopicParser {
      * Returns users currently viewing this topic.
      *
      * @param topic    {@link Document} object containing this topic's source code
-     * @param language a String containing this topic's language set, this is returned by
-     *                 {@link #defineLanguage(Document)}
+     * @param language a {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language} containing this topic's
+     *                 language set, this is returned by
+     *                 {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language#getLanguage(Document)}
      * @return String containing html with the usernames of users
      * @see org.jsoup.Jsoup Jsoup
      */
-    static String parseUsersViewingThisTopic(Document topic, String language) {
-        if (Objects.equals(language, LANGUAGE_GREEK))
+    static String parseUsersViewingThisTopic(Document topic, ParseHelpers.Language language) {
+        if (language.is(ParseHelpers.Language.GREEK))
             return topic.select("td:containsOwn(διαβάζουν αυτό το θέμα)").first().html();
         return topic.select("td:containsOwn(are viewing this topic)").first().html();
     }
@@ -71,15 +62,16 @@ class TopicParser {
      * Returns current topic's page index.
      *
      * @param topic    {@link Document} object containing this topic's source code
-     * @param language a String containing this topic's language set, this is returned by
-     *                 {@link #defineLanguage(Document)}
+     * @param language a {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language} containing this topic's
+     *                 language set, this is returned by
+     *                 {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language#getLanguage(Document)}
      * @return int containing parsed topic's current page
      * @see org.jsoup.Jsoup Jsoup
      */
-    static int parseCurrentPageIndex(Document topic, String language) {
+    static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
         int parsedPage = 1;
 
-        if (Objects.equals(language, LANGUAGE_GREEK)) {
+        if (language.is(ParseHelpers.Language.GREEK)) {
             Elements findCurrentPage = topic.select("td:contains(Σελίδες:)>b");
 
             for (Element item : findCurrentPage) {
@@ -108,15 +100,16 @@ class TopicParser {
      *
      * @param topic       {@link Document} object containing this topic's source code
      * @param currentPage an int containing current page of this topic
-     * @param language    a String containing this topic's language set, this is returned by
-     *                    {@link #defineLanguage(Document)}
+     * @param language    a {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language} containing this topic's
+     *                    language set, this is returned by
+     *                    {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language#getLanguage(Document)}
      * @return int containing the number of pages
      * @see org.jsoup.Jsoup Jsoup
      */
-    static int parseTopicNumberOfPages(Document topic, int currentPage, String language) {
+    static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
         int returnPages = 1;
 
-        if (Objects.equals(language, LANGUAGE_GREEK)) {
+        if (language.is(ParseHelpers.Language.GREEK)) {
             Elements pages = topic.select("td:contains(Σελίδες:)>a.navPages");
 
             if (pages.size() != 0) {
@@ -145,19 +138,20 @@ class TopicParser {
      * This method parses all the information of a topic and it's posts.
      *
      * @param topic    {@link Document} object containing this topic's source code
-     * @param language a String containing this topic's language set, this is returned by
-     *                 {@link #defineLanguage(Document)}
+     * @param language a {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language} containing this topic's
+     *                 language set, this is returned by
+     *                 {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language#getLanguage(Document)}
      * @return {@link ArrayList} of {@link Post}s
      * @see org.jsoup.Jsoup Jsoup
      */
-    static ArrayList<Post> parseTopic(Document topic, String language) {
+    static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
         //Method's variables
         final int NO_INDEX = -1;
         ArrayList<Post> parsedPostsList = new ArrayList<>();
         Elements postRows;
 
         //Each row is a post
-        if (Objects.equals(language, LANGUAGE_GREEK))
+        if (language.is(ParseHelpers.Language.GREEK))
             postRows = topic.select("form[id=quickModForm]>table>tbody>tr:matches(στις)");
         else {
             postRows = topic.select("form[id=quickModForm]>table>tbody>tr:matches(on)");
@@ -213,7 +207,7 @@ class TopicParser {
 
             //Language dependent parsing
             Element userName;
-            if (Objects.equals(language, LANGUAGE_GREEK)) {
+            if (language.is(ParseHelpers.Language.GREEK)) {
                 //Finds username and profile's url
                 userName = thisRow.select("a[title^=Εμφάνιση προφίλ του μέλους]").first();
                 if (userName == null) { //Deleted profile
@@ -343,7 +337,7 @@ class TopicParser {
                 Element usersExtraInfo = userName.parent().nextElementSibling(); //Get sibling "div"
                 List<String> infoList = Arrays.asList(usersExtraInfo.html().split("<br>"));
 
-                if (Objects.equals(language, LANGUAGE_GREEK)) {
+                if (language.is(ParseHelpers.Language.GREEK)) {
                     for (String line : infoList) {
                         if (line.contains("Μηνύματα:")) {
                             postsLineIndex = infoList.indexOf(line);
@@ -421,23 +415,6 @@ class TopicParser {
             }
         }
         return parsedPostsList;
-    }
-
-    /**
-     * Returns one of the supported forum languages.
-     * <p>Forum supports: <ul><li>{@link #LANGUAGE_ENGLISH}</li>
-     * <li>{@link #LANGUAGE_GREEK}</li></ul></p>
-     *
-     * @param topic {@link Document} object containing this topic's source code
-     * @return String containing the language of a topic
-     * @see org.jsoup.Jsoup Jsoup
-     */
-    static String defineLanguage(Document topic) {
-        if (topic.select("h3").text().contains("Καλώς ορίσατε")) {
-            return LANGUAGE_GREEK;
-        } else { //Default is english (eg. guest's language)
-            return LANGUAGE_ENGLISH;
-        }
     }
 
     /**

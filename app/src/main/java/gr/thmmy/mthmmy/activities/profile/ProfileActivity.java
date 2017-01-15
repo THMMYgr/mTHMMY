@@ -125,8 +125,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     .transform(new CircleTransform())
                     .into(thumbnailView);
         usernameView = (TextView) findViewById(R.id.profile_activity_username);
-        if (username == null || Objects.equals(username, "")) usernameView.setText("Username");
-        else usernameView.setText(username);
+        if (username != null && !Objects.equals(username, "")) usernameView.setText(username);
         personalTextView = (TextView) findViewById(R.id.profile_activity_personal_text);
 
         viewPager = (ViewPager) findViewById(R.id.profile_tab_container);

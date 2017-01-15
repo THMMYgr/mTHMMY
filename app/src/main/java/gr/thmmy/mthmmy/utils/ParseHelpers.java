@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.utils;
 
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -7,6 +8,52 @@ import java.util.ArrayList;
 
 public class ParseHelpers {
     private static final String TAG = "ParseHelpers";
+
+    public enum Language {
+        GREEK, ENGLISH, ENGLISH_GUEST, PAGE_INCOMPLETE, UNDEFINED_LANGUAGE;
+
+        /**
+         * Returns one of the supported forum languages.
+         * <p>Forum supports: <ul><li>{@link #ENGLISH}</li>
+         * <li>{@link #GREEK}</li></ul></p>
+         *
+         * @param page {@link Document} object containing this page's source code
+         * @return String containing the language of a topic
+         * @see org.jsoup.Jsoup Jsoup
+         */
+        public static Language getLanguage(Document page) {
+            Element welcoming = page.select("h3").first();
+            if (welcoming == null) {
+                if (page.select("div[id=myuser]").first().text().contains("Welcome"))
+                    return ENGLISH_GUEST;
+                return PAGE_INCOMPLETE;
+            } else if (welcoming.text().contains("Καλώς ορίσατε")) return GREEK;
+            else if (welcoming.text().contains("Hey")) return ENGLISH;
+            else return UNDEFINED_LANGUAGE;
+        }
+
+        public boolean is(Language other) {
+            return this == ENGLISH && other == ENGLISH_GUEST ||
+                    this == ENGLISH_GUEST && other == ENGLISH ||
+                    this == other;
+        }
+    }
+
+    public enum State {
+        UNAUTHORIZED_OR_MISSING, NEW_PM, READY;
+
+        public static State getState(Document page) {
+            Elements warnings = page.select("form[id=frmLogin] tr.catbg~tr>td.windowbg");
+            if (warnings != null) {
+                for (Element warning : warnings) {
+                    if (warning.text().contains("The topic or board you are looking for appears " +
+                            "to be either missing or off limits to you."))
+                        return UNAUTHORIZED_OR_MISSING;
+                }
+            }
+            return READY;
+        }
+    }
 
     public static String youtubeEmbeddedFix(Element html) {
         //Fixes embedded videos

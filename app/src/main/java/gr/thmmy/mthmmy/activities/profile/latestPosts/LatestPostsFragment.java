@@ -48,7 +48,6 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
      * are added in {@link LatestPostsTask}.
      */
     private ArrayList<PostSummary> parsedTopicSummaries;
-    private RecyclerView mainContent;
     private LatestPostsAdapter latestPostsAdapter;
     private int numberOfPages = -1;
     private int pagesLoaded = 0;
@@ -90,7 +89,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_latest_posts, container, false);
         latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener, parsedTopicSummaries);
-        mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
+        RecyclerView mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
         mainContent.setAdapter(latestPostsAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mainContent.setLayoutManager(layoutManager);
@@ -193,9 +192,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
             }
             //Parse was successful
             progressBar.setVisibility(ProgressBar.INVISIBLE);
-            latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener, parsedTopicSummaries);
-            mainContent.swapAdapter(latestPostsAdapter, false);
-            //latestPostsAdapter.notifyDataSetChanged();
+            latestPostsAdapter.notifyDataSetChanged();
             isLoadingMore = false;
         }
 
