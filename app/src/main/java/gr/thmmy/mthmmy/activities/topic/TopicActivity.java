@@ -29,7 +29,7 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
-import gr.thmmy.mthmmy.data.Post;
+import gr.thmmy.mthmmy.model.Post;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
@@ -383,6 +383,7 @@ public class TopicActivity extends BaseActivity {
             switch (parseResult) {
                 case SUCCESS:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
+
 
                     recyclerView.swapAdapter(new TopicAdapter(getApplicationContext(), progressBar,
                             postsList, new TopicTask()), false);

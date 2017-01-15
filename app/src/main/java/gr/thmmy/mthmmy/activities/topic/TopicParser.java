@@ -14,8 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import gr.thmmy.mthmmy.data.Post;
+import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
+import gr.thmmy.mthmmy.utils.ParseHelpers;
 import mthmmy.utils.Report;
 
 /**
@@ -193,36 +194,7 @@ class TopicParser {
             p_subject = thisRow.select("div[id^=subject_]").first().select("a").first().text();
 
             //Finds post's text
-            p_post = thisRow.select("div").select(".post").first().outerHtml();
-
-            { //Fixes embedded videos
-                Elements noembedTag = thisRow.select("div").select(".post").first().select("noembed");
-                ArrayList<String> embededVideosUrls = new ArrayList<>();
-
-                for (Element _noembed : noembedTag) {
-                    embededVideosUrls.add(_noembed.text().substring(_noembed.text()
-                                    .indexOf("href=\"https://www.youtube.com/watch?") + 38
-                            , _noembed.text().indexOf("target") - 2));
-                }
-
-                int tmp_counter = 0;
-                while (p_post.contains("<embed")) {
-                    if (tmp_counter > embededVideosUrls.size())
-                        break;
-                    p_post = p_post.replace(
-                            p_post.substring(p_post.indexOf("<embed"), p_post.indexOf("/noembed>") + 9)
-                            , "<div class=\"yt\">"
-                                    + "<a href=\"https://www.youtube.com/"
-                                    + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
-                                    + "<img class=\"embedded-video-play\" "
-                                    + "src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\""
-                                    + "</a>"
-                                    + "<img src=\"https://img.youtube.com/vi/"
-                                    + embededVideosUrls.get(tmp_counter)
-                                    + "/default.jpg\" alt=\"\" border=\"0\" width=\"40%\">"
-                                    + "</div>");
-                }
-            }
+            p_post = ParseHelpers.youtubeEmbeddedFix(thisRow.select("div").select(".post").first());
 
             //Add stuff to make it work in WebView
             //style.css

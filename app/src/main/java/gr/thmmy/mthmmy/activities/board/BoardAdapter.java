@@ -17,8 +17,8 @@ import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
-import gr.thmmy.mthmmy.data.Board;
-import gr.thmmy.mthmmy.data.Topic;
+import gr.thmmy.mthmmy.model.Board;
+import gr.thmmy.mthmmy.model.Topic;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -28,7 +28,7 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link gr.thmmy.mthmmy.data.Board}.
+ * {@link RecyclerView.Adapter} that can display a {@link gr.thmmy.mthmmy.model.Board}.
  */
 class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "BoardAdapter";

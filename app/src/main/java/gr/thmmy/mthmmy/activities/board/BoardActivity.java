@@ -6,7 +6,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -22,8 +21,8 @@ import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
-import gr.thmmy.mthmmy.data.Board;
-import gr.thmmy.mthmmy.data.Topic;
+import gr.thmmy.mthmmy.model.Board;
+import gr.thmmy.mthmmy.model.Topic;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
@@ -46,10 +45,14 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
     private MaterialProgressBar progressBar;
     private BoardTask boardTask;
+
     private BoardAdapter boardAdapter;
     private final ArrayList<Board> parsedSubBoards = new ArrayList<>();
     private final ArrayList<Topic> parsedTopics = new ArrayList<>();
+
     private String boardUrl;
+    private String boardTitle;
+
     private int numberOfPages = -1;
     private int pagesLoaded = 0;
     private boolean isLoadingMore;
@@ -62,12 +65,13 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         setContentView(R.layout.activity_board);
 
         Bundle extras = getIntent().getExtras();
-        final String boardTitle = extras.getString(BUNDLE_BOARD_TITLE);
+        boardTitle = extras.getString(BUNDLE_BOARD_TITLE);
         boardUrl = extras.getString(BUNDLE_BOARD_URL);
 
         //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(boardTitle);
+        if (boardTitle != null && !Objects.equals(boardTitle, "")) toolbar.setTitle(boardTitle);
+        else toolbar.setTitle("Board");
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -172,6 +176,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         private boolean parseBoard(Document boardPage) {
+            if (boardTitle == null || Objects.equals(boardTitle, ""))
+                boardTitle = boardPage.select("div.nav a.nav").last().text();
+
             //Removes loading item
             if (isLoadingMore) {
                 if (parsedTopics.size() > 0) parsedTopics.remove(parsedTopics.size() - 1);

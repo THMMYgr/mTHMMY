@@ -12,7 +12,7 @@ import java.util.List;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
-import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.model.TopicSummary;
 
 
 /**

@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
-import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;

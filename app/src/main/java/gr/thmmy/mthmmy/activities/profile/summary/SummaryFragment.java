@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.utils.ParseHelpers;
 import mthmmy.utils.Report;
 
 
@@ -148,35 +149,7 @@ public class SummaryFragment extends Fragment {
                     pHtml = "";
                 else if (rowText.contains("Signature") || rowText.contains("Υπογραφή")) {
                     //This needs special handling since it may have css
-                    { //Fix embedded videos
-                        Elements noembedTag = summaryRow.select("noembed");
-                        ArrayList<String> embededVideosUrls = new ArrayList<>();
-
-                        for (Element _noembed : noembedTag) {
-                            embededVideosUrls.add(_noembed.text().substring(_noembed.text()
-                                            .indexOf("href=\"https://www.youtube.com/watch?") + 38
-                                    , _noembed.text().indexOf("target") - 2));
-                        }
-
-                        pHtml = summaryRow.html();
-
-                        int tmp_counter = 0;
-                        while (pHtml.contains("<embed")) {
-                            if (tmp_counter > embededVideosUrls.size())
-                                break;
-                            pHtml = pHtml.replace(
-                                    pHtml.substring(pHtml.indexOf("<embed"), pHtml.indexOf("/noembed>") + 9)
-                                    , "<div class=\"embedded-video\">"
-                                            + "<a href=\"https://www.youtube.com/"
-                                            + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
-                                            + "<img src=\"https://img.youtube.com/vi/"
-                                            + embededVideosUrls.get(tmp_counter) + "/default.jpg\" alt=\"\" border=\"0\">"
-                                            + "</a>"
-                                            //+ "<img class=\"embedded-video-play\" src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\">"
-                                            + "</div>");
-                        }
-                    }
-
+                    pHtml = ParseHelpers.youtubeEmbeddedFix(summaryRow);
                     //Add stuff to make it work in WebView
                     //style.css
                     pHtml = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +

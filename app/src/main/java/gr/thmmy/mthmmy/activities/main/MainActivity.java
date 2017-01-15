@@ -17,8 +17,8 @@ import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
-import gr.thmmy.mthmmy.data.Board;
-import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.model.Board;
+import gr.thmmy.mthmmy.model.TopicSummary;
 
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;

@@ -42,14 +42,18 @@ import java.util.List;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
-import gr.thmmy.mthmmy.data.Post;
+import gr.thmmy.mthmmy.model.LinkTarget;
+import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
@@ -513,35 +517,50 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         @SuppressWarnings("SameReturnValue")
         private boolean handleUri(final Uri uri) {
-            final String host = uri.getHost();
             final String uriString = uri.toString();
 
-            //Checks if app can handle this url
-            if (Objects.equals(host, "www.thmmy.gr")) {
-                if (uriString.contains("topic=")) { //This url points to a topic
-                    //Checks if this is the current topic
-                    if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
-                        //Gets uri's targeted message's index number
-                        String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
-                        if (msgIndexReq.contains("#"))
-                            msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf("#"));
-                        else
-                            msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf(";"));
+            LinkTarget.Target target = LinkTarget.resolveLinkTarget(uri);
+            if (LinkTarget.targetEqual(target, LinkTarget.Target.TOPIC)) {
+                //This url points to a topic
+                //Checks if this is the current topic
+                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
+                    //Gets uri's targeted message's index number
+                    String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
+                    if (msgIndexReq.contains("#"))
+                        msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf("#"));
+                    else
+                        msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf(";"));
 
-                        //Checks if this post is in the current topic's page
-                        for (Post post : postsList) {
-                            if (post.getPostIndex() == Integer.parseInt(msgIndexReq)) {
-                                //Don't restart Activity
-                                //Just change post focus
-                                //TODO
-                                return true;
-                            }
+                    //Checks if this post is in the current topic's page
+                    for (Post post : postsList) {
+                        if (post.getPostIndex() == Integer.parseInt(msgIndexReq)) {
+                            //Don't restart Activity
+                            //Just change post focus
+                            //TODO
+                            return true;
                         }
                     }
-                    topicTask.execute(uri.toString());
                 }
-                return true;
+                topicTask.execute(uri.toString());
+            } else if (LinkTarget.targetEqual(target, LinkTarget.Target.BOARD)) {
+                Intent intent = new Intent(context, BoardActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_BOARD_URL, uriString);
+                extras.putString(BUNDLE_BOARD_TITLE, "");
+                intent.putExtras(extras);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else if (LinkTarget.targetEqual(target, LinkTarget.Target.PROFILE)) {
+                Intent intent = new Intent(context, ProfileActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_PROFILE_URL, uriString);
+                extras.putString(BUNDLE_THUMBNAIL_URL, "");
+                extras.putString(BUNDLE_USERNAME, "");
+                intent.putExtras(extras);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
             }
+
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);

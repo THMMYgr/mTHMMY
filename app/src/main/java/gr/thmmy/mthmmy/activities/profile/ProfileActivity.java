@@ -38,7 +38,7 @@ import gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment;
 import gr.thmmy.mthmmy.activities.profile.stats.StatsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
-import gr.thmmy.mthmmy.data.PostSummary;
+import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
@@ -66,15 +66,17 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     public static final String BUNDLE_PROFILE_URL = "PROFILE_URL";
     /**
      * The key to use when putting user's thumbnail url String to {@link ProfileActivity}'s Bundle.
-     * If user doesn't have a thumbnail put an empty string.
+     * If user doesn't have a thumbnail put an empty string or leave it null.
      */
     public static final String BUNDLE_THUMBNAIL_URL = "THUMBNAIL_URL";
     /**
      * The key to use when putting username String to {@link ProfileActivity}'s Bundle.
+     * If username is not available put an empty string or leave it null.
      */
     public static final String BUNDLE_USERNAME = "USERNAME";
     private static final int THUMBNAIL_SIZE = 200;
 
+    private TextView usernameView;
     private TextView personalTextView;
     private MaterialProgressBar progressBar;
     private FloatingActionButton replyFAB;
@@ -83,6 +85,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     private ProfileTask profileTask;
     private String personalText;
     private String profileUrl;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +95,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         Bundle extras = getIntent().getExtras();
         String thumbnailUrl = extras.getString(BUNDLE_THUMBNAIL_URL);
         if (thumbnailUrl == null) thumbnailUrl = "";
-        String username = extras.getString(BUNDLE_USERNAME);
+        username = extras.getString(BUNDLE_USERNAME);
         profileUrl = extras.getString(BUNDLE_PROFILE_URL);
 
         //Initializes graphic elements
@@ -121,8 +124,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                             , R.drawable.ic_default_user_thumbnail, null))
                     .transform(new CircleTransform())
                     .into(thumbnailView);
-        TextView usernameView = (TextView) findViewById(R.id.profile_activity_username);
-        usernameView.setText(username);
+        usernameView = (TextView) findViewById(R.id.profile_activity_username);
+        if (username == null || Objects.equals(username, "")) usernameView.setText("Username");
+        else usernameView.setText(username);
         personalTextView = (TextView) findViewById(R.id.profile_activity_personal_text);
 
         viewPager = (ViewPager) findViewById(R.id.profile_tab_container);
@@ -209,6 +213,13 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             try {
                 Response response = client.newCall(request).execute();
                 profilePage = Jsoup.parse(response.body().string());
+                //Finds username if missing
+                if (username == null || Objects.equals(username, "")) {
+                    username = profilePage.
+                            select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tr").
+                            first().text();
+                }
+
                 { //Finds personal text
                     Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
                     if (tmpEl != null) {
@@ -239,12 +250,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             //Parse was successful
             progressBar.setVisibility(ProgressBar.INVISIBLE);
 
-            if (personalText != null) {
-                personalTextView.setVisibility(View.VISIBLE);
-                personalTextView.setText(personalText);
-            } else {
-                personalTextView.setVisibility(View.GONE);
-            }
+            if (usernameView.getText() != username) usernameView.setText(username);
+            if (personalText != null) personalTextView.setText(personalText);
 
             setupViewPager(viewPager, profilePage);
             TabLayout tabLayout = (TabLayout) findViewById(R.id.profile_tabs);

@@ -16,9 +16,9 @@ import java.util.List;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.base.BaseFragment;
-import gr.thmmy.mthmmy.data.Board;
-import gr.thmmy.mthmmy.data.Category;
-import gr.thmmy.mthmmy.data.TopicSummary;
+import gr.thmmy.mthmmy.model.Board;
+import gr.thmmy.mthmmy.model.Category;
+import gr.thmmy.mthmmy.model.TopicSummary;
 
 
 /**

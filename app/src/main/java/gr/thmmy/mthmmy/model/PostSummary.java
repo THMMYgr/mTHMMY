@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.data;
+package gr.thmmy.mthmmy.model;
 
 public class PostSummary {
     private final String topicUrl;

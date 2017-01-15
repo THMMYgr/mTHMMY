@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.data;
+package gr.thmmy.mthmmy.model;
 
 public class Board {
     private final String url, title, mods, stats, lastPost, lastPostUrl;

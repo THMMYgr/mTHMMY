@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.data;
+package gr.thmmy.mthmmy.model;
 
 public class Topic extends TopicSummary {
     private final String lastPostUrl, stats;

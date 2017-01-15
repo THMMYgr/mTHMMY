@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.data;
+package gr.thmmy.mthmmy.model;
 
 import java.util.ArrayList;
 
