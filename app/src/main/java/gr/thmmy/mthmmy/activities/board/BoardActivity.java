@@ -218,14 +218,18 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                                 pLastPost.substring(pLastPost.indexOf(" in ") + 1, pLastPost.indexOf(" by ")) +
                                                 "\n" +
                                                 pLastPost.substring(pLastPost.lastIndexOf(" by ") + 1);
-                                    } else {
+                                        pLastPostUrl = subBoardCol.select("a").first().attr("href");
+                                    } else if (pLastPost.contains(" σε ")) {
                                         pLastPost = pLastPost.substring(0, pLastPost.indexOf(" σε ")) +
                                                 "\n" +
                                                 pLastPost.substring(pLastPost.indexOf(" σε ") + 1, pLastPost.indexOf(" από ")) +
                                                 "\n" +
                                                 pLastPost.substring(pLastPost.lastIndexOf(" από ") + 1);
+                                        pLastPostUrl = subBoardCol.select("a").first().attr("href");
+                                    } else {
+                                        pLastPost = "No posts yet.";
+                                        pLastPostUrl = "";
                                     }
-                                    pLastPostUrl = subBoardCol.select("a").first().attr("href");
                                 } else {
                                     pUrl = subBoardCol.select("a").first().attr("href");
                                     pTitle = subBoardCol.select("a").first().text();

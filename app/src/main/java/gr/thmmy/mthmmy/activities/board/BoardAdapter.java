@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
@@ -164,18 +165,20 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             subBoardViewHolder.boardMods.setText(subBoard.getMods());
             subBoardViewHolder.boardStats.setText(subBoard.getStats());
             subBoardViewHolder.boardLastPost.setText(subBoard.getLastPost());
-            subBoardViewHolder.boardLastPost.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, TopicActivity.class);
-                    Bundle extras = new Bundle();
-                    extras.putString(BUNDLE_TOPIC_URL, subBoard.getLastPostUrl());
-                    //Doesn't put an already ellipsized topic title in Bundle
-                    intent.putExtras(extras);
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                }
-            });
+            if (!Objects.equals(subBoard.getLastPostUrl(), "")) {
+                subBoardViewHolder.boardLastPost.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context, TopicActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_TOPIC_URL, subBoard.getLastPostUrl());
+                        //Doesn't put an already ellipsized topic title in Bundle
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
+                });
+            }
         } else if (holder instanceof TopicViewHolder) {
             final Topic topic = parsedTopics.get(position - parsedSubBoards.size() - 1 - 1);
             final TopicViewHolder topicViewHolder = (TopicViewHolder) holder;
