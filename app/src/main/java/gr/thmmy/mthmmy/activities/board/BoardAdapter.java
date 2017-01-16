@@ -101,6 +101,12 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     , LinearLayout.LayoutParams.WRAP_CONTENT));
             topicTitle.setText(context.getString(R.string.topic_title));
             topicTitle.setTypeface(topicTitle.getTypeface(), Typeface.BOLD);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                topicTitle.setTextColor(context.getColor(R.color.primary_text));
+            } else {
+                //noinspection deprecation
+                topicTitle.setTextColor(context.getResources().getColor(R.color.primary_text));
+            }
             topicTitle.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             topicTitle.setTextSize(20f);
 
@@ -236,7 +242,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicViewHolder.topicSubject.setText(lockedSticky);
             topicViewHolder.topicStartedBy.setText(context.getString(R.string.topic_started_by, topic.getStarter()));
             topicViewHolder.topicStats.setText(topic.getStats());
-            topicViewHolder.topicLastPost.setText(context.getString(R.string.topic_last_post, topic.getLastPost()));
+            topicViewHolder.topicLastPost.setText(context.getString(R.string.topic_last_post, topic.getLastPostDateAndTime()));
             topicViewHolder.topicLastPost.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

@@ -66,7 +66,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             PostSummary topic = parsedTopicSummaries.get(position);
             final LatestPostViewHolder latestPostViewHolder = (LatestPostViewHolder) holder;
 
-            latestPostViewHolder.postTitle.setText(topic.getTitle());
+            latestPostViewHolder.postTitle.setText(topic.getSubject());
             latestPostViewHolder.postDate.setText(topic.getDateTime());
             latestPostViewHolder.post.loadDataWithBaseURL("file:///android_asset/"
                     , topic.getPost(), "text/html", "UTF-8", null);

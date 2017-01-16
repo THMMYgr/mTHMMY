@@ -174,8 +174,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     @Override
     public void onLatestPostsFragmentInteraction(PostSummary postSummary) {
         Intent i = new Intent(ProfileActivity.this, TopicActivity.class);
-        i.putExtra(BUNDLE_TOPIC_URL, postSummary.getTopicUrl());
-        i.putExtra(BUNDLE_TOPIC_TITLE, postSummary.getTitle().substring(postSummary.getTitle().
+        i.putExtra(BUNDLE_TOPIC_URL, postSummary.getPostUrl());
+        i.putExtra(BUNDLE_TOPIC_TITLE, postSummary.getSubject().substring(postSummary.getSubject().
                 lastIndexOf("/ ") + 2));
         startActivity(i);
     }

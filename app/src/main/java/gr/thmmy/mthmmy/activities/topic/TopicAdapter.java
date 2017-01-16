@@ -96,7 +96,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
     private static final int isQuoteButtonChecked = 2;
     private final MaterialProgressBar progressBar;
     private DownloadTask downloadTask;
-    private final TopicActivity.TopicTask topicTask;
+    private TopicActivity.TopicTask topicTask;
 
     /**
      * Custom {@link RecyclerView.ViewHolder} implementation
@@ -223,7 +223,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.postNum.setText("");
         holder.subject.setText(currentPost.getSubject());
         holder.post.loadDataWithBaseURL("file:///android_asset/", currentPost.getContent(), "text/html", "UTF-8", null);
-        if (currentPost.getAttachedFiles().size() != 0) {
+        if (currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0) {
             holder.bodyFooterDivider.setVisibility(View.VISIBLE);
             int filesTextColor;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -286,7 +286,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 holder.personalText.setVisibility(View.VISIBLE);
             } else
                 holder.personalText.setVisibility(View.GONE);
-            if (mNumberOfStars != 0) {
+            if (mNumberOfStars > 0) {
                 holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));
 
@@ -300,6 +300,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 holder.stars.setVisibility(View.VISIBLE);
             } else
                 holder.stars.setVisibility(View.GONE);
+            //Special card for special member of the month!
             if (mUserColor == TopicParser.USER_COLOR_PINK) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     holder.cardChildLinear.setBackground(context.getResources().
@@ -425,7 +426,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         holder.post.setOnTouchListener(new CustomTouchListener(holder.post, holder.cardView));
     }
 
-    void customNotifyDataSetChanged() {
+    void customNotifyDataSetChanged(TopicActivity.TopicTask topicTask) {
+        this.topicTask = topicTask;
         viewProperties.clear();
         for (int i = 0; i < postsList.size(); ++i) {
             //Initializes properties, array's values will be false by default
@@ -529,7 +531,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             final String uriString = uri.toString();
 
             LinkTarget.Target target = LinkTarget.resolveLinkTarget(uri);
-            if (LinkTarget.targetEqual(target, LinkTarget.Target.TOPIC)) {
+            if (target.is(LinkTarget.Target.TOPIC)) {
                 //This url points to a topic
                 //Checks if this is the current topic
                 if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
@@ -551,7 +553,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                     }
                 }
                 topicTask.execute(uri.toString());
-            } else if (LinkTarget.targetEqual(target, LinkTarget.Target.BOARD)) {
+                return true;
+            } else if (target.is(LinkTarget.Target.BOARD)) {
                 Intent intent = new Intent(context, BoardActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_BOARD_URL, uriString);
@@ -559,7 +562,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 intent.putExtras(extras);
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
-            } else if (LinkTarget.targetEqual(target, LinkTarget.Target.PROFILE)) {
+                return true;
+            } else if (target.is(LinkTarget.Target.PROFILE)) {
                 Intent intent = new Intent(context, ProfileActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_PROFILE_URL, uriString);
@@ -568,6 +572,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 intent.putExtras(extras);
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
+                return true;
             }
 
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);

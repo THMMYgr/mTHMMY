@@ -385,7 +385,7 @@ public class TopicActivity extends BaseActivity {
             switch (parseResult) {
                 case SUCCESS:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    topicAdapter.customNotifyDataSetChanged();
+                    topicAdapter.customNotifyDataSetChanged(new TopicTask());
                     replyFAB.setEnabled(true);
 
                     //Set current page
