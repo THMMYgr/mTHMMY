@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.profile.summary;
 
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -178,6 +179,7 @@ public class SummaryFragment extends Fragment {
             if (profileSummaryRow.contains("Signature")
                     || profileSummaryRow.contains("Υπογραφή")) { //This may contain css
                 WebView signatureEntry = new WebView(this.getContext());
+                signatureEntry.setBackgroundColor(Color.argb(1, 255, 255, 255));
                 signatureEntry.loadDataWithBaseURL("file:///android_asset/", profileSummaryRow,
                         "text/html", "UTF-8", null);
                 mainContent.addView(signatureEntry);

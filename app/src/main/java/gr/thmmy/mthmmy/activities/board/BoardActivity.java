@@ -1,11 +1,16 @@
 package gr.thmmy.mthmmy.activities.board;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -20,6 +25,7 @@ import java.util.Objects;
 import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Topic;
@@ -44,6 +50,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
     public static final String BUNDLE_BOARD_TITLE = "BOARD_TITLE";
 
     private MaterialProgressBar progressBar;
+    private FloatingActionButton newTopicFAB;
     private BoardTask boardTask;
 
     private BoardAdapter boardAdapter;
@@ -79,6 +86,38 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         createDrawer();
+        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
+        newTopicFAB = (FloatingActionButton) findViewById(R.id.board_fab);
+        newTopicFAB.setEnabled(false);
+        if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
+        else {
+            newTopicFAB.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (sessionManager.isLoggedIn()) {
+                        //TODO PM
+                    } else {
+                        new AlertDialog.Builder(BoardActivity.this)
+                                .setMessage("You need to be logged in to create a new topic!")
+                                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Intent intent = new Intent(BoardActivity.this, LoginActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                    }
+                                })
+                                .show();
+                    }
+                }
+            });
+        }
 
         boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
         RecyclerView mainContent = (RecyclerView) findViewById(R.id.board_recycler_view);
@@ -102,8 +141,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                 }
             }
         });
-
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
         boardTask = new BoardTask();
         boardTask.execute(boardUrl);
@@ -143,6 +180,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
+            if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(false);
         }
 
         @Override
@@ -168,8 +206,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
                 finish();
             }
-            ++pagesLoaded;
             //Parse was successful
+            ++pagesLoaded;
+            if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             boardAdapter.notifyDataSetChanged();
             isLoadingMore = false;

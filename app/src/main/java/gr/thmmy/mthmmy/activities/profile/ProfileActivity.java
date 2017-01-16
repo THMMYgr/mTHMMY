@@ -79,7 +79,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     private TextView usernameView;
     private TextView personalTextView;
     private MaterialProgressBar progressBar;
-    private FloatingActionButton replyFAB;
+    private FloatingActionButton pmFAB;
     private ViewPager viewPager;
 
     private ProfileTask profileTask;
@@ -130,35 +130,37 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         viewPager = (ViewPager) findViewById(R.id.profile_tab_container);
 
-        replyFAB = (FloatingActionButton) findViewById(R.id.profile_fab); //TODO hide fab while logged out
-        replyFAB.setEnabled(false);
-        replyFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (sessionManager.isLoggedIn()) {
-                    //TODO
-                    //PM
-                } else {
-                    new AlertDialog.Builder(ProfileActivity.this)
-                            .setMessage("You need to be logged in to sent a personal message!")
-                            .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                                }
-                            })
-                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                }
-                            })
-                            .show();
+        pmFAB = (FloatingActionButton) findViewById(R.id.profile_fab);
+        pmFAB.setEnabled(false);
+        if (!sessionManager.isLoggedIn()) pmFAB.hide();
+        else {
+            pmFAB.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (sessionManager.isLoggedIn()) {
+                        //TODO PM
+                    } else {
+                        new AlertDialog.Builder(ProfileActivity.this)
+                                .setMessage("You need to be logged in to sent a personal message!")
+                                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                    }
+                                })
+                                .show();
+                    }
                 }
-            }
-        });
+            });
+        }
 
         profileTask = new ProfileTask();
         profileTask.execute(profileUrl); //Attempts data parsing
@@ -200,7 +202,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            replyFAB.setEnabled(false);
+            if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
         }
 
         protected Boolean doInBackground(String... profileUrl) {
@@ -247,6 +249,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 finish();
             }
             //Parse was successful
+            if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
 
             if (usernameView.getText() != username) usernameView.setText(username);

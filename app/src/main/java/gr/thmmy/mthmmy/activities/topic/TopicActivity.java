@@ -124,35 +124,37 @@ public class TopicActivity extends BaseActivity {
                 topicTask);
         recyclerView.setAdapter(topicAdapter);
 
-        replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab); //TODO hide fab while logged out
+        replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
-        replyFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (sessionManager.isLoggedIn()) {
-                    //TODO
-                    //Reply
-                } else {
-                    new AlertDialog.Builder(TopicActivity.this)
-                            .setMessage("You need to be logged in to reply!")
-                            .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    Intent intent = new Intent(TopicActivity.this, LoginActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                                }
-                            })
-                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                }
-                            })
-                            .show();
+        if (!sessionManager.isLoggedIn()) replyFAB.hide();
+        else {
+            replyFAB.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (sessionManager.isLoggedIn()) {
+                        //TODO Reply
+                    } else {
+                        new AlertDialog.Builder(TopicActivity.this)
+                                .setMessage("You need to be logged in to reply!")
+                                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Intent intent = new Intent(TopicActivity.this, LoginActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                    }
+                                })
+                                .show();
+                    }
                 }
-            }
-        });
+            });
+        }
 
         //Sets bottom navigation bar
         firstPage = (ImageButton) findViewById(R.id.page_first_button);
@@ -325,7 +327,7 @@ public class TopicActivity extends BaseActivity {
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
             paginationEnable(false);
-            replyFAB.setEnabled(false);
+            if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(false);
         }
 
         protected Integer doInBackground(String... strings) {
@@ -386,7 +388,7 @@ public class TopicActivity extends BaseActivity {
                 case SUCCESS:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     topicAdapter.customNotifyDataSetChanged(new TopicTask());
-                    replyFAB.setEnabled(true);
+                    if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
                     //Set current page
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));

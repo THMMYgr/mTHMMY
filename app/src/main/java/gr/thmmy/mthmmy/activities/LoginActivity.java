@@ -3,9 +3,9 @@ package gr.thmmy.mthmmy.activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -27,7 +27,7 @@ public class LoginActivity extends BaseActivity {
 
     //-----------------------------------------CLASS VARIABLES------------------------------------------
     /* --Graphics-- */
-    private Button btnLogin;
+    private AppCompatButton btnLogin;
     private EditText inputUsername;
     private EditText inputPassword;
     private String username;
@@ -48,8 +48,8 @@ public class LoginActivity extends BaseActivity {
         //Variables initialization
         inputUsername = (EditText) findViewById(R.id.username);
         inputPassword = (EditText) findViewById(R.id.password);
-        btnLogin = (Button) findViewById(R.id.btnLogin);
-        Button btnGuest = (Button) findViewById(R.id.btnContinueAsGuest);
+        btnLogin = (AppCompatButton) findViewById(R.id.btnLogin);
+        AppCompatButton btnGuest = (AppCompatButton) findViewById(R.id.btnContinueAsGuest);
 
         //Login button Click Event
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -93,7 +93,7 @@ public class LoginActivity extends BaseActivity {
     public void onBackPressed() {
         // Disable going back to the MainActivity
         moveTaskToBack(true);
-        if(loginTask!=null && loginTask.getStatus() == AsyncTask.Status.RUNNING){
+        if (loginTask != null && loginTask.getStatus() == AsyncTask.Status.RUNNING) {
             loginTask.cancel(true);
         }
     }
@@ -147,7 +147,7 @@ public class LoginActivity extends BaseActivity {
 
             View view = getCurrentFocus();
             if (view != null) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
 

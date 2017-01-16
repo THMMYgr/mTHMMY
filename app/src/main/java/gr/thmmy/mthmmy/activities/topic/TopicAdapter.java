@@ -545,9 +545,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                     //Checks if this post is in the current topic's page
                     for (Post post : postsList) {
                         if (post.getPostIndex() == Integer.parseInt(msgIndexReq)) {
-                            //Don't restart Activity
-                            //Just change post focus
-                            //TODO
+                            // TODO Don't restart Activity, Just change post focus
                             return true;
                         }
                     }
