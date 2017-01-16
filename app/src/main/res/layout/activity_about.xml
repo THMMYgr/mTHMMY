@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.AboutActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/appbar_padding_top"
+        android:theme="@style/ToolbarTheme">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/ToolbarTheme">
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
+
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="64dp"
+        android:background="@color/background">
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            tools:context="com.eternalpixels.toinfinity.Info">
+
+
+            <pl.droidsonroids.gif.GifImageView
+                android:id="@+id/logoView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:contentDescription="@string/logo"
+                android:src="@drawable/logo_animated"
+                />
+
+
+            <TextView
+                android:id="@+id/version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/logoView"
+                android:layout_centerHorizontal="true"
+                android:clickable="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/accent"
+                android:textStyle="italic"/>
+
+            <TextView
+                android:id="@+id/header_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/libraries"
+                android:textColor="@color/accent"
+                android:layout_below="@+id/version"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/libraries_text"
+                android:layout_below="@+id/header_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/libraries_text"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/iron"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_below="@+id/libraries_text"
+                android:onClick="displayApacheLibraries"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/apache_v2_0_libraries"
+                android:id="@+id/apache_libs"
+                android:layout_alignParentStart="true"
+                android:textColor="@color/accent" />
+
+            <TextView
+                android:id="@+id/mit_libs"
+                android:onClick="displayMITLibraries"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/the_mit_libraries"
+                android:layout_below="@+id/apache_libs"
+                android:layout_alignParentStart="true"
+                android:textColor="@color/accent" />
+
+
+            <TextView
+                android:id="@+id/header_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/contact"
+                android:textColor="@color/accent"
+                android:layout_below="@+id/mit_libs"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/contact_text"
+                android:layout_below="@+id/header_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="email|web"
+                android:text="@string/contact_text"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/iron"
+                android:layout_alignParentStart="true" />
+
+        </RelativeLayout>
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/trollPicFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/trollPic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:contentDescription="@string/trollPic"
+            android:foregroundGravity="center"
+            android:src="@drawable/fun"
+            />
+    </FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

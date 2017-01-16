@@ -1,3 +1,81 @@
 <resources>
     <string name="app_name">mTHMMY</string>
+
+    <!--Base Activity-->
+    <string name="login">Login</string>
+    <string name="login_spinner">Authenticating&#8230;</string>
+    <string name="logout">Logout</string>
+    <string name="home">Home</string>
+
+    <!--Login Activity-->
+    <string name="thmmy_img_description">thmmy.gr</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">LOGIN</string>
+    <string name="login_or_guest">- OR -</string>
+    <string name="btn_continue_as_guest">Don\'t have an account? Continue as guest!</string>
+
+    <!--Main Activity-->
+    <string name="byUser">by %1$s</string>
+
+    <!--Board Activity-->
+    <string name="child_board_title">Child Boards</string>
+    <string name="child_board_button">Exp/Coll</string>
+    <string name="child_board_mods">Moderators</string>
+    <string name="child_board_stats">Stats</string>
+    <string name="child_board_last_post">Last post</string>
+    <string name="topic_title">Topics</string>
+    <string name="topic_subject">Subject</string>
+    <string name="topic_started_by">Started by: %1$s</string>
+    <string name="topic_stats">Stats</string>
+    <string name="topic_last_post">Last post on: %1$s</string>
+
+    <!--Topic Activity-->
+    <string name="post_author">Post author</string>
+    <string name="post_subject">Post subject</string>
+    <string name="post">Post</string>
+    <string name="post_thumbnail">Thumbnail</string>
+    <string name="post_quote_button">Quote button</string>
+    <string name="user_number_of_posts">#%1$d</string>
+    <string name="button_first">first</string>
+    <string name="button_previous">previous</string>
+    <string name="button_page">Page</string>
+    <string name="button_next">next</string>
+    <string name="button_last">last</string>
+
+    <!--Profile Activity-->
+    <string name="username">Username</string>
+    <string name="general_statistics_title">General Statistics</string>
+    <string name="general_statistics">Statistics</string>
+    <string name="posting_activity_by_time_title">Posting Activity</string>
+    <string name="most_popular_boards_by_posts_title">Most Popular Boards By Posts</string>
+    <string name="most_popular_boards_by_activity_title">Most Popular Boards By Activity</string>
+
+    <!--About Activity-->
+    <string name="about">About</string>
+    <string name="version">v%1$s</string>
+    <string name="logo">Logo</string>
+    <string name="trollPic">You should watch a funny pic!</string>
+
+    <!--Licences-->
+    <string name="libraries">Libraries</string>
+    <string name="libraries_text">mTHMMY uses the following open-source libraries:</string>
+    <string name="apache_v2_0_libraries"><u>Apache v2.0 License libraries</u></string>
+    <string name="the_mit_libraries"><u>The MIT License libraries</u></string>
+    <string name="contact">Contact</string>
+    <string name="contact_text">Do not hesitate to contact us for any matter either by email at thmmynolife@gmail.com, or by joining our discord server at https://discord.gg/CVt3yrn.</string>
+
+    <!--FontAwesome strings-->
+    <string name="fa_icon_star">&#xf005;</string>
+    <string name="fa_file">&#xf15b;</string>
+    <string name="fa_file_image_o">&#xf1c5;</string>
+    <string name="fa_file_pdf_o">&#xf1c1;</string>
+    <string name="fa_file_zip_o">&#xf1c6;</string>
+    <string name="fa_file_text_o">&#xf0f6;</string>
+    <string name="fa_file_word_o">&#xf1c2;</string>
+    <string name="fa_file_powerpoint_o">&#xf1c4;</string>
+    <string name="fa_file_excel_o">&#xf1c3;</string>
+    <string name="fa_file_video_o">&#xf1c8;</string>
+    <string name="fa_lock">&#xf023;</string>
+    <string name="fa_sticky">&#xf249;</string>
 </resources>

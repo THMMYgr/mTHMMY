@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "934432863001",
+    "firebase_url": "https://mthmmy-debug.firebaseio.com",
+    "project_id": "mthmmy-debug",
+    "storage_bucket": "mthmmy-debug.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934432863001:android:088be0537ff6b292",
+        "android_client_info": {
+          "package_name": "gr.thmmy.mthmmy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "934432863001-d5oocs1vdi0pcepesi55a41p7enphfcv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4-gwVcb2Rc8zeT8l1v2Lg1DU0QgfGtk8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

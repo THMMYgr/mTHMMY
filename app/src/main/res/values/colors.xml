@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!--
+    When changing the colors be sure to also change lines "color" and "background" from
+    ".post, .personalmessage", in style.css
+    -->
+
+    <!--Dark-->
+    <color name="primary">#2B2B2B</color>
+    <color name="primary_dark">#333333</color>
+    <color name="primary_light">#3C3C3C</color>
+    <color name="primary_lighter">#494949</color>
+    <color name="accent">#26A69A</color>
+    <color name="primary_text">#E7E7E7</color>
+    <color name="secondary_text">#757575</color>
+    <color name="background">#323232</color>
+    <color name="card_background">#3C3F41</color>
+    <color name="divider">#8B8B8B</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="iron">#CCCCCC</color>
+    <color name="card_expand_text_color">#E7E7E7</color>
+    <color name="dialog_bg_semi_transparent">#D926A69A</color>
+    <color name="member_of_the_month">#E91E63</color>
 </resources>
