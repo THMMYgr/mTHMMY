@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -211,7 +210,6 @@ public class StatsFragment extends Fragment {
                 {
                     Elements mostPopularBoardsByActivityRows = statsRows.last().select(">td").last()
                             .select(">table>tbody>tr");
-                    Log.d(TAG, String.valueOf(mostPopularBoardsByActivityRows.size()));
                     int i = mostPopularBoardsByActivityRows.size();
                     for (Element mostPopularBoardsByActivityRow : mostPopularBoardsByActivityRows) {
                         Elements dataCols = mostPopularBoardsByActivityRow.select("td");

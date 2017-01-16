@@ -16,7 +16,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -388,18 +387,14 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             @Override
             public void onClick(View view) {
                 boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                Log.d(TAG, "GOT");
                 if (tmp[isQuoteButtonChecked]) {
                     if (toQuoteList.contains(currentPost.getPostNumber())) {
                         toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
-                        Log.d(TAG, "GOT1");
                     } else
-                        Log.d(TAG, "GOT2");
-                    //Report.i(TAG, "An error occurred while trying to exclude post from" +
-                    //        "toQuoteList, post wasn't there!");
+                        Report.i(TAG, "An error occurred while trying to exclude post from" +
+                                "toQuoteList, post wasn't there!");
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                 } else {
-                    Log.d(TAG, "GOT3");
                     toQuoteList.add(currentPost.getPostNumber());
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
                 }
