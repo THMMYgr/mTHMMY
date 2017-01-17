@@ -183,7 +183,7 @@ public class RecentFragment extends BaseFragment {
 
         private void parse(Document document) {
             Elements recent = document.select("#block8 :first-child div");
-            if (recent.size() == 30) {
+            if (!recent.isEmpty()) {
                 topicSummaries.clear();
 
                 for (int i = 0; i < recent.size(); i += 3) {
@@ -209,7 +209,6 @@ public class RecentFragment extends BaseFragment {
                         Report.e(TAG, "Parsing failed (dateTime)!");
                         return;
                     }
-
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
