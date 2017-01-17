@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.profile;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -38,6 +39,7 @@ import gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment;
 import gr.thmmy.mthmmy.activities.profile.stats.StatsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
+import gr.thmmy.mthmmy.model.LinkTarget;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -86,6 +88,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     private String personalText;
     private String profileUrl;
     private String username;
+    private int tabSelect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +163,20 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     }
                 }
             });
+        }
+
+        LinkTarget.Target target = LinkTarget.resolveLinkTarget(Uri.parse(profileUrl));
+        if (!target.is(LinkTarget.Target.PROFILE)) {
+            Report.e(TAG, "Bundle came with a non profile url!\nUrl:\n" + profileUrl);
+            Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        if (target.is(LinkTarget.Target.PROFILE_STATS)) {
+            profileUrl = profileUrl.substring(0, profileUrl.indexOf(";sa=statPanel"));
+            tabSelect = 2;
+        } else if (target.is(LinkTarget.Target.PROFILE_LATEST_POSTS)) {
+            profileUrl = profileUrl.substring(0, profileUrl.indexOf(";sa=showPosts"));
+            tabSelect = 1;
         }
 
         profileTask = new ProfileTask();
@@ -258,6 +275,10 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             setupViewPager(viewPager, profilePage);
             TabLayout tabLayout = (TabLayout) findViewById(R.id.profile_tabs);
             tabLayout.setupWithViewPager(viewPager);
+            if (tabSelect != 0) {
+                TabLayout.Tab tab = tabLayout.getTabAt(tabSelect);
+                if (tab != null) tab.select();
+            }
         }
     }
 

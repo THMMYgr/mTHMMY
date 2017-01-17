@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.board;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -28,6 +29,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
+import gr.thmmy.mthmmy.model.LinkTarget;
 import gr.thmmy.mthmmy.model.Topic;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
@@ -74,6 +76,12 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         Bundle extras = getIntent().getExtras();
         boardTitle = extras.getString(BUNDLE_BOARD_TITLE);
         boardUrl = extras.getString(BUNDLE_BOARD_URL);
+        LinkTarget.Target target = LinkTarget.resolveLinkTarget(Uri.parse(boardUrl));
+        if (!target.is(LinkTarget.Target.BOARD)) {
+            Report.e(TAG, "Bundle came with a non board url!\nUrl:\n" + boardUrl);
+            Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
         //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);

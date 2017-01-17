@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +29,7 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.model.LinkTarget;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -99,7 +101,14 @@ public class TopicActivity extends BaseActivity {
         setContentView(R.layout.activity_topic);
 
         Bundle extras = getIntent().getExtras();
-        topicTitle = extras.getString("TOPIC_TITLE");
+        topicTitle = extras.getString(BUNDLE_TOPIC_TITLE);
+        LinkTarget.Target target = LinkTarget.resolveLinkTarget(
+                Uri.parse(extras.getString(BUNDLE_TOPIC_URL)));
+        if (!target.is(LinkTarget.Target.TOPIC)) {
+            Report.e(TAG, "Bundle came with a non topic url!\nUrl:\n" + extras.getString(BUNDLE_TOPIC_URL));
+            Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
         //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);

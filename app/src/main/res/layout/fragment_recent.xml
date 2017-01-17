@@ -26,13 +26,13 @@
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/progress_bar_height"
         android:layout_alignParentTop="true"
-        app:mpb_indeterminateTint="@color/accent"
-        android:visibility="invisible"
         android:indeterminate="true"
-        app:mpb_progressStyle="horizontal"
-        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding" />
+        android:visibility="invisible"
+        app:mpb_indeterminateTint="@color/accent"
+        app:mpb_progressStyle="horizontal"/>
 
 </RelativeLayout>

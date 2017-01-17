@@ -1,6 +1,8 @@
 package gr.thmmy.mthmmy.utils.FileManager;
 
+import android.content.Context;
 import android.os.Environment;
+import android.os.StatFs;
 import android.support.annotation.Nullable;
 import android.webkit.MimeTypeMap;
 
@@ -18,10 +20,7 @@ import static gr.thmmy.mthmmy.activities.base.BaseActivity.getClient;
 
 /**
  * Used for downloading and storing a file from the forum using {@link okhttp3}.
- * <p>Class has one constructor: <ul><li>{@link #ThmmyFile(URL, String, String)}</li></ul>
- * and the methods:<ul><li>getters</li>
- * <li>{@link #download()}</li>
- * <li>{@link #download()}</li></ul></p>
+ * <p>Class has one constructor, {@link #ThmmyFile(URL, String, String)}.
  */
 public class ThmmyFile {
     /**
@@ -34,8 +33,21 @@ public class ThmmyFile {
     private File file;
 
     /**
+     * This constructor only creates a empty ThmmyFile object and <b>does not download</b> the file. To download
+     * the file use {@link #download(Context)} after setting file's url!
+     */
+    public ThmmyFile() {
+        this.fileUrl = null;
+        this.filename = null;
+        this.fileInfo = null;
+        this.extension = null;
+        this.filePath = null;
+        this.file = null;
+    }
+
+    /**
      * This constructor only creates a ThmmyFile object and <b>does not download</b> the file. To download
-     * the file use {@link #download()} or {@link #download()}!
+     * the file use {@link #download(Context)}!
      *
      * @param fileUrl  {@link URL} object with file's url
      * @param filename {@link String} with desired file name
@@ -63,7 +75,7 @@ public class ThmmyFile {
     }
 
     /**
-     * This is null until {@link #download()} or {@link #download()} is called and has succeeded.
+     * This is null until {@link #download(Context)} is called and has succeeded.
      *
      * @return String with file's extension or null
      */
@@ -73,7 +85,7 @@ public class ThmmyFile {
     }
 
     /**
-     * This is null until {@link #download()} or {@link #download()} is called and has succeeded.
+     * This is null until {@link #download(Context)} is called and has succeeded.
      *
      * @return String with file's path or null
      */
@@ -83,7 +95,7 @@ public class ThmmyFile {
     }
 
     /**
-     * This is null until {@link #download()} or {@link #download()} is called and has succeeded.
+     * This is null until {@link #download(Context)} is called and has succeeded.
      *
      * @return {@link File} or null
      */
@@ -112,7 +124,10 @@ public class ThmmyFile {
      * @throws SecurityException if the requested file is not hosted by the forum.
      */
     @Nullable
-    public File download() throws IOException, SecurityException {
+    public File download(Context context) throws IOException, SecurityException, OutOfMemoryError {
+        if (fileUrl == null) {
+            return null;
+        }
         if (!Objects.equals(fileUrl.getHost(), "www.thmmy.gr"))
             throw new SecurityException("Downloading files from other sources is not supported");
 
@@ -122,7 +137,7 @@ public class ThmmyFile {
         if (!response.isSuccessful()) {
             throw new IOException("Failed to download file: " + response);
         }
-        file = getOutputMediaFile(filename);
+        file = getOutputMediaFile(context, filename, fileInfo);
         if (file == null) {
             Report.d(TAG, "Error creating media file, check storage permissions!");
         } else {
@@ -138,24 +153,40 @@ public class ThmmyFile {
     }
 
     @Nullable
-    private static File getOutputMediaFile(String fileName) {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-                + "/Android/data/gr.thmmy.mthmmy/"
-                + "Downloads/");
+    private File getOutputMediaFile(Context context, String fileName, String fileInfo) throws OutOfMemoryError, IOException {
+        File mediaStorageDir;
+        String extState = Environment.getExternalStorageState();
+        if (Environment.isExternalStorageRemovable() &&
+                Objects.equals(extState, Environment.MEDIA_MOUNTED)) {
+            mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                    + "/Android/data/gr.thmmy.mthmmy/"
+                    + "Downloads/");
+        } else {
+            mediaStorageDir = new File(context.getFilesDir(), "Downloads");
+        }
 
-        // This location works best if you want the created files to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
+        //Creates the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
                 Report.d(TAG, "problem!");
-                return null;
+                throw new IOException("Error.\nCouldn't create the path!");
             }
         }
-        // Create a media file name
+
+
+        if (fileInfo != null) {
+            if (fileInfo.contains("KB")) {
+                float fileSize = Float.parseFloat(fileInfo
+                        .substring(fileInfo.indexOf("(") + 1, fileInfo.indexOf("KB") - 1));
+
+                StatFs stat = new StatFs(mediaStorageDir.getPath());
+                long bytesAvailable = stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
+                if ((bytesAvailable / 1024.f) < fileSize)
+                    throw new OutOfMemoryError("There is not enough memory!");
+            }
+        }
+
+        //Creates a media file name
         File mediaFile;
         mediaFile = new File(mediaStorageDir.getPath() + File.separator + fileName);
         return mediaFile;

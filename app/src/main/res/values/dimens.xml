@@ -6,4 +6,5 @@
     <dimen name="thumbnail_size">44dp</dimen>
     <dimen name="quote_button">36dp</dimen>
     <dimen name="fab_margins">16dp</dimen>
+    <dimen name="progress_bar_height">10dp</dimen>
 </resources>
