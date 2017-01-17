@@ -6,6 +6,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 
@@ -28,19 +29,22 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
     }
 
     @Override
-    public void onNestedScroll (CoordinatorLayout coordinatorLayout, View bottomNavBar, View target,
-                         int dxConsumed, int dyConsumed,
-                         int dxUnconsumed, int dyUnconsumed){
-        super.onNestedScroll(coordinatorLayout, bottomNavBar, target, dxConsumed, dyConsumed,dxUnconsumed, dyUnconsumed);
-        if (dyConsumed > 0 && bottomNavBar.getVisibility() == View.VISIBLE) {
+    public void onNestedScroll(CoordinatorLayout coordinatorLayout, View bottomNavBar, View target,
+                               int dxConsumed, int dyConsumed,
+                               int dxUnconsumed, int dyUnconsumed) {
+        super.onNestedScroll(coordinatorLayout, bottomNavBar, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+        if ((dyConsumed > 0 || (!target.canScrollVertically(-1) && dyConsumed == 0
+                && dyUnconsumed < 40)) && bottomNavBar.getVisibility() == View.VISIBLE) {
             hide(bottomNavBar);
-        } else if (dyConsumed < 0 && bottomNavBar.getVisibility() != View.VISIBLE) {
+        } else if ((dyConsumed < 0 || (!target.canScrollVertically(1) && dyConsumed == 0
+                && dyUnconsumed > 40)) && bottomNavBar.getVisibility() != View.VISIBLE) {
             show(bottomNavBar);
         }
     }
 
     /**
      * Animates the hiding of a bottom navigation bar.
+     *
      * @param bottomNavBar bottom navigation bar View
      */
     private void hide(final View bottomNavBar) {
@@ -73,6 +77,7 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
 
     /**
      * Animates the showing of a bottom navigation bar.
+     *
      * @param bottomNavBar bottom navigation bar View
      */
     private void show(final View bottomNavBar) {
@@ -83,7 +88,7 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
 
         animator.setListener(new Animator.AnimatorListener() {
             @Override
-            public void onAnimationStart(Animator animator){
+            public void onAnimationStart(Animator animator) {
                 bottomNavBar.setVisibility(View.VISIBLE);
             }
 

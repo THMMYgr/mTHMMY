@@ -12,7 +12,9 @@ import android.view.View;
  * otherwise.
  */
 @SuppressWarnings("WeakerAccess")
-public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingActionButton>  {
+public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingActionButton> {
+    String TAG = "ScrollAwareFABBehavior";
+
     @SuppressWarnings("UnusedParameters")
     public ScrollAwareFABBehavior(Context context, AttributeSet attrs) {
         super();
@@ -29,8 +31,9 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
                                final FloatingActionButton child,
                                final View target, final int dxConsumed, final int dyConsumed,
                                final int dxUnconsumed, final int dyUnconsumed) {
-        super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed,dxUnconsumed, dyUnconsumed);
-        if (dyConsumed > 0 && child.getVisibility() == View.VISIBLE) {
+        super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+        if ((dyConsumed > 0 || (!target.canScrollVertically(-1) && dyConsumed == 0
+                && dyUnconsumed < 40)) && child.getVisibility() == View.VISIBLE) {
             child.hide(new FloatingActionButton.OnVisibilityChangedListener() {
                 @Override
                 public void onHidden(FloatingActionButton fab) {
@@ -38,7 +41,8 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
                     fab.setVisibility(View.INVISIBLE);
                 }
             });
-        } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
+        } else if ((dyConsumed < 0 || (!target.canScrollVertically(1) && dyConsumed == 0
+                && dyUnconsumed > 40)) && child.getVisibility() != View.VISIBLE) {
             child.show();
         }
     }

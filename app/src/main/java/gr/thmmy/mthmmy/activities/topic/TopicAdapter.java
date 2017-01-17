@@ -16,6 +16,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -632,7 +633,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         @Override
         protected String doInBackground(ThmmyFile... files) {
             try {
-                File tempFile = files[0].download();
+                File tempFile = files[0].download(context);
                 if (tempFile != null) {
                     String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                             files[0].getExtension());
@@ -646,6 +647,9 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             } catch (IOException e) {
                 Report.e(TAG, "Error while trying to download a file", e);
                 return e.toString();
+            } catch (OutOfMemoryError e) {
+                Report.e(TAG, "Error while trying to download a file", e);
+                return e.toString();
             }
             return null;
         }
@@ -654,7 +658,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         protected void onPostExecute(String result) {
             mWakeLock.release();
             if (result != null)
-                Toast.makeText(context, "Error! Download not complete.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
             else
                 Toast.makeText(context, "Download complete", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.INVISIBLE);

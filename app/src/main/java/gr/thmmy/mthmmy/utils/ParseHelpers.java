@@ -119,6 +119,9 @@ public class ParseHelpers {
                     if (warning.text().contains("The topic or board you are looking for appears " +
                             "to be either missing or off limits to you."))
                         return UNAUTHORIZED_OR_MISSING;
+                    else if (warning.text().contains("Το θέμα ή πίνακας που ψάχνετε ή δεν υπάρχει ή " +
+                            "δεν είναι προσβάσιμο από εσάς. "))
+                        return UNAUTHORIZED_OR_MISSING;
                 }
             }
             return READY;
