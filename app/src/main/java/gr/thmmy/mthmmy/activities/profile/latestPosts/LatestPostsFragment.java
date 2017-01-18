@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.base.BaseActivity;
-import gr.thmmy.mthmmy.activities.base.BaseFragment;
+import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;

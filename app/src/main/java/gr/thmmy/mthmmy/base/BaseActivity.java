@@ -1,24 +1,15 @@
-package gr.thmmy.mthmmy.activities.base;
+package gr.thmmy.mthmmy.base;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.franmontiel.persistentcookiejar.PersistentCookieJar;
-import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
-import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
-import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -29,11 +20,6 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
-import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
-import com.mikepenz.materialdrawer.util.DrawerImageLoader;
-import com.squareup.picasso.Picasso;
-
-import java.util.concurrent.TimeUnit;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
@@ -52,22 +38,9 @@ public abstract class BaseActivity extends AppCompatActivity
 {
     // Client & Cookies
     protected static OkHttpClient client;
-    private static final long connectTimeout = 30;  //TimeUnit.SECONDS for all three
-    private static final long writeTimeout = 30;
-    private static final long readTimeout = 30;
-    protected static Picasso picasso;
-    private static PersistentCookieJar cookieJar;
-    private static SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
-
-    //Shared Preferences
-    protected static final String SHARED_PREFS_NAME = "ThmmySharedPrefs";
-    protected static SharedPreferences sharedPrefs;
 
     //SessionManager
     protected static SessionManager sessionManager;
-
-    //Other variables
-    private static boolean init = false; //To initialize stuff only once per app start
 
     //Common UI elements
     protected Toolbar toolbar;
@@ -76,47 +49,11 @@ public abstract class BaseActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (!init) {
-            sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
-            sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(BaseActivity.this);
-            cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
-            client = new OkHttpClient.Builder()
-                    .cookieJar(cookieJar)
-                    .connectTimeout(connectTimeout, TimeUnit.SECONDS)
-                    .writeTimeout(writeTimeout, TimeUnit.SECONDS)
-                    .readTimeout(readTimeout, TimeUnit.SECONDS)
-                    .build();
-            sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs);
-            picasso = new Picasso.Builder(BaseActivity.this)
-                    .downloader(new OkHttp3Downloader(client))
-                    .build();
-            Picasso.setSingletonInstance(picasso);  // all following Picasso (with Picasso.with(Context context) requests will use this Picasso object
-            //initialize and create the image loader logic TODO move this to a singleton BaseApplication obj
-            DrawerImageLoader.init(new AbstractDrawerImageLoader() {
-                @Override
-                public void set(ImageView imageView, Uri uri, Drawable placeholder) {
-                    Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
-                }
-                @Override
-                public void cancel(ImageView imageView) {
-                    Picasso.with(imageView.getContext()).cancelRequest(imageView);
-                }
-
-                @Override
-                public Drawable placeholder(Context ctx, String tag) {
-                    if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)) {
-                        return new IconicsDrawable(ctx).icon(FontAwesome.Icon.faw_user)
-                                .paddingDp(10)
-                                .color(ContextCompat.getColor(ctx, R.color.primary_light))
-                                .backgroundColor(ContextCompat.getColor(ctx, R.color.primary));
-                    }
-
-                    return super.placeholder(ctx, tag);
-                }
-            });
-            init = true;
-        }
+        if(client==null)
+            client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
+        // they become null when app restarts after crash
+        if(sessionManager==null)
+            sessionManager = BaseApplication.getInstance().getSessionManager();
     }
 
     @Override
@@ -143,7 +80,7 @@ public abstract class BaseActivity extends AppCompatActivity
         return sessionManager;
     }
 
-    //TODO: move stuff below
+    //TODO: move stuff below (?)
     //------------------------------------------DRAWER STUFF----------------------------------------
     protected static final int HOME_ID=0;
     protected static final int LOG_ID =1;

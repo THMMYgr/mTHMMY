@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.base.BaseActivity;
-import gr.thmmy.mthmmy.activities.base.BaseFragment;
+import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;

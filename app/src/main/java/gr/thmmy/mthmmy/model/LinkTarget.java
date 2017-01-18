@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.model;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import java.util.Objects;
 

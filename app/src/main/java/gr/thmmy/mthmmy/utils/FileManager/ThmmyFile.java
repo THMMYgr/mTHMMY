@@ -16,7 +16,7 @@ import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static gr.thmmy.mthmmy.activities.base.BaseActivity.getClient;
+import static gr.thmmy.mthmmy.base.BaseActivity.getClient;
 
 /**
  * Used for downloading and storing a file from the forum using {@link okhttp3}.

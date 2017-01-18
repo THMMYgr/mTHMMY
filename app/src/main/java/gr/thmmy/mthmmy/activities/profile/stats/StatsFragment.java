@@ -38,7 +38,7 @@ import java.util.List;
 import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseActivity;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;

@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseActivity;
 
 public class AboutActivity extends BaseActivity {
     private static final int TIME_INTERVAL = 1000;

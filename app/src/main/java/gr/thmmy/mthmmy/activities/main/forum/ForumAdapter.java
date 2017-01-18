@@ -15,7 +15,7 @@ import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.base.BaseFragment;
+import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.model.TopicSummary;
