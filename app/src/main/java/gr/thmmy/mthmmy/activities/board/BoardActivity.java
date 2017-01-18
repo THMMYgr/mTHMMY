@@ -280,7 +280,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                 } else {
                                     pUrl = subBoardCol.select("a").first().attr("href");
                                     pTitle = subBoardCol.select("a").first().text();
-                                    pMods = subBoardCol.select("div.smalltext").first().text();
+                                    if (subBoardCol.select("div.smalltext").first() != null) {
+                                        pMods = subBoardCol.select("div.smalltext").first().text();
+                                    }
                                 }
                             }
                             parsedSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));

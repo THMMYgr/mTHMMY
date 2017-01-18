@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
@@ -93,7 +92,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      * Index of state indicator in the boolean array. If true quote button for this post is checked.
      */
     private static final int isQuoteButtonChecked = 2;
-    private final MaterialProgressBar progressBar;
+    //private final MaterialProgressBar progressBar;
     private DownloadTask downloadTask;
     private TopicActivity.TopicTask topicTask;
 
@@ -167,7 +166,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
-        this.progressBar = progressBar;
+        //this.progressBar = progressBar;
         downloadTask = new DownloadTask();
         this.topicTask = topicTask;
     }
@@ -244,8 +243,12 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 attached.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        downloadTask = new DownloadTask();
-                        downloadTask.execute(attachedFile);
+                        if (TopicActivity.readWriteAccepted) {
+                            downloadTask = new DownloadTask();
+                            downloadTask.execute(attachedFile);
+                        } else
+                            Toast.makeText(context, "Persmissions missing!", Toast.LENGTH_SHORT)
+                                    .show();
                     }
                 });
 
@@ -616,17 +619,11 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
          * Debug Tag for logging debug output to LogCat
          */
         private static final String TAG = "DownloadTask"; //Separate tag for AsyncTask
-        private PowerManager.WakeLock mWakeLock;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            //Locks CPU to prevent going off
-            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    getClass().getName());
-            mWakeLock.acquire();
-            progressBar.setVisibility(View.VISIBLE);
+            Toast.makeText(context, "Downloading", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -647,7 +644,10 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 Report.e(TAG, "Error while trying to download a file", e);
                 return e.toString();
             } catch (OutOfMemoryError e) {
-                Report.e(TAG, "Error while trying to download a file", e);
+                Report.e(TAG, e.toString(), e);
+                return e.toString();
+            } catch (IllegalStateException e) {
+                Report.e(TAG, e.toString(), e);
                 return e.toString();
             }
             return null;
@@ -655,12 +655,10 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
         @Override
         protected void onPostExecute(String result) {
-            mWakeLock.release();
-            if (result != null)
-                Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(context, "Download complete", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.INVISIBLE);
+            if (result != null) {
+                Toast.makeText(context, "Download failed!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+            }
         }
     }
 }

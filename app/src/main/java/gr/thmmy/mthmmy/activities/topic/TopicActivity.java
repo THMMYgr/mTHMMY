@@ -1,11 +1,15 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,6 +62,8 @@ public class TopicActivity extends BaseActivity {
      * The key to use when putting topic's title String to {@link TopicActivity}'s Bundle.
      */
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
+    private static final int PERMISSIONS_REQUEST_CODE = 69;
+    static boolean readWriteAccepted;
     private static TopicTask topicTask;
     //About posts
     private TopicAdapter topicAdapter;
@@ -99,6 +105,7 @@ public class TopicActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
+        requestPerms();
 
         Bundle extras = getIntent().getExtras();
         topicTitle = extras.getString(BUNDLE_TOPIC_TITLE);
@@ -176,11 +183,7 @@ public class TopicActivity extends BaseActivity {
         initDecrementButton(previousPage, SMALL_STEP);
         initIncrementButton(nextPage, SMALL_STEP);
         initIncrementButton(lastPage, LARGE_STEP);
-
-        firstPage.setEnabled(false);
-        previousPage.setEnabled(false);
-        nextPage.setEnabled(false);
-        lastPage.setEnabled(false);
+        paginationEnabled(false);
 
         //Gets posts
         topicTask = new TopicTask();
@@ -210,7 +213,36 @@ public class TopicActivity extends BaseActivity {
             topicTask.cancel(true);
     }
 
-    //--------------------------------------BOTTOM NAV BAR METHODS--------------------------------------
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
+            , @NonNull int[] grantResults) {
+        switch (permsRequestCode) {
+            case PERMISSIONS_REQUEST_CODE:
+                readWriteAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                break;
+        }
+    }
+
+    private void requestPerms() { //Runtime permissions for devices with API >= 23
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+            String[] PERMISSIONS_STORAGE = {
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+            checkSelfPermission(PERMISSIONS_STORAGE[0]);
+            checkSelfPermission(PERMISSIONS_STORAGE[1]);
+            requestPermissions(PERMISSIONS_STORAGE, PERMISSIONS_REQUEST_CODE);
+        } else readWriteAccepted = true;
+    }
+
+    //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------
+    private void paginationEnabled(boolean enabled) {
+        firstPage.setEnabled(enabled);
+        previousPage.setEnabled(enabled);
+        nextPage.setEnabled(enabled);
+        lastPage.setEnabled(enabled);
+    }
+
     private void initIncrementButton(ImageButton increment, final int step) {
         // Increment once for a click
         increment.setOnClickListener(new View.OnClickListener() {
@@ -335,7 +367,7 @@ public class TopicActivity extends BaseActivity {
 
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            paginationEnable(false);
+            paginationEnabled(false);
             if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(false);
         }
 
@@ -403,7 +435,7 @@ public class TopicActivity extends BaseActivity {
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
 
-                    paginationEnable(true);
+                    paginationEnabled(true);
 
                     if (topicTitle == null || Objects.equals(topicTitle, ""))
                         toolbar.setTitle(parsedTitle);
@@ -487,12 +519,5 @@ public class TopicActivity extends BaseActivity {
                 repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
             }
         }
-    }
-
-    private void paginationEnable(boolean enabled) {
-        firstPage.setEnabled(enabled);
-        previousPage.setEnabled(enabled);
-        nextPage.setEnabled(enabled);
-        lastPage.setEnabled(enabled);
     }
 }

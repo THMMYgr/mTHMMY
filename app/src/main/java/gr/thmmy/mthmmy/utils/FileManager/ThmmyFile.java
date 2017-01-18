@@ -1,10 +1,18 @@
 package gr.thmmy.mthmmy.utils.FileManager;
 
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 
+import gr.thmmy.mthmmy.base.BaseActivity;
 import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -22,6 +31,7 @@ import static gr.thmmy.mthmmy.base.BaseActivity.getClient;
  * Used for downloading and storing a file from the forum using {@link okhttp3}.
  * <p>Class has one constructor, {@link #ThmmyFile(URL, String, String)}.
  */
+@SuppressWarnings("unused")
 public class ThmmyFile {
     /**
      * Debug Tag for logging debug output to LogCat
@@ -46,8 +56,8 @@ public class ThmmyFile {
     }
 
     /**
-     * This constructor only creates a ThmmyFile object and <b>does not download</b> the file. To download
-     * the file use {@link #download(Context)}!
+     * This constructor only creates a ThmmyFile object and <b>does not download</b> the file. To
+     * download the file use {@link #download(Context)} after you provide a url!
      *
      * @param fileUrl  {@link URL} object with file's url
      * @param filename {@link String} with desired file name
@@ -115,23 +125,64 @@ public class ThmmyFile {
     /**
      * Used to download the file. If download is successful file's extension and path will be assigned
      * to object's fields and can be accessed using getter methods.
-     * <p>File is stored in sdcard1/Android/data/Downloads/packageName</p>
      *
-     * @return the {@link File} if successful, null otherwise
-     * @throws IOException       if the request could not be executed due to cancellation, a connectivity
-     *                           problem or timeout. Because networks can fail during an exchange, it is possible that the
-     *                           remote server accepted the request before the failure.
-     * @throws SecurityException if the requested file is not hosted by the forum.
+     * @return null if downloaded with the download service, otherwise the {@link File}
+     * @throws IOException           if the request could not be executed due to cancellation, a
+     *                               connectivity problem or timeout. Because networks can fail
+     *                               during an exchange, it is possible that the remote server
+     *                               accepted the request before the failure.
+     * @throws SecurityException     if the requested file is not hosted by the forum.
+     * @throws IllegalStateException if file's url or filename is not yet set
      */
     @Nullable
-    public File download(Context context) throws IOException, SecurityException, OutOfMemoryError {
-        if (fileUrl == null) {
-            return null;
-        }
-        if (!Objects.equals(fileUrl.getHost(), "www.thmmy.gr"))
+    public File download(Context context) throws IOException, IllegalStateException, OutOfMemoryError {
+        if (fileUrl == null)
+            throw new IllegalStateException("Internal error!\nNo url was provided.");
+        else if (!Objects.equals(fileUrl.getHost(), "www.thmmy.gr"))
             throw new SecurityException("Downloading files from other sources is not supported");
+        else if (filename == null || Objects.equals(filename, ""))
+            throw new IllegalStateException("Internal error!\nNo filename was provided.");
 
-        Request request = new Request.Builder().url(fileUrl).build();
+        try {
+            downloadWithManager(context, fileUrl);
+        } catch (IllegalStateException e) {
+            return downloadWithoutManager(context, fileUrl);
+        }
+        return null;
+    }
+
+    private void downloadWithManager(Context context, @NonNull URL pFileUrl) throws IllegalStateException, IOException {
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(pFileUrl.toString()));
+        request.addRequestHeader("Cookie", BaseActivity.getSessionManager().getCookieHeader());
+        request.setDescription("mThmmy");
+        request.setMimeType(MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                MimeTypeMap.getFileExtensionFromUrl(filename)));
+        request.setTitle(filename);
+        request.allowScanningByMediaScanner();
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        try {
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
+        } catch (IllegalStateException e) {
+            Report.d(TAG, "External directory not available!", e);
+            Log.d(TAG, "External directory not available!", e);
+            throw e;
+        }
+
+        DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+        manager.enqueue(request);
+        context.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Toast.makeText(context, "Download complete", Toast.LENGTH_SHORT).show();
+                context.unregisterReceiver(this);
+            }
+        }, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+    }
+
+    @Nullable
+    private File downloadWithoutManager(Context context, @NonNull URL pFileUrl) throws IOException
+            , SecurityException, OutOfMemoryError {
+        Request request = new Request.Builder().url(pFileUrl).build();
 
         Response response = getClient().newCall(request).execute();
         if (!response.isSuccessful()) {
@@ -153,7 +204,8 @@ public class ThmmyFile {
     }
 
     @Nullable
-    private File getOutputMediaFile(Context context, String fileName, String fileInfo) throws OutOfMemoryError, IOException {
+    private File getOutputMediaFile(Context context, String fileName, String fileInfo) throws
+            OutOfMemoryError, IOException {
         File mediaStorageDir;
         String extState = Environment.getExternalStorageState();
         if (Environment.isExternalStorageRemovable() &&
