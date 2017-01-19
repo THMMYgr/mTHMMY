@@ -228,7 +228,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                                 startActivity(i);
                             }
                         } else if (drawerItem.equals(DOWNLOADS_ID)) {
-                            if (sessionManager.isLoggedIn()) //When logged out or if user is guest
+                            if (!(BaseActivity.this instanceof DownloadsActivity)) //When logged out or if user is guest
                             {
                                 Intent i = new Intent(BaseActivity.this, DownloadsActivity.class);
                                 Bundle extras = new Bundle();

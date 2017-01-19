@@ -89,7 +89,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         createDrawer();
-//        drawer.setSelection(DOWNLOADS_ID);
+        drawer.setSelection(DOWNLOADS_ID);
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
@@ -149,7 +149,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
     @Override
     protected void onResume() {
-        drawer.setSelection(-1);
+        drawer.setSelection(DOWNLOADS_ID);
         super.onResume();
     }
 
