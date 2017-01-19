@@ -140,7 +140,8 @@ public class TopicActivity extends BaseActivity {
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
-        if (!sessionManager.isLoggedIn()) replyFAB.hide();
+        replyFAB.hide();
+        /*if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
             replyFAB.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -168,7 +169,7 @@ public class TopicActivity extends BaseActivity {
                     }
                 }
             });
-        }
+        }*/
 
         //Sets bottom navigation bar
         firstPage = (ImageButton) findViewById(R.id.page_first_button);

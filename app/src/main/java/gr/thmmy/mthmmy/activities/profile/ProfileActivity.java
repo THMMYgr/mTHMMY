@@ -135,7 +135,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         pmFAB = (FloatingActionButton) findViewById(R.id.profile_fab);
         pmFAB.setEnabled(false);
-        if (!sessionManager.isLoggedIn()) pmFAB.hide();
+        pmFAB.hide();
+        /*if (!sessionManager.isLoggedIn()) pmFAB.hide();
         else {
             pmFAB.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -163,7 +164,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     }
                 }
             });
-        }
+        }*/
 
         LinkTarget.Target target = LinkTarget.resolveLinkTarget(Uri.parse(profileUrl));
         if (!target.is(LinkTarget.Target.PROFILE)) {

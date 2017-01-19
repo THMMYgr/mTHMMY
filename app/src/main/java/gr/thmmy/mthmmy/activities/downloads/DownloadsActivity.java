@@ -118,6 +118,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
         uploadFAB = (FloatingActionButton) findViewById(R.id.download_fab);
         uploadFAB.setEnabled(false);
+        uploadFAB.hide();
 
         parseDownloadPageTask = new ParseDownloadPageTask();
         parseDownloadPageTask.execute(downloadsUrl);

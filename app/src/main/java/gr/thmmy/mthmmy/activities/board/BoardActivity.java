@@ -97,7 +97,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
         newTopicFAB = (FloatingActionButton) findViewById(R.id.board_fab);
         newTopicFAB.setEnabled(false);
-        if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
+        newTopicFAB.hide();
+        /*if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
         else {
             newTopicFAB.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -125,7 +126,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     }
                 }
             });
-        }
+        }*/
 
         boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
         RecyclerView mainContent = (RecyclerView) findViewById(R.id.board_recycler_view);
