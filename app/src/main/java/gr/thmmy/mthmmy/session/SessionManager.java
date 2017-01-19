@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.session;
 
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -35,8 +36,8 @@ public class SessionManager {
     private static final String TAG = "SessionManager";
 
     //Generic constants
-    public static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php");
-    public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum");
+    public static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?theme=4");
+    public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum;theme=4");
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
     private static final String guestName = "Guest";
 
@@ -109,8 +110,9 @@ public class SessionManager {
             Response response = client.newCall(request).execute();
             Document document = Jsoup.parse(response.body().string());
 
-            Element logoutButton = document.getElementById("logoutbtn"); //Attempt to find logout button
-            if (logoutButton != null) //If logout button exists, login was successful
+            Elements unreadRepliesLinks = document.select("a[href=https://www.thmmy.gr/smf/index.php?action=unreadreplies]");
+
+            if (unreadRepliesLinks.size()>=2) //Normally it's just == 2, but who knows what can be posted by users
             {
                 Report.i(TAG, "Login successful!");
                 setPersistentCookieSession();   //Store cookies
@@ -126,7 +128,8 @@ public class SessionManager {
                 } else
                     sharedPrefs.edit().putBoolean(HAS_AVATAR, false).apply();
 
-                sharedPrefs.edit().putString(LOGOUT_LINK, HttpUrl.parse(logoutButton.attr("href")).toString()).apply();
+
+                sharedPrefs.edit().putString(LOGOUT_LINK, extractLogoutLink(document)).apply();
 
                 return SUCCESS;
             } else {
@@ -254,7 +257,6 @@ public class SessionManager {
         return sharedPrefs.getBoolean(LOGIN_SCREEN_AS_DEFAULT, true);
     }
 
-    //TODO FIX METHOD, THIS MIGHT BE A SECURITY FLAW!! SEE ISSUE #2 MERGED WITH #16
     public String getCookieHeader() {
         return cookiePersistor.loadAll().get(0).toString();
     }
@@ -290,33 +292,57 @@ public class SessionManager {
     }
 
     @Nullable
-    private String extractUserName(Document doc) {
-        if (doc != null) {
-            Elements user = doc.select("div[id=myuser] > h3");
+    private String extractUserName(@NonNull Document doc) {
+        //Scribbles2 Theme
+        Elements user = doc.select("div[id=myuser] > h3");
 
-            if (user.size() == 1) {
-                String txt = user.first().ownText();
+        if (user.size() == 1) {
+            String txt = user.first().ownText();
 
-                Pattern pattern = Pattern.compile(", (.*?),");
-                Matcher matcher = pattern.matcher(txt);
-                if (matcher.find())
-                    return matcher.group(1);
+            Pattern pattern = Pattern.compile(", (.*?),");
+            Matcher matcher = pattern.matcher(txt);
+            if (matcher.find())
+                return matcher.group(1);
+        }
+        else
+        {
+            //Helios_Multi and SMF_oneBlue
+            user = doc.select("td.smalltext[width=100%] b");
+            if (user.size() == 1)
+                return user.first().ownText();
+            else
+            {
+                //SMF Default Theme
+                user = doc.select("td.titlebg2[height=32] b");
+                if (user.size() == 1)
+                    return user.first().ownText();
             }
         }
-        Report.w(TAG, "Extracting username failed!");
+
+
+        Report.e(TAG, "Extracting username failed!");
+        return null;
+    }
+
+
+    @Nullable
+    private String extractAvatarLink(@NonNull Document doc) {
+        Elements  avatar = doc.getElementsByClass("avatar");
+            if (!avatar.isEmpty())
+                return avatar.first().attr("src");
+
+        Report.e(TAG, "Extracting avatar's link failed!");
         return null;
     }
 
     @Nullable
-    private String extractAvatarLink(Document doc) {
-        if (doc != null) {
-            Elements avatar = doc.select("#ava img");
+    private String extractLogoutLink(@NonNull Document doc) {
+        Elements logoutLink = doc.select("a[href^=https://www.thmmy.gr/smf/index.php?action=logout;sesc=]");
 
-            if (avatar.size() == 1) {
-                return avatar.attr("src");
-            }
-        }
-        Report.w(TAG, "Extracting avatar's link failed!");
+        if (!logoutLink.isEmpty())
+            return logoutLink.first().attr("href");
+
+        Report.e(TAG, "Extracting logout link failed!");
         return null;
     }
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------

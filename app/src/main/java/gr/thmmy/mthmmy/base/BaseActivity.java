@@ -198,6 +198,7 @@ public abstract class BaseActivity extends AppCompatActivity
         drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
+                .withDrawerWidthDp(175)
                 .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
                 .withAccountHeader(accountHeader)
                 .addDrawerItems(homeItem,loginLogoutItem,aboutItem)

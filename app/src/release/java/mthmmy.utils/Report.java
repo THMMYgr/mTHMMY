@@ -77,5 +77,10 @@ public class Report
             FirebaseCrash.report(tr);
     }
 
+    /**
+     * Does nothing in release.
+     */
+    public static void longMessage(String TAG, String level, String message) {return;}
+
 
 }

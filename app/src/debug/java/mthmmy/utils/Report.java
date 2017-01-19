@@ -64,4 +64,18 @@ public class Report
     {
         Log.wtf(TAG,message + ": " + tr.getMessage(),tr);
     }
+
+    /**
+     * Prints long messages in logcat (debug level).
+     */
+    public static void longMessage(String TAG, String message)
+    {
+        int maxLogSize = 1000;
+        for(int i = 0; i <= message.length() / maxLogSize; i++) {
+            int start = i * maxLogSize;
+            int end = (i+1) * maxLogSize;
+            end = end > message.length() ? message.length() : end;
+            Report.d(TAG, message.substring(start, end));
+        }
+    }
 }
