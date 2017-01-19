@@ -51,6 +51,9 @@
     <string name="most_popular_boards_by_posts_title">Most Popular Boards By Posts</string>
     <string name="most_popular_boards_by_activity_title">Most Popular Boards By Activity</string>
 
+    <!--Downloads Activity-->
+    <string name="downloads">Downloads</string>
+
     <!--About Activity-->
     <string name="about">About</string>
     <string name="version">v%1$s</string>

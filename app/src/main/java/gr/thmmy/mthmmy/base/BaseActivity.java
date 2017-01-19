@@ -83,13 +83,14 @@ public abstract class BaseActivity extends AppCompatActivity
     //TODO: move stuff below (?)
     //------------------------------------------DRAWER STUFF----------------------------------------
     protected static final int HOME_ID=0;
-    protected static final int LOG_ID =1;
-    protected static final int ABOUT_ID=2;
+    protected static final int DOWNLOADS_ID=1;
+    protected static final int LOG_ID =2;
+    protected static final int ABOUT_ID=3;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
-    private PrimaryDrawerItem homeItem, loginLogoutItem, aboutItem;
-    private IconicsDrawable homeIcon, homeIconSelected, loginIcon, logoutIcon,
+    private PrimaryDrawerItem homeItem, downloadsItem, loginLogoutItem, aboutItem;
+    private IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, loginIcon, logoutIcon,
             aboutIcon, aboutIconSelected;
 
     /**
@@ -108,6 +109,14 @@ public abstract class BaseActivity extends AppCompatActivity
 
         homeIconSelected =new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_home)
+                .color(selectedSecondaryColor);
+
+        downloadsIcon =new IconicsDrawable(this)
+                .icon(FontAwesome.Icon.faw_download)
+                .color(primaryColor);
+
+        downloadsIconSelected =new IconicsDrawable(this)
+                .icon(FontAwesome.Icon.faw_download)
                 .color(selectedSecondaryColor);
 
         loginIcon =new IconicsDrawable(this)
@@ -136,14 +145,10 @@ public abstract class BaseActivity extends AppCompatActivity
                 .withIcon(homeIcon)
                 .withSelectedIcon(homeIconSelected);
 
-        if (!sessionManager.isLoggedIn()) //When logged out
-            loginLogoutItem = new PrimaryDrawerItem()
-                    .withTextColor(primaryColor)
-                    .withSelectedColor(selectedSecondaryColor)
-                    .withIdentifier(LOG_ID).withName(R.string.login)
-                    .withIcon(loginIcon)
-                    .withSelectable(false);
-        else
+
+
+        if (sessionManager.isLoggedIn()) //When logged in
+        {
             loginLogoutItem = new PrimaryDrawerItem()
                     .withTextColor(primaryColor)
                     .withSelectedColor(selectedSecondaryColor)
@@ -151,6 +156,23 @@ public abstract class BaseActivity extends AppCompatActivity
                     .withName(R.string.logout)
                     .withIcon(logoutIcon)
                     .withSelectable(false);
+            downloadsItem = new PrimaryDrawerItem()
+                    .withTextColor(primaryColor)
+                    .withSelectedColor(selectedPrimaryColor)
+                    .withSelectedTextColor(selectedSecondaryColor)
+                    .withIdentifier(DOWNLOADS_ID)
+                    .withName(R.string.downloads)
+                    .withIcon(downloadsIcon)
+                    .withSelectedIcon(downloadsIconSelected);
+        }
+        else
+            loginLogoutItem = new PrimaryDrawerItem()
+                    .withTextColor(primaryColor)
+                    .withSelectedColor(selectedSecondaryColor)
+                    .withIdentifier(LOG_ID).withName(R.string.login)
+                    .withIcon(loginIcon)
+                    .withSelectable(false);
+
         aboutItem = new PrimaryDrawerItem()
                 .withTextColor(primaryColor)
                 .withSelectedColor(selectedPrimaryColor)
@@ -195,13 +217,12 @@ public abstract class BaseActivity extends AppCompatActivity
                 .build();
 
         //Drawer
-        drawer = new DrawerBuilder()
+        DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .withDrawerWidthDp((int)BaseApplication.getInstance().getDpWidth()/2)
                 .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
                 .withAccountHeader(accountHeader)
-                .addDrawerItems(homeItem,loginLogoutItem,aboutItem)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
@@ -213,6 +234,14 @@ public abstract class BaseActivity extends AppCompatActivity
                                 startActivity(i);
                             }
                         }
+//                        else if(drawerItem.equals(DOWNLOADS_ID))
+//                        {
+//                            if (sessionManager.isLoggedIn()) //When logged out or if user is guest
+//                            {
+//                                Intent i = new Intent(BaseActivity.this, DownloadsActivity.class);
+//                                startActivity(i);
+//                            }
+//                        }
                         else if(drawerItem.equals(LOG_ID))
                         {
                             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
@@ -238,8 +267,14 @@ public abstract class BaseActivity extends AppCompatActivity
                         drawer.closeDrawer();
                         return true;
                     }
-                })
-                .build();
+                });
+
+        if(sessionManager.isLoggedIn())
+            drawerBuilder.addDrawerItems(homeItem,downloadsItem,loginLogoutItem,aboutItem);
+        else
+            drawerBuilder.addDrawerItems(homeItem,loginLogoutItem,aboutItem);
+
+        drawer = drawerBuilder.build();
 
         drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
         drawer.setOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
@@ -257,6 +292,7 @@ public abstract class BaseActivity extends AppCompatActivity
         {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
+                drawer.removeItem(DOWNLOADS_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername()).withIcon(new IconicsDrawable(this)
                         .icon(FontAwesome.Icon.faw_user)
