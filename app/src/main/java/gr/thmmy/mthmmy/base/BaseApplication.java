@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
+import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -31,10 +32,13 @@ public class BaseApplication extends Application {
 
     // Client & SessionManager
     private OkHttpClient client;
-    private static SessionManager sessionManager;
+    private SessionManager sessionManager;
 
     //Shared Preferences
-    private static final String SHARED_PREFS_NAME = "ThmmySharedPrefs";
+    private final String SHARED_PREFS_NAME = "ThmmySharedPrefs";
+
+    //Display Metrics
+    private static float dpHeight, dpWidth;
 
     public static BaseApplication getInstance(){
         return baseApplication;
@@ -83,6 +87,10 @@ public class BaseApplication extends Application {
                 return super.placeholder(ctx, tag);
             }
         });
+
+        DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
+        dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        dpWidth = displayMetrics.widthPixels / displayMetrics.density;
     }
 
     public OkHttpClient getClient() {
@@ -93,5 +101,11 @@ public class BaseApplication extends Application {
         return sessionManager;
     }
 
+    public float getDpHeight() {
+        return dpHeight;
+    }
 
+    public float getDpWidth() {
+        return dpWidth;
+    }
 }
