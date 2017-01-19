@@ -259,67 +259,85 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.postFooter.removeAllViews();
         }
 
+        String mSpecialRank, mRank, mGender, mNumberOfPosts, mPersonalText;
+        int mNumberOfStars, mUserColor;
+
         if (!currentPost.isDeleted()) { //Sets user's extra info
-            String mSpecialRank = currentPost.getSpecialRank(), mRank = currentPost.getRank(), mGender = currentPost.getGender(), mNumberOfPosts = currentPost.getNumberOfPosts(), mPersonalText = currentPost.getPersonalText();
-            int mNumberOfStars = currentPost.getNumberOfStars(), mUserColor = currentPost.getUserColor();
+            mSpecialRank = currentPost.getSpecialRank();
+            mRank = currentPost.getRank();
+            mGender = currentPost.getGender();
+            mNumberOfPosts = currentPost.getNumberOfPosts();
+            mPersonalText = currentPost.getPersonalText();
+            mNumberOfStars = currentPost.getNumberOfStars();
+            mUserColor = currentPost.getUserColor();
+        } else {
+            mSpecialRank = null;
+            mRank = null;
+            mGender = null;
+            mNumberOfPosts = null;
+            mPersonalText = null;
+            mNumberOfStars = 0;
+            mUserColor = 0;
+        }
 
-            if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
-                holder.specialRank.setText(mSpecialRank);
-                holder.specialRank.setVisibility(View.VISIBLE);
-            } else
-                holder.specialRank.setVisibility(View.GONE);
-            if (!Objects.equals(mRank, "") && mRank != null) {
-                holder.rank.setText(mRank);
-                holder.rank.setVisibility(View.VISIBLE);
-            } else
-                holder.rank.setVisibility(View.GONE);
-            if (!Objects.equals(mGender, "") && mGender != null) {
-                holder.gender.setText(mGender);
-                holder.gender.setVisibility(View.VISIBLE);
-            } else
-                holder.gender.setVisibility(View.GONE);
-            if (!Objects.equals(mNumberOfPosts, "") && mNumberOfPosts != null) {
-                holder.numberOfPosts.setText(mNumberOfPosts);
-                holder.numberOfPosts.setVisibility(View.VISIBLE);
-            } else
-                holder.numberOfPosts.setVisibility(View.GONE);
-            if (!Objects.equals(mPersonalText, "") && mPersonalText != null) {
-                holder.personalText.setText("\"" + mPersonalText + "\"");
-                holder.personalText.setVisibility(View.VISIBLE);
-            } else
-                holder.personalText.setVisibility(View.GONE);
-            if (mNumberOfStars > 0) {
-                holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
-                        , "fonts/fontawesome-webfont.ttf"));
+        if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
+            holder.specialRank.setText(mSpecialRank);
+            holder.specialRank.setVisibility(View.VISIBLE);
+        } else
+            holder.specialRank.setVisibility(View.GONE);
+        if (!Objects.equals(mRank, "") && mRank != null) {
+            holder.rank.setText(mRank);
+            holder.rank.setVisibility(View.VISIBLE);
+        } else
+            holder.rank.setVisibility(View.GONE);
+        if (!Objects.equals(mGender, "") && mGender != null) {
+            holder.gender.setText(mGender);
+            holder.gender.setVisibility(View.VISIBLE);
+        } else
+            holder.gender.setVisibility(View.GONE);
+        if (!Objects.equals(mNumberOfPosts, "") && mNumberOfPosts != null) {
+            holder.numberOfPosts.setText(mNumberOfPosts);
+            holder.numberOfPosts.setVisibility(View.VISIBLE);
+        } else
+            holder.numberOfPosts.setVisibility(View.GONE);
+        if (!Objects.equals(mPersonalText, "") && mPersonalText != null) {
+            holder.personalText.setText("\"" + mPersonalText + "\"");
+            holder.personalText.setVisibility(View.VISIBLE);
+        } else
+            holder.personalText.setVisibility(View.GONE);
+        if (mNumberOfStars > 0) {
+            holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
+                    , "fonts/fontawesome-webfont.ttf"));
 
-                String aStar = context.getResources().getString(R.string.fa_icon_star);
-                String usersStars = "";
-                for (int i = 0; i < mNumberOfStars; ++i) {
-                    usersStars += aStar;
-                }
-                holder.stars.setText(usersStars);
-                holder.stars.setTextColor(mUserColor);
-                holder.stars.setVisibility(View.VISIBLE);
-            } else
-                holder.stars.setVisibility(View.GONE);
-            //Special card for special member of the month!
-            if (mUserColor == TopicParser.USER_COLOR_PINK) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.member_of_the_month_card, null));
-                } else //noinspection deprecation
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.member_of_the_month_card));
-            } else holder.cardChildLinear.setBackground(null);
-
-            //Avoid's view's visibility recycling
-            if (viewProperties.get(position)[isUserExtraInfoVisibile]) {
-                holder.userExtraInfo.setVisibility(View.VISIBLE);
-                holder.userExtraInfo.setAlpha(1.0f);
-            } else {
-                holder.userExtraInfo.setVisibility(View.GONE);
-                holder.userExtraInfo.setAlpha(0.0f);
+            String aStar = context.getResources().getString(R.string.fa_icon_star);
+            String usersStars = "";
+            for (int i = 0; i < mNumberOfStars; ++i) {
+                usersStars += aStar;
             }
+            holder.stars.setText(usersStars);
+            holder.stars.setTextColor(mUserColor);
+            holder.stars.setVisibility(View.VISIBLE);
+        } else
+            holder.stars.setVisibility(View.GONE);
+        //Special card for special member of the month!
+        if (mUserColor == TopicParser.USER_COLOR_PINK) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                holder.cardChildLinear.setBackground(context.getResources().
+                        getDrawable(R.drawable.member_of_the_month_card, null));
+            } else //noinspection deprecation
+                holder.cardChildLinear.setBackground(context.getResources().
+                        getDrawable(R.drawable.member_of_the_month_card));
+        } else holder.cardChildLinear.setBackground(null);
+
+        //Avoid's view's visibility recycling
+        if (!currentPost.isDeleted() && viewProperties.get(position)[isUserExtraInfoVisibile]) {
+            holder.userExtraInfo.setVisibility(View.VISIBLE);
+            holder.userExtraInfo.setAlpha(1.0f);
+        } else {
+            holder.userExtraInfo.setVisibility(View.GONE);
+            holder.userExtraInfo.setAlpha(0.0f);
+        }
+        if (!currentPost.isDeleted()) {
             //Sets graphics behavior
             holder.header.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -356,7 +374,11 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                     TopicAnimations.animateUserExtraInfoVisibility(v);
                 }
             });
-        }//End of deleted profiles
+        } else {
+            holder.header.setOnClickListener(null);
+            holder.userExtraInfo.setOnClickListener(null);
+        }
+
         //Avoid's view's visibility recycling
         if (viewProperties.get(position)[isPostDateAndNumberVisibile]) { //Expanded
             holder.postDateAndNumberExp.setVisibility(View.VISIBLE);
