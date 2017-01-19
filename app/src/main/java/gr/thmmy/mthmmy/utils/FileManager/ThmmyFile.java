@@ -164,7 +164,6 @@ public class ThmmyFile {
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
         } catch (IllegalStateException e) {
             Report.d(TAG, "External directory not available!", e);
-            Log.d(TAG, "External directory not available!", e);
             throw e;
         }
 

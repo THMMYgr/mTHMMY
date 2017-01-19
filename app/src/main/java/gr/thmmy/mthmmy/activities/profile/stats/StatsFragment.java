@@ -248,11 +248,13 @@ public class StatsFragment extends Fragment {
         postingActivityByTimeChartXAxis.setGranularity(1f);
 
         LineDataSet postingActivityByTimeDataSet = new LineDataSet(postingActivityByTime, null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient, null));
-        } else
-            //noinspection deprecation
-            postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient));
+        if (isAdded()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient, null));
+            } else
+                //noinspection deprecation
+                postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient));
+        }
         postingActivityByTimeDataSet.setDrawFilled(true);
         postingActivityByTimeDataSet.setDrawCircles(false);
         postingActivityByTimeDataSet.setDrawValues(false);
@@ -285,11 +287,13 @@ public class StatsFragment extends Fragment {
         mostPopularBoardsByPostsChartYAxis.setGranularity(1f);
 
         BarDataSet mostPopularBoardsByPostsDataSet = new BarDataSet(mostPopularBoardsByPosts, null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mostPopularBoardsByPostsDataSet.setColors(getResources().getColor(R.color.accent, null));
-        } else
-            //noinspection deprecation
-            mostPopularBoardsByPostsDataSet.setColors(getResources().getColor(R.color.accent));
+        if (isAdded()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mostPopularBoardsByPostsDataSet.setColors(getResources().getColor(R.color.accent, null));
+            } else
+                //noinspection deprecation
+                mostPopularBoardsByPostsDataSet.setColors(getResources().getColor(R.color.accent));
+        }
         mostPopularBoardsByPostsDataSet.setDrawValues(false);
         mostPopularBoardsByPostsDataSet.setValueTextColor(Color.WHITE);
 
@@ -324,11 +328,13 @@ public class StatsFragment extends Fragment {
         mostPopularBoardsByActivityChartYAxis.setLabelCount(10, false);
 
         BarDataSet mostPopularBoardsByActivityDataSet = new BarDataSet(mostPopularBoardsByActivity, null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mostPopularBoardsByActivityDataSet.setColors(getResources().getColor(R.color.accent, null));
-        } else
-            //noinspection deprecation
-            mostPopularBoardsByActivityDataSet.setColors(getResources().getColor(R.color.accent));
+        if (isAdded()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mostPopularBoardsByActivityDataSet.setColors(getResources().getColor(R.color.accent, null));
+            } else
+                //noinspection deprecation
+                mostPopularBoardsByActivityDataSet.setColors(getResources().getColor(R.color.accent));
+        }
         mostPopularBoardsByActivityDataSet.setDrawValues(false);
         mostPopularBoardsByActivityDataSet.setValueTextColor(Color.WHITE);
 

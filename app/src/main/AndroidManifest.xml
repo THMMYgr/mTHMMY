@@ -63,6 +63,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity"/>
         </activity>
+        <activity android:name=".activities.downloads.DownloadsActivity">
+        </activity>
     </application>
 
 </manifest>

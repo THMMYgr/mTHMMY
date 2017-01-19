@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -63,7 +62,6 @@ public class TopicActivity extends BaseActivity {
      */
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
     private static final int PERMISSIONS_REQUEST_CODE = 69;
-    static boolean readWriteAccepted;
     private static TopicTask topicTask;
     //About posts
     private TopicAdapter topicAdapter;
@@ -213,7 +211,7 @@ public class TopicActivity extends BaseActivity {
             topicTask.cancel(true);
     }
 
-    @Override
+    /*@Override
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
             , @NonNull int[] grantResults) {
         switch (permsRequestCode) {
@@ -221,18 +219,20 @@ public class TopicActivity extends BaseActivity {
                 readWriteAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
         }
-    }
+    }*/
 
-    private void requestPerms() { //Runtime permissions for devices with API >= 23
+    boolean requestPerms() { //Runtime permissions request for devices with API >= 23
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-            checkSelfPermission(PERMISSIONS_STORAGE[0]);
-            checkSelfPermission(PERMISSIONS_STORAGE[1]);
-            requestPermissions(PERMISSIONS_STORAGE, PERMISSIONS_REQUEST_CODE);
-        } else readWriteAccepted = true;
+            if (checkSelfPermission(PERMISSIONS_STORAGE[0]) == PackageManager.PERMISSION_DENIED ||
+                    checkSelfPermission(PERMISSIONS_STORAGE[1]) == PackageManager.PERMISSION_DENIED) {
+                requestPermissions(PERMISSIONS_STORAGE, PERMISSIONS_REQUEST_CODE);
+                return false;
+            } else return true;
+        } else return true;
     }
 
     //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------
@@ -365,6 +365,7 @@ public class TopicActivity extends BaseActivity {
         private static final int OTHER_ERROR = 2;
         private static final int SAME_PAGE = 3;
 
+        @Override
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
             paginationEnabled(false);

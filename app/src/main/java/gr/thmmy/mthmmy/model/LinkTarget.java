@@ -72,7 +72,19 @@ public class LinkTarget {
         /**
          * Link points to a profile.
          */
-        PROFILE;
+        PROFILE,
+        /**
+         * Link points to a download.
+         */
+        DOWNLOADS_CATEGORY,
+        /**
+         * Link points to a download category.
+         */
+        DOWNLOADS_FILE,
+        /**
+         * Link points to downloads.
+         */
+        DOWNLOADS;
 
         /**
          * This method defines a custom equality check for {@link Target} enums. It does not check
@@ -81,19 +93,23 @@ public class LinkTarget {
          * cases described below, false otherwise.</p><ul>
          * <li>(Everything but {@link #NOT_THMMY}).is({@link #THMMY}) returns true</li>
          * <li>{@link #PROFILE_SUMMARY}.is({@link #PROFILE}) returns true</li>
-         * <li>{@link #PROFILE_LATEST_POSTS}.is({@link #PROFILE}) returns true</li>
-         * <li>{@link #PROFILE_STATS}.is({@link #PROFILE}) returns true</li>
          * <li>{@link #PROFILE}.is({@link #PROFILE_SUMMARY}) returns false</li>
+         * <li>{@link #PROFILE_LATEST_POSTS}.is({@link #PROFILE}) returns true</li>
          * <li>{@link #PROFILE}.is({@link #PROFILE_LATEST_POSTS}) returns false</li>
-         * <li>{@link #PROFILE}.is({@link #PROFILE_STATS}) returns false</li></ul>
+         * <li>{@link #PROFILE_STATS}.is({@link #PROFILE}) returns true</li>
+         * <li>{@link #PROFILE}.is({@link #PROFILE_STATS}) returns false</li>
+         * <li>{@link #DOWNLOADS_CATEGORY}.is({@link #DOWNLOADS}) returns true</li>
+         * <li>{@link #DOWNLOADS}.is({@link #DOWNLOADS_CATEGORY}) returns false</li>
+         * <li>{@link #DOWNLOADS_FILE}.is({@link #DOWNLOADS}) returns true</li>
+         * <li>{@link #DOWNLOADS}.is({@link #DOWNLOADS_FILE}) returns false</li></ul>
          *
          * @param other another Target
          * @return true if <b>enums</b> are equal, false otherwise
          */
         public boolean is(Target other) {
-            return (this == PROFILE_LATEST_POSTS ||
-                    this == PROFILE_STATS ||
-                    this == PROFILE_SUMMARY) && other == PROFILE
+            return ((this == PROFILE_LATEST_POSTS || this == PROFILE_STATS || this == PROFILE_SUMMARY)
+                    && other == PROFILE)
+                    || ((this == DOWNLOADS_FILE || this == DOWNLOADS_CATEGORY) && other == DOWNLOADS)
                     || (this != NOT_THMMY && other == THMMY)
                     || this == other;
         }
@@ -130,6 +146,10 @@ public class LinkTarget {
                 else return Target.PROFILE_SUMMARY;
             } else if (uriString.contains("action=unread"))
                 return Target.UNREAD_POSTS;
+            else if (uriString.contains("action=tpmod;dl=item"))
+                return Target.DOWNLOADS_FILE;
+            else if (uriString.contains("action=tpmod;dl"))
+                return Target.DOWNLOADS_CATEGORY;
             Report.v(TAG, "Unknown thmmy link found, link: " + uriString);
             return Target.UNKNOWN_THMMY;
         }

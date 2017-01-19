@@ -187,11 +187,12 @@ public class SummaryFragment extends Fragment {
             }
             TextView entry = new TextView(this.getContext());
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                entry.setTextColor(getResources().getColor(R.color.primary_text, null));
-            } else {
-                //noinspection deprecation
-                entry.setTextColor(getResources().getColor(R.color.primary_text));
+            if (isAdded()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    entry.setTextColor(getResources().getColor(R.color.primary_text, null));
+                else
+                    //noinspection deprecation
+                    entry.setTextColor(getResources().getColor(R.color.primary_text));
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 entry.setText(Html.fromHtml(profileSummaryRow, Html.FROM_HTML_MODE_LEGACY));

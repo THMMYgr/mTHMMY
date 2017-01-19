@@ -186,6 +186,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         @SuppressWarnings("unused")
         private static final String TAG = "BoardTask"; //Separate tag for AsyncTask
 
+        @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
             if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(false);
@@ -207,6 +208,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             return false;
         }
 
+        @Override
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!
                 Report.d(TAG, "Parse failed!");
@@ -214,6 +216,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
                 finish();
             }
+            if (boardTitle == null || Objects.equals(boardTitle, "")) toolbar.setTitle(boardTitle);
+
             //Parse was successful
             ++pagesLoaded;
             if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);

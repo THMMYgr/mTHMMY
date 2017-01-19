@@ -243,7 +243,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 attached.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (TopicActivity.readWriteAccepted) {
+                        if (((TopicActivity) context).requestPerms()) {
                             downloadTask = new DownloadTask();
                             downloadTask.execute(attachedFile);
                         } else

@@ -24,18 +24,20 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.session.SessionManager;
 import okhttp3.OkHttpClient;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
 
-public abstract class BaseActivity extends AppCompatActivity
-{
+public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies
     protected static OkHttpClient client;
 
@@ -49,10 +51,10 @@ public abstract class BaseActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(client==null)
+        if (client == null)
             client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
         // they become null when app restarts after crash
-        if(sessionManager==null)
+        if (sessionManager == null)
             sessionManager = BaseApplication.getInstance().getSessionManager();
     }
 
@@ -65,27 +67,25 @@ public abstract class BaseActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        if(drawer!=null)    //close drawer animation after returning to activity
+        if (drawer != null)    //close drawer animation after returning to activity
             drawer.closeDrawer();
     }
 
 
-    public static OkHttpClient getClient()
-    {
+    public static OkHttpClient getClient() {
         return client;
     }
 
-    public static SessionManager getSessionManager()
-    {
+    public static SessionManager getSessionManager() {
         return sessionManager;
     }
 
     //TODO: move stuff below (?)
     //------------------------------------------DRAWER STUFF----------------------------------------
-    protected static final int HOME_ID=0;
-    protected static final int DOWNLOADS_ID=1;
-    protected static final int LOG_ID =2;
-    protected static final int ABOUT_ID=3;
+    protected static final int HOME_ID = 0;
+    protected static final int DOWNLOADS_ID = 1;
+    protected static final int LOG_ID = 2;
+    protected static final int ABOUT_ID = 3;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
@@ -96,42 +96,41 @@ public abstract class BaseActivity extends AppCompatActivity
     /**
      * Call only after initializing Toolbar
      */
-    protected void createDrawer()
-    {
+    protected void createDrawer() {
         final int primaryColor = ContextCompat.getColor(this, R.color.iron);
         final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
         //Drawer Icons
-        homeIcon =new IconicsDrawable(this)
+        homeIcon = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_home)
                 .color(primaryColor);
 
-        homeIconSelected =new IconicsDrawable(this)
+        homeIconSelected = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_home)
                 .color(selectedSecondaryColor);
 
-        downloadsIcon =new IconicsDrawable(this)
+        downloadsIcon = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_download)
                 .color(primaryColor);
 
-        downloadsIconSelected =new IconicsDrawable(this)
+        downloadsIconSelected = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_download)
                 .color(selectedSecondaryColor);
 
-        loginIcon =new IconicsDrawable(this)
+        loginIcon = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_sign_in)
                 .color(primaryColor);
 
-        logoutIcon =new IconicsDrawable(this)
+        logoutIcon = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_sign_out)
                 .color(primaryColor);
 
-        aboutIcon =new IconicsDrawable(this)
+        aboutIcon = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_info_circle)
                 .color(primaryColor);
 
-        aboutIconSelected =new IconicsDrawable(this)
+        aboutIconSelected = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_info_circle)
                 .color(selectedSecondaryColor);
 
@@ -144,7 +143,6 @@ public abstract class BaseActivity extends AppCompatActivity
                 .withName(R.string.home)
                 .withIcon(homeIcon)
                 .withSelectedIcon(homeIconSelected);
-
 
 
         if (sessionManager.isLoggedIn()) //When logged in
@@ -164,8 +162,7 @@ public abstract class BaseActivity extends AppCompatActivity
                     .withName(R.string.downloads)
                     .withIcon(downloadsIcon)
                     .withSelectedIcon(downloadsIconSelected);
-        }
-        else
+        } else
             loginLogoutItem = new PrimaryDrawerItem()
                     .withTextColor(primaryColor)
                     .withSelectedColor(selectedSecondaryColor)
@@ -195,12 +192,11 @@ public abstract class BaseActivity extends AppCompatActivity
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
                     public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        if(sessionManager.isLoggedIn())
-                        {
+                        if (sessionManager.isLoggedIn()) {
                             Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
                             Bundle extras = new Bundle();
                             extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
-                            if(!sessionManager.hasAvatar())
+                            if (!sessionManager.hasAvatar())
                                 extras.putString(BUNDLE_THUMBNAIL_URL, "");
                             else
                                 extras.putString(BUNDLE_THUMBNAIL_URL, sessionManager.getAvatarLink());
@@ -220,44 +216,38 @@ public abstract class BaseActivity extends AppCompatActivity
         DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
-                .withDrawerWidthDp((int)BaseApplication.getInstance().getDpWidth()/2)
+                .withDrawerWidthDp((int) BaseApplication.getInstance().getDpWidth() / 2)
                 .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
                 .withAccountHeader(accountHeader)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if(drawerItem.equals(HOME_ID))
-                        {
-                            if(!(BaseActivity.this instanceof MainActivity))
-                            {
+                        if (drawerItem.equals(HOME_ID)) {
+                            if (!(BaseActivity.this instanceof MainActivity)) {
                                 Intent i = new Intent(BaseActivity.this, MainActivity.class);
                                 startActivity(i);
                             }
-                        }
-//                        else if(drawerItem.equals(DOWNLOADS_ID))
-//                        {
-//                            if (sessionManager.isLoggedIn()) //When logged out or if user is guest
-//                            {
-//                                Intent i = new Intent(BaseActivity.this, DownloadsActivity.class);
-//                                startActivity(i);
-//                            }
-//                        }
-                        else if(drawerItem.equals(LOG_ID))
-                        {
+                        } else if (drawerItem.equals(DOWNLOADS_ID)) {
+                            if (sessionManager.isLoggedIn()) //When logged out or if user is guest
+                            {
+                                Intent i = new Intent(BaseActivity.this, DownloadsActivity.class);
+                                Bundle extras = new Bundle();
+                                extras.putString(BUNDLE_DOWNLOADS_URL, "");
+                                extras.putString(BUNDLE_DOWNLOADS_TITLE, null);
+                                i.putExtras(extras);
+                                startActivity(i);
+                            }
+                        } else if (drawerItem.equals(LOG_ID)) {
                             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
                             {
                                 Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
                                 startActivity(intent);
                                 finish();
                                 overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                            }
-                            else
+                            } else
                                 new LogoutTask().execute();
-                        }
-                        else if(drawerItem.equals(ABOUT_ID))
-                        {
-                            if(!(BaseActivity.this instanceof AboutActivity))
-                            {
+                        } else if (drawerItem.equals(ABOUT_ID)) {
+                            if (!(BaseActivity.this instanceof AboutActivity)) {
                                 Intent i = new Intent(BaseActivity.this, AboutActivity.class);
                                 startActivity(i);
                             }
@@ -269,10 +259,10 @@ public abstract class BaseActivity extends AppCompatActivity
                     }
                 });
 
-        if(sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem,downloadsItem,loginLogoutItem,aboutItem);
+        if (sessionManager.isLoggedIn())
+            drawerBuilder.addDrawerItems(homeItem, downloadsItem, loginLogoutItem, aboutItem);
         else
-            drawerBuilder.addDrawerItems(homeItem,loginLogoutItem,aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, loginLogoutItem, aboutItem);
 
         drawer = drawerBuilder.build();
 
@@ -286,10 +276,8 @@ public abstract class BaseActivity extends AppCompatActivity
         });
     }
 
-    protected void updateDrawer()
-    {
-        if(drawer!=null)
-        {
+    protected void updateDrawer() {
+        if (drawer != null) {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 drawer.removeItem(DOWNLOADS_ID);
@@ -299,9 +287,7 @@ public abstract class BaseActivity extends AppCompatActivity
                         .paddingDp(10)
                         .color(ContextCompat.getColor(this, R.color.primary_light))
                         .backgroundColor(ContextCompat.getColor(this, R.color.primary)));
-            }
-            else
-            {
+            } else {
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername()).withIcon(sessionManager.getAvatarLink());
             }
@@ -313,9 +299,10 @@ public abstract class BaseActivity extends AppCompatActivity
 
 
     //-------------------------------------------LOGOUT-------------------------------------------------
+
     /**
-     *  Result toast will always display a success, because when user chooses logout all data are
-     *  cleared regardless of the actual outcome
+     * Result toast will always display a success, because when user chooses logout all data are
+     * cleared regardless of the actual outcome
      */
     protected class LogoutTask extends AsyncTask<Void, Void, Integer> { //Attempt logout
         ProgressDialog progressDialog;
@@ -324,8 +311,7 @@ public abstract class BaseActivity extends AppCompatActivity
             return sessionManager.logout();
         }
 
-        protected void onPreExecute()
-        { //Show a progress dialog until done
+        protected void onPreExecute() { //Show a progress dialog until done
             progressDialog = new ProgressDialog(BaseActivity.this,
                     R.style.AppTheme_Dark_Dialog);
             progressDialog.setCancelable(false);
@@ -334,8 +320,7 @@ public abstract class BaseActivity extends AppCompatActivity
             progressDialog.show();
         }
 
-        protected void onPostExecute(Integer result)
-        {
+        protected void onPostExecute(Integer result) {
             Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
             updateDrawer();
             progressDialog.dismiss();
