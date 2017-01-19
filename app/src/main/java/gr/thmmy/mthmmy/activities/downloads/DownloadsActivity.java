@@ -81,15 +81,15 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             }
         } else downloadsUrl = downloadsIndexUrl;
 
+        //Initialize toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(downloadsTitle);
-        /*setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }*/
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         createDrawer();
+//        drawer.setSelection(DOWNLOADS_ID);
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
