@@ -1,16 +1,14 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.Manifest;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -30,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.LinkTarget;
 import gr.thmmy.mthmmy.model.Post;
@@ -237,6 +234,33 @@ public class TopicActivity extends BaseActivity {
     }
 
     //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------
+
+    /**
+     * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue
+     * of page value when long pressing one of the page navigation buttons.
+     */
+    class RepetitiveUpdater implements Runnable {
+        private final int step;
+
+        /**
+         * @param step number of pages to add/subtract on each repetition
+         */
+        RepetitiveUpdater(int step) {
+            this.step = step;
+        }
+
+        public void run() {
+            long REPEAT_DELAY = 250;
+            if (autoIncrement) {
+                incrementPageRequestValue(step);
+                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
+            } else if (autoDecrement) {
+                decrementPageRequestValue(step);
+                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
+            }
+        }
+    }
+
     private void paginationEnabled(boolean enabled) {
         firstPage.setEnabled(enabled);
         previousPage.setEnabled(enabled);
@@ -244,18 +268,38 @@ public class TopicActivity extends BaseActivity {
         lastPage.setEnabled(enabled);
     }
 
+    private void paginationEnabledExcept(boolean enabled, View exception) {
+        if (exception == firstPage) {
+            previousPage.setEnabled(enabled);
+            nextPage.setEnabled(enabled);
+            lastPage.setEnabled(enabled);
+        } else if (exception == previousPage) {
+            firstPage.setEnabled(enabled);
+            nextPage.setEnabled(enabled);
+            lastPage.setEnabled(enabled);
+        } else if (exception == nextPage) {
+            firstPage.setEnabled(enabled);
+            previousPage.setEnabled(enabled);
+            lastPage.setEnabled(enabled);
+        } else if (exception == lastPage) {
+            firstPage.setEnabled(enabled);
+            previousPage.setEnabled(enabled);
+            nextPage.setEnabled(enabled);
+        } else {
+            paginationEnabled(enabled);
+        }
+    }
+
     private void initIncrementButton(ImageButton increment, final int step) {
         // Increment once for a click
         increment.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!autoIncrement && step == LARGE_STEP) { //If just clicked go to last page
+                if (!autoIncrement && step == LARGE_STEP) {
                     changePage(numberOfPages - 1);
-                    return;
+                } else if (!autoIncrement) {
+                    incrementPageRequestValue(step);
+                    changePage(pageRequestValue - 1);
                 }
-                //Clicked and holden
-                autoIncrement = false; //Stop incrementing
-                incrementPageRequestValue(step);
-                changePage(pageRequestValue - 1);
             }
         });
 
@@ -263,6 +307,7 @@ public class TopicActivity extends BaseActivity {
         increment.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
+                        paginationEnabledExcept(false, arg0);
                         autoIncrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
@@ -272,9 +317,21 @@ public class TopicActivity extends BaseActivity {
 
         // When the button is released
         increment.setOnTouchListener(new View.OnTouchListener() {
+            private Rect rect;
+
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
+                } else if (event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
+                    autoIncrement = false;
+                    paginationEnabled(true);
                     changePage(pageRequestValue - 1);
+                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
+                        autoIncrement = false;
+                        decrementPageRequestValue(pageRequestValue - thisPage);
+                        paginationEnabled(true);
+                    }
                 }
                 return false;
             }
@@ -285,22 +342,20 @@ public class TopicActivity extends BaseActivity {
         // Decrement once for a click
         decrement.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!autoDecrement && step == LARGE_STEP) { //If just clicked go to first page
+                if (!autoDecrement && step == LARGE_STEP) {
                     changePage(0);
-                    return;
+                } else if (!autoDecrement) {
+                    decrementPageRequestValue(step);
+                    changePage(pageRequestValue - 1);
                 }
-                //Clicked and hold
-                autoDecrement = false; //Stop decrementing
-                decrementPageRequestValue(step);
-                changePage(pageRequestValue - 1);
             }
         });
-
 
         // Auto decrement for a long click
         decrement.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
+                        paginationEnabledExcept(false, arg0);
                         autoDecrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
@@ -310,9 +365,21 @@ public class TopicActivity extends BaseActivity {
 
         // When the button is released
         decrement.setOnTouchListener(new View.OnTouchListener() {
+            private Rect rect;
+
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
+                } else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
+                    autoDecrement = false;
+                    paginationEnabled(true);
                     changePage(pageRequestValue - 1);
+                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
+                        autoIncrement = false;
+                        incrementPageRequestValue(thisPage - pageRequestValue);
+                        paginationEnabled(true);
+                    }
                 }
                 return false;
             }
@@ -494,32 +561,6 @@ public class TopicActivity extends BaseActivity {
             postsList.clear();
             postsList.addAll(TopicParser.parseTopic(topic, language));
             //postsList = TopicParser.parseTopic(topic, language);
-        }
-    }
-
-    /**
-     * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue
-     * of page value when long pressing one of the page navigation buttons.
-     */
-    class RepetitiveUpdater implements Runnable {
-        private final int step;
-
-        /**
-         * @param step number of pages to add/subtract on each repetition
-         */
-        RepetitiveUpdater(int step) {
-            this.step = step;
-        }
-
-        public void run() {
-            long REPEAT_DELAY = 250;
-            if (autoIncrement) {
-                incrementPageRequestValue(step);
-                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
-            } else if (autoDecrement) {
-                decrementPageRequestValue(step);
-                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
-            }
         }
     }
 }

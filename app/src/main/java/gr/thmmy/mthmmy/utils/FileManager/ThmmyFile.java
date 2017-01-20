@@ -10,7 +10,6 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -25,6 +24,7 @@ import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.content.Context.MODE_PRIVATE;
 import static gr.thmmy.mthmmy.base.BaseActivity.getClient;
 
 /**
@@ -41,6 +41,7 @@ public class ThmmyFile {
     private final String filename, fileInfo;
     private String extension, filePath;
     private File file;
+    private boolean isInternal;
 
     /**
      * This constructor only creates a empty ThmmyFile object and <b>does not download</b> the file. To download
@@ -53,6 +54,7 @@ public class ThmmyFile {
         this.extension = null;
         this.filePath = null;
         this.file = null;
+        this.isInternal = false;
     }
 
     /**
@@ -70,6 +72,7 @@ public class ThmmyFile {
         this.extension = null;
         this.filePath = null;
         this.file = null;
+        this.isInternal = false;
     }
 
     public URL getFileUrl() {
@@ -122,6 +125,10 @@ public class ThmmyFile {
         this.filePath = filePath;
     }
 
+    public boolean isInternal() {
+        return isInternal;
+    }
+
     /**
      * Used to download the file. If download is successful file's extension and path will be assigned
      * to object's fields and can be accessed using getter methods.
@@ -143,12 +150,13 @@ public class ThmmyFile {
         else if (filename == null || Objects.equals(filename, ""))
             throw new IllegalStateException("Internal error!\nNo filename was provided.");
 
-        try {
+        return downloadWithoutManager(context, fileUrl);
+        /*try {
             downloadWithManager(context, fileUrl);
         } catch (IllegalStateException e) {
             return downloadWithoutManager(context, fileUrl);
-        }
-        return null;
+        }*/
+        //return null;
     }
 
     private void downloadWithManager(Context context, @NonNull URL pFileUrl) throws IllegalStateException, IOException {
@@ -191,7 +199,11 @@ public class ThmmyFile {
         if (file == null) {
             Report.d(TAG, "Error creating media file, check storage permissions!");
         } else {
-            FileOutputStream fos = new FileOutputStream(file);
+            FileOutputStream fos;
+            if (isInternal)
+                fos = context.openFileOutput(filename, MODE_PRIVATE);
+            else
+                fos = new FileOutputStream(file);
             fos.write(response.body().bytes());
             fos.close();
 
@@ -209,11 +221,11 @@ public class ThmmyFile {
         String extState = Environment.getExternalStorageState();
         if (Environment.isExternalStorageRemovable() &&
                 Objects.equals(extState, Environment.MEDIA_MOUNTED)) {
-            mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-                    + "/Android/data/gr.thmmy.mthmmy/"
-                    + "Downloads/");
+            mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment
+                    .DIRECTORY_DOWNLOADS), fileName);
         } else {
             mediaStorageDir = new File(context.getFilesDir(), "Downloads");
+            isInternal = true;
         }
 
         //Creates the storage directory if it does not exist
@@ -223,7 +235,6 @@ public class ThmmyFile {
                 throw new IOException("Error.\nCouldn't create the path!");
             }
         }
-
 
         if (fileInfo != null) {
             if (fileInfo.contains("KB")) {

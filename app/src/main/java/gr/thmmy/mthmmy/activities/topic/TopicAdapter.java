@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -229,6 +230,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             } else //noinspection deprecation
                 filesTextColor = context.getResources().getColor(R.color.accent);
 
+            holder.postFooter.removeAllViews();
             for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
                 final TextView attached = new TextView(context);
                 attached.setTextSize(10f);
@@ -243,12 +245,12 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 attached.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (((TopicActivity) context).requestPerms()) {
-                            downloadTask = new DownloadTask();
-                            downloadTask.execute(attachedFile);
-                        } else
-                            Toast.makeText(context, "Persmissions missing!", Toast.LENGTH_SHORT)
-                                    .show();
+                        //if (((BaseApplication) context).requestPerms()) {
+                        downloadTask = new DownloadTask();
+                        downloadTask.execute(attachedFile);
+                        //} else
+                        //   Toast.makeText(context, "Persmissions missing!", Toast.LENGTH_SHORT)
+                        //          .show();
                     }
                 });
 
@@ -658,7 +660,12 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
 
                     Intent intent = new Intent();
                     intent.setAction(android.content.Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(tempFile), mime);
+                    //intent.setDataAndType(Uri.fromFile(tempFile), mime);
+
+                    intent.setDataAndType(FileProvider.getUriForFile(context, context.
+                            getApplicationContext()
+                            .getPackageName() + ".provider", tempFile), mime);
+
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
                 }
