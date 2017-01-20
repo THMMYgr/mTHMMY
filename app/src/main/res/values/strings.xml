@@ -12,7 +12,6 @@
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="btn_login">LOGIN</string>
-    <string name="login_or_guest">- OR -</string>
     <string name="btn_continue_as_guest">Don\'t have an account? Continue as guest!</string>
 
     <!--Main Activity-->

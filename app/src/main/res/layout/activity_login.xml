@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@color/background"
@@ -10,12 +9,13 @@
     <ScrollView
         android:id="@+id/inner_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:isScrollContainer="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
             android:focusableInTouchMode="true"
             android:orientation="vertical"
             android:paddingLeft="24dp"
@@ -23,7 +23,8 @@
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="100dp"/>
+                android:layout_height="0dp"
+                android:layout_weight="0.4"/>
 
             <pl.droidsonroids.gif.GifImageView
                 android:id="@+id/logo"
@@ -36,14 +37,13 @@
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="50dp"/>
+                android:layout_height="0dp"
+                android:layout_weight="0.45"/>
 
             <!--  Username Label -->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp">
+                android:layout_height="wrap_content">
 
                 <EditText
                     android:id="@+id/username"
@@ -53,12 +53,15 @@
                     android:inputType="textPersonName"/>
             </android.support.design.widget.TextInputLayout>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.16"/>
+
             <!--  Password Label -->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp"
                 app:passwordToggleEnabled="true">
 
                 <EditText
@@ -69,40 +72,39 @@
                     android:inputType="textPassword"/>
             </android.support.design.widget.TextInputLayout>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"/>
+
             <!-- Login Button -->
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="30dp"
-                android:layout_marginTop="30dp"
                 android:background="@drawable/login_button_bg"
                 android:padding="12dp"
                 android:text="@string/btn_login"
                 android:textSize="18sp"/>
 
-            <TextView
+            <Space
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:gravity="center"
-                android:text="@string/login_or_guest"
-                android:textAllCaps="false"
-                android:textColor="@color/secondary_text"
-                android:textSize="10sp"
-                tools:ignore="SmallSp"/>
+                android:layout_height="0dp"
+                android:layout_weight="0.2"/>
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btnContinueAsGuest"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:layout_marginTop="30dip"
                 android:background="@drawable/guest_button_border_bg"
                 android:text="@string/btn_continue_as_guest"
                 android:textAllCaps="false"
                 android:textSize="15sp"/>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.3"/>
         </LinearLayout>
     </ScrollView>
 

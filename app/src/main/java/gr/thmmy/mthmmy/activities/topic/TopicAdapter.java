@@ -651,23 +651,39 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         }
 
         @Override
-        protected String doInBackground(ThmmyFile... files) {
+        protected String doInBackground(ThmmyFile... file) {
             try {
-                File tempFile = files[0].download(context);
+                File tempFile = file[0].download(context);
                 if (tempFile != null) {
-                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                            files[0].getExtension());
+                    if (file[0].isInternal()) {
+                        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                                file[0].getExtension());
 
-                    Intent intent = new Intent();
-                    intent.setAction(android.content.Intent.ACTION_VIEW);
-                    //intent.setDataAndType(Uri.fromFile(tempFile), mime);
+                        Intent intent = new Intent();
+                        intent.setAction(android.content.Intent.ACTION_VIEW);
+                        //intent.setDataAndType(Uri.fromFile(tempFile), mime);
 
-                    intent.setDataAndType(FileProvider.getUriForFile(context, context.
-                            getApplicationContext()
-                            .getPackageName() + ".provider", tempFile), mime);
+                        intent.setDataAndType(FileProvider.getUriForFile(context, context.
+                                getApplicationContext()
+                                .getPackageName() + ".provider", tempFile), mime);
 
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else {
+                        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                                file[0].getExtension());
+
+                        Intent intent = new Intent();
+                        intent.setAction(android.content.Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.fromFile(tempFile), mime);
+
+                        /*intent.setDataAndType(FileProvider.getUriForFile(context, context.
+                                getApplicationContext()
+                                .getPackageName() + ".provider", tempFile), mime);*/
+
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
                 }
             } catch (IOException e) {
                 Report.e(TAG, "Error while trying to download a file", e);
