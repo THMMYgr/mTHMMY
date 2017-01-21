@@ -1,79 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/child_board_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/card_background"
-    android:clickable="true"
-    android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/child_board_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/child_board_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:text="@string/child_board_title"
-            android:textColor="@color/accent"
-            android:textSize="22sp"/>
-
-        <ImageButton
-            android:id="@+id/child_board_expand_collapse_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/card_background"
-            android:contentDescription="@string/child_board_button"
-            android:src="@drawable/ic_arrow_drop_down"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/child_board_expandable"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
-        <TextView
-            android:id="@+id/child_board_mods"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="1dp"
-            android:layout_marginTop="1dp"
-            android:text="@string/child_board_mods"
-            android:textColor="@color/secondary_text"
-            android:textSize="12sp"
-            android:textStyle="italic"/>
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/child_board_stats"
+            <TextView
+                android:id="@+id/child_board_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/child_board_title"
+                android:textColor="@color/accent"
+                android:textSize="22sp"/>
+
+            <ImageButton
+                android:id="@+id/child_board_expand_collapse_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:contentDescription="@string/child_board_button"
+                android:src="@drawable/ic_arrow_drop_down"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/child_board_expandable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="1dp"
-            android:layout_marginTop="1dp"
-            android:text="@string/child_board_stats"
-            android:textColor="@color/secondary_text"
-            android:textSize="12sp"/>
+            android:layout_marginBottom="5dp"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/child_board_last_post"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="1dp"
-            android:layout_marginTop="1dp"
-            android:clickable="true"
-            android:text="@string/child_board_last_post"
-            android:textColor="@color/primary_text"
-            android:textSize="12sp"/>
+            <TextView
+                android:id="@+id/child_board_mods"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1dp"
+                android:layout_marginTop="1dp"
+                android:text="@string/child_board_mods"
+                android:textColor="@color/secondary_text"
+                android:textSize="12sp"
+                android:textStyle="italic"/>
+
+            <TextView
+                android:id="@+id/child_board_stats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1dp"
+                android:layout_marginTop="1dp"
+                android:text="@string/child_board_stats"
+                android:textColor="@color/secondary_text"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/child_board_last_post"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1dp"
+                android:layout_marginTop="1dp"
+                android:clickable="true"
+                android:text="@string/child_board_last_post"
+                android:textColor="@color/primary_text"
+                android:textSize="12sp"/>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -556,7 +556,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if this is the current topic
-                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
+                /*if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
                     //Gets uri's targeted message's index number
                     String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
                     if (msgIndexReq.contains("#"))
@@ -571,7 +571,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                             return true;
                         }
                     }
-                }
+                }*/
+
                 topicTask.execute(uri.toString());
                 return true;
             } else if (target.is(ThmmyPage.PageCategory.BOARD)) {

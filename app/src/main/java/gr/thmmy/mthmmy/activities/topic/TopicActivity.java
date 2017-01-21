@@ -326,11 +326,11 @@ public class TopicActivity extends BaseActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-                } else if (event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
+                } else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
                     autoIncrement = false;
                     paginationEnabled(true);
                     changePage(pageRequestValue - 1);
-                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
                         decrementPageRequestValue(pageRequestValue - thisPage);
@@ -446,7 +446,7 @@ public class TopicActivity extends BaseActivity {
 
         protected Integer doInBackground(String... strings) {
             Document document;
-            base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //This topic's base url
+            base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //New topic's base url
             String newPageUrl = strings[0];
 
             //Finds the index of message focus if present
@@ -456,7 +456,7 @@ public class TopicActivity extends BaseActivity {
                     String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
                     if (tmp.contains(";"))
                         postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
-                    else
+                    else if (tmp.contains("#"))
                         postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
                 }
             }
@@ -477,8 +477,7 @@ public class TopicActivity extends BaseActivity {
                         }
                     }
                 }
-                if (Objects.equals(loadedPageUrl.substring(base_url.length())
-                        , newPageUrl.substring(base_url.length())))
+                if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
                     return SAME_PAGE;
             } else topicTitle = null;
 
@@ -531,6 +530,11 @@ public class TopicActivity extends BaseActivity {
                     Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
                     break;
                 case SAME_PAGE:
+                    progressBar.setVisibility(ProgressBar.INVISIBLE);
+                    topicAdapter.customNotifyDataSetChanged(new TopicTask());
+                    if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
+                    paginationEnabled(true);
+                    Toast.makeText(TopicActivity.this, "That's the same page.", Toast.LENGTH_SHORT).show();
                     //TODO change focus
                     break;
                 default:

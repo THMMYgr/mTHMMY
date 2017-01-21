@@ -515,7 +515,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     private boolean matchExists(Bookmark bookmark, ArrayList<Bookmark> array) {
-        if (!array.isEmpty()) {
+        if (array != null && !array.isEmpty()) {
             for (Bookmark b : array) {
                 if (b != null) {
                     return Objects.equals(b.getId(), bookmark.getId())
