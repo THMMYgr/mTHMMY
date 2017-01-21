@@ -47,8 +47,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     public static final String BUNDLE_DOWNLOADS_TITLE = "DOWNLOADS_TITLE";
     private static final String downloadsIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl;";
     private String downloadsUrl;
-    String downloadsTitle;
-    private ArrayList<Download> parsedDownloads = new ArrayList<>();
+    private String downloadsTitle;
+    private final ArrayList<Download> parsedDownloads = new ArrayList<>();
 
     private MaterialProgressBar progressBar;
     private RecyclerView recyclerView;

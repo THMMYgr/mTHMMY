@@ -5,8 +5,6 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
-
 /**
  * Class that defines a topic's post. All member variables are declared final (thus no setters are
  * supplied). Class has two constructors and getter methods for all variables.

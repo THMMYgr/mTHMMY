@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities.downloads;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -125,7 +126,12 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else {
                 //TODO implement download on click
 
-                downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background, null));
+                } else {
+                    //noinspection deprecation
+                    downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background));
+                }
                 downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
                 downloadViewHolder.informationExpandableBtn.setVisibility(View.GONE);
                 downloadViewHolder.informationExpandableBtn.setEnabled(false);

@@ -9,7 +9,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -87,7 +86,7 @@ public class TopicActivity extends BaseActivity {
     //Other variables
     private FloatingActionButton replyFAB;
     private MaterialProgressBar progressBar;
-    public static String base_url = "";
+    private static String base_url = "";
     private String topicTitle;
     private String parsedTitle;
     private RecyclerView recyclerView;
@@ -132,7 +131,7 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, progressBar, postsList,
+        topicAdapter = new TopicAdapter(this, postsList,
                 topicTask);
         recyclerView.setAdapter(topicAdapter);
 

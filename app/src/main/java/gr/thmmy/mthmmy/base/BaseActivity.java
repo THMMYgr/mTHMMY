@@ -41,7 +41,7 @@ import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.services.DownloadService;
 import gr.thmmy.mthmmy.session.SessionManager;
-import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
+import gr.thmmy.mthmmy.model.ThmmyFile;
 import okhttp3.OkHttpClient;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -66,11 +66,11 @@ public abstract class BaseActivity extends AppCompatActivity {
     private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
     protected Bookmark thisPageBookmark;
     protected ImageButton thisPageBookmarkButton;
-    protected SharedPreferences bookmarksFile;
-    protected ArrayList<Bookmark> topicsBookmarked;
-    protected ArrayList<Bookmark> boardsBookmarked;
-    protected static Drawable bookmarked;
-    protected static Drawable notBookmarked;
+    private SharedPreferences bookmarksFile;
+    private ArrayList<Bookmark> topicsBookmarked;
+    private ArrayList<Bookmark> boardsBookmarked;
+    private static Drawable bookmarked;
+    private static Drawable notBookmarked;
 
     //Common UI elements
     protected Toolbar toolbar;

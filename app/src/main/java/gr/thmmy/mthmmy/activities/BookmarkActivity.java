@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -25,7 +24,6 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 public class BookmarkActivity extends BaseActivity {
-    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +41,6 @@ public class BookmarkActivity extends BaseActivity {
 
         createDrawer();
         drawer.setSelection(BOOKMARKS_ID);
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
         LinearLayout bookmarksLinearView = (LinearLayout) findViewById(R.id.bookmarks_container);
         LayoutInflater layoutInflater = getLayoutInflater();
@@ -66,15 +63,11 @@ public class BookmarkActivity extends BaseActivity {
 
         for (final Bookmark bookmarkedBoard : getBoardsBookmarked()) {
             if (bookmarkedBoard != null && bookmarkedBoard.getTitle() != null) {
-                Log.d("TAG", bookmarkedBoard.getTitle() + " - " + bookmarkedBoard.getId());
                 final LinearLayout row = (LinearLayout) layoutInflater.inflate(
                         R.layout.activity_bookmark_row, bookmarksLinearView, false);
                 row.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.d("TAG", "https://www.thmmy.gr/smf/index.php?board="
-                                + bookmarkedBoard.getId() + ".0");
-                        Log.d("TAG", bookmarkedBoard.getTitle());
                         Intent intent = new Intent(BookmarkActivity.this, BoardActivity.class);
                         Bundle extras = new Bundle();
                         extras.putString(BUNDLE_BOARD_URL, "https://www.thmmy.gr/smf/index.php?board="
@@ -115,7 +108,6 @@ public class BookmarkActivity extends BaseActivity {
 
         for (final Bookmark bookmarkedTopic : getTopicsBookmarked()) {
             if (bookmarkedTopic != null && bookmarkedTopic.getTitle() != null) {
-                Log.d("TAG", bookmarkedTopic.getTitle() + " - " + bookmarkedTopic.getId());
                 final LinearLayout row = (LinearLayout) layoutInflater.inflate(
                         R.layout.activity_bookmark_row, bookmarksLinearView, false);
                 row.setOnClickListener(new View.OnClickListener() {

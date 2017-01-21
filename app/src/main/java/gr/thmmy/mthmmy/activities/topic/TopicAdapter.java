@@ -7,11 +7,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -30,12 +27,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -47,8 +41,7 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
-import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import gr.thmmy.mthmmy.model.ThmmyFile;
 import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -93,8 +86,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      * Index of state indicator in the boolean array. If true quote button for this post is checked.
      */
     private static final int isQuoteButtonChecked = 2;
-    //private final MaterialProgressBar progressBar;
-    private DownloadTask downloadTask;
     private TopicActivity.TopicTask topicTask;
 
     /**
@@ -157,7 +148,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
-    TopicAdapter(Context context, MaterialProgressBar progressBar, List<Post> postsList,
+    TopicAdapter(Context context, List<Post> postsList,
                  TopicActivity.TopicTask topicTask) {
         this.context = context;
         this.postsList = postsList;
@@ -167,8 +158,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
-        //this.progressBar = progressBar;
-        downloadTask = new DownloadTask();
         this.topicTask = topicTask;
     }
 
@@ -631,75 +620,5 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             return context.getResources().getString(R.string.fa_file_video_o);
 
         return context.getResources().getString(R.string.fa_file);
-    }
-
-    private class DownloadTask extends AsyncTask<ThmmyFile, Void, String> {
-        //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        private static final String TAG = "DownloadTask"; //Separate tag for AsyncTask
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Toast.makeText(context, "Downloading", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        protected String doInBackground(ThmmyFile... file) {
-            try {
-                File tempFile = file[0].download(context);
-                if (tempFile != null) {
-                    if (file[0].isInternal()) {
-                        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                                file[0].getExtension());
-
-                        Intent intent = new Intent();
-                        intent.setAction(android.content.Intent.ACTION_VIEW);
-                        //intent.setDataAndType(Uri.fromFile(tempFile), mime);
-
-                        intent.setDataAndType(FileProvider.getUriForFile(context, context.
-                                getApplicationContext()
-                                .getPackageName() + ".provider", tempFile), mime);
-
-                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
-                    } else {
-                        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                                file[0].getExtension());
-
-                        Intent intent = new Intent();
-                        intent.setAction(android.content.Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.fromFile(tempFile), mime);
-
-                        /*intent.setDataAndType(FileProvider.getUriForFile(context, context.
-                                getApplicationContext()
-                                .getPackageName() + ".provider", tempFile), mime);*/
-
-                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
-                    }
-                }
-            } catch (IOException e) {
-                Report.e(TAG, "Error while trying to download a file", e);
-                return e.toString();
-            } catch (OutOfMemoryError e) {
-                Report.e(TAG, e.toString(), e);
-                return e.toString();
-            } catch (IllegalStateException e) {
-                Report.e(TAG, e.toString(), e);
-                return e.toString();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-                Toast.makeText(context, "Download failed!", Toast.LENGTH_SHORT).show();
-                Toast.makeText(context, result, Toast.LENGTH_LONG).show();
-            }
-        }
     }
 }

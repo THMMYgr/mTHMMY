@@ -181,7 +181,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
      * <p>BoardTask's {@link AsyncTask#execute execute} method needs a boards's url as String
      * parameter!</p>
      */
-    public class BoardTask extends AsyncTask<String, Void, Boolean> {
+    public class BoardTask extends AsyncTask<String, Void, Void> {
         //Class variables
         /**
          * Debug Tag for logging debug output to LogCat
@@ -196,29 +196,23 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         @Override
-        protected Boolean doInBackground(String... boardUrl) {
+        protected Void doInBackground(String... boardUrl) {
             Request request = new Request.Builder()
                     .url(boardUrl[0])
                     .build();
             try {
                 Response response = BaseActivity.getClient().newCall(request).execute();
-                return parseBoard(Jsoup.parse(response.body().string()));
+                parseBoard(Jsoup.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
                 Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
                 Report.e("TAG", "ERROR", e);
             }
-            return false;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            if (!result) { //Parse failed!
-                Report.d(TAG, "Parse failed!");
-                Toast.makeText(getApplicationContext()
-                        , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
-                finish();
-            }
+        protected void onPostExecute(Void voids) {
             if (boardTitle == null || Objects.equals(boardTitle, "")) toolbar.setTitle(boardTitle);
 
             //Parse was successful
@@ -229,7 +223,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             isLoadingMore = false;
         }
 
-        private boolean parseBoard(Document boardPage) {
+        private void parseBoard(Document boardPage) {
             if (boardTitle == null || Objects.equals(boardTitle, ""))
                 boardTitle = boardPage.select("div.nav a.nav").last().text();
 
@@ -333,7 +327,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     }
                 }
             }
-            return true;
         }
     }
 }

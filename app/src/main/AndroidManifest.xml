@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="gr.thmmy.mthmmy">
+          package="gr.thmmy.mthmmy">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:name=".base.BaseApplication"
@@ -22,9 +22,9 @@
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
@@ -33,14 +33,14 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".activities.AboutActivity"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity" />
+                android:value=".activities.main.MainActivity"/>
         </activity>
         <activity
             android:name=".activities.topic.TopicActivity"
@@ -49,11 +49,11 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity" />
+                android:value=".activities.main.MainActivity"/>
         </activity>
         <activity
             android:name=".activities.profile.ProfileActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.board.BoardActivity"
             android:configChanges="orientation|screenSize"
@@ -61,7 +61,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity" />
+                android:value=".activities.main.MainActivity"/>
         </activity>
         <activity
             android:name=".activities.downloads.DownloadsActivity"
@@ -69,7 +69,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity" />
+                android:value=".activities.main.MainActivity"/>
         </activity>
         <activity
             android:name=".activities.BookmarkActivity"
@@ -77,7 +77,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity" />
+                android:value=".activities.main.MainActivity"/>
         </activity>
 
         <provider
@@ -87,12 +87,12 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
+                android:resource="@xml/provider_paths"/>
         </provider>
 
         <service
             android:name=".services.DownloadService"
-            android:exported="false"></service>
+            android:exported="false"/>
     </application>
 
 </manifest>
