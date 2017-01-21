@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import gr.thmmy.mthmmy.R;
@@ -16,7 +15,6 @@ import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
@@ -134,5 +132,11 @@ public class BookmarkActivity extends BaseActivity {
                 bookmarksLinearView.addView(row);
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        drawer.setSelection(BOOKMARKS_ID);
+        super.onResume();
     }
 }

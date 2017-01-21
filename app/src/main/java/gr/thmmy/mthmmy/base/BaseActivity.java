@@ -328,7 +328,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, downloadsItem, bookmarksItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, loginLogoutItem, aboutItem);
         else
             drawerBuilder.addDrawerItems(homeItem, loginLogoutItem, aboutItem);
 
@@ -349,6 +349,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 drawer.removeItem(DOWNLOADS_ID);
+                drawer.removeItem(BOOKMARKS_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername()).withIcon(new IconicsDrawable(this)
                         .icon(FontAwesome.Icon.faw_user)
