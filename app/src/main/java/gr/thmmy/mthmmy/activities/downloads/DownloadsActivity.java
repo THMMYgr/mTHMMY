@@ -272,7 +272,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                         rows.select("div.smalltext:not(:has(a))").text(),
                         rows.select("span:not(:has(a))").first().text(),
                         false,
-                        rows.select("span:has(a)").first().html()));
+                        rows.select("span:has(a)").first().text()));
             }
         }
     }

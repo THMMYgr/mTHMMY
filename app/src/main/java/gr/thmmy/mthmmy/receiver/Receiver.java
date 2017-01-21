@@ -16,6 +16,7 @@ import java.io.File;
 import gr.thmmy.mthmmy.R;
 import mthmmy.utils.Report;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.services.DownloadService.ACTION_DOWNLOAD;
 import static gr.thmmy.mthmmy.services.DownloadService.COMPLETED;
 import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_DOWNLOAD_ID;
@@ -61,22 +62,19 @@ public class Receiver extends BroadcastReceiver {
 
                 File file = new File(SAVE_DIR, fileName);
                 if (file.exists()) {
-//                    String type = "application/" + extension;
-                    String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                    String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                            MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath()));
 
-                    Uri pathUri = Uri.fromFile(file);
-                    Intent chooserIntent = new Intent(Intent.ACTION_VIEW);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    Intent chooser = Intent.createChooser(chooserIntent, "Open With...");
-                    intent.setDataAndType(pathUri, type);
+                    Intent chooser = new Intent();
+                    chooser.setAction(android.content.Intent.ACTION_VIEW);
+                    chooser.setDataAndType(Uri.fromFile(file), type);
+                    chooser.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                    chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                     PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, chooser, PendingIntent.FLAG_CANCEL_CURRENT);
                     builder.setContentIntent(pendingIntent);
-                }
-                else
-                    Report.w(TAG,"File doesn't exist.");
-
-
+                } else
+                    Report.w(TAG, "File doesn't exist.");
             }
             Notification notification = builder.build();
             notificationManager.notify(id, notification);

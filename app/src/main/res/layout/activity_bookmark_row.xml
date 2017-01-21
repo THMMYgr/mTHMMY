@@ -4,14 +4,15 @@
     android:id="@+id/bookmark_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
-    android:layout_marginTop="4dp"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
+    android:gravity="center_vertical"
     android:orientation="horizontal"
+    android:paddingBottom="6dp"
     android:paddingEnd="16dp"
-    android:paddingStart="16dp">
+    android:paddingStart="16dp"
+    android:paddingTop="6dp">
 
     <TextView
         android:id="@+id/bookmark_title"
