@@ -6,9 +6,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
+        android:name=".base.BaseApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,13 +26,35 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:host="thmmy.gr"
+                    android:scheme="http"/>
+                <data
+                    android:host="www.thmmy.gr"
+                    android:scheme="http"/>
+
+                <data
+                    android:host="www.thmmy.gr"
+                    android:scheme="https"/>
+
+                <data
+                    android:host="thmmy.gr"
+                    android:scheme="https"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".activities.LoginActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".activities.AboutActivity"
             android:parentActivityName=".activities.main.MainActivity"
@@ -52,8 +74,7 @@
         </activity>
         <activity
             android:name=".activities.profile.ProfileActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.board.BoardActivity"
             android:configChanges="orientation|screenSize"
@@ -63,6 +84,46 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity"/>
         </activity>
+        <activity
+            android:name=".activities.downloads.DownloadsActivity"
+            android:parentActivityName=".activities.main.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.main.MainActivity"/>
+        </activity>
+        <activity
+            android:name=".activities.BookmarkActivity"
+            android:parentActivityName=".activities.main.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.main.MainActivity"/>
+        </activity>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
+        <service
+            android:name=".services.DownloadService"
+            android:exported="false"/>
+
+        <receiver
+            android:name=".receiver.Receiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.media.action.ACTION_DOWNLOAD"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

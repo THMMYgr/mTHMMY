@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.model.Post;
-import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
+import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import mthmmy.utils.Report;
 

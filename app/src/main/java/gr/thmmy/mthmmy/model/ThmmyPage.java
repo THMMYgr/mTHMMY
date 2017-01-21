@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.model;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import java.util.Objects;
 
@@ -12,7 +11,7 @@ import mthmmy.utils.Report;
  * classes). It can be used to resolve link targets as to whether they are pointing to the forum and
  * where in the forum they may point.
  */
-public class LinkTarget {
+public class ThmmyPage {
     /**
      * Debug Tag for logging debug output to LogCat
      */
@@ -23,6 +22,7 @@ public class LinkTarget {
      * An enum describing a link's target by defining the types:<ul>
      * <li>{@link #NOT_THMMY}</li>
      * <li>{@link #THMMY}</li>
+     * <li>{@link #INDEX}</li>
      * <li>{@link #UNKNOWN_THMMY}</li>
      * <li>{@link #TOPIC}</li>
      * <li>{@link #BOARD}</li>
@@ -33,7 +33,7 @@ public class LinkTarget {
      * <li>{@link #PROFILE}</li>
      * </ul>
      */
-    public enum Target {
+    public enum PageCategory {
         /**
          * Link doesn't point to thmmy.
          */
@@ -42,6 +42,10 @@ public class LinkTarget {
          * Link points to thmmy.
          */
         THMMY,
+        /**
+         * Link points to thmmy index page/
+         */
+        INDEX,
         /**
          * Link points to a thmmy page that's not (yet) supported by the app.
          */
@@ -73,28 +77,44 @@ public class LinkTarget {
         /**
          * Link points to a profile.
          */
-        PROFILE;
+        PROFILE,
+        /**
+         * Link points to a download.
+         */
+        DOWNLOADS_CATEGORY,
+        /**
+         * Link points to a download category.
+         */
+        DOWNLOADS_FILE,
+        /**
+         * Link points to downloads.
+         */
+        DOWNLOADS;
 
         /**
-         * This method defines a custom equality check for {@link Target} enums. It does not check
+         * This method defines a custom equality check for {@link PageCategory} enums. It does not check
          * whether a url is equal to another.
          * <p>Method returns true if parameter's Target is the same as the object and in the specific
          * cases described below, false otherwise.</p><ul>
          * <li>(Everything but {@link #NOT_THMMY}).is({@link #THMMY}) returns true</li>
          * <li>{@link #PROFILE_SUMMARY}.is({@link #PROFILE}) returns true</li>
-         * <li>{@link #PROFILE_LATEST_POSTS}.is({@link #PROFILE}) returns true</li>
-         * <li>{@link #PROFILE_STATS}.is({@link #PROFILE}) returns true</li>
          * <li>{@link #PROFILE}.is({@link #PROFILE_SUMMARY}) returns false</li>
+         * <li>{@link #PROFILE_LATEST_POSTS}.is({@link #PROFILE}) returns true</li>
          * <li>{@link #PROFILE}.is({@link #PROFILE_LATEST_POSTS}) returns false</li>
-         * <li>{@link #PROFILE}.is({@link #PROFILE_STATS}) returns false</li></ul>
+         * <li>{@link #PROFILE_STATS}.is({@link #PROFILE}) returns true</li>
+         * <li>{@link #PROFILE}.is({@link #PROFILE_STATS}) returns false</li>
+         * <li>{@link #DOWNLOADS_CATEGORY}.is({@link #DOWNLOADS}) returns true</li>
+         * <li>{@link #DOWNLOADS}.is({@link #DOWNLOADS_CATEGORY}) returns false</li>
+         * <li>{@link #DOWNLOADS_FILE}.is({@link #DOWNLOADS}) returns true</li>
+         * <li>{@link #DOWNLOADS}.is({@link #DOWNLOADS_FILE}) returns false</li></ul>
          *
          * @param other another Target
          * @return true if <b>enums</b> are equal, false otherwise
          */
-        public boolean is(Target other) {
-            return (this == PROFILE_LATEST_POSTS ||
-                    this == PROFILE_STATS ||
-                    this == PROFILE_SUMMARY) && other == PROFILE
+        public boolean is(PageCategory other) {
+            return ((this == PROFILE_LATEST_POSTS || this == PROFILE_STATS || this == PROFILE_SUMMARY)
+                    && other == PROFILE)
+                    || ((this == DOWNLOADS_FILE || this == DOWNLOADS_CATEGORY) && other == DOWNLOADS)
                     || (this != NOT_THMMY && other == THMMY)
                     || this == other;
         }
@@ -107,7 +127,7 @@ public class LinkTarget {
      * @return true if url is pointing to thmmy, false otherwise
      */
     public static boolean isThmmy(Uri uri) {
-        return resolveLinkTarget(uri) != Target.NOT_THMMY;
+        return resolvePageCategory(uri) != PageCategory.NOT_THMMY;
     }
 
     /**
@@ -116,24 +136,49 @@ public class LinkTarget {
      * @param uri url to resolve
      * @return resolved target
      */
-    public static Target resolveLinkTarget(Uri uri) {
+    public static PageCategory resolvePageCategory(Uri uri) {
         final String host = uri.getHost();
         final String uriString = uri.toString();
 
+        if (Objects.equals(uriString, "thmmy.gr")) return PageCategory.INDEX;
         if (Objects.equals(host, "www.thmmy.gr")) {
-            if (uriString.contains("topic=")) return Target.TOPIC;
-            else if (uriString.contains("board=")) return Target.BOARD;
+            if (uriString.contains("topic=")) return PageCategory.TOPIC;
+            else if (uriString.contains("board=")) return PageCategory.BOARD;
             else if (uriString.contains("action=profile")) {
                 if (uriString.contains(";sa=showPosts"))
-                    return Target.PROFILE_LATEST_POSTS;
+                    return PageCategory.PROFILE_LATEST_POSTS;
                 else if (uriString.contains(";sa=statPanel"))
-                    return Target.PROFILE_STATS;
-                else return Target.PROFILE_SUMMARY;
+                    return PageCategory.PROFILE_STATS;
+                else return PageCategory.PROFILE_SUMMARY;
             } else if (uriString.contains("action=unread"))
-                return Target.UNREAD_POSTS;
+                return PageCategory.UNREAD_POSTS;
+            else if (uriString.contains("action=tpmod;dl=item"))
+                return PageCategory.DOWNLOADS_FILE;
+            else if (uriString.contains("action=tpmod;dl"))
+                return PageCategory.DOWNLOADS_CATEGORY;
+            else if (uriString.contains("action=forum") || Objects.equals(uriString, "www.thmmy.gr")
+                    || Objects.equals(uriString, "http://www.thmmy.gr")
+                    || Objects.equals(uriString, "https://www.thmmy.gr")
+                    || Objects.equals(uriString, "https://www.thmmy.gr/smf/index.php"))
+                return PageCategory.INDEX;
             Report.v(TAG, "Unknown thmmy link found, link: " + uriString);
-            return Target.UNKNOWN_THMMY;
+            return PageCategory.UNKNOWN_THMMY;
         }
-        return Target.NOT_THMMY;
+        return PageCategory.NOT_THMMY;
+    }
+
+    public static String getBoardId(String boardUrl) {
+        if (resolvePageCategory(Uri.parse(boardUrl)) == PageCategory.BOARD) {
+            return boardUrl.substring(boardUrl.indexOf("board=") + 6, boardUrl.lastIndexOf("."));
+        }
+        return null;
+    }
+
+    public static String getTopicId(String topicUrl) {
+        if (resolvePageCategory(Uri.parse(topicUrl)) == PageCategory.TOPIC) {
+            String tmp = topicUrl.substring(topicUrl.indexOf("topic=") + 6);
+            return tmp.substring(0, tmp.indexOf("."));
+        }
+        return null;
     }
 }

@@ -1,13 +1,11 @@
 package gr.thmmy.mthmmy.activities.topic;
 
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -27,10 +25,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.base.BaseActivity;
-import gr.thmmy.mthmmy.model.LinkTarget;
+import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
+import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
@@ -69,7 +67,6 @@ public class TopicActivity extends BaseActivity {
     public static final ArrayList<Integer> toQuoteList = new ArrayList<>();
     //Topic's pages
     private int thisPage = 1;
-    public static String base_url = "";
     private int numberOfPages = 1;
     private final SparseArray<String> pagesUrls = new SparseArray<>();
     //Page select
@@ -87,9 +84,10 @@ public class TopicActivity extends BaseActivity {
     private ImageButton nextPage;
     private ImageButton lastPage;
     //Other variables
-    private MaterialProgressBar progressBar;
-    private String topicTitle;
     private FloatingActionButton replyFAB;
+    private MaterialProgressBar progressBar;
+    private static String base_url = "";
+    private String topicTitle;
     private String parsedTitle;
     private RecyclerView recyclerView;
     private String loadedPageUrl = "";
@@ -102,10 +100,11 @@ public class TopicActivity extends BaseActivity {
 
         Bundle extras = getIntent().getExtras();
         topicTitle = extras.getString(BUNDLE_TOPIC_TITLE);
-        LinkTarget.Target target = LinkTarget.resolveLinkTarget(
-                Uri.parse(extras.getString(BUNDLE_TOPIC_URL)));
-        if (!target.is(LinkTarget.Target.TOPIC)) {
-            Report.e(TAG, "Bundle came with a non topic url!\nUrl:\n" + extras.getString(BUNDLE_TOPIC_URL));
+        String topicPageUrl = extras.getString(BUNDLE_TOPIC_URL);
+        ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
+                Uri.parse(topicPageUrl));
+        if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
+            Report.e(TAG, "Bundle came with a non topic url!\nUrl:\n" + topicPageUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -119,6 +118,9 @@ public class TopicActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
+        thisPageBookmarkButton = (ImageButton) findViewById(R.id.bookmark);
+        setTopicBookmark();
         createDrawer();
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
@@ -129,13 +131,14 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(getApplicationContext(), progressBar, postsList,
+        topicAdapter = new TopicAdapter(this, postsList,
                 topicTask);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
-        if (!sessionManager.isLoggedIn()) replyFAB.hide();
+        replyFAB.hide();
+        /*if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
             replyFAB.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -163,7 +166,7 @@ public class TopicActivity extends BaseActivity {
                     }
                 }
             });
-        }
+        }*/
 
         //Sets bottom navigation bar
         firstPage = (ImageButton) findViewById(R.id.page_first_button);
@@ -176,11 +179,7 @@ public class TopicActivity extends BaseActivity {
         initDecrementButton(previousPage, SMALL_STEP);
         initIncrementButton(nextPage, SMALL_STEP);
         initIncrementButton(lastPage, LARGE_STEP);
-
-        firstPage.setEnabled(false);
-        previousPage.setEnabled(false);
-        nextPage.setEnabled(false);
-        lastPage.setEnabled(false);
+        paginationEnabled(false);
 
         //Gets posts
         topicTask = new TopicTask();
@@ -210,19 +209,73 @@ public class TopicActivity extends BaseActivity {
             topicTask.cancel(true);
     }
 
-    //--------------------------------------BOTTOM NAV BAR METHODS--------------------------------------
+    //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------
+
+    /**
+     * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue
+     * of page value when long pressing one of the page navigation buttons.
+     */
+    class RepetitiveUpdater implements Runnable {
+        private final int step;
+
+        /**
+         * @param step number of pages to add/subtract on each repetition
+         */
+        RepetitiveUpdater(int step) {
+            this.step = step;
+        }
+
+        public void run() {
+            long REPEAT_DELAY = 250;
+            if (autoIncrement) {
+                incrementPageRequestValue(step);
+                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
+            } else if (autoDecrement) {
+                decrementPageRequestValue(step);
+                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
+            }
+        }
+    }
+
+    private void paginationEnabled(boolean enabled) {
+        firstPage.setEnabled(enabled);
+        previousPage.setEnabled(enabled);
+        nextPage.setEnabled(enabled);
+        lastPage.setEnabled(enabled);
+    }
+
+    private void paginationEnabledExcept(boolean enabled, View exception) {
+        if (exception == firstPage) {
+            previousPage.setEnabled(enabled);
+            nextPage.setEnabled(enabled);
+            lastPage.setEnabled(enabled);
+        } else if (exception == previousPage) {
+            firstPage.setEnabled(enabled);
+            nextPage.setEnabled(enabled);
+            lastPage.setEnabled(enabled);
+        } else if (exception == nextPage) {
+            firstPage.setEnabled(enabled);
+            previousPage.setEnabled(enabled);
+            lastPage.setEnabled(enabled);
+        } else if (exception == lastPage) {
+            firstPage.setEnabled(enabled);
+            previousPage.setEnabled(enabled);
+            nextPage.setEnabled(enabled);
+        } else {
+            paginationEnabled(enabled);
+        }
+    }
+
     private void initIncrementButton(ImageButton increment, final int step) {
         // Increment once for a click
         increment.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!autoIncrement && step == LARGE_STEP) { //If just clicked go to last page
+                if (!autoIncrement && step == LARGE_STEP) {
                     changePage(numberOfPages - 1);
-                    return;
+                } else if (!autoIncrement) {
+                    incrementPageRequestValue(step);
+                    changePage(pageRequestValue - 1);
                 }
-                //Clicked and holden
-                autoIncrement = false; //Stop incrementing
-                incrementPageRequestValue(step);
-                changePage(pageRequestValue - 1);
             }
         });
 
@@ -230,6 +283,7 @@ public class TopicActivity extends BaseActivity {
         increment.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
+                        paginationEnabledExcept(false, arg0);
                         autoIncrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
@@ -239,9 +293,21 @@ public class TopicActivity extends BaseActivity {
 
         // When the button is released
         increment.setOnTouchListener(new View.OnTouchListener() {
+            private Rect rect;
+
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
+                } else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
+                    autoIncrement = false;
+                    paginationEnabled(true);
                     changePage(pageRequestValue - 1);
+                } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
+                        autoIncrement = false;
+                        decrementPageRequestValue(pageRequestValue - thisPage);
+                        paginationEnabled(true);
+                    }
                 }
                 return false;
             }
@@ -252,22 +318,20 @@ public class TopicActivity extends BaseActivity {
         // Decrement once for a click
         decrement.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!autoDecrement && step == LARGE_STEP) { //If just clicked go to first page
+                if (!autoDecrement && step == LARGE_STEP) {
                     changePage(0);
-                    return;
+                } else if (!autoDecrement) {
+                    decrementPageRequestValue(step);
+                    changePage(pageRequestValue - 1);
                 }
-                //Clicked and hold
-                autoDecrement = false; //Stop decrementing
-                decrementPageRequestValue(step);
-                changePage(pageRequestValue - 1);
             }
         });
-
 
         // Auto decrement for a long click
         decrement.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
+                        paginationEnabledExcept(false, arg0);
                         autoDecrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
@@ -277,9 +341,21 @@ public class TopicActivity extends BaseActivity {
 
         // When the button is released
         decrement.setOnTouchListener(new View.OnTouchListener() {
+            private Rect rect;
+
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
+                } else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
+                    autoDecrement = false;
+                    paginationEnabled(true);
                     changePage(pageRequestValue - 1);
+                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
+                        autoIncrement = false;
+                        incrementPageRequestValue(thisPage - pageRequestValue);
+                        paginationEnabled(true);
+                    }
                 }
                 return false;
             }
@@ -333,15 +409,16 @@ public class TopicActivity extends BaseActivity {
         private static final int OTHER_ERROR = 2;
         private static final int SAME_PAGE = 3;
 
+        @Override
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            paginationEnable(false);
+            paginationEnabled(false);
             if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(false);
         }
 
         protected Integer doInBackground(String... strings) {
             Document document;
-            base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //This topic's base url
+            base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //New topic's base url
             String newPageUrl = strings[0];
 
             //Finds the index of message focus if present
@@ -351,20 +428,30 @@ public class TopicActivity extends BaseActivity {
                     String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
                     if (tmp.contains(";"))
                         postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
-                    else
+                    else if (tmp.contains("#"))
                         postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
                 }
             }
 
             //Checks if the page to be loaded is the one already shown
-            if (!Objects.equals(loadedPageUrl, "") && !loadedPageUrl.contains(base_url)) {
+            if (!Objects.equals(loadedPageUrl, "") && loadedPageUrl.contains(base_url)) {
                 if (newPageUrl.contains("topicseen#new"))
-                    if (Integer.parseInt(loadedPageUrl.substring(base_url.length())) == numberOfPages)
+                    if (thisPage == numberOfPages)
                         return SAME_PAGE;
-                if (Objects.equals(loadedPageUrl.substring(base_url.length())
-                        , newPageUrl.substring(base_url.length())))
+                if (newPageUrl.contains("msg")) {
+                    String tmpUrlSbstr = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
+                    if (tmpUrlSbstr.contains("msg"))
+                        tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
+                    int testAgainst = Integer.parseInt(tmpUrlSbstr);
+                    for (Post post : postsList) {
+                        if (post.getPostIndex() == testAgainst) {
+                            return SAME_PAGE;
+                        }
+                    }
+                }
+                if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
                     return SAME_PAGE;
-            }
+            } else if (!Objects.equals(loadedPageUrl, "")) topicTitle = null;
 
             loadedPageUrl = newPageUrl;
             Request request = new Request.Builder()
@@ -395,6 +482,11 @@ public class TopicActivity extends BaseActivity {
 
             switch (parseResult) {
                 case SUCCESS:
+                    if (topicTitle == null || Objects.equals(topicTitle, "")) {
+                        thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl));
+                        setTopicBookmark();
+                    }
+
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     topicAdapter.customNotifyDataSetChanged(new TopicTask());
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
@@ -403,7 +495,7 @@ public class TopicActivity extends BaseActivity {
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
 
-                    paginationEnable(true);
+                    paginationEnabled(true);
 
                     if (topicTitle == null || Objects.equals(topicTitle, ""))
                         toolbar.setTitle(parsedTitle);
@@ -412,6 +504,11 @@ public class TopicActivity extends BaseActivity {
                     Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
                     break;
                 case SAME_PAGE:
+                    progressBar.setVisibility(ProgressBar.INVISIBLE);
+                    topicAdapter.customNotifyDataSetChanged(new TopicTask());
+                    if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
+                    paginationEnabled(true);
+                    Toast.makeText(TopicActivity.this, "That's the same page.", Toast.LENGTH_SHORT).show();
                     //TODO change focus
                     break;
                 default:
@@ -461,38 +558,5 @@ public class TopicActivity extends BaseActivity {
             postsList.addAll(TopicParser.parseTopic(topic, language));
             //postsList = TopicParser.parseTopic(topic, language);
         }
-    }
-
-    /**
-     * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue
-     * of page value when long pressing one of the page navigation buttons.
-     */
-    class RepetitiveUpdater implements Runnable {
-        private final int step;
-
-        /**
-         * @param step number of pages to add/subtract on each repetition
-         */
-        RepetitiveUpdater(int step) {
-            this.step = step;
-        }
-
-        public void run() {
-            long REPEAT_DELAY = 250;
-            if (autoIncrement) {
-                incrementPageRequestValue(step);
-                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
-            } else if (autoDecrement) {
-                decrementPageRequestValue(step);
-                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
-            }
-        }
-    }
-
-    private void paginationEnable(boolean enabled) {
-        firstPage.setEnabled(enabled);
-        previousPage.setEnabled(enabled);
-        nextPage.setEnabled(enabled);
-        lastPage.setEnabled(enabled);
     }
 }

@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseActivity;
 
 public class AboutActivity extends BaseActivity {
     private static final int TIME_INTERVAL = 1000;
@@ -26,7 +26,7 @@ public class AboutActivity extends BaseActivity {
 
     private AppBarLayout appBar;
     private CoordinatorLayout coordinatorLayout;
-    AlertDialog alertDialog;
+    private AlertDialog alertDialog;
     private FrameLayout trollGif;
 
     @Override
@@ -42,8 +42,10 @@ public class AboutActivity extends BaseActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.about);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         createDrawer();
         drawer.setSelection(ABOUT_ID);
@@ -84,11 +86,11 @@ public class AboutActivity extends BaseActivity {
     }
 
     public void displayApacheLibraries(View v) {
-        LayoutInflater inflater =LayoutInflater.from(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
         WebView webView = (WebView) inflater.inflate(R.layout.dialog_licenses, coordinatorLayout, false);
         webView.loadUrl("file:///android_asset/apache_libraries.html");
-        int width = (int)(getResources().getDisplayMetrics().widthPixels*0.95);
-        int height = (int)(getResources().getDisplayMetrics().heightPixels*0.95);
+        int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
+        int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.95);
         alertDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dark_Dialog)
                 .setTitle(getString(R.string.apache_v2_0_libraries))
                 .setView(webView)
@@ -98,11 +100,11 @@ public class AboutActivity extends BaseActivity {
     }
 
     public void displayMITLibraries(View v) {
-        LayoutInflater inflater =LayoutInflater.from(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
         WebView webView = (WebView) inflater.inflate(R.layout.dialog_licenses, coordinatorLayout, false);
         webView.loadUrl("file:///android_asset/mit_libraries.html");
-        int width = (int)(getResources().getDisplayMetrics().widthPixels*0.95);
-        int height = (int)(getResources().getDisplayMetrics().heightPixels*0.95);
+        int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
+        int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.95);
         alertDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dark_Dialog)
                 .setTitle(getString(R.string.the_mit_libraries))
                 .setView(webView)

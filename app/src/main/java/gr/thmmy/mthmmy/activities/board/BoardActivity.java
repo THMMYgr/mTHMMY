@@ -1,17 +1,15 @@
 package gr.thmmy.mthmmy.activities.board;
 
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -26,10 +24,10 @@ import java.util.Objects;
 import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
-import gr.thmmy.mthmmy.model.LinkTarget;
+import gr.thmmy.mthmmy.model.Bookmark;
+import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.Topic;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
@@ -76,8 +74,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         Bundle extras = getIntent().getExtras();
         boardTitle = extras.getString(BUNDLE_BOARD_TITLE);
         boardUrl = extras.getString(BUNDLE_BOARD_URL);
-        LinkTarget.Target target = LinkTarget.resolveLinkTarget(Uri.parse(boardUrl));
-        if (!target.is(LinkTarget.Target.BOARD)) {
+        ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(boardUrl));
+        if (!target.is(ThmmyPage.PageCategory.BOARD)) {
             Report.e(TAG, "Bundle came with a non board url!\nUrl:\n" + boardUrl);
             Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
             finish();
@@ -93,11 +91,16 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl));
+        thisPageBookmarkButton = (ImageButton) findViewById(R.id.bookmark);
+        setBoardBookmark();
         createDrawer();
+
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
         newTopicFAB = (FloatingActionButton) findViewById(R.id.board_fab);
         newTopicFAB.setEnabled(false);
-        if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
+        newTopicFAB.hide();
+        /*if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
         else {
             newTopicFAB.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -125,7 +128,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     }
                 }
             });
-        }
+        }*/
 
         boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
         RecyclerView mainContent = (RecyclerView) findViewById(R.id.board_recycler_view);
@@ -178,7 +181,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
      * <p>BoardTask's {@link AsyncTask#execute execute} method needs a boards's url as String
      * parameter!</p>
      */
-    public class BoardTask extends AsyncTask<String, Void, Boolean> {
+    public class BoardTask extends AsyncTask<String, Void, Void> {
         //Class variables
         /**
          * Debug Tag for logging debug output to LogCat
@@ -186,34 +189,32 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         @SuppressWarnings("unused")
         private static final String TAG = "BoardTask"; //Separate tag for AsyncTask
 
+        @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
             if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(false);
         }
 
         @Override
-        protected Boolean doInBackground(String... boardUrl) {
+        protected Void doInBackground(String... boardUrl) {
             Request request = new Request.Builder()
                     .url(boardUrl[0])
                     .build();
             try {
                 Response response = BaseActivity.getClient().newCall(request).execute();
-                return parseBoard(Jsoup.parse(response.body().string()));
+                parseBoard(Jsoup.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
                 Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
                 Report.e("TAG", "ERROR", e);
             }
-            return false;
+            return null;
         }
 
-        protected void onPostExecute(Boolean result) {
-            if (!result) { //Parse failed!
-                Report.d(TAG, "Parse failed!");
-                Toast.makeText(getApplicationContext()
-                        , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
-                finish();
-            }
+        @Override
+        protected void onPostExecute(Void voids) {
+            if (boardTitle == null || Objects.equals(boardTitle, "")) toolbar.setTitle(boardTitle);
+
             //Parse was successful
             ++pagesLoaded;
             if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);
@@ -222,7 +223,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             isLoadingMore = false;
         }
 
-        private boolean parseBoard(Document boardPage) {
+        private void parseBoard(Document boardPage) {
             if (boardTitle == null || Objects.equals(boardTitle, ""))
                 boardTitle = boardPage.select("div.nav a.nav").last().text();
 
@@ -280,7 +281,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                 } else {
                                     pUrl = subBoardCol.select("a").first().attr("href");
                                     pTitle = subBoardCol.select("a").first().text();
-                                    pMods = subBoardCol.select("div.smalltext").first().text();
+                                    if (subBoardCol.select("div.smalltext").first() != null) {
+                                        pMods = subBoardCol.select("div.smalltext").first().text();
+                                    }
                                 }
                             }
                             parsedSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
@@ -324,7 +327,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     }
                 }
             }
-            return true;
         }
     }
 }

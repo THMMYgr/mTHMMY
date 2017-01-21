@@ -7,21 +7,17 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -31,12 +27,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,20 +37,19 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
-import gr.thmmy.mthmmy.model.LinkTarget;
+import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
+import gr.thmmy.mthmmy.model.ThmmyFile;
+import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
-import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
 
 /**
@@ -94,8 +86,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      * Index of state indicator in the boolean array. If true quote button for this post is checked.
      */
     private static final int isQuoteButtonChecked = 2;
-    private final MaterialProgressBar progressBar;
-    private DownloadTask downloadTask;
     private TopicActivity.TopicTask topicTask;
 
     /**
@@ -158,7 +148,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
-    TopicAdapter(Context context, MaterialProgressBar progressBar, List<Post> postsList,
+    TopicAdapter(Context context, List<Post> postsList,
                  TopicActivity.TopicTask topicTask) {
         this.context = context;
         this.postsList = postsList;
@@ -168,8 +158,6 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
-        this.progressBar = progressBar;
-        downloadTask = new DownloadTask();
         this.topicTask = topicTask;
     }
 
@@ -231,6 +219,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             } else //noinspection deprecation
                 filesTextColor = context.getResources().getColor(R.color.accent);
 
+            holder.postFooter.removeAllViews();
             for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
                 final TextView attached = new TextView(context);
                 attached.setTextSize(10f);
@@ -245,8 +234,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 attached.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        downloadTask = new DownloadTask();
-                        downloadTask.execute(attachedFile);
+                        ((BaseActivity) context).launchDownloadService(attachedFile);
                     }
                 });
 
@@ -257,67 +245,85 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.postFooter.removeAllViews();
         }
 
+        String mSpecialRank, mRank, mGender, mNumberOfPosts, mPersonalText;
+        int mNumberOfStars, mUserColor;
+
         if (!currentPost.isDeleted()) { //Sets user's extra info
-            String mSpecialRank = currentPost.getSpecialRank(), mRank = currentPost.getRank(), mGender = currentPost.getGender(), mNumberOfPosts = currentPost.getNumberOfPosts(), mPersonalText = currentPost.getPersonalText();
-            int mNumberOfStars = currentPost.getNumberOfStars(), mUserColor = currentPost.getUserColor();
+            mSpecialRank = currentPost.getSpecialRank();
+            mRank = currentPost.getRank();
+            mGender = currentPost.getGender();
+            mNumberOfPosts = currentPost.getNumberOfPosts();
+            mPersonalText = currentPost.getPersonalText();
+            mNumberOfStars = currentPost.getNumberOfStars();
+            mUserColor = currentPost.getUserColor();
+        } else {
+            mSpecialRank = null;
+            mRank = null;
+            mGender = null;
+            mNumberOfPosts = null;
+            mPersonalText = null;
+            mNumberOfStars = 0;
+            mUserColor = 0;
+        }
 
-            if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
-                holder.specialRank.setText(mSpecialRank);
-                holder.specialRank.setVisibility(View.VISIBLE);
-            } else
-                holder.specialRank.setVisibility(View.GONE);
-            if (!Objects.equals(mRank, "") && mRank != null) {
-                holder.rank.setText(mRank);
-                holder.rank.setVisibility(View.VISIBLE);
-            } else
-                holder.rank.setVisibility(View.GONE);
-            if (!Objects.equals(mGender, "") && mGender != null) {
-                holder.gender.setText(mGender);
-                holder.gender.setVisibility(View.VISIBLE);
-            } else
-                holder.gender.setVisibility(View.GONE);
-            if (!Objects.equals(mNumberOfPosts, "") && mNumberOfPosts != null) {
-                holder.numberOfPosts.setText(mNumberOfPosts);
-                holder.numberOfPosts.setVisibility(View.VISIBLE);
-            } else
-                holder.numberOfPosts.setVisibility(View.GONE);
-            if (!Objects.equals(mPersonalText, "") && mPersonalText != null) {
-                holder.personalText.setText("\"" + mPersonalText + "\"");
-                holder.personalText.setVisibility(View.VISIBLE);
-            } else
-                holder.personalText.setVisibility(View.GONE);
-            if (mNumberOfStars > 0) {
-                holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
-                        , "fonts/fontawesome-webfont.ttf"));
+        if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
+            holder.specialRank.setText(mSpecialRank);
+            holder.specialRank.setVisibility(View.VISIBLE);
+        } else
+            holder.specialRank.setVisibility(View.GONE);
+        if (!Objects.equals(mRank, "") && mRank != null) {
+            holder.rank.setText(mRank);
+            holder.rank.setVisibility(View.VISIBLE);
+        } else
+            holder.rank.setVisibility(View.GONE);
+        if (!Objects.equals(mGender, "") && mGender != null) {
+            holder.gender.setText(mGender);
+            holder.gender.setVisibility(View.VISIBLE);
+        } else
+            holder.gender.setVisibility(View.GONE);
+        if (!Objects.equals(mNumberOfPosts, "") && mNumberOfPosts != null) {
+            holder.numberOfPosts.setText(mNumberOfPosts);
+            holder.numberOfPosts.setVisibility(View.VISIBLE);
+        } else
+            holder.numberOfPosts.setVisibility(View.GONE);
+        if (!Objects.equals(mPersonalText, "") && mPersonalText != null) {
+            holder.personalText.setText("\"" + mPersonalText + "\"");
+            holder.personalText.setVisibility(View.VISIBLE);
+        } else
+            holder.personalText.setVisibility(View.GONE);
+        if (mNumberOfStars > 0) {
+            holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
+                    , "fonts/fontawesome-webfont.ttf"));
 
-                String aStar = context.getResources().getString(R.string.fa_icon_star);
-                String usersStars = "";
-                for (int i = 0; i < mNumberOfStars; ++i) {
-                    usersStars += aStar;
-                }
-                holder.stars.setText(usersStars);
-                holder.stars.setTextColor(mUserColor);
-                holder.stars.setVisibility(View.VISIBLE);
-            } else
-                holder.stars.setVisibility(View.GONE);
-            //Special card for special member of the month!
-            if (mUserColor == TopicParser.USER_COLOR_PINK) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.member_of_the_month_card, null));
-                } else //noinspection deprecation
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.member_of_the_month_card));
-            } else holder.cardChildLinear.setBackground(null);
-
-            //Avoid's view's visibility recycling
-            if (viewProperties.get(position)[isUserExtraInfoVisibile]) {
-                holder.userExtraInfo.setVisibility(View.VISIBLE);
-                holder.userExtraInfo.setAlpha(1.0f);
-            } else {
-                holder.userExtraInfo.setVisibility(View.GONE);
-                holder.userExtraInfo.setAlpha(0.0f);
+            String aStar = context.getResources().getString(R.string.fa_icon_star);
+            String usersStars = "";
+            for (int i = 0; i < mNumberOfStars; ++i) {
+                usersStars += aStar;
             }
+            holder.stars.setText(usersStars);
+            holder.stars.setTextColor(mUserColor);
+            holder.stars.setVisibility(View.VISIBLE);
+        } else
+            holder.stars.setVisibility(View.GONE);
+        //Special card for special member of the month!
+        if (mUserColor == TopicParser.USER_COLOR_PINK) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                holder.cardChildLinear.setBackground(context.getResources().
+                        getDrawable(R.drawable.member_of_the_month_card, null));
+            } else //noinspection deprecation
+                holder.cardChildLinear.setBackground(context.getResources().
+                        getDrawable(R.drawable.member_of_the_month_card));
+        } else holder.cardChildLinear.setBackground(null);
+
+        //Avoid's view's visibility recycling
+        if (!currentPost.isDeleted() && viewProperties.get(position)[isUserExtraInfoVisibile]) {
+            holder.userExtraInfo.setVisibility(View.VISIBLE);
+            holder.userExtraInfo.setAlpha(1.0f);
+        } else {
+            holder.userExtraInfo.setVisibility(View.GONE);
+            holder.userExtraInfo.setAlpha(0.0f);
+        }
+        if (!currentPost.isDeleted()) {
             //Sets graphics behavior
             holder.header.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -328,10 +334,10 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                         Bundle extras = new Bundle();
                         extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
                         if (currentPost.getThumbnailUrl() == null)
-                            extras.putString(BUNDLE_THUMBNAIL_URL, "");
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                         else
-                            extras.putString(BUNDLE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
-                        extras.putString(BUNDLE_USERNAME, currentPost.getAuthor());
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
+                        extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
                         intent.putExtras(extras);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
@@ -354,7 +360,11 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                     TopicAnimations.animateUserExtraInfoVisibility(v);
                 }
             });
-        }//End of deleted profiles
+        } else {
+            holder.header.setOnClickListener(null);
+            holder.userExtraInfo.setOnClickListener(null);
+        }
+
         //Avoid's view's visibility recycling
         if (viewProperties.get(position)[isPostDateAndNumberVisibile]) { //Expanded
             holder.postDateAndNumberExp.setVisibility(View.VISIBLE);
@@ -526,11 +536,11 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         private boolean handleUri(final Uri uri) {
             final String uriString = uri.toString();
 
-            LinkTarget.Target target = LinkTarget.resolveLinkTarget(uri);
-            if (target.is(LinkTarget.Target.TOPIC)) {
+            ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(uri);
+            if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if this is the current topic
-                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
+                /*if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
                     //Gets uri's targeted message's index number
                     String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
                     if (msgIndexReq.contains("#"))
@@ -545,10 +555,11 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                             return true;
                         }
                     }
-                }
+                }*/
+
                 topicTask.execute(uri.toString());
                 return true;
-            } else if (target.is(LinkTarget.Target.BOARD)) {
+            } else if (target.is(ThmmyPage.PageCategory.BOARD)) {
                 Intent intent = new Intent(context, BoardActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_BOARD_URL, uriString);
@@ -557,12 +568,12 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 return true;
-            } else if (target.is(LinkTarget.Target.PROFILE)) {
+            } else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
                 Intent intent = new Intent(context, ProfileActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_PROFILE_URL, uriString);
-                extras.putString(BUNDLE_THUMBNAIL_URL, "");
-                extras.putString(BUNDLE_USERNAME, "");
+                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                extras.putString(BUNDLE_PROFILE_USERNAME, "");
                 intent.putExtras(extras);
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
@@ -609,59 +620,5 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             return context.getResources().getString(R.string.fa_file_video_o);
 
         return context.getResources().getString(R.string.fa_file);
-    }
-
-    private class DownloadTask extends AsyncTask<ThmmyFile, Void, String> {
-        //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        private static final String TAG = "DownloadTask"; //Separate tag for AsyncTask
-        private PowerManager.WakeLock mWakeLock;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //Locks CPU to prevent going off
-            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    getClass().getName());
-            mWakeLock.acquire();
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(ThmmyFile... files) {
-            try {
-                File tempFile = files[0].download(context);
-                if (tempFile != null) {
-                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                            files[0].getExtension());
-
-                    Intent intent = new Intent();
-                    intent.setAction(android.content.Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(tempFile), mime);
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                }
-            } catch (IOException e) {
-                Report.e(TAG, "Error while trying to download a file", e);
-                return e.toString();
-            } catch (OutOfMemoryError e) {
-                Report.e(TAG, "Error while trying to download a file", e);
-                return e.toString();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            mWakeLock.release();
-            if (result != null)
-                Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(context, "Download complete", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.INVISIBLE);
-        }
     }
 }

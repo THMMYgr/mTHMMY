@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.base;
+package gr.thmmy.mthmmy.base;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -16,14 +16,16 @@ public abstract class BaseFragment extends Fragment {
 
     private String TAG;
     protected int sectionNumber;
-    protected OkHttpClient client;
+    protected static OkHttpClient client;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TAG = getArguments().getString(ARG_TAG);
         sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-        client = BaseActivity.getClient();
+        if(client==null)
+            client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
+        // becomes null when app restarts after crash
         Report.d(TAG, "onCreate");
     }
 

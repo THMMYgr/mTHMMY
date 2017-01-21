@@ -82,7 +82,7 @@ public class SummaryFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_summary, container, false);
         mainContent = (LinearLayout) rootView.findViewById(R.id.profile_activity_content);
-        if (!parsedProfileSummaryData.isEmpty())
+        if (!parsedProfileSummaryData.isEmpty() && isAdded())
             populateLayout();
         return rootView;
     }
@@ -126,7 +126,7 @@ public class SummaryFragment extends Fragment {
         }
 
         protected void onPostExecute(Void result) {
-            populateLayout();
+            if (isAdded()) populateLayout();
         }
 
         /**
@@ -187,12 +187,12 @@ public class SummaryFragment extends Fragment {
             }
             TextView entry = new TextView(this.getContext());
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 entry.setTextColor(getResources().getColor(R.color.primary_text, null));
-            } else {
+            else
                 //noinspection deprecation
                 entry.setTextColor(getResources().getColor(R.color.primary_text));
-            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 entry.setText(Html.fromHtml(profileSummaryRow, Html.FROM_HTML_MODE_LEGACY));
             } else {

@@ -22,6 +22,16 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/ToolbarTheme">
+
+            <ImageButton
+                android:id="@+id/bookmark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|end"
+                android:layout_marginEnd="4dp"
+                android:background="@null"
+                android:contentDescription="@string/bookmark"
+                android:src="@drawable/ic_bookmark_false"/>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
@@ -50,6 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/button_first"
             app:srcCompat="@drawable/page_first"/>
 
@@ -58,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/button_previous"
             app:srcCompat="@drawable/page_previous"/>
 
@@ -78,6 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/button_next"
             app:srcCompat="@drawable/page_next"/>
 
@@ -86,6 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.8"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/button_last"
             app:srcCompat="@drawable/page_last"/>
     </LinearLayout>

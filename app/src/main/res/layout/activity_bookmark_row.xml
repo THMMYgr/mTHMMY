@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bookmark_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="6dp"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp"
+    android:paddingTop="6dp">
+
+    <TextView
+        android:id="@+id/bookmark_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingBottom="2dp"
+        android:textColor="@color/primary_text"
+        android:textSize="18sp"/>
+
+    <ImageButton
+        android:id="@+id/remove_bookmark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/remove_bookmark"
+        android:src="@drawable/ic_remove_circle"/>
+</LinearLayout>

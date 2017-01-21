@@ -42,6 +42,4 @@
         <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="android:colorBackground">@color/dialog_bg_semi_transparent</item>
     </style>
-
-
 </resources>

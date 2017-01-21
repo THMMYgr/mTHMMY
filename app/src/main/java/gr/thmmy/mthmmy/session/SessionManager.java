@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.session;
 
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -8,7 +9,6 @@ import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersisto
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -27,17 +27,16 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
-    This class handles all session related operations (e.g. login, logout)
-    and stores data to SharedPreferences (session information and cookies).
-*/
-public class SessionManager
-{
+ * This class handles all session related operations (e.g. login, logout)
+ * and stores data to SharedPreferences (session information and cookies).
+ */
+public class SessionManager {
     //Class TAG
     private static final String TAG = "SessionManager";
 
     //Generic constants
-    public static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php");
-    public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum");
+    public static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?theme=4");
+    public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum;theme=4");
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
     private static final String guestName = "Guest";
 
@@ -66,27 +65,25 @@ public class SessionManager
 
     //Constructor
     public SessionManager(OkHttpClient client, PersistentCookieJar cookieJar,
-                          SharedPrefsCookiePersistor cookiePersistor, SharedPreferences sharedPrefs)
-    {
+                          SharedPrefsCookiePersistor cookiePersistor, SharedPreferences sharedPrefs) {
         this.client = client;
-        this.cookiePersistor=cookiePersistor;
+        this.cookiePersistor = cookiePersistor;
         this.cookieJar = cookieJar;
         this.sharedPrefs = sharedPrefs;
     }
 
     //------------------------------------AUTH BEGINS----------------------------------------------
+
     /**
-     *  Login function with two options: (username, password) or nothing (using saved cookies).
-     *  Always call it in a separate thread.
+     * Login function with two options: (username, password) or nothing (using saved cookies).
+     * Always call it in a separate thread.
      */
-    public int login(String... strings)
-    {
+    public int login(String... strings) {
         Report.i(TAG, "Logging in...");
 
         //Build the login request for each case
         Request request;
-        if (strings.length == 2)
-        {
+        if (strings.length == 2) {
             clearSessionData();
 
             String loginName = strings[0];
@@ -101,9 +98,7 @@ public class SessionManager
                     .url(loginUrl)
                     .post(formBody)
                     .build();
-        }
-        else
-        {
+        } else {
             request = new Request.Builder()
                     .url(loginUrl)
                     .build();
@@ -114,8 +109,9 @@ public class SessionManager
             Response response = client.newCall(request).execute();
             Document document = Jsoup.parse(response.body().string());
 
-            Element logoutButton = document.getElementById("logoutbtn"); //Attempt to find logout button
-            if (logoutButton != null) //If logout button exists, login was successful
+            Elements unreadRepliesLinks = document.select("a[href=https://www.thmmy.gr/smf/index.php?action=unreadreplies]");
+
+            if (unreadRepliesLinks.size()>=2) //Normally it's just == 2, but who knows what can be posted by users
             {
                 Report.i(TAG, "Login successful!");
                 setPersistentCookieSession();   //Store cookies
@@ -125,20 +121,17 @@ public class SessionManager
                 sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
                 sharedPrefs.edit().putString(USERNAME, extractUserName(document)).apply();
                 String avatar = extractAvatarLink(document);
-                if (avatar!=null)
-                {
-                    sharedPrefs.edit().putBoolean(HAS_AVATAR,true).apply();
+                if (avatar != null) {
+                    sharedPrefs.edit().putBoolean(HAS_AVATAR, true).apply();
                     sharedPrefs.edit().putString(AVATAR_LINK, extractAvatarLink(document)).apply();
-                }
-                else
-                    sharedPrefs.edit().putBoolean(HAS_AVATAR,false).apply();
+                } else
+                    sharedPrefs.edit().putBoolean(HAS_AVATAR, false).apply();
 
-                sharedPrefs.edit().putString(LOGOUT_LINK, HttpUrl.parse(logoutButton.attr("href")).toString()).apply();
+
+                sharedPrefs.edit().putString(LOGOUT_LINK, extractLogoutLink(document)).apply();
 
                 return SUCCESS;
-            }
-            else
-            {
+            } else {
                 Report.i(TAG, "Login failed.");
 
                 //Investigate login failure
@@ -159,41 +152,35 @@ public class SessionManager
                 return FAILURE;
             }
             //Handle exception
-        }
-        catch (InterruptedIOException e){
+        } catch (InterruptedIOException e) {
             Report.i(TAG, "Login InterruptedIOException");    //users cancels LoginTask
             return CANCELLED;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Report.w(TAG, "Login IOException", e);
             return CONNECTION_ERROR;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Report.w(TAG, "Login Exception (other)", e);
             return EXCEPTION;
         }
     }
 
     /**
-     *  A function that checks the validity of the current saved session (if it exists).
-     *  If isLoggedIn() is true, it will call login() with cookies. On failure, this can only return
-     *  the code FAILURE. CANCELLED, CONNECTION_ERROR and EXCEPTION are simply considered a SUCCESS
-     *  (e.g. no internet connection), at least until a more thorough handling of different
-     *  exceptions is implemented (if considered mandatory).
-     *  Always call it in a separate thread in a way that won't hinder performance (e.g. after
-     *  fragments' data are retrieved).
+     * A function that checks the validity of the current saved session (if it exists).
+     * If isLoggedIn() is true, it will call login() with cookies. On failure, this can only return
+     * the code FAILURE. CANCELLED, CONNECTION_ERROR and EXCEPTION are simply considered a SUCCESS
+     * (e.g. no internet connection), at least until a more thorough handling of different
+     * exceptions is implemented (if considered mandatory).
+     * Always call it in a separate thread in a way that won't hinder performance (e.g. after
+     * fragments' data are retrieved).
      */
-    public void validateSession()
-    {
+    public void validateSession() {
         Report.i(TAG, "Validating session...");
 
-        if(isLoggedIn())
-        {
+        if (isLoggedIn()) {
             int loginResult = login();
-            if(loginResult != FAILURE)
+            if (loginResult != FAILURE)
                 return;
-        }
-        else if(isLoginScreenDefault())
+        } else if (isLoginScreenDefault())
             return;
 
         sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, true).apply();
@@ -201,10 +188,9 @@ public class SessionManager
     }
 
     /**
-     *  Call this function when user explicitly chooses to continue as a guest (UI thread).
+     * Call this function when user explicitly chooses to continue as a guest (UI thread).
      */
-    public void guestLogin()
-    {
+    public void guestLogin() {
         Report.i("TAG", "Continuing as a guest, as chosen by the user.");
         clearSessionData();
         sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
@@ -212,14 +198,13 @@ public class SessionManager
 
 
     /**
-     *  Logout function. Always call it in a separate thread.
+     * Logout function. Always call it in a separate thread.
      */
-    public int logout()
-    {
+    public int logout() {
         Report.i(TAG, "Logging out...");
 
         Request request = new Request.Builder()
-                .url(sharedPrefs.getString(LOGOUT_LINK,"LogoutLink"))
+                .url(sharedPrefs.getString(LOGOUT_LINK, "LogoutLink"))
                 .build();
 
         try {
@@ -271,15 +256,17 @@ public class SessionManager
         return sharedPrefs.getBoolean(LOGIN_SCREEN_AS_DEFAULT, true);
     }
 
+    public String getCookieHeader() {
+        return cookiePersistor.loadAll().get(0).toString();
+    }
+
     //--------------------------------------GETTERS END---------------------------------------------
 
     //------------------------------------OTHER FUNCTIONS-------------------------------------------
-    private void setPersistentCookieSession()
-    {
+    private void setPersistentCookieSession() {
         List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
 
-        if (cookieList.size() == 2)
-        {
+        if (cookieList.size() == 2) {
             if ((cookieList.get(0).name().equals("THMMYgrC00ki3"))
                     && (cookieList.get(1).name().equals("PHPSESSID"))) {
                 Cookie.Builder builder = new Cookie.Builder();
@@ -295,45 +282,66 @@ public class SessionManager
         }
     }
 
-    private void clearSessionData()
-    {
+    private void clearSessionData() {
         cookieJar.clear();
         sharedPrefs.edit().clear().apply(); //Clear session data
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
         sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
-        Report.i(TAG,"Session data cleared.");
+        Report.i(TAG, "Session data cleared.");
     }
 
     @Nullable
-    private String extractUserName(Document doc)
-    {
-        if (doc != null) {
-            Elements user = doc.select("div[id=myuser] > h3");
+    private String extractUserName(@NonNull Document doc) {
+        //Scribbles2 Theme
+        Elements user = doc.select("div[id=myuser] > h3");
 
-            if (user.size() == 1) {
-                String txt = user.first().ownText();
+        if (user.size() == 1) {
+            String txt = user.first().ownText();
 
-                Pattern pattern = Pattern.compile(", (.*?),");
-                Matcher matcher = pattern.matcher(txt);
-                if (matcher.find())
-                    return matcher.group(1);
+            Pattern pattern = Pattern.compile(", (.*?),");
+            Matcher matcher = pattern.matcher(txt);
+            if (matcher.find())
+                return matcher.group(1);
+        }
+        else
+        {
+            //Helios_Multi and SMF_oneBlue
+            user = doc.select("td.smalltext[width=100%] b");
+            if (user.size() == 1)
+                return user.first().ownText();
+            else
+            {
+                //SMF Default Theme
+                user = doc.select("td.titlebg2[height=32] b");
+                if (user.size() == 1)
+                    return user.first().ownText();
             }
         }
-        Report.w(TAG,"Extracting username failed!");
+
+
+        Report.e(TAG, "Extracting username failed!");
+        return null;
+    }
+
+
+    @Nullable
+    private String extractAvatarLink(@NonNull Document doc) {
+        Elements  avatar = doc.getElementsByClass("avatar");
+            if (!avatar.isEmpty())
+                return avatar.first().attr("src");
+
+        Report.e(TAG, "Extracting avatar's link failed!");
         return null;
     }
 
     @Nullable
-    private String extractAvatarLink(Document doc)
-    {
-        if (doc != null) {
-            Elements avatar = doc.select("#ava img");
+    private String extractLogoutLink(@NonNull Document doc) {
+        Elements logoutLink = doc.select("a[href^=https://www.thmmy.gr/smf/index.php?action=logout;sesc=]");
 
-            if (avatar.size() == 1) {
-                return avatar.attr("src");
-            }
-        }
-        Report.w(TAG,"Extracting avatar's link failed!");
+        if (!logoutLink.isEmpty())
+            return logoutLink.first().attr("href");
+
+        Report.e(TAG, "Extracting logout link failed!");
         return null;
     }
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------
