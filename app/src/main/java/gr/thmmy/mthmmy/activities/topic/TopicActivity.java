@@ -1,11 +1,8 @@
 package gr.thmmy.mthmmy.activities.topic;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -59,7 +56,6 @@ public class TopicActivity extends BaseActivity {
      * The key to use when putting topic's title String to {@link TopicActivity}'s Bundle.
      */
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
-    private static final int PERMISSIONS_REQUEST_CODE = 69;
     private static TopicTask topicTask;
     //About posts
     private TopicAdapter topicAdapter;
@@ -101,7 +97,6 @@ public class TopicActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
-        requestPerms();
 
         Bundle extras = getIntent().getExtras();
         topicTitle = extras.getString(BUNDLE_TOPIC_TITLE);
@@ -135,7 +130,7 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(getApplicationContext(), progressBar, postsList,
+        topicAdapter = new TopicAdapter(this, progressBar, postsList,
                 topicTask);
         recyclerView.setAdapter(topicAdapter);
 
@@ -211,30 +206,6 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setAdapter(null);
         if (topicTask != null && topicTask.getStatus() != AsyncTask.Status.RUNNING)
             topicTask.cancel(true);
-    }
-
-    /*@Override
-    public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
-            , @NonNull int[] grantResults) {
-        switch (permsRequestCode) {
-            case PERMISSIONS_REQUEST_CODE:
-                readWriteAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                break;
-        }
-    }*/
-
-    boolean requestPerms() { //Runtime permissions request for devices with API >= 23
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            String[] PERMISSIONS_STORAGE = {
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-            if (checkSelfPermission(PERMISSIONS_STORAGE[0]) == PackageManager.PERMISSION_DENIED ||
-                    checkSelfPermission(PERMISSIONS_STORAGE[1]) == PackageManager.PERMISSION_DENIED) {
-                requestPermissions(PERMISSIONS_STORAGE, PERMISSIONS_REQUEST_CODE);
-                return false;
-            } else return true;
-        } else return true;
     }
 
     //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------

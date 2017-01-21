@@ -43,6 +43,7 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
+import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
@@ -56,7 +57,6 @@ import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.base_url;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
 
 /**
@@ -245,12 +245,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 attached.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //if (((BaseApplication) context).requestPerms()) {
-                        downloadTask = new DownloadTask();
-                        downloadTask.execute(attachedFile);
-                        //} else
-                        //   Toast.makeText(context, "Persmissions missing!", Toast.LENGTH_SHORT)
-                        //          .show();
+                        ((BaseActivity) context).launchDownloadService(attachedFile);
                     }
                 });
 
