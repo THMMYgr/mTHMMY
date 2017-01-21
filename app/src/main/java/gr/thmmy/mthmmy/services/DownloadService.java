@@ -34,9 +34,15 @@ public class DownloadService extends IntentService {
     public static final String EXTRA_DOWNLOAD_URL = "gr.thmmy.mthmmy.services.extra.DOWNLOAD_URL";
 
     public static final String EXTRA_DOWNLOAD_ID = "gr.thmmy.mthmmy.services.extra.DOWNLOAD_ID";
+    public static final String EXTRA_DOWNLOAD_STATE = "gr.thmmy.mthmmy.services.extra.DOWNLOAD_STATE";
     public static final String EXTRA_NOTIFICATION_TITLE = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TITLE";
     public static final String EXTRA_NOTIFICATION_TEXT = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TEXT";
     public static final String EXTRA_NOTIFICATION_TICKER = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TICKER";
+
+    public static final String STARTED = "Started";
+    public static final String COMPLETED = "Completed";
+    public static final String FAILED = "Failed";
+
 
 
     public DownloadService() {
@@ -137,13 +143,13 @@ public class DownloadService extends IntentService {
                 trueName = file.getName();
 
                 Report.v(TAG, "Started saving file " + trueName);
-                sendNotification("Started", trueName);
+                sendNotification(downloadId, STARTED, trueName);
 
                 sink = Okio.buffer(Okio.sink(file));
                 sink.writeAll(response.body().source());
                 sink.flush();
                 Report.i(TAG, "Download OK!");
-                sendNotification("Completed", trueName);
+                sendNotification(downloadId, COMPLETED, trueName);
             }
             else
                 Report.e(TAG, "Response not a binary!");
@@ -152,17 +158,17 @@ public class DownloadService extends IntentService {
             Report.e(TAG, "FileNotFound", e);
             Report.i(TAG, "Download failed...");
             if(trueName!=null)
-                sendNotification("Failed", trueName);
+                sendNotification(downloadId, FAILED, trueName);
             else
-                sendNotification("Failed", "file");
+                sendNotification(downloadId, FAILED, "file");
         }
         catch (IOException e){
             Report.e(TAG, "IOException", e);
             Report.i(TAG, "Download failed...");
             if(trueName!=null)
-                sendNotification("Failed", trueName);
+                sendNotification(downloadId, FAILED, trueName);
             else
-                sendNotification("Failed", "file");
+                sendNotification(downloadId, FAILED, "file");
         } finally {
             if (sink!= null) {
                 try {
@@ -174,27 +180,33 @@ public class DownloadService extends IntentService {
         }
     }
 
-    private void sendNotification(String type, @NonNull String fileName)
+    private void sendNotification(int downloadId, String type, @NonNull String fileName)
     {
         switch (type) {
-            case "Started": {
+            case STARTED: {
                 Intent intent = new Intent(ACTION_DOWNLOAD);
+                intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
+                intent.putExtra(EXTRA_DOWNLOAD_STATE, STARTED);
                 intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Started");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" downloading...");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Downloading...");
                 sendBroadcast(intent);
                 break;
             }
-            case "Completed": {
+            case COMPLETED: {
                 Intent intent = new Intent(ACTION_DOWNLOAD);
+                intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
+                intent.putExtra(EXTRA_DOWNLOAD_STATE, COMPLETED);
                 intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Completed");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" finished downloading.");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Completed");
                 sendBroadcast(intent);
                 break;
             }
-            case "Failed": {
+            case FAILED: {
                 Intent intent = new Intent(ACTION_DOWNLOAD);
+                intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
+                intent.putExtra(EXTRA_DOWNLOAD_STATE, FAILED);
                 intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Failed");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" failed.");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Failed");
