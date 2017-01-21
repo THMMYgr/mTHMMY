@@ -48,8 +48,8 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
 import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 
 public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies
@@ -261,10 +261,10 @@ public abstract class BaseActivity extends AppCompatActivity {
                             Bundle extras = new Bundle();
                             extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
                             if (!sessionManager.hasAvatar())
-                                extras.putString(BUNDLE_THUMBNAIL_URL, "");
+                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                             else
-                                extras.putString(BUNDLE_THUMBNAIL_URL, sessionManager.getAvatarLink());
-                            extras.putString(BUNDLE_USERNAME, sessionManager.getUsername());
+                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, sessionManager.getAvatarLink());
+                            extras.putString(BUNDLE_PROFILE_USERNAME, sessionManager.getUsername());
                             intent.putExtras(extras);
                             intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);

@@ -48,8 +48,8 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.toQuoteList;
 
 /**
@@ -334,10 +334,10 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                         Bundle extras = new Bundle();
                         extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
                         if (currentPost.getThumbnailUrl() == null)
-                            extras.putString(BUNDLE_THUMBNAIL_URL, "");
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                         else
-                            extras.putString(BUNDLE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
-                        extras.putString(BUNDLE_USERNAME, currentPost.getAuthor());
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
+                        extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
                         intent.putExtras(extras);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
@@ -572,8 +572,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 Intent intent = new Intent(context, ProfileActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_PROFILE_URL, uriString);
-                extras.putString(BUNDLE_THUMBNAIL_URL, "");
-                extras.putString(BUNDLE_USERNAME, "");
+                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                extras.putString(BUNDLE_PROFILE_USERNAME, "");
                 intent.putExtras(extras);
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);

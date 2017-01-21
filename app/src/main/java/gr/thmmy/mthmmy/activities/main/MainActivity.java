@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.main;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -8,20 +9,29 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
+import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
+import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
+import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicSummary;
 
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
@@ -35,9 +45,13 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final Intent intentFilter = getIntent();
+        redirectToActivityFromIntent(intentFilter);
         setContentView(R.layout.activity_main);
 
-        if (sessionManager.isLoginScreenDefault()) {
+        if (sessionManager.isLoginScreenDefault())
+
+        {
             //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -46,7 +60,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         }
 
         //Initialize toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar)
+
+                findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
 
         //Initialize drawer
@@ -64,6 +81,13 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        redirectToActivityFromIntent(intent);
+        setIntent(intent);
+    }
+
+    @Override
     protected void onResume() {
         drawer.setSelection(HOME_ID);
         super.onResume();
@@ -71,11 +95,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
     @Override
     public void onBackPressed() {
-        if(drawer.isDrawerOpen()){
+        if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
             return;
-        }
-        else if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
+        } else if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
             super.onBackPressed();
             return;
         } else {
@@ -117,10 +140,13 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
         @Override
         public Fragment getItem(int position) {
-            switch(position) {
-                case 0: return RecentFragment.newInstance(position +1);
-                case 1: return ForumFragment.newInstance(position +1);
-                default: return RecentFragment.newInstance(position +1); //temp (?)
+            switch (position) {
+                case 0:
+                    return RecentFragment.newInstance(position + 1);
+                case 1:
+                    return ForumFragment.newInstance(position + 1);
+                default:
+                    return RecentFragment.newInstance(position + 1); //temp (?)
             }
         }
 
@@ -144,4 +170,41 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
 
+    private void redirectToActivityFromIntent(Intent intent) {
+        if (intent != null) {
+            Uri uri = intent.getData();
+            if (uri != null) {
+                Log.d(TAG, uri.toString());
+                ThmmyPage.PageCategory page = ThmmyPage.resolvePageCategory(uri);
+                if (!page.is(ThmmyPage.PageCategory.NOT_THMMY)) {
+                    if (page.is(ThmmyPage.PageCategory.BOARD)) {
+                        Intent redirectIntent = new Intent(MainActivity.this, BoardActivity.class);
+                        redirectIntent.putExtra(BUNDLE_BOARD_URL, uri.toString());
+                        redirectIntent.putExtra(BUNDLE_BOARD_TITLE, "");
+                        startActivity(redirectIntent);
+                    } else if (page.is(ThmmyPage.PageCategory.TOPIC)) {
+                        Intent redirectIntent = new Intent(MainActivity.this, TopicActivity.class);
+                        redirectIntent.putExtra(BUNDLE_TOPIC_URL, uri.toString());
+                        redirectIntent.putExtra(BUNDLE_TOPIC_TITLE, "");
+                        startActivity(redirectIntent);
+                    } else if (page.is(ThmmyPage.PageCategory.PROFILE)) {
+                        Intent redirectIntent = new Intent(MainActivity.this, ProfileActivity.class);
+                        redirectIntent.putExtra(BUNDLE_PROFILE_URL, uri.toString());
+                        redirectIntent.putExtra(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                        redirectIntent.putExtra(BUNDLE_PROFILE_USERNAME, "");
+                        startActivity(redirectIntent);
+                    } else if (page.is(ThmmyPage.PageCategory.DOWNLOADS)) {
+                        Intent redirectIntent = new Intent(MainActivity.this, DownloadsActivity.class);
+                        redirectIntent.putExtra(BUNDLE_DOWNLOADS_URL, uri.toString());
+                        redirectIntent.putExtra(BUNDLE_DOWNLOADS_TITLE, "");
+                        startActivity(redirectIntent);
+                    } else if (!page.is(ThmmyPage.PageCategory.INDEX)) {
+                        Toast.makeText(this, "This thmmy sector is not yet supported.", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(this, "This is not thmmy.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
 }

@@ -22,6 +22,7 @@ public class ThmmyPage {
      * An enum describing a link's target by defining the types:<ul>
      * <li>{@link #NOT_THMMY}</li>
      * <li>{@link #THMMY}</li>
+     * <li>{@link #INDEX}</li>
      * <li>{@link #UNKNOWN_THMMY}</li>
      * <li>{@link #TOPIC}</li>
      * <li>{@link #BOARD}</li>
@@ -41,6 +42,10 @@ public class ThmmyPage {
          * Link points to thmmy.
          */
         THMMY,
+        /**
+         * Link points to thmmy index page/
+         */
+        INDEX,
         /**
          * Link points to a thmmy page that's not (yet) supported by the app.
          */
@@ -135,6 +140,7 @@ public class ThmmyPage {
         final String host = uri.getHost();
         final String uriString = uri.toString();
 
+        if (Objects.equals(uriString, "thmmy.gr")) return PageCategory.INDEX;
         if (Objects.equals(host, "www.thmmy.gr")) {
             if (uriString.contains("topic=")) return PageCategory.TOPIC;
             else if (uriString.contains("board=")) return PageCategory.BOARD;
@@ -150,6 +156,11 @@ public class ThmmyPage {
                 return PageCategory.DOWNLOADS_FILE;
             else if (uriString.contains("action=tpmod;dl"))
                 return PageCategory.DOWNLOADS_CATEGORY;
+            else if (uriString.contains("action=forum") || Objects.equals(uriString, "www.thmmy.gr")
+                    || Objects.equals(uriString, "http://www.thmmy.gr")
+                    || Objects.equals(uriString, "https://www.thmmy.gr")
+                    || Objects.equals(uriString, "https://www.thmmy.gr/smf/index.php"))
+                return PageCategory.INDEX;
             Report.v(TAG, "Unknown thmmy link found, link: " + uriString);
             return PageCategory.UNKNOWN_THMMY;
         }

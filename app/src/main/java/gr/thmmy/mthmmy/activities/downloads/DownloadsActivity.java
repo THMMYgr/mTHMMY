@@ -69,8 +69,6 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
         Bundle extras = getIntent().getExtras();
         downloadsTitle = extras.getString(BUNDLE_DOWNLOADS_TITLE);
-        if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
-            downloadsTitle = "Downloads";
         downloadsUrl = extras.getString(BUNDLE_DOWNLOADS_URL);
         if (downloadsUrl != null && !Objects.equals(downloadsUrl, "")) {
             ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(downloadsUrl));
@@ -83,6 +81,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
         //Initialize toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
+            toolbar.setTitle("Downloads");
         toolbar.setTitle(downloadsTitle);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -204,7 +204,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
         @Override
         protected void onPostExecute(Void voids) {
-            if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
+            if (downloadsTitle != null && !Objects.equals(downloadsTitle, "") &&
+                    toolbar.getTitle() != downloadsTitle)
                 toolbar.setTitle(downloadsTitle);
 
             ++pagesLoaded;
@@ -225,7 +226,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
             Download.DownloadItemType type;
             if (ThmmyPage.resolvePageCategory(Uri.parse(thisPageUrl)).is(ThmmyPage.
-                    PageCategory.DOWNLOADS_CATEGORY)) type = Download.DownloadItemType.DOWNLOADS_CATEGORY;
+                    PageCategory.DOWNLOADS_CATEGORY))
+                type = Download.DownloadItemType.DOWNLOADS_CATEGORY;
             else type = Download.DownloadItemType.DOWNLOADS_FILE;
 
             Elements pages = downloadPage.select("a.navPages");

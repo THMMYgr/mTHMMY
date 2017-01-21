@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -50,8 +51,8 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 /**
  * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>
  * containing this user's profile url using the key {@link #BUNDLE_PROFILE_URL}, a <b>String</b> containing
- * this user's avatar url using the key {@link #BUNDLE_THUMBNAIL_URL} and a <b>String</b> containing
- * the username using the key {@link #BUNDLE_USERNAME}.
+ * this user's avatar url using the key {@link #BUNDLE_PROFILE_THUMBNAIL_URL} and a <b>String</b> containing
+ * the username using the key {@link #BUNDLE_PROFILE_USERNAME}.
  */
 public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener {
     /**
@@ -67,15 +68,16 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      * The key to use when putting user's thumbnail url String to {@link ProfileActivity}'s Bundle.
      * If user doesn't have a thumbnail put an empty string or leave it null.
      */
-    public static final String BUNDLE_THUMBNAIL_URL = "THUMBNAIL_URL";
+    public static final String BUNDLE_PROFILE_THUMBNAIL_URL = "THUMBNAIL_URL";
     /**
      * The key to use when putting username String to {@link ProfileActivity}'s Bundle.
      * If username is not available put an empty string or leave it null.
      */
-    public static final String BUNDLE_USERNAME = "USERNAME";
+    public static final String BUNDLE_PROFILE_USERNAME = "USERNAME";
     private static final int THUMBNAIL_SIZE = 200;
 
     private TextView usernameView;
+    private ImageView thumbnailView;
     private TextView personalTextView;
     private MaterialProgressBar progressBar;
     private FloatingActionButton pmFAB;
@@ -84,6 +86,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     private ProfileTask profileTask;
     private String personalText;
     private String profileUrl;
+    private String thumbnailUrl;
     private String username;
     private int tabSelect;
 
@@ -93,9 +96,10 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         setContentView(R.layout.activity_profile);
 
         Bundle extras = getIntent().getExtras();
-        String thumbnailUrl = extras.getString(BUNDLE_THUMBNAIL_URL);
+        thumbnailUrl = extras.getString(BUNDLE_PROFILE_THUMBNAIL_URL);
         if (thumbnailUrl == null) thumbnailUrl = "";
-        username = extras.getString(BUNDLE_USERNAME);
+        Log.d(TAG, "thumbnailUrl = " + thumbnailUrl);
+        username = extras.getString(BUNDLE_PROFILE_USERNAME);
         profileUrl = extras.getString(BUNDLE_PROFILE_URL);
 
         //Initializes graphic elements
@@ -111,7 +115,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
 
-        ImageView thumbnailView = (ImageView) findViewById(R.id.user_thumbnail);
+        thumbnailView = (ImageView) findViewById(R.id.user_thumbnail);
         if (!Objects.equals(thumbnailUrl, ""))
             //noinspection ConstantConditions
             Picasso.with(this)
@@ -233,8 +237,18 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 if (username == null || Objects.equals(username, "")) {
                     username = profilePage.
                             select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tr").
-                            first().text();
+                            first().select("td").last().text();
                 }
+                Log.d(TAG, "thumbnailUrl = " + thumbnailUrl);
+                if (thumbnailUrl == null || Objects.equals(thumbnailUrl, "")) { //Maybe there is an avatar
+                    Log.d(TAG, "thumbnailUrl = " + thumbnailUrl);
+                    Element profileAvatar = profilePage
+                            .select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) img.avatar")
+                            .first();
+                    if (profileAvatar != null) thumbnailUrl = profileAvatar.attr("abs:src");
+                }
+                Log.d(TAG, "thumbnailUrl = " + thumbnailUrl);
+                ;
 
                 { //Finds personal text
                     Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
@@ -268,6 +282,18 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             progressBar.setVisibility(ProgressBar.INVISIBLE);
 
             if (usernameView.getText() != username) usernameView.setText(username);
+            if (thumbnailUrl != null && !Objects.equals(thumbnailUrl, ""))
+                //noinspection ConstantConditions
+                Picasso.with(getApplicationContext())
+                        .load(thumbnailUrl)
+                        .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                        .centerCrop()
+                        .error(ResourcesCompat.getDrawable(getResources()
+                                , R.drawable.ic_default_user_thumbnail, null))
+                        .placeholder(ResourcesCompat.getDrawable(getResources()
+                                , R.drawable.ic_default_user_thumbnail, null))
+                        .transform(new CircleTransform())
+                        .into(thumbnailView);
             if (personalText != null) personalTextView.setText(personalText);
 
             setupViewPager(viewPager, profilePage);
