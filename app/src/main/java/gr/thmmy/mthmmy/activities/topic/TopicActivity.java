@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -118,8 +119,9 @@ public class TopicActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        setTopicBookmark((ImageButton) findViewById(R.id.bookmark),
-                new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl)));
+        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
+        thisPageBookmarkButton = (ImageButton) findViewById(R.id.bookmark);
+        setTopicBookmark();
         createDrawer();
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
@@ -450,7 +452,7 @@ public class TopicActivity extends BaseActivity {
                 }
                 if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
                     return SAME_PAGE;
-            } else topicTitle = null;
+            } else if (!Objects.equals(loadedPageUrl, "")) topicTitle = null;
 
             loadedPageUrl = newPageUrl;
             Request request = new Request.Builder()
@@ -481,8 +483,10 @@ public class TopicActivity extends BaseActivity {
 
             switch (parseResult) {
                 case SUCCESS:
-                    setTopicBookmark((ImageButton) findViewById(R.id.bookmark),
-                            new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl)));
+                    if (topicTitle == null || Objects.equals(topicTitle, "")) {
+                        thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl));
+                        setTopicBookmark();
+                    }
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     topicAdapter.customNotifyDataSetChanged(new TopicTask());

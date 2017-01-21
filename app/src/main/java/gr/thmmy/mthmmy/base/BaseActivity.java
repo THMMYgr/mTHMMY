@@ -29,9 +29,7 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
@@ -44,7 +42,6 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.services.DownloadService;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
-import gr.thmmy.mthmmy.utils.ObjectSerializer;
 import okhttp3.OkHttpClient;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -67,9 +64,11 @@ public abstract class BaseActivity extends AppCompatActivity {
     private static final String BOOKMARKS_SHARED_PREFS = "bookmarksSharedPrefs";
     private static final String BOOKMARKED_TOPICS_KEY = "bookmarkedTopicsKey";
     private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
-    protected static SharedPreferences bookmarksFile;
-    protected static ArrayList<Bookmark> topicsBookmarked;
-    protected static ArrayList<Bookmark> boardsBookmarked;
+    protected Bookmark thisPageBookmark;
+    protected ImageButton thisPageBookmarkButton;
+    protected SharedPreferences bookmarksFile;
+    protected ArrayList<Bookmark> topicsBookmarked;
+    protected ArrayList<Bookmark> boardsBookmarked;
     protected static Drawable bookmarked;
     protected static Drawable notBookmarked;
 
@@ -409,46 +408,45 @@ public abstract class BaseActivity extends AppCompatActivity {
         return topicsBookmarked;
     }
 
-    protected void setTopicBookmark(ImageButton bookmarkView, final Bookmark bookmark) {
-        if (matchExists(bookmark, topicsBookmarked)) {
-            bookmarkView.setImageDrawable(bookmarked);
+    protected void setTopicBookmark() {
+        if (thisPageBookmark.matchExists(topicsBookmarked)) {
+            thisPageBookmarkButton.setImageDrawable(bookmarked);
         } else {
-            bookmarkView.setImageDrawable(notBookmarked);
+            thisPageBookmarkButton.setImageDrawable(notBookmarked);
         }
-        bookmarkView.setOnClickListener(new View.OnClickListener() {
+        thisPageBookmarkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (matchExists(bookmark, topicsBookmarked)) {
-                    ((ImageButton) view).setImageDrawable(notBookmarked);
-                    toggleTopicToBookmarks(bookmark);
+                if (thisPageBookmark.matchExists(topicsBookmarked)) {
+                    thisPageBookmarkButton.setImageDrawable(notBookmarked);
+                    toggleTopicToBookmarks(thisPageBookmark);
                     Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
                 } else {
-                    ((ImageButton) view).setImageDrawable(bookmarked);
-                    toggleTopicToBookmarks(bookmark);
+                    thisPageBookmarkButton.setImageDrawable(bookmarked);
+                    toggleTopicToBookmarks(thisPageBookmark);
                     Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
-    protected void setBoardBookmark(ImageButton bookmarkView, final Bookmark bookmark) {
-        if (matchExists(bookmark, boardsBookmarked)) {
-            bookmarkView.setImageDrawable(bookmarked);
+    protected void setBoardBookmark() {
+        if (thisPageBookmark.matchExists(boardsBookmarked)) {
+            thisPageBookmarkButton.setImageDrawable(bookmarked);
         } else {
-            bookmarkView.setImageDrawable(notBookmarked);
+            thisPageBookmarkButton.setImageDrawable(notBookmarked);
         }
-        bookmarkView.setOnClickListener(new View.OnClickListener() {
+        thisPageBookmarkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (matchExists(bookmark, boardsBookmarked)) {
-                    ((ImageButton) view).setImageDrawable(notBookmarked);
-                    toggleBoardToBookmarks(bookmark);
+                if (thisPageBookmark.matchExists(boardsBookmarked)) {
+                    thisPageBookmarkButton.setImageDrawable(notBookmarked);
                     Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
                 } else {
-                    ((ImageButton) view).setImageDrawable(bookmarked);
-                    toggleBoardToBookmarks(bookmark);
+                    thisPageBookmarkButton.setImageDrawable(bookmarked);
                     Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
                 }
+                toggleBoardToBookmarks(thisPageBookmark);
             }
         });
     }
@@ -456,94 +454,49 @@ public abstract class BaseActivity extends AppCompatActivity {
     private void loadSavedBookmarks() {
         String tmpString = bookmarksFile.getString(BOOKMARKED_TOPICS_KEY, null);
         if (tmpString != null)
-            try {
-                topicsBookmarked = (ArrayList<Bookmark>) ObjectSerializer.deserialize(tmpString);
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            topicsBookmarked = Bookmark.arrayFromString(tmpString);
         else {
             topicsBookmarked = new ArrayList<>();
-            topicsBookmarked.add(null);
         }
 
         tmpString = bookmarksFile.getString(BOOKMARKED_BOARDS_KEY, null);
         if (tmpString != null)
-            try {
-                boardsBookmarked = (ArrayList<Bookmark>) ObjectSerializer.deserialize(tmpString);
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            boardsBookmarked = Bookmark.arrayFromString(tmpString);
         else {
             boardsBookmarked = new ArrayList<>();
-            boardsBookmarked.add(null);
         }
     }
 
     private void toggleBoardToBookmarks(Bookmark bookmark) {
         if (boardsBookmarked == null) return;
-        if (matchExists(bookmark, boardsBookmarked)) {
-            if (boardsBookmarked.size() == 1) boardsBookmarked.set(0, null);
-            else boardsBookmarked.remove(findIndex(bookmark, boardsBookmarked));
-        } else boardsBookmarked.add(bookmark);
+        if (bookmark.matchExists(boardsBookmarked)) {
+            boardsBookmarked.remove(bookmark.findIndex(boardsBookmarked));
+        } else boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId()));
         updateBoardBookmarks();
     }
 
     private void toggleTopicToBookmarks(Bookmark bookmark) {
         if (topicsBookmarked == null) return;
-        if (matchExists(bookmark, topicsBookmarked))
-            topicsBookmarked.remove(findIndex(bookmark, topicsBookmarked));
-        else topicsBookmarked.add(bookmark);
+        if (bookmark.matchExists(topicsBookmarked)) {
+            topicsBookmarked.remove(bookmark.findIndex(topicsBookmarked));
+        } else {
+            topicsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId()));
+        }
         updateTopicBookmarks();
     }
 
     private void updateBoardBookmarks() {
-        String tmpString = null;
-        if (!(boardsBookmarked.size() == 1 && boardsBookmarked.get(0) == null)) {
-            try {
-                tmpString = ObjectSerializer.serialize(boardsBookmarked);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        String tmpString;
+        tmpString = Bookmark.arrayToString(boardsBookmarked);
         SharedPreferences.Editor editor = bookmarksFile.edit();
         editor.putString(BOOKMARKED_BOARDS_KEY, tmpString).apply();
     }
 
     private void updateTopicBookmarks() {
-        String tmpString = null;
-        if (!(topicsBookmarked.size() == 1 && topicsBookmarked.get(0) == null)) {
-            try {
-                tmpString = ObjectSerializer.serialize(topicsBookmarked);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        String tmpString;
+        tmpString = Bookmark.arrayToString(topicsBookmarked);
         SharedPreferences.Editor editor = bookmarksFile.edit();
         editor.putString(BOOKMARKED_TOPICS_KEY, tmpString).apply();
-    }
-
-    private boolean matchExists(Bookmark bookmark, ArrayList<Bookmark> array) {
-        if (array != null && !array.isEmpty()) {
-            for (Bookmark b : array) {
-                if (b != null) {
-                    return Objects.equals(b.getId(), bookmark.getId())
-                            && Objects.equals(b.getTitle(), bookmark.getTitle());
-                }
-            }
-        }
-        return false;
-    }
-
-    private int findIndex(Bookmark bookmark, ArrayList<Bookmark> array) {
-        if (array.size() == 1 && array.get(0) == null) return -1;
-        if (!array.isEmpty()) {
-            for (int i = 0; i < array.size(); ++i) {
-                if (array.get(i) != null && Objects.equals(array.get(i).getId(), bookmark.getId())
-                        && Objects.equals(array.get(i).getTitle(), bookmark.getTitle()))
-                    return i;
-            }
-        }
-        return -1;
     }
 //-------------------------------------------BOOKMARKS END------------------------------------------
 
@@ -570,8 +523,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-                requestPermissions(PERMISSIONS_STORAGE, PERMISSIONS_REQUEST_CODE);
-            }
+            requestPermissions(PERMISSIONS_STORAGE, PERMISSIONS_REQUEST_CODE);
+        }
     }
 
 
@@ -588,16 +541,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //----------------------------------DOWNLOAD------------------
     private ThmmyFile tempThmmyFile;
+
     public void launchDownloadService(ThmmyFile thmmyFile) {
-        if(checkPerms())
-        {
+        if (checkPerms()) {
             Intent i = new Intent(this, DownloadService.class);
             i.setAction(ACTION_DOWNLOAD);
             i.putExtra(EXTRA_DOWNLOAD_URL, thmmyFile.getFileUrl().toString());
             startService(i);
-        }
-        else
-        {
+        } else {
             tempThmmyFile = thmmyFile;
             requestPerms();
         }
@@ -605,8 +556,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //Uses temp file - called after permission grant
     public void launchDownloadService() {
-        if(checkPerms())
-        {
+        if (checkPerms()) {
             Intent i = new Intent(this, DownloadService.class);
             i.setAction(ACTION_DOWNLOAD);
             i.putExtra(EXTRA_DOWNLOAD_URL, tempThmmyFile.getFileUrl().toString());

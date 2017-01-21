@@ -28,8 +28,9 @@
                 android:id="@+id/child_board_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:gravity="center_vertical"
+                android:paddingBottom="2dp"
                 android:text="@string/child_board_title"
                 android:textColor="@color/accent"
                 android:textSize="22sp"/>
