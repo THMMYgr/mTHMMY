@@ -39,9 +39,9 @@ import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
+import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadService;
 import gr.thmmy.mthmmy.session.SessionManager;
-import gr.thmmy.mthmmy.model.ThmmyFile;
 import okhttp3.OkHttpClient;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -50,8 +50,6 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_USERNAME;
-import static gr.thmmy.mthmmy.services.DownloadService.ACTION_DOWNLOAD;
-import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_DOWNLOAD_URL;
 
 public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies
@@ -544,16 +542,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
-    //----------------------------------DOWNLOAD------------------
+    //----------------------------------DOWNLOAD----------------------
     private ThmmyFile tempThmmyFile;
 
     public void launchDownloadService(ThmmyFile thmmyFile) {
-        if (checkPerms()) {
-            Intent i = new Intent(this, DownloadService.class);
-            i.setAction(ACTION_DOWNLOAD);
-            i.putExtra(EXTRA_DOWNLOAD_URL, thmmyFile.getFileUrl().toString());
-            startService(i);
-        } else {
+        if (checkPerms())
+            DownloadService.startActionDownload(this, thmmyFile.getFileUrl().toString());
+        else {
             tempThmmyFile = thmmyFile;
             requestPerms();
         }
@@ -561,12 +556,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //Uses temp file - called after permission grant
     public void launchDownloadService() {
-        if (checkPerms()) {
-            Intent i = new Intent(this, DownloadService.class);
-            i.setAction(ACTION_DOWNLOAD);
-            i.putExtra(EXTRA_DOWNLOAD_URL, tempThmmyFile.getFileUrl().toString());
-            startService(i);
-        }
+        if (checkPerms())
+            DownloadService.startActionDownload(this, tempThmmyFile.getFileUrl().toString());
+
     }
 
 }

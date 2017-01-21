@@ -92,7 +92,17 @@
 
         <service
             android:name=".services.DownloadService"
-            android:exported="false"/>
+            android:exported="false" />
+
+        <receiver
+            android:name=".receiver.Receiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.media.action.ACTION_DOWNLOAD" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

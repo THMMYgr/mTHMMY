@@ -3,14 +3,16 @@ package gr.thmmy.mthmmy.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.receiver.Receiver;
 import mthmmy.utils.Report;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,12 +26,36 @@ import okio.Okio;
  */
 public class DownloadService extends IntentService {
     private static final String TAG = "DownloadService";
+    private static int sDownloadId =0;
+
+    private Receiver receiver;
 
     public static final String ACTION_DOWNLOAD = "gr.thmmy.mthmmy.services.action.DOWNLOAD";
     public static final String EXTRA_DOWNLOAD_URL = "gr.thmmy.mthmmy.services.extra.DOWNLOAD_URL";
 
+    public static final String EXTRA_DOWNLOAD_ID = "gr.thmmy.mthmmy.services.extra.DOWNLOAD_ID";
+    public static final String EXTRA_NOTIFICATION_TITLE = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TITLE";
+    public static final String EXTRA_NOTIFICATION_TEXT = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TEXT";
+    public static final String EXTRA_NOTIFICATION_TICKER = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TICKER";
+
+
     public DownloadService() {
         super("DownloadService");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        final IntentFilter filter = new IntentFilter(DownloadService.ACTION_DOWNLOAD);
+        receiver = new Receiver();
+        registerReceiver(receiver, filter);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(receiver);
     }
 
     /**
@@ -63,6 +89,10 @@ public class DownloadService extends IntentService {
     private void handleActionDownload(String downloadLink) {
         OkHttpClient client = BaseApplication.getInstance().getClient();
         BufferedSink sink = null;
+        String trueName = null;
+        int downloadId = sDownloadId;
+        sDownloadId++;
+
         try {
             Request request = new Request.Builder().url(downloadLink).build();
             Response response = client.newCall(request).execute();
@@ -103,13 +133,17 @@ public class DownloadService extends IntentService {
 
                     file = new File(dirPath, String.format(nameFormat, i));
                 }
-                Report.v(TAG, "Start saving file " + file.getName());
 
+                trueName = file.getName();
+
+                Report.v(TAG, "Started saving file " + trueName);
+                sendNotification("Started", trueName);
 
                 sink = Okio.buffer(Okio.sink(file));
                 sink.writeAll(response.body().source());
                 sink.flush();
                 Report.i(TAG, "Download OK!");
+                sendNotification("Completed", trueName);
             }
             else
                 Report.e(TAG, "Response not a binary!");
@@ -117,10 +151,18 @@ public class DownloadService extends IntentService {
         catch (FileNotFoundException e){
             Report.e(TAG, "FileNotFound", e);
             Report.i(TAG, "Download failed...");
+            if(trueName!=null)
+                sendNotification("Failed", trueName);
+            else
+                sendNotification("Failed", "file");
         }
         catch (IOException e){
             Report.e(TAG, "IOException", e);
             Report.i(TAG, "Download failed...");
+            if(trueName!=null)
+                sendNotification("Failed", trueName);
+            else
+                sendNotification("Failed", "file");
         } finally {
             if (sink!= null) {
                 try {
@@ -130,6 +172,37 @@ public class DownloadService extends IntentService {
                 }
             }
         }
+    }
+
+    private void sendNotification(String type, @NonNull String fileName)
+    {
+        switch (type) {
+            case "Started": {
+                Intent intent = new Intent(ACTION_DOWNLOAD);
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Started");
+                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" downloading...");
+                intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Downloading...");
+                sendBroadcast(intent);
+                break;
+            }
+            case "Completed": {
+                Intent intent = new Intent(ACTION_DOWNLOAD);
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Completed");
+                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" finished downloading.");
+                intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Completed");
+                sendBroadcast(intent);
+                break;
+            }
+            case "Failed": {
+                Intent intent = new Intent(ACTION_DOWNLOAD);
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Failed");
+                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" failed.");
+                intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Failed");
+                sendBroadcast(intent);
+                break;
+            }
+        }
+
     }
 
 }
