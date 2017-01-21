@@ -5,7 +5,10 @@
     <string name="login">Login</string>
     <string name="login_spinner">Authenticating&#8230;</string>
     <string name="logout">Logout</string>
+    <string name="downloads">Downloads</string>
+    <string name="about">About</string>
     <string name="home">Home</string>
+    <string name="bookmark">Bookmarks</string>
 
     <!--Login Activity-->
     <string name="thmmy_img_description">thmmy.gr</string>
@@ -50,11 +53,7 @@
     <string name="most_popular_boards_by_posts_title">Most Popular Boards By Posts</string>
     <string name="most_popular_boards_by_activity_title">Most Popular Boards By Activity</string>
 
-    <!--Downloads Activity-->
-    <string name="downloads">Downloads</string>
-
     <!--About Activity-->
-    <string name="about">About</string>
     <string name="version">v%1$s</string>
     <string name="logo">Logo</string>
     <string name="trollPic">You should watch a funny pic!</string>

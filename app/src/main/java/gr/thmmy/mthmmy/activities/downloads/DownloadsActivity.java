@@ -25,7 +25,7 @@ import javax.net.ssl.SSLHandshakeException;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Download;
-import gr.thmmy.mthmmy.model.LinkTarget;
+import gr.thmmy.mthmmy.model.ThmmyPage;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.Request;
@@ -73,8 +73,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             downloadsTitle = "Downloads";
         downloadsUrl = extras.getString(BUNDLE_DOWNLOADS_URL);
         if (downloadsUrl != null && !Objects.equals(downloadsUrl, "")) {
-            LinkTarget.Target target = LinkTarget.resolveLinkTarget(Uri.parse(downloadsUrl));
-            if (!target.is(LinkTarget.Target.DOWNLOADS)) {
+            ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(downloadsUrl));
+            if (!target.is(ThmmyPage.PageCategory.DOWNLOADS)) {
                 Report.e(TAG, "Bundle came with a non board url!\nUrl:\n" + downloadsUrl);
                 Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
                 finish();
@@ -85,8 +85,10 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(downloadsTitle);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         createDrawer();
         drawer.setSelection(DOWNLOADS_ID);
@@ -222,8 +224,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             }
 
             Download.DownloadItemType type;
-            if (LinkTarget.resolveLinkTarget(Uri.parse(thisPageUrl)).is(LinkTarget.
-                    Target.DOWNLOADS_CATEGORY)) type = Download.DownloadItemType.DOWNLOADS_CATEGORY;
+            if (ThmmyPage.resolvePageCategory(Uri.parse(thisPageUrl)).is(ThmmyPage.
+                    PageCategory.DOWNLOADS_CATEGORY)) type = Download.DownloadItemType.DOWNLOADS_CATEGORY;
             else type = Download.DownloadItemType.DOWNLOADS_FILE;
 
             Elements pages = downloadPage.select("a.navPages");

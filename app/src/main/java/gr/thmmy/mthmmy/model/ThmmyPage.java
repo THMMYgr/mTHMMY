@@ -11,7 +11,7 @@ import mthmmy.utils.Report;
  * classes). It can be used to resolve link targets as to whether they are pointing to the forum and
  * where in the forum they may point.
  */
-public class LinkTarget {
+public class ThmmyPage {
     /**
      * Debug Tag for logging debug output to LogCat
      */
@@ -32,7 +32,7 @@ public class LinkTarget {
      * <li>{@link #PROFILE}</li>
      * </ul>
      */
-    public enum Target {
+    public enum PageCategory {
         /**
          * Link doesn't point to thmmy.
          */
@@ -87,7 +87,7 @@ public class LinkTarget {
         DOWNLOADS;
 
         /**
-         * This method defines a custom equality check for {@link Target} enums. It does not check
+         * This method defines a custom equality check for {@link PageCategory} enums. It does not check
          * whether a url is equal to another.
          * <p>Method returns true if parameter's Target is the same as the object and in the specific
          * cases described below, false otherwise.</p><ul>
@@ -106,7 +106,7 @@ public class LinkTarget {
          * @param other another Target
          * @return true if <b>enums</b> are equal, false otherwise
          */
-        public boolean is(Target other) {
+        public boolean is(PageCategory other) {
             return ((this == PROFILE_LATEST_POSTS || this == PROFILE_STATS || this == PROFILE_SUMMARY)
                     && other == PROFILE)
                     || ((this == DOWNLOADS_FILE || this == DOWNLOADS_CATEGORY) && other == DOWNLOADS)
@@ -122,7 +122,7 @@ public class LinkTarget {
      * @return true if url is pointing to thmmy, false otherwise
      */
     public static boolean isThmmy(Uri uri) {
-        return resolveLinkTarget(uri) != Target.NOT_THMMY;
+        return resolvePageCategory(uri) != PageCategory.NOT_THMMY;
     }
 
     /**
@@ -131,28 +131,43 @@ public class LinkTarget {
      * @param uri url to resolve
      * @return resolved target
      */
-    public static Target resolveLinkTarget(Uri uri) {
+    public static PageCategory resolvePageCategory(Uri uri) {
         final String host = uri.getHost();
         final String uriString = uri.toString();
 
         if (Objects.equals(host, "www.thmmy.gr")) {
-            if (uriString.contains("topic=")) return Target.TOPIC;
-            else if (uriString.contains("board=")) return Target.BOARD;
+            if (uriString.contains("topic=")) return PageCategory.TOPIC;
+            else if (uriString.contains("board=")) return PageCategory.BOARD;
             else if (uriString.contains("action=profile")) {
                 if (uriString.contains(";sa=showPosts"))
-                    return Target.PROFILE_LATEST_POSTS;
+                    return PageCategory.PROFILE_LATEST_POSTS;
                 else if (uriString.contains(";sa=statPanel"))
-                    return Target.PROFILE_STATS;
-                else return Target.PROFILE_SUMMARY;
+                    return PageCategory.PROFILE_STATS;
+                else return PageCategory.PROFILE_SUMMARY;
             } else if (uriString.contains("action=unread"))
-                return Target.UNREAD_POSTS;
+                return PageCategory.UNREAD_POSTS;
             else if (uriString.contains("action=tpmod;dl=item"))
-                return Target.DOWNLOADS_FILE;
+                return PageCategory.DOWNLOADS_FILE;
             else if (uriString.contains("action=tpmod;dl"))
-                return Target.DOWNLOADS_CATEGORY;
+                return PageCategory.DOWNLOADS_CATEGORY;
             Report.v(TAG, "Unknown thmmy link found, link: " + uriString);
-            return Target.UNKNOWN_THMMY;
+            return PageCategory.UNKNOWN_THMMY;
         }
-        return Target.NOT_THMMY;
+        return PageCategory.NOT_THMMY;
+    }
+
+    public static String getBoardId(String boardUrl) {
+        if (resolvePageCategory(Uri.parse(boardUrl)) == PageCategory.BOARD) {
+            return boardUrl.substring(boardUrl.indexOf("board=") + 6, boardUrl.lastIndexOf("."));
+        }
+        return null;
+    }
+
+    public static String getTopicId(String topicUrl) {
+        if (resolvePageCategory(Uri.parse(topicUrl)) == PageCategory.TOPIC) {
+            String tmp = topicUrl.substring(topicUrl.indexOf("topic=") + 6);
+            return tmp.substring(0, tmp.indexOf("."));
+        }
+        return null;
     }
 }

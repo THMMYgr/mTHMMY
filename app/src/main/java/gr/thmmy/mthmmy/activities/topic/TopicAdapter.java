@@ -43,8 +43,8 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
-import gr.thmmy.mthmmy.model.LinkTarget;
 import gr.thmmy.mthmmy.model.Post;
+import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import gr.thmmy.mthmmy.utils.FileManager.ThmmyFile;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -552,8 +552,8 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
         private boolean handleUri(final Uri uri) {
             final String uriString = uri.toString();
 
-            LinkTarget.Target target = LinkTarget.resolveLinkTarget(uri);
-            if (target.is(LinkTarget.Target.TOPIC)) {
+            ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(uri);
+            if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if this is the current topic
                 if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
@@ -574,7 +574,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 }
                 topicTask.execute(uri.toString());
                 return true;
-            } else if (target.is(LinkTarget.Target.BOARD)) {
+            } else if (target.is(ThmmyPage.PageCategory.BOARD)) {
                 Intent intent = new Intent(context, BoardActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_BOARD_URL, uriString);
@@ -583,7 +583,7 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 return true;
-            } else if (target.is(LinkTarget.Target.PROFILE)) {
+            } else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
                 Intent intent = new Intent(context, ProfileActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_PROFILE_URL, uriString);

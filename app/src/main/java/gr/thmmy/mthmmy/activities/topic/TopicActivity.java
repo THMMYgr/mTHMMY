@@ -29,8 +29,9 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
-import gr.thmmy.mthmmy.model.LinkTarget;
+import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
+import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
@@ -70,7 +71,6 @@ public class TopicActivity extends BaseActivity {
     public static final ArrayList<Integer> toQuoteList = new ArrayList<>();
     //Topic's pages
     private int thisPage = 1;
-    public static String base_url = "";
     private int numberOfPages = 1;
     private final SparseArray<String> pagesUrls = new SparseArray<>();
     //Page select
@@ -88,9 +88,10 @@ public class TopicActivity extends BaseActivity {
     private ImageButton nextPage;
     private ImageButton lastPage;
     //Other variables
-    private MaterialProgressBar progressBar;
-    private String topicTitle;
     private FloatingActionButton replyFAB;
+    private MaterialProgressBar progressBar;
+    public static String base_url = "";
+    private String topicTitle;
     private String parsedTitle;
     private RecyclerView recyclerView;
     private String loadedPageUrl = "";
@@ -104,10 +105,11 @@ public class TopicActivity extends BaseActivity {
 
         Bundle extras = getIntent().getExtras();
         topicTitle = extras.getString(BUNDLE_TOPIC_TITLE);
-        LinkTarget.Target target = LinkTarget.resolveLinkTarget(
-                Uri.parse(extras.getString(BUNDLE_TOPIC_URL)));
-        if (!target.is(LinkTarget.Target.TOPIC)) {
-            Report.e(TAG, "Bundle came with a non topic url!\nUrl:\n" + extras.getString(BUNDLE_TOPIC_URL));
+        String topicPageUrl = extras.getString(BUNDLE_TOPIC_URL);
+        ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
+                Uri.parse(topicPageUrl));
+        if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
+            Report.e(TAG, "Bundle came with a non topic url!\nUrl:\n" + topicPageUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -121,6 +123,8 @@ public class TopicActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        setTopicBookmark((ImageButton) findViewById(R.id.bookmark),
+                new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl)));
         createDrawer();
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
@@ -458,14 +462,25 @@ public class TopicActivity extends BaseActivity {
             }
 
             //Checks if the page to be loaded is the one already shown
-            if (!Objects.equals(loadedPageUrl, "") && !loadedPageUrl.contains(base_url)) {
+            if (!Objects.equals(loadedPageUrl, "") && loadedPageUrl.contains(base_url)) {
                 if (newPageUrl.contains("topicseen#new"))
-                    if (Integer.parseInt(loadedPageUrl.substring(base_url.length())) == numberOfPages)
+                    if (thisPage == numberOfPages)
                         return SAME_PAGE;
+                if (newPageUrl.contains("msg")) {
+                    String tmpUrlSbstr = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
+                    if (tmpUrlSbstr.contains("msg"))
+                        tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
+                    int testAgainst = Integer.parseInt(tmpUrlSbstr);
+                    for (Post post : postsList) {
+                        if (post.getPostIndex() == testAgainst) {
+                            return SAME_PAGE;
+                        }
+                    }
+                }
                 if (Objects.equals(loadedPageUrl.substring(base_url.length())
                         , newPageUrl.substring(base_url.length())))
                     return SAME_PAGE;
-            }
+            } else topicTitle = null;
 
             loadedPageUrl = newPageUrl;
             Request request = new Request.Builder()
@@ -496,6 +511,9 @@ public class TopicActivity extends BaseActivity {
 
             switch (parseResult) {
                 case SUCCESS:
+                    setTopicBookmark((ImageButton) findViewById(R.id.bookmark),
+                            new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl)));
+
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     topicAdapter.customNotifyDataSetChanged(new TopicTask());
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);

@@ -1,13 +1,18 @@
 package gr.thmmy.mthmmy.base;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
@@ -21,13 +26,20 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
+import gr.thmmy.mthmmy.activities.BookmarkActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
+import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.ObjectSerializer;
 import okhttp3.OkHttpClient;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -44,6 +56,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     //SessionManager
     protected static SessionManager sessionManager;
 
+    //Bookmarks
+    private static final String BOOKMARKS_SHARED_PREFS = "bookmarksSharedPrefs";
+    private static final String BOOKMARKED_TOPICS_KEY = "bookmarkedTopicsKey";
+    private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
+    protected static SharedPreferences bookmarksFile;
+    protected static ArrayList<Bookmark> topicsBookmarked;
+    protected static ArrayList<Bookmark> boardsBookmarked;
+    protected static Drawable bookmarked;
+    protected static Drawable notBookmarked;
+
     //Common UI elements
     protected Toolbar toolbar;
     protected Drawer drawer;
@@ -56,6 +78,25 @@ public abstract class BaseActivity extends AppCompatActivity {
         // they become null when app restarts after crash
         if (sessionManager == null)
             sessionManager = BaseApplication.getInstance().getSessionManager();
+
+        if (sessionManager.isLoggedIn()) {
+            if (bookmarked == null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true, null);
+                } else //noinspection deprecation
+                    bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true);
+            }
+            if (notBookmarked == null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false, null);
+                } else //noinspection deprecation
+                    notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false);
+            }
+            if (topicsBookmarked == null || boardsBookmarked == null) {
+                bookmarksFile = getSharedPreferences(BOOKMARKS_SHARED_PREFS, Context.MODE_PRIVATE);
+                loadSavedBookmarks();
+            }
+        }
     }
 
     @Override
@@ -84,14 +125,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     //------------------------------------------DRAWER STUFF----------------------------------------
     protected static final int HOME_ID = 0;
     protected static final int DOWNLOADS_ID = 1;
-    protected static final int LOG_ID = 2;
-    protected static final int ABOUT_ID = 3;
+    protected static final int BOOKMARKS_ID = 2;
+    protected static final int LOG_ID = 3;
+    protected static final int ABOUT_ID = 4;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
-    private PrimaryDrawerItem homeItem, downloadsItem, loginLogoutItem, aboutItem;
-    private IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, loginIcon, logoutIcon,
-            aboutIcon, aboutIconSelected;
+    private PrimaryDrawerItem homeItem, downloadsItem, bookmarksItem, loginLogoutItem, aboutItem;
+    private IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected,
+            bookmarksIcon, bookmarksIconSelected, loginIcon, logoutIcon, aboutIcon,
+            aboutIconSelected;
 
     /**
      * Call only after initializing Toolbar
@@ -116,6 +159,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         downloadsIconSelected = new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_download)
+                .color(selectedSecondaryColor);
+
+        bookmarksIcon = new IconicsDrawable(this)
+                .icon(FontAwesome.Icon.faw_bookmark)
+                .color(primaryColor);
+
+        bookmarksIconSelected = new IconicsDrawable(this)
+                .icon(FontAwesome.Icon.faw_bookmark)
                 .color(selectedSecondaryColor);
 
         loginIcon = new IconicsDrawable(this)
@@ -162,6 +213,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                     .withName(R.string.downloads)
                     .withIcon(downloadsIcon)
                     .withSelectedIcon(downloadsIconSelected);
+            bookmarksItem = new PrimaryDrawerItem()
+                    .withTextColor(primaryColor)
+                    .withSelectedColor(selectedPrimaryColor)
+                    .withSelectedTextColor(selectedSecondaryColor)
+                    .withIdentifier(BOOKMARKS_ID)
+                    .withName(R.string.bookmark)
+                    .withIcon(bookmarksIcon)
+                    .withSelectedIcon(bookmarksIconSelected);
         } else
             loginLogoutItem = new PrimaryDrawerItem()
                     .withTextColor(primaryColor)
@@ -228,13 +287,17 @@ public abstract class BaseActivity extends AppCompatActivity {
                                 startActivity(i);
                             }
                         } else if (drawerItem.equals(DOWNLOADS_ID)) {
-                            if (!(BaseActivity.this instanceof DownloadsActivity)) //When logged out or if user is guest
-                            {
+                            if (!(BaseActivity.this instanceof DownloadsActivity)) {
                                 Intent i = new Intent(BaseActivity.this, DownloadsActivity.class);
                                 Bundle extras = new Bundle();
                                 extras.putString(BUNDLE_DOWNLOADS_URL, "");
                                 extras.putString(BUNDLE_DOWNLOADS_TITLE, null);
                                 i.putExtras(extras);
+                                startActivity(i);
+                            }
+                        } else if (drawerItem.equals(BOOKMARKS_ID)) {
+                            if (!(BaseActivity.this instanceof BookmarkActivity)) {
+                                Intent i = new Intent(BaseActivity.this, BookmarkActivity.class);
                                 startActivity(i);
                             }
                         } else if (drawerItem.equals(LOG_ID)) {
@@ -260,7 +323,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, downloadsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, downloadsItem, bookmarksItem, loginLogoutItem, aboutItem);
         else
             drawerBuilder.addDrawerItems(homeItem, loginLogoutItem, aboutItem);
 
@@ -298,7 +361,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
-    //-------------------------------------------LOGOUT-------------------------------------------------
+//-------------------------------------------LOGOUT-------------------------------------------------
 
     /**
      * Result toast will always display a success, because when user chooses logout all data are
@@ -328,5 +391,151 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 //-----------------------------------------LOGOUT END-----------------------------------------------
 
+//---------------------------------------------BOOKMARKS--------------------------------------------
 
+    protected ArrayList<Bookmark> getBoardsBookmarked() {
+        return boardsBookmarked;
+    }
+
+    protected ArrayList<Bookmark> getTopicsBookmarked() {
+        return topicsBookmarked;
+    }
+
+    protected void setTopicBookmark(ImageButton bookmarkView, final Bookmark bookmark) {
+        if (matchExists(bookmark, topicsBookmarked)) {
+            bookmarkView.setImageDrawable(bookmarked);
+        } else {
+            bookmarkView.setImageDrawable(notBookmarked);
+        }
+        bookmarkView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (matchExists(bookmark, topicsBookmarked)) {
+                    ((ImageButton) view).setImageDrawable(notBookmarked);
+                    toggleTopicToBookmarks(bookmark);
+                    Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                } else {
+                    ((ImageButton) view).setImageDrawable(bookmarked);
+                    toggleTopicToBookmarks(bookmark);
+                    Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    protected void setBoardBookmark(ImageButton bookmarkView, final Bookmark bookmark) {
+        if (matchExists(bookmark, boardsBookmarked)) {
+            bookmarkView.setImageDrawable(bookmarked);
+        } else {
+            bookmarkView.setImageDrawable(notBookmarked);
+        }
+        bookmarkView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (matchExists(bookmark, boardsBookmarked)) {
+                    ((ImageButton) view).setImageDrawable(notBookmarked);
+                    toggleBoardToBookmarks(bookmark);
+                    Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                } else {
+                    ((ImageButton) view).setImageDrawable(bookmarked);
+                    toggleBoardToBookmarks(bookmark);
+                    Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void loadSavedBookmarks() {
+        String tmpString = bookmarksFile.getString(BOOKMARKED_TOPICS_KEY, null);
+        if (tmpString != null)
+            try {
+                topicsBookmarked = (ArrayList<Bookmark>) ObjectSerializer.deserialize(tmpString);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        else {
+            topicsBookmarked = new ArrayList<>();
+            topicsBookmarked.add(null);
+        }
+
+        tmpString = bookmarksFile.getString(BOOKMARKED_BOARDS_KEY, null);
+        if (tmpString != null)
+            try {
+                boardsBookmarked = (ArrayList<Bookmark>) ObjectSerializer.deserialize(tmpString);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        else {
+            boardsBookmarked = new ArrayList<>();
+            boardsBookmarked.add(null);
+        }
+    }
+
+    private void toggleBoardToBookmarks(Bookmark bookmark) {
+        if (boardsBookmarked == null) return;
+        if (matchExists(bookmark, boardsBookmarked)) {
+            if (boardsBookmarked.size() == 1) boardsBookmarked.set(0, null);
+            else boardsBookmarked.remove(findIndex(bookmark, boardsBookmarked));
+        } else boardsBookmarked.add(bookmark);
+        updateBoardBookmarks();
+    }
+
+    private void toggleTopicToBookmarks(Bookmark bookmark) {
+        if (topicsBookmarked == null) return;
+        if (matchExists(bookmark, topicsBookmarked))
+            topicsBookmarked.remove(findIndex(bookmark, topicsBookmarked));
+        else topicsBookmarked.add(bookmark);
+        updateTopicBookmarks();
+    }
+
+    private void updateBoardBookmarks() {
+        String tmpString = null;
+        if (!(boardsBookmarked.size() == 1 && boardsBookmarked.get(0) == null)) {
+            try {
+                tmpString = ObjectSerializer.serialize(boardsBookmarked);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        SharedPreferences.Editor editor = bookmarksFile.edit();
+        editor.putString(BOOKMARKED_BOARDS_KEY, tmpString).apply();
+    }
+
+    private void updateTopicBookmarks() {
+        String tmpString = null;
+        if (!(topicsBookmarked.size() == 1 && topicsBookmarked.get(0) == null)) {
+            try {
+                tmpString = ObjectSerializer.serialize(topicsBookmarked);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        SharedPreferences.Editor editor = bookmarksFile.edit();
+        editor.putString(BOOKMARKED_TOPICS_KEY, tmpString).apply();
+    }
+
+    private boolean matchExists(Bookmark bookmark, ArrayList<Bookmark> array) {
+        if (!array.isEmpty()) {
+            for (Bookmark b : array) {
+                if (b != null) {
+                    return Objects.equals(b.getId(), bookmark.getId())
+                            && Objects.equals(b.getTitle(), bookmark.getTitle());
+                }
+            }
+        }
+        return false;
+    }
+
+    private int findIndex(Bookmark bookmark, ArrayList<Bookmark> array) {
+        if (array.size() == 1 && array.get(0) == null) return -1;
+        if (!array.isEmpty()) {
+            for (int i = 0; i < array.size(); ++i) {
+                if (array.get(i) != null && Objects.equals(array.get(i).getId(), bookmark.getId())
+                        && Objects.equals(array.get(i).getTitle(), bookmark.getTitle()))
+                    return i;
+            }
+        }
+        return -1;
+    }
+//-------------------------------------------BOOKMARKS END------------------------------------------
 }
