@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
+import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -66,18 +67,52 @@ public class DownloadService extends IntentService {
             Request request = new Request.Builder().url(downloadLink).build();
             Response response = client.newCall(request).execute();
 
-            String filename = response.headers("Content-Disposition").toString().split("\"")[1];
+            String contentType = response.headers("Content-Type").toString();   //check if link provides a binary file
+            if(contentType.equals("[application/octet-stream]"))
+            {
+                String fileName = response.headers("Content-Disposition").toString().split("\"")[1];
 
-            File dirPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "mthmmy");
-            if(!dirPath.isDirectory())
-                dirPath.mkdirs();
+                File dirPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "mthmmy");
+                if(!dirPath.isDirectory())
+                {
+                    if(dirPath.mkdirs())
+                        Report.i(TAG, "mTHMMY's directory created successfully!");
+                    else
+                        Report.e(TAG, "Couldn't create mTHMMY's directory...");
+                }
 
-            File file = new File(dirPath, filename);
 
-            sink = Okio.buffer(Okio.sink(file));
-            sink.writeAll(response.body().source());
-            sink.flush();
-            Report.i(TAG, "Download OK!");
+                String nameFormat;
+                String[] tokens = fileName.split("\\.(?=[^\\.]+$)");
+
+                if(tokens.length!=2)
+                {
+                    Report.w(TAG, "Error getting file extension");
+                    nameFormat = fileName + "(%d)";
+                }
+                else
+                    nameFormat = tokens[0] + "(%d)." + tokens[1];
+
+
+                File file = new File(dirPath, fileName);
+
+                for (int i = 1;;i++) {
+                    if (!file.exists()) {
+                        break;
+                    }
+
+                    file = new File(dirPath, String.format(nameFormat, i));
+                }
+                Report.v(TAG, "Start saving file " + file.getName());
+
+
+                sink = Okio.buffer(Okio.sink(file));
+                sink.writeAll(response.body().source());
+                sink.flush();
+                Report.i(TAG, "Download OK!");
+            }
+            else
+                Report.e(TAG, "Response not a binary!");
         }
         catch (FileNotFoundException e){
             Report.e(TAG, "FileNotFound", e);
