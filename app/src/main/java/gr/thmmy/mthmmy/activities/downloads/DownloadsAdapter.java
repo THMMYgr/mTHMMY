@@ -13,11 +13,15 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Download;
+import gr.thmmy.mthmmy.model.ThmmyFile;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -124,7 +128,17 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     downloadViewHolder.title.setText(tmp);
                 }
             } else {
-                //TODO implement download on click
+                downloadViewHolder.downloadRow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            ((BaseActivity) context).launchDownloadService(new ThmmyFile(
+                                    new URL(download.getUrl()), null, null));
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background, null));
@@ -170,8 +184,8 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             informationExpandable = (LinearLayout) download.findViewById(R.id.child_board_expandable);
             title = (TextView) download.findViewById(R.id.download_title);
             subTitle = (TextView) download.findViewById(R.id.download_sub_title);
-            extraInfo = (TextView) download.findViewById(R.id.download_extra_info);
-            uploaderDate = (TextView) download.findViewById(R.id.download_uploader_date);
+            uploaderDate = (TextView) download.findViewById(R.id.download_extra_info);
+            extraInfo = (TextView) download.findViewById(R.id.download_uploader_date);
             informationExpandableBtn = (ImageButton) download.findViewById(R.id.download_information_button);
         }
     }
