@@ -30,11 +30,15 @@ public class DownloadService extends IntentService {
 
     private Receiver receiver;
 
+    public static final String SAVE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "mthmmy";
+
     public static final String ACTION_DOWNLOAD = "gr.thmmy.mthmmy.services.action.DOWNLOAD";
     public static final String EXTRA_DOWNLOAD_URL = "gr.thmmy.mthmmy.services.extra.DOWNLOAD_URL";
 
     public static final String EXTRA_DOWNLOAD_ID = "gr.thmmy.mthmmy.services.extra.DOWNLOAD_ID";
     public static final String EXTRA_DOWNLOAD_STATE = "gr.thmmy.mthmmy.services.extra.DOWNLOAD_STATE";
+    public static final String EXTRA_FILE_NAME = "gr.thmmy.mthmmy.services.extra.FILE_NAME";
+    public static final String EXTRA_FILE_EXTENSION = "gr.thmmy.mthmmy.services.extra.FILE_EXTENSION";
     public static final String EXTRA_NOTIFICATION_TITLE = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TITLE";
     public static final String EXTRA_NOTIFICATION_TEXT = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TEXT";
     public static final String EXTRA_NOTIFICATION_TICKER = "gr.thmmy.mthmmy.services.extra.NOTIFICATION_TICKER";
@@ -95,7 +99,8 @@ public class DownloadService extends IntentService {
     private void handleActionDownload(String downloadLink) {
         OkHttpClient client = BaseApplication.getInstance().getClient();
         BufferedSink sink = null;
-        String trueName = null;
+        String fileName = "file";
+        String extension = "extension";
         int downloadId = sDownloadId;
         sDownloadId++;
 
@@ -106,9 +111,9 @@ public class DownloadService extends IntentService {
             String contentType = response.headers("Content-Type").toString();   //check if link provides a binary file
             if(contentType.equals("[application/octet-stream]"))
             {
-                String fileName = response.headers("Content-Disposition").toString().split("\"")[1];
+                fileName = response.headers("Content-Disposition").toString().split("\"")[1];
 
-                File dirPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "mthmmy");
+                File dirPath = new File(SAVE_DIR);
                 if(!dirPath.isDirectory())
                 {
                     if(dirPath.mkdirs())
@@ -123,11 +128,15 @@ public class DownloadService extends IntentService {
 
                 if(tokens.length!=2)
                 {
-                    Report.w(TAG, "Error getting file extension");
+                    Report.w(TAG, "Couldn't get file extension...");
                     nameFormat = fileName + "(%d)";
                 }
                 else
+                {
                     nameFormat = tokens[0] + "(%d)." + tokens[1];
+                    extension = tokens[1];
+                }
+
 
 
                 File file = new File(dirPath, fileName);
@@ -140,35 +149,29 @@ public class DownloadService extends IntentService {
                     file = new File(dirPath, String.format(nameFormat, i));
                 }
 
-                trueName = file.getName();
+                fileName = file.getName();
 
-                Report.v(TAG, "Started saving file " + trueName);
-                sendNotification(downloadId, STARTED, trueName);
+                Report.v(TAG, "Started saving file " + fileName);
+                sendNotification(downloadId, STARTED, fileName, extension);
 
                 sink = Okio.buffer(Okio.sink(file));
                 sink.writeAll(response.body().source());
                 sink.flush();
                 Report.i(TAG, "Download OK!");
-                sendNotification(downloadId, COMPLETED, trueName);
+                sendNotification(downloadId, COMPLETED, fileName, extension);
             }
             else
-                Report.e(TAG, "Response not a binary!");
+                Report.e(TAG, "Response not a binary file!");
         }
         catch (FileNotFoundException e){
             Report.e(TAG, "FileNotFound", e);
             Report.i(TAG, "Download failed...");
-            if(trueName!=null)
-                sendNotification(downloadId, FAILED, trueName);
-            else
-                sendNotification(downloadId, FAILED, "file");
+            sendNotification(downloadId, FAILED, fileName, extension);
         }
         catch (IOException e){
             Report.e(TAG, "IOException", e);
             Report.i(TAG, "Download failed...");
-            if(trueName!=null)
-                sendNotification(downloadId, FAILED, trueName);
-            else
-                sendNotification(downloadId, FAILED, "file");
+            sendNotification(downloadId, FAILED, fileName, extension);
         } finally {
             if (sink!= null) {
                 try {
@@ -180,40 +183,38 @@ public class DownloadService extends IntentService {
         }
     }
 
-    private void sendNotification(int downloadId, String type, @NonNull String fileName)
+    private void sendNotification(int downloadId, String type, @NonNull String fileName, String fileExtension)
     {
+        Intent  intent = new Intent(ACTION_DOWNLOAD);
         switch (type) {
             case STARTED: {
-                Intent intent = new Intent(ACTION_DOWNLOAD);
-                intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
-                intent.putExtra(EXTRA_DOWNLOAD_STATE, STARTED);
                 intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Started");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" downloading...");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Downloading...");
-                sendBroadcast(intent);
                 break;
             }
             case COMPLETED: {
-                Intent intent = new Intent(ACTION_DOWNLOAD);
-                intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
-                intent.putExtra(EXTRA_DOWNLOAD_STATE, COMPLETED);
                 intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Completed");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" finished downloading.");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Completed");
-                sendBroadcast(intent);
                 break;
             }
             case FAILED: {
-                Intent intent = new Intent(ACTION_DOWNLOAD);
-                intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
-                intent.putExtra(EXTRA_DOWNLOAD_STATE, FAILED);
                 intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Failed");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" failed.");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Failed");
-                sendBroadcast(intent);
                 break;
             }
+            default:{
+                Report.wtf(TAG, "Invalid notification case!");
+                return;
+            }
         }
+        intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
+        intent.putExtra(EXTRA_DOWNLOAD_STATE, type);
+        intent.putExtra(EXTRA_FILE_NAME, fileName);
+        intent.putExtra(EXTRA_FILE_EXTENSION, fileExtension);
+        sendBroadcast(intent);
 
     }
 
