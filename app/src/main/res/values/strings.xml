@@ -56,7 +56,12 @@
     <!--About Activity-->
     <string name="version">v%1$s</string>
     <string name="logo">Logo</string>
-    <string name="trollPic">You should watch a funny pic!</string>
+    <string name="trollPic">You should see a funny pic!</string>
+
+    <!--Bookmarks-->
+    <string name="remove_bookmark">Remove</string>
+    <string name="board_bookmarks_title">Your bookmarked boards:</string>
+    <string name="topic_bookmarks_title">Your bookmarked topics:</string>
 
     <!--Licences-->
     <string name="libraries">Libraries</string>

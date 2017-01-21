@@ -498,6 +498,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = bookmarksFile.edit();
         editor.putString(BOOKMARKED_TOPICS_KEY, tmpString).apply();
     }
+
+    protected void removeBookmark(Bookmark bookmark) {
+        if (bookmark.matchExists(boardsBookmarked)) toggleBoardToBookmarks(bookmark);
+        else if (bookmark.matchExists(topicsBookmarked)) toggleTopicToBookmarks(bookmark);
+    }
 //-------------------------------------------BOOKMARKS END------------------------------------------
 
     //-------PERMS---------
