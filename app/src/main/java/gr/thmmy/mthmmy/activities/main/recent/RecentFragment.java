@@ -27,6 +27,7 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
 import okhttp3.HttpUrl;
@@ -159,12 +160,15 @@ public class RecentFragment extends BaseFragment {
                 document = Jsoup.parse(response.body().string());
                 parse(document);
                 return 0;
-            } catch (IOException e) {
-                Report.d(TAG, "Network Error", e);
+            } catch (ParseException e) {
+                Report.e(TAG, "ParseException", e);
                 return 1;
-            } catch (Exception e) {
-                Report.d(TAG, "Exception", e);
+            } catch (IOException e) {
+                Report.i(TAG, "Network Error", e);
                 return 2;
+            } catch (Exception e) {
+                Report.e(TAG, "Exception", e);
+                return 3;
             }
 
         }
@@ -174,14 +178,14 @@ public class RecentFragment extends BaseFragment {
 
             if (result == 0)
                 recentAdapter.notifyDataSetChanged();
-            else if (result == 1)
+            else if (result == 2)
                 Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);
         }
 
-        private void parse(Document document) {
+        private void parse(Document document) throws ParseException {
             Elements recent = document.select("#block8 :first-child div");
             if (!recent.isEmpty()) {
                 topicSummaries.clear();
@@ -195,27 +199,23 @@ public class RecentFragment extends BaseFragment {
                     Matcher matcher = pattern.matcher(lastUser);
                     if (matcher.find())
                         lastUser = matcher.group(1);
-                    else {
-                        Report.e(TAG, "Parsing failed (lastUser)!");
-                        return;
-                    }
+                    else
+                        throw new ParseException("Parsing failed (lastUser)");
 
                     String dateTime = recent.get(i + 2).text();
                     pattern = Pattern.compile("\\[(.*)\\]");
                     matcher = pattern.matcher(dateTime);
                     if (matcher.find())
                         dateTime = matcher.group(1);
-                    else {
-                        Report.e(TAG, "Parsing failed (dateTime)!");
-                        return;
-                    }
+                    else
+                        throw new ParseException("Parsing failed (dateTime)");
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
 
                 return;
             }
-            Report.e(TAG, "Parsing failed!");
+            throw new ParseException("Parsing failed");
         }
     }
 
