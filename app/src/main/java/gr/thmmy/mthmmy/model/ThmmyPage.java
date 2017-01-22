@@ -140,7 +140,8 @@ public class ThmmyPage {
         final String host = uri.getHost();
         final String uriString = uri.toString();
 
-        if (Objects.equals(uriString, "thmmy.gr")) return PageCategory.INDEX;
+        if (Objects.equals(uriString, "http://thmmy.gr")
+                || Objects.equals(uriString, "https://thmmy.gr")) return PageCategory.INDEX;
         if (Objects.equals(host, "www.thmmy.gr")) {
             if (uriString.contains("topic=")) return PageCategory.TOPIC;
             else if (uriString.contains("board=")) return PageCategory.BOARD;

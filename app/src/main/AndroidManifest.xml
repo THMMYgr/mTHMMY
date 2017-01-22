@@ -46,6 +46,9 @@
                 <data
                     android:host="thmmy.gr"
                     android:scheme="https"/>
+
+                <data
+                    android:host="thmmy.gr"/>
             </intent-filter>
         </activity>
         <activity

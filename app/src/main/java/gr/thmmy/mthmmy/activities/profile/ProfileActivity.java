@@ -98,7 +98,6 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         Bundle extras = getIntent().getExtras();
         thumbnailUrl = extras.getString(BUNDLE_PROFILE_THUMBNAIL_URL);
         if (thumbnailUrl == null) thumbnailUrl = "";
-        Log.d(TAG, "thumbnailUrl = " + thumbnailUrl);
         username = extras.getString(BUNDLE_PROFILE_USERNAME);
         profileUrl = extras.getString(BUNDLE_PROFILE_URL);
 
@@ -239,17 +238,12 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                             select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tr").
                             first().select("td").last().text();
                 }
-                Log.d(TAG, "thumbnailUrl = " + thumbnailUrl);
                 if (thumbnailUrl == null || Objects.equals(thumbnailUrl, "")) { //Maybe there is an avatar
-                    Log.d(TAG, "thumbnailUrl = " + thumbnailUrl);
                     Element profileAvatar = profilePage
                             .select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) img.avatar")
                             .first();
                     if (profileAvatar != null) thumbnailUrl = profileAvatar.attr("abs:src");
                 }
-                Log.d(TAG, "thumbnailUrl = " + thumbnailUrl);
-                ;
-
                 { //Finds personal text
                     Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
                     if (tmpEl != null) {
@@ -294,7 +288,10 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                                 , R.drawable.ic_default_user_thumbnail, null))
                         .transform(new CircleTransform())
                         .into(thumbnailView);
-            if (personalText != null) personalTextView.setText(personalText);
+            if (personalText != null) {
+                personalTextView.setText(personalText);
+                personalTextView.setVisibility(View.VISIBLE);
+            }
 
             setupViewPager(viewPager, profilePage);
             TabLayout tabLayout = (TabLayout) findViewById(R.id.profile_tabs);

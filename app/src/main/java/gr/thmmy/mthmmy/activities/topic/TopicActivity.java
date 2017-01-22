@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -432,10 +433,9 @@ public class TopicActivity extends BaseActivity {
                         postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
                 }
             }
-
             //Checks if the page to be loaded is the one already shown
             if (!Objects.equals(loadedPageUrl, "") && loadedPageUrl.contains(base_url)) {
-                if (newPageUrl.contains("topicseen#new"))
+                if (newPageUrl.contains("topicseen#new") || newPageUrl.contains("#new"))
                     if (thisPage == numberOfPages)
                         return SAME_PAGE;
                 if (newPageUrl.contains("msg")) {
@@ -448,8 +448,7 @@ public class TopicActivity extends BaseActivity {
                             return SAME_PAGE;
                         }
                     }
-                }
-                if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
+                } else if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
                     return SAME_PAGE;
             } else if (!Objects.equals(loadedPageUrl, "")) topicTitle = null;
 
