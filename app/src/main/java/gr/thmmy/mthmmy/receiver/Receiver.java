@@ -16,12 +16,10 @@ import java.io.File;
 import gr.thmmy.mthmmy.R;
 import mthmmy.utils.Report;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.services.DownloadService.ACTION_DOWNLOAD;
 import static gr.thmmy.mthmmy.services.DownloadService.COMPLETED;
 import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_DOWNLOAD_ID;
 import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_DOWNLOAD_STATE;
-import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_FILE_EXTENSION;
 import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_FILE_NAME;
 import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_NOTIFICATION_TEXT;
 import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_NOTIFICATION_TICKER;
@@ -51,28 +49,28 @@ public class Receiver extends BroadcastReceiver {
             builder.setContentTitle(title)
                     .setContentText(text)
                     .setTicker(ticker)
-                    .setAutoCancel(true)    //???
+                    .setAutoCancel(true)
                     .setSmallIcon(R.mipmap.ic_launcher);
 
             if (state.equals(STARTED))
                 builder.setOngoing(true);
             else if (state.equals(COMPLETED)) {
                 String fileName = extras.getString(EXTRA_FILE_NAME, "NONE");
-                String extension = extras.getString(EXTRA_FILE_EXTENSION, "extension");
 
                 File file = new File(SAVE_DIR, fileName);
                 if (file.exists()) {
                     String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                             MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath()));
 
-                    Intent chooser = new Intent();
-                    chooser.setAction(android.content.Intent.ACTION_VIEW);
-                    chooser.setDataAndType(Uri.fromFile(file), type);
-                    chooser.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    Intent chooserIntent = new Intent(Intent.ACTION_VIEW);
+                    chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    chooserIntent.setDataAndType(Uri.fromFile(file), type);
+                    Intent chooser = Intent.createChooser(chooserIntent, "Open With...");
 
                     PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, chooser, PendingIntent.FLAG_CANCEL_CURRENT);
                     builder.setContentIntent(pendingIntent);
+
                 } else
                     Report.w(TAG, "File doesn't exist.");
             }

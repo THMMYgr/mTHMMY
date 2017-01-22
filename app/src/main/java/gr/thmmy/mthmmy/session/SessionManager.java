@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import mthmmy.utils.Report;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
@@ -56,12 +57,12 @@ public class SessionManager {
 
     //Shared Preferences & its keys
     private SharedPreferences sharedPrefs;
-    public static final String USERNAME = "Username";
-    public static final String AVATAR_LINK = "AvatarLink";
-    public static final String HAS_AVATAR = "HasAvatar";
-    public static final String LOGOUT_LINK = "LogoutLink";
-    public static final String LOGGED_IN = "LoggedIn";
-    public static final String LOGIN_SCREEN_AS_DEFAULT = "LoginScreenAsDefault";
+    private static final String USERNAME = "Username";
+    private static final String AVATAR_LINK = "AvatarLink";
+    private static final String HAS_AVATAR = "HasAvatar";
+    private static final String LOGOUT_LINK = "LogoutLink";
+    private static final String LOGGED_IN = "LoggedIn";
+    private static final String LOGIN_SCREEN_AS_DEFAULT = "LoginScreenAsDefault";
 
     //Constructor
     public SessionManager(OkHttpClient client, PersistentCookieJar cookieJar,
@@ -290,10 +291,11 @@ public class SessionManager {
         Report.i(TAG, "Session data cleared.");
     }
 
-    @Nullable
-    private String extractUserName(@NonNull Document doc) {
+    @NonNull
+    private String extractUserName(@NonNull Document doc){
         //Scribbles2 Theme
         Elements user = doc.select("div[id=myuser] > h3");
+        String userName = null;
 
         if (user.size() == 1) {
             String txt = user.first().ownText();
@@ -301,26 +303,26 @@ public class SessionManager {
             Pattern pattern = Pattern.compile(", (.*?),");
             Matcher matcher = pattern.matcher(txt);
             if (matcher.find())
-                return matcher.group(1);
+                userName = matcher.group(1);
         }
-        else
-        {
+        else {
             //Helios_Multi and SMF_oneBlue
             user = doc.select("td.smalltext[width=100%] b");
             if (user.size() == 1)
-                return user.first().ownText();
-            else
-            {
+                userName = user.first().ownText();
+            else {
                 //SMF Default Theme
                 user = doc.select("td.titlebg2[height=32] b");
                 if (user.size() == 1)
-                    return user.first().ownText();
+                    userName = user.first().ownText();
             }
         }
+        
+        if(userName != null && !userName.isEmpty())
+            return userName;
 
-
-        Report.e(TAG, "Extracting username failed!");
-        return null;
+        Report.e(TAG, "ParseException", new ParseException("Parsing failed(username extraction)"));
+        return  "User"; //return a default username
     }
 
 
@@ -334,15 +336,18 @@ public class SessionManager {
         return null;
     }
 
-    @Nullable
+    @NonNull
     private String extractLogoutLink(@NonNull Document doc) {
         Elements logoutLink = doc.select("a[href^=https://www.thmmy.gr/smf/index.php?action=logout;sesc=]");
 
         if (!logoutLink.isEmpty())
-            return logoutLink.first().attr("href");
-
-        Report.e(TAG, "Extracting logout link failed!");
-        return null;
+        {
+            String link = logoutLink.first().attr("href");
+            if(link != null && !link.isEmpty())
+                return link;
+        }
+        Report.e(TAG, "ParseException", new ParseException("Parsing failed(logoutLink extraction)"));
+        return  "https://www.thmmy.gr/smf/index.php?action=logout"; //return a default link
     }
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------
 

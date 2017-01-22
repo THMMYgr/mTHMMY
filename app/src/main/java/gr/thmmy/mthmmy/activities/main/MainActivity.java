@@ -174,7 +174,6 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         if (intent != null) {
             Uri uri = intent.getData();
             if (uri != null) {
-                Log.d(TAG, uri.toString());
                 ThmmyPage.PageCategory page = ThmmyPage.resolvePageCategory(uri);
                 if (!page.is(ThmmyPage.PageCategory.NOT_THMMY)) {
                     if (page.is(ThmmyPage.PageCategory.BOARD)) {

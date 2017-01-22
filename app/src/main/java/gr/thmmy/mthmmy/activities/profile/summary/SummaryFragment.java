@@ -148,6 +148,8 @@ public class SummaryFragment extends Fragment {
 
                 if (summaryRow.select("td").size() == 1) //Horizontal rule rows
                     pHtml = "";
+                else if (summaryRow.text().contains("Current Status")
+                        || summaryRow.text().contains("Κατάσταση")) continue;
                 else if (rowText.contains("Signature") || rowText.contains("Υπογραφή")) {
                     //This needs special handling since it may have css
                     pHtml = ParseHelpers.youtubeEmbeddedFix(summaryRow);

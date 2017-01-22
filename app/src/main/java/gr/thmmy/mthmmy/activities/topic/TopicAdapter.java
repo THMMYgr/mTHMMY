@@ -389,30 +389,35 @@ class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder> {
             holder.subject.setMaxLines(1);
             holder.subject.setEllipsize(TextUtils.TruncateAt.END);
         }
-        if (viewProperties.get(position)[isQuoteButtonChecked])
-            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
-        else
-            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
-        //Sets graphics behavior
-        holder.quoteToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                if (tmp[isQuoteButtonChecked]) {
-                    if (toQuoteList.contains(currentPost.getPostNumber())) {
-                        toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
-                    } else
-                        Report.i(TAG, "An error occurred while trying to exclude post from" +
-                                "toQuoteList, post wasn't there!");
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
-                } else {
-                    toQuoteList.add(currentPost.getPostNumber());
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
+        //noinspection PointlessBooleanExpression,ConstantConditions
+        if (!BaseActivity.getSessionManager().isLoggedIn() || true) //Hide it until reply is implemented
+            holder.quoteToggle.setVisibility(View.GONE);
+        else {
+            if (viewProperties.get(position)[isQuoteButtonChecked])
+                holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
+            else
+                holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
+            //Sets graphics behavior
+            holder.quoteToggle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
+                    if (tmp[isQuoteButtonChecked]) {
+                        if (toQuoteList.contains(currentPost.getPostNumber())) {
+                            toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
+                        } else
+                            Report.i(TAG, "An error occurred while trying to exclude post from" +
+                                    "toQuoteList, post wasn't there!");
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
+                    } else {
+                        toQuoteList.add(currentPost.getPostNumber());
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
+                    }
+                    tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
+                    viewProperties.set(holder.getAdapterPosition(), tmp);
                 }
-                tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
-                viewProperties.set(holder.getAdapterPosition(), tmp);
-            }
-        });
+            });
+        }
         //Card expand/collapse when card is touched
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
