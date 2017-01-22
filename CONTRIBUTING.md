@@ -13,7 +13,8 @@ vulnerabilities, please report them in private to
 
 There are many ways of contributing to mTHMMY:
 
-- Simply using the latest release version
+- Simply using the latest release version (anonymous reports are sent automatically)
+- Becoming an alpha or beta tester
 - Joining our [Discord server][discord-server]
 - Submiting bugs and ideas on our [Trello board][trello-board]
 - Getting code access to fork mTHMMY and submit [merge requests](#merge-requests)
