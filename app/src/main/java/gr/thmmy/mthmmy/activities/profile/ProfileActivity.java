@@ -1,6 +1,8 @@
 package gr.thmmy.mthmmy.activities.profile;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,7 +14,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -24,6 +30,7 @@ import com.squareup.picasso.Picasso;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +46,7 @@ import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.ThmmyPage;
+import gr.thmmy.mthmmy.utils.CenterVerticalSpan;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import mthmmy.utils.Report;
@@ -128,6 +136,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     .transform(new CircleTransform())
                     .into(thumbnailView);
         usernameView = (TextView) findViewById(R.id.profile_activity_username);
+        usernameView.setTypeface(Typeface.createFromAsset(this.getAssets()
+                , "fonts/fontawesome-webfont.ttf"));
         if (username != null && !Objects.equals(username, "")) usernameView.setText(username);
         personalTextView = (TextView) findViewById(R.id.profile_activity_personal_text);
 
@@ -217,6 +227,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         @SuppressWarnings("unused")
         private static final String TAG = "ProfileTask"; //Separate tag for AsyncTask
         Document profilePage;
+        Spannable usernameSpan;
 
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -232,16 +243,14 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             try {
                 Response response = client.newCall(request).execute();
                 profilePage = Jsoup.parse(response.body().string());
+                Elements contentsTable = profilePage.select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2)");
+
                 //Finds username if missing
                 if (username == null || Objects.equals(username, "")) {
-                    username = profilePage.
-                            select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tr").
-                            first().select("td").last().text();
+                    username = contentsTable.select("tr").first().select("td").last().text();
                 }
                 if (thumbnailUrl == null || Objects.equals(thumbnailUrl, "")) { //Maybe there is an avatar
-                    Element profileAvatar = profilePage
-                            .select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) img.avatar")
-                            .first();
+                    Element profileAvatar = contentsTable.select("img.avatar").first();
                     if (profileAvatar != null) thumbnailUrl = profileAvatar.attr("abs:src");
                 }
                 { //Finds personal text
@@ -254,6 +263,21 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                         Report.e(TAG, "An error occurred while trying to find profile's personal text.");
                         personalText = null;
                     }
+                }
+                { //Finds status
+                    usernameSpan = new SpannableString(getResources()
+                            .getString(R.string.fa_circle) + "  " + username);
+                    usernameSpan.setSpan(new CenterVerticalSpan(), 0, 2,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    usernameSpan.setSpan(new RelativeSizeSpan(0.45f)
+                            , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    if (contentsTable.toString().contains("Online")
+                            || contentsTable.toString().contains("Συνδεδεμένος")) {
+                        usernameSpan.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50"))
+                                , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    } else
+                        usernameSpan.setSpan(new ForegroundColorSpan(Color.GRAY)
+                                , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 return true;
             } catch (SSLHandshakeException e) {
@@ -275,7 +299,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
 
-            if (usernameView.getText() != username) usernameView.setText(username);
+            if (usernameSpan != null) usernameView.setText(usernameSpan);
+            else if (usernameView.getText() != username) usernameView.setText(username);
             if (thumbnailUrl != null && !Objects.equals(thumbnailUrl, ""))
                 //noinspection ConstantConditions
                 Picasso.with(getApplicationContext())
