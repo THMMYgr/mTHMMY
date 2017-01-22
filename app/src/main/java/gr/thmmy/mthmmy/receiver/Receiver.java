@@ -65,14 +65,15 @@ public class Receiver extends BroadcastReceiver {
                     String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                             MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath()));
 
-                    Intent chooser = new Intent();
-                    chooser.setAction(android.content.Intent.ACTION_VIEW);
-                    chooser.setDataAndType(Uri.fromFile(file), type);
-                    chooser.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    Intent chooserIntent = new Intent(Intent.ACTION_VIEW);
+                    chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    chooserIntent.setDataAndType(Uri.fromFile(file), type);
+                    Intent chooser = Intent.createChooser(chooserIntent, "Open With...");
 
                     PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, chooser, PendingIntent.FLAG_CANCEL_CURRENT);
                     builder.setContentIntent(pendingIntent);
+
                 } else
                     Report.w(TAG, "File doesn't exist.");
             }
