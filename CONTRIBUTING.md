@@ -45,4 +45,3 @@ follow the workflow below to make a merge request:
 
 [trello-board]: https://trello.com/invite/b/4MVlkrkg/44a931707bd0b84a5e0bdfc42b9ae4f1/mthmmy
 [discord-server]: https://discord.gg/CVt3yrn
-[gitlab-contributing-guide]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md
