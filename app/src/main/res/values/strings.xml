@@ -44,6 +44,8 @@
     <string name="button_page">Page</string>
     <string name="button_next">next</string>
     <string name="button_last">last</string>
+    <string name="quick_reply">Quick reply&#8230;</string>
+    <string name="quick_reply_submit">Submit</string>
 
     <!--Profile Activity-->
     <string name="username">Username</string>
