@@ -192,7 +192,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                     .url(downloadsUrl[0])
                     .build();
             try {
-                Response response = BaseActivity.getClient().newCall(request).execute();
+                Response response = client.newCall(request).execute();
                 parseDownloads(Jsoup.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
                 Report.w(TAG, "Certificate problem (please switch to unsafe connection).");

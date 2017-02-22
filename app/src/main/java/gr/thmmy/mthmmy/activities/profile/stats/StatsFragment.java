@@ -33,6 +33,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -206,6 +207,7 @@ public class StatsFragment extends Fragment {
                                 Integer.parseInt(dataCols.last().text())));
                         mostPopularBoardsByPostsLabels.add(dataCols.first().text());
                     }
+                    Collections.reverse(mostPopularBoardsByPostsLabels);
                 }
                 {
                     Elements mostPopularBoardsByActivityRows = statsRows.last().select(">td").last()
@@ -218,6 +220,7 @@ public class StatsFragment extends Fragment {
                                 Float.parseFloat(tmp.substring(0, tmp.indexOf("%")))));
                         mostPopularBoardsByActivityLabels.add(dataCols.first().text());
                     }
+                    Collections.reverse(mostPopularBoardsByActivityLabels);
                 }
             }
             return true;

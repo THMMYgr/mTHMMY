@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.utils;
 
+import android.util.Log;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -153,15 +155,16 @@ public class ParseHelpers {
             fixed = fixed.replace(
                     fixed.substring(fixed.indexOf("<embed"), fixed.indexOf("/noembed>") + 9)
                     , "<div class=\"yt\">"
-                            + "<a href=\"https://www.youtube.com/"
+                            + "<a href=\"https://www.youtube.com/watch?v="
                             + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
                             + "<img class=\"embedded-video-play\" "
-                            + "src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\""
+                            + "src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\">"
                             + "</a>"
                             + "<img src=\"https://img.youtube.com/vi/"
                             + embededVideosUrls.get(tmp_counter)
                             + "/default.jpg\" alt=\"\" border=\"0\" width=\"40%\">"
                             + "</div>");
+            ++tmp_counter;
         }
         return fixed;
     }

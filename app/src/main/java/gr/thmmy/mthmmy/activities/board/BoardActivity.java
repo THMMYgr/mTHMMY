@@ -201,7 +201,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     .url(boardUrl[0])
                     .build();
             try {
-                Response response = BaseActivity.getClient().newCall(request).execute();
+                Response response = client.newCall(request).execute();
                 parseBoard(Jsoup.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
                 Report.w(TAG, "Certificate problem (please switch to unsafe connection).");

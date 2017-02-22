@@ -332,7 +332,7 @@ public class SessionManager {
             if (!avatar.isEmpty())
                 return avatar.first().attr("src");
 
-        Report.e(TAG, "Extracting avatar's link failed!");
+        Report.i(TAG, "Extracting avatar's link failed!");
         return null;
     }
 

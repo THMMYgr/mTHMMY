@@ -79,6 +79,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         if (client == null)
             client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
+
         // they become null when app restarts after crash
         if (sessionManager == null)
             sessionManager = BaseApplication.getInstance().getSessionManager();
