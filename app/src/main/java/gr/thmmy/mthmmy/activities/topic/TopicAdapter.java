@@ -33,9 +33,14 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
@@ -355,7 +360,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.subject.setEllipsize(TextUtils.TruncateAt.END);
             }
             //noinspection PointlessBooleanExpression,ConstantConditions
-            if (!BaseActivity.getSessionManager().isLoggedIn() || true) //Hide it until reply is implemented
+            if (!BaseActivity.getSessionManager().isLoggedIn())
                 holder.quoteToggle.setVisibility(View.GONE);
             else {
                 if (viewProperties.get(position)[isQuoteButtonChecked])
@@ -368,14 +373,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     public void onClick(View view) {
                         boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
                         if (tmp[isQuoteButtonChecked]) {
-                            if (toQuoteList.contains(currentPost.getPostNumber())) {
-                                toQuoteList.remove(toQuoteList.indexOf(currentPost.getPostNumber()));
+                            if (toQuoteList.contains(postsList.indexOf(currentPost))) {
+                                toQuoteList.remove(toQuoteList.indexOf(postsList.indexOf(currentPost)));
                             } else
                                 Report.i(TAG, "An error occurred while trying to exclude post from" +
                                         "toQuoteList, post wasn't there!");
                             holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                         } else {
-                            toQuoteList.add(currentPost.getPostNumber());
+                            toQuoteList.add(postsList.indexOf(currentPost));
                             holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
                         }
                         tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
@@ -406,15 +411,44 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 //Build quotes
                 String quotes = "";
                 for (int quotePosition : toQuoteList) {
-                    //Date postDate = new Date();
-                    Log.d(TAG, postsList.get(quotePosition).getPostDate());
+                    Date postDate = null;
+                    {
+                        String date = postsList.get(quotePosition).getPostDate();
+                        if (date != null) {
+                            DateFormat format = new SimpleDateFormat("MMMM d, yyyy, h:m:s a", Locale.ENGLISH);
+                            if (date.contains("Today")) {
+                                date = date.replace("Today at",
+                                        Calendar.getInstance().getDisplayName(Calendar.MONTH,
+                                                Calendar.LONG, Locale.ENGLISH)
+                                                + " " + Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+                                                + ", " + Calendar.getInstance().get(Calendar.YEAR) + ",");
+                            } else if (date.contains("Σήμερα")) {
+                                date = date.replace("Σήμερα στις",
+                                        Calendar.getInstance().getDisplayName(Calendar.MONTH,
+                                                Calendar.LONG, Locale.ENGLISH)
+                                                + " " + Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+                                                + ", " + Calendar.getInstance().get(Calendar.YEAR) + ",");
+                                if (date.contains("πμ")) date = date.replace("πμ", "am");
+                                if (date.contains("μμ")) date = date.replace("μμ", "pm");
+                            }
+
+                            Log.d(TAG, date);
+
+                            try {
+                                postDate = format.parse(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                     if (postsList.get(quotePosition).getPostIndex() != 0) {
+                        assert postDate != null;
                         quotes += "[quote author=" + postsList.get(quotePosition).getAuthor()
                                 + " link=topic=68525.msg" + postsList.get(quotePosition).getPostIndex()
                                 + "#msg" + postsList.get(quotePosition).getPostIndex()
-                                + " date=" + "1000"
+                                + " date=" + postDate.getTime() / 1000 + "]"
                                 + "\n" + postsList.get(quotePosition).getContent()
-                                + "\n" + "[/quote]" + "\n";
+                                + "\n" + "[/quote]" + "\n\n";
                     }
                 }
                 holder.quickReply.setText(quotes);

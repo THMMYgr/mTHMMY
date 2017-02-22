@@ -9,7 +9,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,8 +24,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Selector;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -578,17 +575,11 @@ public class TopicActivity extends BaseActivity {
                 Response response = client.newCall(request).execute();
                 document = Jsoup.parse(response.body().string());
 
-                //https://www.thmmy.gr/smf/index.php?action=post;topic=67565.15;num_replies=27
                 numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
                 seqnum = document.select("input[name=seqnum]").first().attr("value");
                 sc = document.select("input[name=sc]").first().attr("value");
                 subject = document.select("input[name=subject]").first().attr("value");
                 topic = document.select("input[name=topic]").first().attr("value");
-                Log.d(TAG, "numReplies " + numReplies + "\n"
-                        + "seqnum " + seqnum + "\n"
-                        + "sc " + sc + "\n"
-                        + "subject " + subject + "\n"
-                        + "topic " + topic + "\n");
             } catch (IOException e) {
                 Report.i(TAG, "Post failed.", e);
                 return false;
@@ -597,22 +588,17 @@ public class TopicActivity extends BaseActivity {
                 return false;
             }
 
-            Log.d(TAG, message[0]);
             RequestBody postBody = null;
-            try {
-                postBody = new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("message", URLEncoder.encode(message[0], "UTF-8"))
-                        .addFormDataPart("num_replies", numReplies)
-                        .addFormDataPart("seqnum", seqnum)
-                        .addFormDataPart("sc", sc)
-                        .addFormDataPart("subject", subject)
-                        .addFormDataPart("topic", topic)
-                        .addFormDataPart("goback", "1")
-                        .build();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+
+            postBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("message", message[0])
+                    .addFormDataPart("num_replies", numReplies)
+                    .addFormDataPart("seqnum", seqnum)
+                    .addFormDataPart("sc", sc)
+                    .addFormDataPart("subject", subject)
+                    .addFormDataPart("topic", topic)
+                    .build();
 
             Request post = new Request.Builder()
                     .url("https://www.thmmy.gr/smf/index.php?action=post2")
@@ -621,6 +607,7 @@ public class TopicActivity extends BaseActivity {
                     .build();
 
             try {
+                client.newCall(post).execute();
                 client.newCall(post).execute();
                 return true;
             } catch (IOException e) {
