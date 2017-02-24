@@ -40,6 +40,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static gr.thmmy.mthmmy.activities.topic.ReplyParser.replyStatus;
+
 /**
  * Activity for topics. When creating an Intent of this activity you need to bundle a <b>String</b>
  * containing this topics's url using the key {@link #BUNDLE_TOPIC_URL} and a <b>String</b> containing
@@ -84,6 +86,7 @@ public class TopicActivity extends BaseActivity {
     private static final int LARGE_STEP = 10;
     private Integer pageRequestValue;
     //Bottom navigation graphics
+    LinearLayout bottomNavBar;
     private ImageButton firstPage;
     private ImageButton previousPage;
     private TextView pageIndicator;
@@ -136,12 +139,12 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, postsList, topicTask);
+        topicAdapter = new TopicAdapter(this, postsList, topicTask, topicTitle);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
-        final LinearLayout bottomNavBar = (LinearLayout) findViewById(R.id.bottom_navigation_bar);
+        bottomNavBar = (LinearLayout) findViewById(R.id.bottom_navigation_bar);
         if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
             replyFAB.setOnClickListener(new View.OnClickListener() {
@@ -341,7 +344,7 @@ public class TopicActivity extends BaseActivity {
                     paginationEnabled(true);
                     changePage(pageRequestValue - 1);
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
+                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) { //TODO fix bug
                         autoIncrement = false;
                         incrementPageRequestValue(thisPage - pageRequestValue);
                         paginationEnabled(true);
@@ -437,11 +440,12 @@ public class TopicActivity extends BaseActivity {
                             return SAME_PAGE;
                         }
                     }
-                } else if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
+                } else if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage) //TODO fix bug
                     return SAME_PAGE;
             } else if (!Objects.equals(loadedPageUrl, "")) topicTitle = null;
 
             loadedPageUrl = newPageUrl;
+            replyPageUrl = null;
             Request request = new Request.Builder()
                     .url(newPageUrl)
                     .build();
@@ -477,7 +481,7 @@ public class TopicActivity extends BaseActivity {
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     topicAdapter.customNotifyDataSetChanged(new TopicTask());
-                    if (replyPageUrl == null) replyFAB.setVisibility(View.GONE);
+                    if (replyPageUrl == null) replyFAB.hide();
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
                     //Set current page
@@ -521,6 +525,8 @@ public class TopicActivity extends BaseActivity {
             //Find reply page url
             {
                 Element replyButton = topic.select("a:has(img[alt=Reply])").first();
+                if (replyButton == null)
+                    replyButton = topic.select("a:has(img[alt=Απάντηση])").first();
                 if (replyButton != null) replyPageUrl = replyButton.attr("href");
             }
 
@@ -581,16 +587,14 @@ public class TopicActivity extends BaseActivity {
                 subject = document.select("input[name=subject]").first().attr("value");
                 topic = document.select("input[name=topic]").first().attr("value");
             } catch (IOException e) {
-                Report.i(TAG, "Post failed.", e);
+                Report.e(TAG, "Post failed.", e);
                 return false;
             } catch (Selector.SelectorParseException e) {
                 Report.e(TAG, "Post failed.", e);
                 return false;
             }
 
-            RequestBody postBody = null;
-
-            postBody = new MultipartBody.Builder()
+            RequestBody postBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("message", message[0])
                     .addFormDataPart("num_replies", numReplies)
@@ -608,10 +612,19 @@ public class TopicActivity extends BaseActivity {
 
             try {
                 client.newCall(post).execute();
-                client.newCall(post).execute();
-                return true;
+                Response response = client.newCall(post).execute();
+                switch (replyStatus(response)) {
+                    case SUCCESSFUL:
+                        return true;
+                    case NEW_REPLY_WHILE_POSTING:
+                        //TODO this...
+                        return true;
+                    default:
+                        Report.e(TAG, "Malformed post. Request string:\n" + post.toString());
+                        return true;
+                }
             } catch (IOException e) {
-                Report.i(TAG, "Post failed.", e);
+                Report.e(TAG, "Post failed.", e);
                 return false;
             }
         }
@@ -619,6 +632,12 @@ public class TopicActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             progressBar.setVisibility(ProgressBar.GONE);
+            replyFAB.setVisibility(View.VISIBLE);
+            bottomNavBar.setVisibility(View.VISIBLE);
+            if (!result)
+                Toast.makeText(TopicActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
+            paginationEnabled(true);
+            replyFAB.setEnabled(true);
         }
     }
 }

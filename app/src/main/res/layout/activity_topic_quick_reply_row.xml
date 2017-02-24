@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
     android:paddingEnd="4dp"
     android:paddingStart="4dp">
 
@@ -22,32 +23,94 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+            <RelativeLayout
+                android:id="@+id/header"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:clickable="true"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp">
+
+                <FrameLayout
+                    android:id="@+id/thumbnail_holder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp">
+
+                    <ImageView
+                        android:id="@+id/thumbnail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="@string/post_thumbnail"
+                        android:maxHeight="@dimen/thumbnail_size"
+                        android:maxWidth="@dimen/thumbnail_size"
+                        android:src="@drawable/ic_default_user_thumbnail"/>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_toEndOf="@+id/thumbnail_holder"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/post_author"
+                    android:textColor="@color/primary_text"
+                    android:textStyle="bold"/>
 
                 <EditText
-                    android:id="@+id/quick_reply_text"
+                    android:id="@+id/quick_reply_subject"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/quick_reply"
-                    android:inputType="textMultiLine"/>
-            </android.support.design.widget.TextInputLayout>
+                    android:layout_below="@+id/username"
+                    android:layout_toEndOf="@+id/thumbnail_holder"
+                    android:hint="@string/quick_reply_subject"
+                    android:inputType="textMultiLine"
+                    android:maxLength="80"
+                    android:textSize="10sp"/>
+            </RelativeLayout>
 
-            <android.support.v7.widget.AppCompatImageButton
-                android:id="@+id/quick_reply_submit"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginBottom="5dp"
-                android:layout_marginEnd="5dp"
-                android:background="@color/card_background"
-                android:contentDescription="@string/quick_reply_submit"
-                android:src="@drawable/ic_send"/>
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp">
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <EditText
+                        android:id="@+id/quick_reply_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/quick_reply"
+                        android:inputType="textMultiLine"/>
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.v7.widget.AppCompatImageButton
+                    android:id="@+id/quick_reply_submit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="@color/card_background"
+                    android:contentDescription="@string/quick_reply_submit"
+                    android:src="@drawable/ic_send"/>
+            </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
 </FrameLayout>

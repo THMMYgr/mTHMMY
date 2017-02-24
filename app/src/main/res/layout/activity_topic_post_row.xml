@@ -115,8 +115,7 @@
                         android:layout_toEndOf="@+id/thumbnail_holder"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="@string/post_subject"
-                        />
+                        android:text="@string/post_subject"/>
                 </RelativeLayout>
 
                 <ImageButton
