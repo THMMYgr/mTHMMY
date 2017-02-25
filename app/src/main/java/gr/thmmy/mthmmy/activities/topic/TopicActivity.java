@@ -6,10 +6,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
+import android.text.method.ScrollingMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
@@ -92,6 +103,9 @@ public class TopicActivity extends BaseActivity {
     private TextView pageIndicator;
     private ImageButton nextPage;
     private ImageButton lastPage;
+    //Topic's info
+    SpannableStringBuilder topicTreeAndMods = new SpannableStringBuilder("Loading..."),
+            topicViewers = new SpannableStringBuilder("Loading...");
     //Other variables
     private MaterialProgressBar progressBar;
     private static String base_url = "";
@@ -117,18 +131,22 @@ public class TopicActivity extends BaseActivity {
             finish();
         }
 
+        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
+
         //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(topicTitle);
+        TextView toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle.setText(topicTitle);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
-        thisPageBookmarkButton = (ImageButton) findViewById(R.id.bookmark);
-        setTopicBookmark();
+        //Makes title scrollable
+        toolbarTitle.setHorizontallyScrolling(true);
+        toolbarTitle.setMovementMethod(new ScrollingMovementMethod());
+
         createDrawer();
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
@@ -177,6 +195,43 @@ public class TopicActivity extends BaseActivity {
         //Gets posts
         topicTask = new TopicTask();
         topicTask.execute(extras.getString(BUNDLE_TOPIC_URL)); //Attempt data parsing
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflates the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.topic_menu, menu);
+        setTopicBookmark(menu.getItem(0));
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.menu_bookmark:
+                topicMenuBookmarkClick();
+                return true;
+            case R.id.menu_info:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                LayoutInflater inflater = this.getLayoutInflater();
+                LinearLayout infoDialog = (LinearLayout) inflater.inflate(R.layout.dialog_topic_info
+                        , null);
+                ((TextView) infoDialog.findViewById(R.id.dialog_title)).setText("Info");
+                TextView treeAndMods = (TextView) infoDialog.findViewById(R.id.topic_tree_and_mods);
+                treeAndMods.setText(topicTreeAndMods);
+                treeAndMods.setMovementMethod(LinkMovementMethod.getInstance());
+                TextView usersViewing = (TextView) infoDialog.findViewById(R.id.users_viewing);
+                usersViewing.setText(topicViewers);
+                usersViewing.setMovementMethod(LinkMovementMethod.getInstance());
+
+                builder.setView(infoDialog);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -476,7 +531,8 @@ public class TopicActivity extends BaseActivity {
                 case SUCCESS:
                     if (topicTitle == null || Objects.equals(topicTitle, "")) {
                         thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl));
-                        setTopicBookmark();
+                        invalidateOptionsMenu();
+                        //setTopicBookmark(menu.getItem(0));
                     }
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -522,7 +578,13 @@ public class TopicActivity extends BaseActivity {
         private void parse(Document topic) {
             ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
-            //Find reply page url
+            //Finds topic's tree, mods and users viewing
+            {
+                topicTreeAndMods = getSpannableFromHtml(topic.select("div.nav").first().html());
+                topicViewers = getSpannableFromHtml(TopicParser.parseUsersViewingThisTopic(topic, language));
+            }
+
+            //Finds reply page url
             {
                 Element replyButton = topic.select("a:has(img[alt=Reply])").first();
                 if (replyButton == null)
@@ -557,6 +619,30 @@ public class TopicActivity extends BaseActivity {
 
             postsList.clear();
             postsList.addAll(TopicParser.parseTopic(topic, language));
+        }
+
+        private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
+        {
+            int start = strBuilder.getSpanStart(span);
+            int end = strBuilder.getSpanEnd(span);
+            int flags = strBuilder.getSpanFlags(span);
+            ClickableSpan clickable = new ClickableSpan() {
+                public void onClick(View view) {
+                    //TODO
+                }
+            };
+            strBuilder.setSpan(clickable, start, end, flags);
+            strBuilder.removeSpan(span);
+        }
+
+        private SpannableStringBuilder getSpannableFromHtml(String html) {
+            CharSequence sequence = Html.fromHtml(html);
+            SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+            URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+            for(URLSpan span : urls) {
+                makeLinkClickable(strBuilder, span);
+            }
+            return strBuilder;
         }
     }
 

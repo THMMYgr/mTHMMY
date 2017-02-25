@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -63,7 +64,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     private static final String BOOKMARKED_TOPICS_KEY = "bookmarkedTopicsKey";
     private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
     protected Bookmark thisPageBookmark;
-    protected ImageButton thisPageBookmarkButton;
+    protected MenuItem thisPageBookmarkMenuButton;
+    protected ImageButton thisPageBookmarkImageButton;
     private SharedPreferences bookmarksFile;
     private ArrayList<Bookmark> topicsBookmarked;
     private ArrayList<Bookmark> boardsBookmarked;
@@ -408,42 +410,42 @@ public abstract class BaseActivity extends AppCompatActivity {
         return topicsBookmarked;
     }
 
-    protected void setTopicBookmark() {
+    protected void setTopicBookmark(MenuItem thisPageBookmarkMenuButton) {
+        this.thisPageBookmarkMenuButton = thisPageBookmarkMenuButton;
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
-            thisPageBookmarkButton.setImageDrawable(bookmarked);
+            thisPageBookmarkMenuButton.setIcon(bookmarked);
         } else {
-            thisPageBookmarkButton.setImageDrawable(notBookmarked);
+            thisPageBookmarkMenuButton.setIcon(notBookmarked);
         }
-        thisPageBookmarkButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (thisPageBookmark.matchExists(topicsBookmarked)) {
-                    thisPageBookmarkButton.setImageDrawable(notBookmarked);
-                    toggleTopicToBookmarks(thisPageBookmark);
-                    Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
-                } else {
-                    thisPageBookmarkButton.setImageDrawable(bookmarked);
-                    toggleTopicToBookmarks(thisPageBookmark);
-                    Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
-    protected void setBoardBookmark() {
-        if (thisPageBookmark.matchExists(boardsBookmarked)) {
-            thisPageBookmarkButton.setImageDrawable(bookmarked);
+    protected void topicMenuBookmarkClick(){
+        if (thisPageBookmark.matchExists(topicsBookmarked)) {
+            thisPageBookmarkMenuButton.setIcon(notBookmarked);
+            toggleTopicToBookmarks(thisPageBookmark);
+            Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
         } else {
-            thisPageBookmarkButton.setImageDrawable(notBookmarked);
+            thisPageBookmarkMenuButton.setIcon(bookmarked);
+            toggleTopicToBookmarks(thisPageBookmark);
+            Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
         }
-        thisPageBookmarkButton.setOnClickListener(new View.OnClickListener() {
+    }
+
+    protected void setBoardBookmark(final ImageButton thisPageBookmarkImageButton) {
+        this.thisPageBookmarkImageButton = thisPageBookmarkImageButton;
+        if (thisPageBookmark.matchExists(boardsBookmarked)) {
+            thisPageBookmarkImageButton.setImageDrawable(bookmarked);
+        } else {
+            thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
+        }
+        thisPageBookmarkImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (thisPageBookmark.matchExists(boardsBookmarked)) {
-                    thisPageBookmarkButton.setImageDrawable(notBookmarked);
+                    thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
                     Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
                 } else {
-                    thisPageBookmarkButton.setImageDrawable(bookmarked);
+                    thisPageBookmarkImageButton.setImageDrawable(bookmarked);
                     Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
                 }
                 toggleBoardToBookmarks(thisPageBookmark);
