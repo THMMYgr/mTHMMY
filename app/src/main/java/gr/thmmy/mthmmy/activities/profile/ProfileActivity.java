@@ -19,6 +19,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -243,14 +244,15 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             try {
                 Response response = client.newCall(request).execute();
                 profilePage = Jsoup.parse(response.body().string());
-                Elements contentsTable = profilePage.select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2)");
+                Elements contentsTable = profilePage.
+                        select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tbody");
 
                 //Finds username if missing
                 if (username == null || Objects.equals(username, "")) {
                     username = contentsTable.select("tr").first().select("td").last().text();
                 }
                 if (thumbnailUrl == null || Objects.equals(thumbnailUrl, "")) { //Maybe there is an avatar
-                    Element profileAvatar = contentsTable.select("img.avatar").first();
+                    Element profileAvatar = profilePage.select("img.avatar").first();
                     if (profileAvatar != null) thumbnailUrl = profileAvatar.attr("abs:src");
                 }
                 { //Finds personal text
@@ -291,8 +293,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!
                 Report.d(TAG, "Parse failed!");
-                Toast.makeText(getBaseContext()
-                        , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "Fatal error!\n Aborting..."
+                        , Toast.LENGTH_LONG).show();
                 finish();
             }
             //Parse was successful

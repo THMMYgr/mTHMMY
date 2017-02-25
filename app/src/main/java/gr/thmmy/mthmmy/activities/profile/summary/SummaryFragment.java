@@ -6,6 +6,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -188,6 +190,16 @@ public class SummaryFragment extends Fragment {
                 continue;
             }
             TextView entry = new TextView(this.getContext());
+
+            if (profileSummaryRow.contains("@") &&
+                    (profileSummaryRow.contains("Email") || profileSummaryRow.contains("E-mail"))) {
+                Log.d(TAG, "mpika");
+                Log.d(TAG, profileSummaryRow);
+                String email = profileSummaryRow.substring(profileSummaryRow.indexOf(":</b> ") + 6);
+                profileSummaryRow = profileSummaryRow.replace(email,
+                        "<a href=\"mailto:" + email + "\">" + email + "</a>");
+                entry.setMovementMethod(LinkMovementMethod.getInstance());
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 entry.setTextColor(getResources().getColor(R.color.primary_text, null));
