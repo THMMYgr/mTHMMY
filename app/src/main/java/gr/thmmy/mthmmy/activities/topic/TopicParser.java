@@ -160,7 +160,7 @@ class TopicParser {
         for (Element thisRow : postRows) {
             //Variables for Post constructor
             String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_profileURL, p_rank,
-                    p_specialRank, p_gender, p_personalText, p_numberOfPosts;
+                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
             ArrayList<ThmmyFile> p_attachedFiles;
@@ -175,6 +175,7 @@ class TopicParser {
             p_numberOfStars = 0;
             p_userColor = USER_COLOR_YELLOW;
             p_attachedFiles = new ArrayList<>();
+            p_postLastEditDate = null;
 
             //Language independent parsing
             //Finds thumbnail url
@@ -190,11 +191,11 @@ class TopicParser {
             //Finds post's text
             p_post = ParseHelpers.youtubeEmbeddedFix(thisRow.select("div").select(".post").first());
 
-            //Add stuff to make it work in WebView
+            //Adds stuff to make it work in WebView
             //style.css
             p_post = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + p_post);
 
-            //Find post's index
+            //Finds post's index
             //This is an int assigned by the forum used for post focusing and quotes, it is not
             //the same as reply index.
             Element postIndex = thisRow.select("a[name^=msg]").first();
@@ -204,6 +205,10 @@ class TopicParser {
                 String tmp = postIndex.attr("name");
                 p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
             }
+
+            Element postLastEditDate = thisRow.select("td.smalltext[id^=modified_]").first();
+            if (postLastEditDate != null && !Objects.equals(postLastEditDate.text(), ""))
+                p_postLastEditDate = postLastEditDate.text();
 
             //Language dependent parsing
             Element userName;
@@ -406,12 +411,12 @@ class TopicParser {
                 parsedPostsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
-                        , p_attachedFiles));
+                        , p_attachedFiles, p_postLastEditDate));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 parsedPostsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
-                        , p_postNum, p_postDate, p_userColor, p_attachedFiles));
+                        , p_postNum, p_postDate, p_userColor, p_attachedFiles, p_postLastEditDate));
             }
         }
         return parsedPostsList;

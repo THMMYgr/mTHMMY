@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -198,34 +199,52 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.postNum.setText("");
             holder.subject.setText(currentPost.getSubject());
             holder.post.loadDataWithBaseURL("file:///android_asset/", currentPost.getContent(), "text/html", "UTF-8", null);
-            if (currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0) {
+            if ((currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0)
+                    || (currentPost.getLastEdit() != null)) {
                 holder.bodyFooterDivider.setVisibility(View.VISIBLE);
-                int filesTextColor;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    filesTextColor = context.getResources().getColor(R.color.accent, null);
-                } else //noinspection deprecation
-                    filesTextColor = context.getResources().getColor(R.color.accent);
-
                 holder.postFooter.removeAllViews();
-                for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
-                    final TextView attached = new TextView(context);
-                    attached.setTextSize(10f);
-                    attached.setClickable(true);
-                    attached.setTypeface(Typeface.createFromAsset(context.getAssets()
-                            , "fonts/fontawesome-webfont.ttf"));
-                    attached.setText(faIconFromFilename(attachedFile.getFilename()) + " "
-                            + attachedFile.getFilename() + attachedFile.getFileInfo());
-                    attached.setTextColor(filesTextColor);
-                    attached.setPadding(0, 3, 0, 3);
 
-                    attached.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ((BaseActivity) context).launchDownloadService(attachedFile);
-                        }
-                    });
+                if (currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0) {
+                    int filesTextColor;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        filesTextColor = context.getResources().getColor(R.color.accent, null);
+                    } else //noinspection deprecation
+                        filesTextColor = context.getResources().getColor(R.color.accent);
 
-                    holder.postFooter.addView(attached);
+                    for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
+                        final TextView attached = new TextView(context);
+                        attached.setTextSize(10f);
+                        attached.setClickable(true);
+                        attached.setTypeface(Typeface.createFromAsset(context.getAssets()
+                                , "fonts/fontawesome-webfont.ttf"));
+                        attached.setText(faIconFromFilename(attachedFile.getFilename()) + " "
+                                + attachedFile.getFilename() + attachedFile.getFileInfo());
+                        attached.setTextColor(filesTextColor);
+                        attached.setPadding(0, 3, 0, 3);
+
+                        attached.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ((BaseActivity) context).launchDownloadService(attachedFile);
+                            }
+                        });
+
+                        holder.postFooter.addView(attached);
+                    }
+                }
+                if (currentPost.getLastEdit() != null && currentPost.getLastEdit().length() > 0) {
+                    int lastEditTextColor;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        lastEditTextColor = context.getResources().getColor(R.color.white, null);
+                    } else //noinspection deprecation
+                        lastEditTextColor = context.getResources().getColor(R.color.white);
+
+                    final TextView lastEdit = new TextView(context);
+                    lastEdit.setTextSize(12f);
+                    lastEdit.setText(currentPost.getLastEdit());
+                    lastEdit.setTextColor(lastEditTextColor);
+                    lastEdit.setPadding(0, 3, 0, 3);
+                    holder.postFooter.addView(lastEdit);
                 }
             } else {
                 holder.bodyFooterDivider.setVisibility(View.GONE);
@@ -312,24 +331,27 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             if (!currentPost.isDeleted()) {
                 //Sets graphics behavior
+                holder.thumbnail.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //Clicking the thumbnail opens user's profile
+                        Intent intent = new Intent(context, ProfileActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
+                        if (currentPost.getThumbnailUrl() == null)
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                        else
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
+                        extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
+                });
                 holder.header.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Clicking an expanded header starts profile activity
-                        if (viewProperties.get(holder.getAdapterPosition())[isUserExtraInfoVisibile]) {
-                            Intent intent = new Intent(context, ProfileActivity.class);
-                            Bundle extras = new Bundle();
-                            extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
-                            if (currentPost.getThumbnailUrl() == null)
-                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
-                            else
-                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
-                            extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
-                            intent.putExtras(extras);
-                            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(intent);
-                        }
-
+                        //Clicking the header makes it expand/collapse
                         boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
                         tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];
                         viewProperties.set(holder.getAdapterPosition(), tmp);
@@ -341,7 +363,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     @Override
                     public void onClick(View v) {
                         boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                        tmp[1] = false;
+                        tmp[isUserExtraInfoVisibile] = false;
                         viewProperties.set(holder.getAdapterPosition(), tmp);
 
                         TopicAnimations.animateUserExtraInfoVisibility(v);

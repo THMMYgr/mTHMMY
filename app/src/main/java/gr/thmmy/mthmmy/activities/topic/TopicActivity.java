@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,7 +12,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.board.BoardActivity;
+import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
@@ -51,6 +53,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.ReplyParser.replyStatus;
 
 /**
@@ -621,14 +629,33 @@ public class TopicActivity extends BaseActivity {
             postsList.addAll(TopicParser.parseTopic(topic, language));
         }
 
-        private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
-        {
+        private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
             int start = strBuilder.getSpanStart(span);
             int end = strBuilder.getSpanEnd(span);
             int flags = strBuilder.getSpanFlags(span);
             ClickableSpan clickable = new ClickableSpan() {
+                @Override
                 public void onClick(View view) {
-                    //TODO
+                    ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(span.getURL()));
+                    if (target.is(ThmmyPage.PageCategory.BOARD)) {
+                        Intent intent = new Intent(getApplicationContext(), BoardActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_BOARD_URL, span.getURL());
+                        extras.putString(BUNDLE_BOARD_TITLE, "");
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        getApplicationContext().startActivity(intent);
+                    } else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
+                        Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_PROFILE_URL, span.getURL());
+                        extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                        extras.putString(BUNDLE_PROFILE_USERNAME, "");
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        getApplicationContext().startActivity(intent);
+                    } else if (target.is(ThmmyPage.PageCategory.INDEX))
+                        finish();
                 }
             };
             strBuilder.setSpan(clickable, start, end, flags);
@@ -639,7 +666,7 @@ public class TopicActivity extends BaseActivity {
             CharSequence sequence = Html.fromHtml(html);
             SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
             URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
-            for(URLSpan span : urls) {
+            for (URLSpan span : urls) {
                 makeLinkClickable(strBuilder, span);
             }
             return strBuilder;
