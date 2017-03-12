@@ -32,7 +32,6 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
  * {@link RecyclerView.Adapter} that can display a {@link gr.thmmy.mthmmy.model.Board}.
  */
 class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String TAG = "BoardAdapter";
     private final int VIEW_TYPE_SUB_BOARD_TITLE = 0;
     private final int VIEW_TYPE_SUB_BOARD = 1;
     private final int VIEW_TYPE_TOPIC_TITLE = 2;

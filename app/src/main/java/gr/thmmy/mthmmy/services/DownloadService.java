@@ -13,12 +13,13 @@ import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.receiver.Receiver;
-import mthmmy.utils.Report;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
 import okio.Okio;
+import timber.log.Timber;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -116,9 +117,9 @@ public class DownloadService extends IntentService {
                 if(!dirPath.isDirectory())
                 {
                     if(dirPath.mkdirs())
-                        Report.i(TAG, "mTHMMY's directory created successfully!");
+                        Timber.i("mTHMMY's directory created successfully!");
                     else
-                        Report.e(TAG, "Couldn't create mTHMMY's directory...");
+                        Timber.e("Couldn't create mTHMMY's directory...");
                 }
 
 
@@ -127,7 +128,7 @@ public class DownloadService extends IntentService {
 
                 if(tokens.length!=2)
                 {
-                    Report.w(TAG, "Couldn't get file extension...");
+                    Timber.w("Couldn't get file extension...");
                     nameFormat = fileName + "(%d)";
                 }
                 else
@@ -148,26 +149,26 @@ public class DownloadService extends IntentService {
 
                 fileName = file.getName();
 
-                Report.v(TAG, "Started saving file " + fileName);
+                Timber.v("Started saving file " + fileName);
                 sendNotification(downloadId, STARTED, fileName);
 
                 sink = Okio.buffer(Okio.sink(file));
                 sink.writeAll(response.body().source());
                 sink.flush();
-                Report.i(TAG, "Download OK!");
+                Timber.i("Download OK!");
                 sendNotification(downloadId, COMPLETED, fileName);
             }
             else
-                Report.e(TAG, "Response not a binary file!");
+                Timber.e("Response not a binary file!");
         }
         catch (FileNotFoundException e){
-            Report.i(TAG, "Download failed...");
-            Report.e(TAG, "FileNotFound", e);
+            Timber.i("Download failed...");
+            Timber.e("FileNotFound", e);
             sendNotification(downloadId, FAILED, fileName);
         }
         catch (IOException e){
-            Report.i(TAG, "Download failed...");
-            Report.e(TAG, "IOException", e);
+            Timber.i("Download failed...");
+            Timber.e("IOException", e);
             sendNotification(downloadId, FAILED, fileName);
         } finally {
             if (sink!= null) {
@@ -203,7 +204,7 @@ public class DownloadService extends IntentService {
                 break;
             }
             default:{
-                Report.wtf(TAG, "Invalid notification case!");
+                Timber.e("Invalid notification case!");
                 return;
             }
         }

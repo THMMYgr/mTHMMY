@@ -19,7 +19,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
-import android.util.Log;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -50,9 +50,10 @@ import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CenterVerticalSpan;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
+
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
@@ -64,11 +65,6 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
  * the username using the key {@link #BUNDLE_PROFILE_USERNAME}.
  */
 public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "ProfileActivity";
     /**
      * The key to use when putting profile's url String to {@link ProfileActivity}'s Bundle.
      */
@@ -179,7 +175,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(profileUrl));
         if (!target.is(ThmmyPage.PageCategory.PROFILE)) {
-            Report.e(TAG, "Bundle came with a non profile url!\nUrl:\n" + profileUrl);
+            Timber.e("Bundle came with a non profile url!\nUrl:\n%s" , profileUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -222,11 +218,6 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      */
     public class ProfileTask extends AsyncTask<String, Void, Boolean> {
         //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        @SuppressWarnings("unused")
-        private static final String TAG = "ProfileTask"; //Separate tag for AsyncTask
         Document profilePage;
         Spannable usernameSpan;
 
@@ -262,7 +253,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     } else {
                         //Should never get here!
                         //Something is wrong.
-                        Report.e(TAG, "An error occurred while trying to find profile's personal text.");
+                        Timber.e("An error occurred while trying to find profile's personal text.");
                         personalText = null;
                     }
                 }
@@ -283,16 +274,16 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 }
                 return true;
             } catch (SSLHandshakeException e) {
-                Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
+                Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Report.e("TAG", "ERROR", e);
+                Timber.e("ERROR", e);
             }
             return false;
         }
 
         protected void onPostExecute(Boolean result) {
-            if (!result) { //Parse failed!
-                Report.d(TAG, "Parse failed!");
+            if (!result) { //Parse failed!  //TODO report as ParseException?
+                Timber.d("Parse failed!");
                 Toast.makeText(getBaseContext(), "Fatal error!\n Aborting..."
                         , Toast.LENGTH_LONG).show();
                 finish();
@@ -344,7 +335,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         viewPager.setAdapter(adapter);
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    private class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 

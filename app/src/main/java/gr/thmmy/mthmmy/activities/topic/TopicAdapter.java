@@ -18,7 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -54,7 +54,8 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
-import mthmmy.utils.Report;
+
+import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
@@ -68,10 +69,6 @@ import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
  * Custom {@link android.support.v7.widget.RecyclerView.Adapter} used for topics.
  */
 class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    private static final String TAG = "TopicAdapter";
     /**
      * Int that holds thumbnail's size defined in R.dimen
      */
@@ -415,7 +412,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             if (toQuoteList.contains(postsList.indexOf(currentPost))) {
                                 toQuoteList.remove(toQuoteList.indexOf(postsList.indexOf(currentPost)));
                             } else
-                                Report.i(TAG, "An error occurred while trying to exclude post from" +
+                                Timber.i("An error occurred while trying to exclude post from" +
                                         "toQuoteList, post wasn't there!");
                             holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                         } else {

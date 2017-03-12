@@ -21,11 +21,6 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
  * specified {@link LatestPostsFragment.LatestPostsFragmentInteractionListener}.
  */
 class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "LatestPostsAdapter";
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     final private LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;

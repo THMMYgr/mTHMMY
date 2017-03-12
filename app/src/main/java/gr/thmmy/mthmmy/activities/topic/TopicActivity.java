@@ -47,11 +47,12 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
+
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
@@ -69,11 +70,6 @@ import static gr.thmmy.mthmmy.activities.topic.ReplyParser.replyStatus;
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity {
     //Class variables
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "TopicActivity";
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
      */
@@ -134,7 +130,7 @@ public class TopicActivity extends BaseActivity {
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
                 Uri.parse(topicPageUrl));
         if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
-            Report.e(TAG, "Bundle came with a non topic url!\nUrl:\n" + topicPageUrl);
+            Timber.e("Bundle came with a non topic url!\nUrl:\n" + topicPageUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -455,11 +451,6 @@ public class TopicActivity extends BaseActivity {
      * as String parameter!</p>
      */
     class TopicTask extends AsyncTask<String, Void, Integer> {
-        //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
         private static final int SUCCESS = 0;
         private static final int NETWORK_ERROR = 1;
         private static final int OTHER_ERROR = 2;
@@ -518,10 +509,10 @@ public class TopicActivity extends BaseActivity {
                 parse(document);
                 return SUCCESS;
             } catch (IOException e) {
-                Report.i(TAG, "IO Exception", e);
+                Timber.i("IO Exception", e);
                 return NETWORK_ERROR;
             } catch (Exception e) {
-                Report.e(TAG, "Exception", e);
+                Timber.e("Exception", e);
                 return OTHER_ERROR;
             }
         }
@@ -570,7 +561,7 @@ public class TopicActivity extends BaseActivity {
                     break;
                 default:
                     //Parse failed - should never happen
-                    Report.d(TAG, "Parse failed!");
+                    Timber.d("Parse failed!");  //TODO report ParseException?
                     Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
@@ -609,7 +600,7 @@ public class TopicActivity extends BaseActivity {
                 } else {
                     parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Θέμα:") + 6
                             , parsedTitle.indexOf("(Αναγνώστηκε") - 2);
-                    Report.d(TAG, parsedTitle);
+                    Timber.d(parsedTitle);
                 }
             }
 
@@ -700,10 +691,10 @@ public class TopicActivity extends BaseActivity {
                 subject = document.select("input[name=subject]").first().attr("value");
                 topic = document.select("input[name=topic]").first().attr("value");
             } catch (IOException e) {
-                Report.e(TAG, "Post failed.", e);
+                Timber.e("Post failed.", e);
                 return false;
             } catch (Selector.SelectorParseException e) {
-                Report.e(TAG, "Post failed.", e);
+                Timber.e("Post failed.", e);
                 return false;
             }
 
@@ -733,11 +724,11 @@ public class TopicActivity extends BaseActivity {
                         //TODO this...
                         return true;
                     default:
-                        Report.e(TAG, "Malformed post. Request string:\n" + post.toString());
+                        Timber.e("Malformed post. Request string:\n" + post.toString());
                         return true;
                 }
             } catch (IOException e) {
-                Report.e(TAG, "Post failed.", e);
+                Timber.e("Post failed.", e);
                 return false;
             }
         }

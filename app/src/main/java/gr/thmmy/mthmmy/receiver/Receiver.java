@@ -14,7 +14,8 @@ import android.webkit.MimeTypeMap;
 import java.io.File;
 
 import gr.thmmy.mthmmy.R;
-import mthmmy.utils.Report;
+
+import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.services.DownloadService.ACTION_DOWNLOAD;
 import static gr.thmmy.mthmmy.services.DownloadService.COMPLETED;
@@ -28,7 +29,6 @@ import static gr.thmmy.mthmmy.services.DownloadService.SAVE_DIR;
 import static gr.thmmy.mthmmy.services.DownloadService.STARTED;
 
 public class Receiver extends BroadcastReceiver {
-    private static final String TAG = "BroadcastReceiver";
 
     public Receiver() {
     }
@@ -72,7 +72,7 @@ public class Receiver extends BroadcastReceiver {
                     builder.setContentIntent(pendingIntent);
 
                 } else
-                    Report.w(TAG, "File doesn't exist.");
+                    Timber.w("File doesn't exist.");
             }
             Notification notification = builder.build();
             notificationManager.notify(id, notification);

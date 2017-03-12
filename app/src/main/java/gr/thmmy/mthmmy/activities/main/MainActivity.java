@@ -38,7 +38,6 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener {
 
     //----------------------------------------CLASS VARIABLES-----------------------------------------
-    private static final String TAG = "MainActivity";
     private static final int TIME_INTERVAL = 2000;
     private long mBackPressed;
 

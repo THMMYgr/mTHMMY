@@ -17,7 +17,8 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
-import mthmmy.utils.Report;
+import timber.log.Timber;
+
 
 /**
  * Singleton used for parsing a topic.
@@ -35,12 +36,6 @@ class TopicParser {
     private static final int USER_COLOR_BLUE = Color.parseColor("#536DFE");
     static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
     private static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
-
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "TopicParser";
 
     /**
      * Returns users currently viewing this topic.
@@ -257,7 +252,7 @@ class TopicParser {
                         try {
                             attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
                         } catch (MalformedURLException e) {
-                            Report.e(TAG, "Attached file malformed url", e);
+                            Timber.e("Attached file malformed url", e);
                             break;
                         }
                         String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
@@ -317,7 +312,7 @@ class TopicParser {
                         try {
                             attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
                         } catch (MalformedURLException e) {
-                            Report.e(TAG, "Attached file malformed url", e);
+                            Timber.e("Attached file malformed url", e);
                             break;
                         }
                         String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);

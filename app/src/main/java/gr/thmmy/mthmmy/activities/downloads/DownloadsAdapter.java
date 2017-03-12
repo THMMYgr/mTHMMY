@@ -29,11 +29,6 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
 
 class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "DownloadsAdapter";
     private final int VIEW_TYPE_DOWNLOAD = 0;
     private final int VIEW_TYPE_LOADING = 1;
 

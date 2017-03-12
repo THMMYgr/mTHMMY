@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import java.util.Objects;
 
-import mthmmy.utils.Report;
+import timber.log.Timber;
 
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner
@@ -162,7 +162,7 @@ public class ThmmyPage {
                     || Objects.equals(uriString, "https://www.thmmy.gr")
                     || Objects.equals(uriString, "https://www.thmmy.gr/smf/index.php"))
                 return PageCategory.INDEX;
-            Report.v(TAG, "Unknown thmmy link found, link: " + uriString);
+            Timber.v("Unknown thmmy link found, link: " + uriString);
             return PageCategory.UNKNOWN_THMMY;
         }
         return PageCategory.NOT_THMMY;

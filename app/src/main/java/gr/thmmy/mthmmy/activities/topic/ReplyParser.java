@@ -10,12 +10,6 @@ import java.io.IOException;
 import okhttp3.Response;
 
 class ReplyParser {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "ReplyParser";
-
     enum REPLY_STATUS {
         SUCCESSFUL, NO_SUBJECT, EMPTY_BODY, NEW_REPLY_WHILE_POSTING, NOT_FOUND, SESSION_ENDED, OTHER_ERROR
     }

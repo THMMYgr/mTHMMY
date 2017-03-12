@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,18 +25,14 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
-import mthmmy.utils.Report;
+
+import timber.log.Timber;
 
 
 /**
  * Use the {@link SummaryFragment#newInstance} factory method to create an instance of this fragment.
  */
 public class SummaryFragment extends Fragment {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "SummaryFragment";
     /**
      * The key to use when putting profile's source code String to {@link SummaryFragment}'s Bundle.
      */
@@ -96,7 +92,7 @@ public class SummaryFragment extends Fragment {
             summaryTask = new SummaryTask();
             summaryTask.execute(profileSummaryDocument);
         }
-        Report.d(TAG, "onActivityCreated");
+        Timber.d("onActivityCreated");
     }
 
     @Override
@@ -114,14 +110,7 @@ public class SummaryFragment extends Fragment {
      * <p>Calling SummaryTask's {@link AsyncTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
-    public class SummaryTask extends AsyncTask<Document, Void, Void> {
-        //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        @SuppressWarnings("unused")
-        private static final String TAG = "SummaryTask"; //Separate tag for AsyncTask
-
+    private class SummaryTask extends AsyncTask<Document, Void, Void> {
         protected Void doInBackground(Document... profileSummaryPage) {
             parsedProfileSummaryData = parseProfileSummary(profileSummaryPage[0]);
             return null;
@@ -193,8 +182,8 @@ public class SummaryFragment extends Fragment {
 
             if (profileSummaryRow.contains("@") &&
                     (profileSummaryRow.contains("Email") || profileSummaryRow.contains("E-mail"))) {
-                Log.d(TAG, "mpika");
-                Log.d(TAG, profileSummaryRow);
+                Timber.d("mpika");
+                Timber.d(profileSummaryRow);
                 String email = profileSummaryRow.substring(profileSummaryRow.indexOf(":</b> ") + 6);
                 profileSummaryRow = profileSummaryRow.replace(email,
                         "<a href=\"mailto:" + email + "\">" + email + "</a>");
