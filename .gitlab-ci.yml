@@ -2,8 +2,8 @@ image: openjdk:8-jdk
 
 variables:
   ANDROID_TARGET_SDK: "25"
-  ANDROID_BUILD_TOOLS: "25.0.1"
-  ANDROID_SDK_TOOLS: "25.2.5"
+  ANDROID_BUILD_TOOLS: "25.0.2"
+  ANDROID_SDK_TOOLS: "25.3.0"
 
 before_script:
   - apt-get --quiet update --yes
