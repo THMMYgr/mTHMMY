@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.model;
 
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.Objects;
 
@@ -170,7 +171,10 @@ public class ThmmyPage {
 
     public static String getBoardId(String boardUrl) {
         if (resolvePageCategory(Uri.parse(boardUrl)) == PageCategory.BOARD) {
-            return boardUrl.substring(boardUrl.indexOf("board=") + 6, boardUrl.lastIndexOf("."));
+            String returnString = boardUrl.substring(boardUrl.indexOf("board=") + 6);
+            if (returnString.contains("."))
+                returnString = boardUrl.substring(boardUrl.indexOf("board=") + 6, boardUrl.lastIndexOf("."));
+            return returnString;
         }
         return null;
     }

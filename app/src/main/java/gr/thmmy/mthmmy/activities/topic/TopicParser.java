@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -194,11 +195,19 @@ class TopicParser {
             //This is an int assigned by the forum used for post focusing and quotes, it is not
             //the same as reply index.
             Element postIndex = thisRow.select("a[name^=msg]").first();
-            if (postIndex == null)
-                p_postIndex = NO_INDEX;
-            else {
+            if (postIndex != null) {
                 String tmp = postIndex.attr("name");
                 p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
+            } else{
+                postIndex = thisRow.select("div[id^=subject]").first();
+                Log.d("TAG", "got");
+                Log.d("TAG", postIndex.toString());
+                if (postIndex == null)
+                    p_postIndex = NO_INDEX;
+                else{
+                    String tmp = postIndex.attr("id");
+                    p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("subject") + 8));
+                }
             }
 
             Element postLastEditDate = thisRow.select("td.smalltext[id^=modified_]").first();

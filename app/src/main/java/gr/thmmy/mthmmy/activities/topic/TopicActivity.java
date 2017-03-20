@@ -407,7 +407,8 @@ public class TopicActivity extends BaseActivity {
                     paginationEnabled(true);
                     changePage(pageRequestValue - 1);
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) { //TODO fix bug
+                    if (rect != null &&
+                            !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
                         incrementPageRequestValue(thisPage - pageRequestValue);
                         paginationEnabled(true);
@@ -469,7 +470,6 @@ public class TopicActivity extends BaseActivity {
 
         protected Integer doInBackground(String... strings) {
             Document document;
-            base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //New topic's base url
             String newPageUrl = strings[0];
 
             //Finds the index of message focus if present
@@ -484,26 +484,33 @@ public class TopicActivity extends BaseActivity {
                 }
             }
             //Checks if the page to be loaded is the one already shown
-            if (!reloadingPage && !Objects.equals(loadedPageUrl, "") && loadedPageUrl.contains(base_url)) {
+            if (!reloadingPage && !Objects.equals(loadedPageUrl, "") && newPageUrl.contains(base_url)) {
                 if (newPageUrl.contains("topicseen#new") || newPageUrl.contains("#new"))
                     if (thisPage == numberOfPages)
                         return SAME_PAGE;
                 if (newPageUrl.contains("msg")) {
                     String tmpUrlSbstr = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
+                    Log.d("TAG", tmpUrlSbstr);
                     if (tmpUrlSbstr.contains("msg"))
                         tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
+                    Log.d("TAG", tmpUrlSbstr);
                     int testAgainst = Integer.parseInt(tmpUrlSbstr);
+                    Log.d("TAG", "testAgainst = " + testAgainst);
                     for (Post post : postsList) {
+                        Log.d("TAG", "post index = " + post.getPostIndex());
                         if (post.getPostIndex() == testAgainst) {
                             return SAME_PAGE;
                         }
                     }
-                } else if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage) //TODO fix bug
+                } else if ((Objects.equals(newPageUrl, base_url) && thisPage == 1) ||
+                        Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
                     return SAME_PAGE;
             } else if (!Objects.equals(loadedPageUrl, "")) topicTitle = null;
             if (reloadingPage) reloadingPage = !reloadingPage;
 
             loadedPageUrl = newPageUrl;
+            if (strings[0].substring(0, strings[0].lastIndexOf(".")).contains("topic="))
+                base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //New topic's base url
             replyPageUrl = null;
             Request request = new Request.Builder()
                     .url(newPageUrl)
@@ -693,7 +700,7 @@ public class TopicActivity extends BaseActivity {
                 numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
                 seqnum = document.select("input[name=seqnum]").first().attr("value");
                 sc = document.select("input[name=sc]").first().attr("value");
-                subject = document.select("input[name=subject]").first().attr("value");
+                //subject = document.select("input[name=subject]").first().attr("value");
                 topic = document.select("input[name=topic]").first().attr("value");
             } catch (IOException e) {
                 Timber.e("Post failed.", e);
@@ -705,11 +712,11 @@ public class TopicActivity extends BaseActivity {
 
             RequestBody postBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("message", message[0])
+                    .addFormDataPart("message", message[1])
                     .addFormDataPart("num_replies", numReplies)
                     .addFormDataPart("seqnum", seqnum)
                     .addFormDataPart("sc", sc)
-                    .addFormDataPart("subject", subject)
+                    .addFormDataPart("subject", message[0])
                     .addFormDataPart("topic", topic)
                     .build();
 
@@ -742,7 +749,7 @@ public class TopicActivity extends BaseActivity {
         protected void onPostExecute(Boolean result) {
             View view = getCurrentFocus();
             if (view != null) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
 

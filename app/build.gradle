@@ -20,9 +20,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            def date = new Date().format('ddMMyy_HHmm');
+            def date = new Date().format('ddMMyy_HH');
             //def date = 1;
-            archivesBaseName = archivesBaseName + "-$date"
+            //archivesBaseName = archivesBaseName + "-$date"
+            archivesBaseName = archivesBaseName
         }
     }
 }

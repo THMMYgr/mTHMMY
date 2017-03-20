@@ -179,7 +179,7 @@ public class RecentFragment extends BaseFragment {
             if (result == 0)
                 recentAdapter.notifyDataSetChanged();
             else if (result == 2)
-                Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show(); //Fixme, sometimes activity isn't ready
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);
