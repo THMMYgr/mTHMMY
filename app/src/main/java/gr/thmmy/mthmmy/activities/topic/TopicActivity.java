@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -17,12 +18,14 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -60,7 +63,7 @@ import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
-import static gr.thmmy.mthmmy.activities.topic.ReplyParser.replyStatus;
+import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
 /**
  * Activity for topics. When creating an Intent of this activity you need to bundle a <b>String</b>
@@ -117,6 +120,7 @@ public class TopicActivity extends BaseActivity {
     private String parsedTitle;
     private RecyclerView recyclerView;
     private String loadedPageUrl = "";
+    private boolean reloadingPage = false;
 
 
     @Override
@@ -480,7 +484,7 @@ public class TopicActivity extends BaseActivity {
                 }
             }
             //Checks if the page to be loaded is the one already shown
-            if (!Objects.equals(loadedPageUrl, "") && loadedPageUrl.contains(base_url)) {
+            if (!reloadingPage && !Objects.equals(loadedPageUrl, "") && loadedPageUrl.contains(base_url)) {
                 if (newPageUrl.contains("topicseen#new") || newPageUrl.contains("#new"))
                     if (thisPage == numberOfPages)
                         return SAME_PAGE;
@@ -497,6 +501,7 @@ public class TopicActivity extends BaseActivity {
                 } else if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage) //TODO fix bug
                     return SAME_PAGE;
             } else if (!Objects.equals(loadedPageUrl, "")) topicTitle = null;
+            if (reloadingPage) reloadingPage = !reloadingPage;
 
             loadedPageUrl = newPageUrl;
             replyPageUrl = null;
@@ -735,13 +740,34 @@ public class TopicActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
+            View view = getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+
+            postsList.remove(postsList.size() - 1);
+            topicAdapter.notifyItemRemoved(postsList.size());
+
             progressBar.setVisibility(ProgressBar.GONE);
             replyFAB.setVisibility(View.VISIBLE);
             bottomNavBar.setVisibility(View.VISIBLE);
+
             if (!result)
                 Toast.makeText(TopicActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
             paginationEnabled(true);
             replyFAB.setEnabled(true);
+
+            if (result) {
+                topicTask = new TopicTask();
+                if ((postsList.get(postsList.size() - 1).getPostNumber() + 1) % 15 == 0)
+                    topicTask.execute(base_url + "." + 2147483647);
+                else {
+                    reloadingPage = true;
+                    topicTask.execute(loadedPageUrl);
+                }
+                Log.d("TAG", "sent");
+            }
         }
     }
 }

@@ -114,7 +114,7 @@ public class BookmarkActivity extends BaseActivity {
                         Intent intent = new Intent(BookmarkActivity.this, TopicActivity.class);
                         Bundle extras = new Bundle();
                         extras.putString(BUNDLE_TOPIC_URL, "https://www.thmmy.gr/smf/index.php?topic="
-                                + bookmarkedTopic.getId() + ".0");
+                                + bookmarkedTopic.getId() + "." + 2147483647);
                         extras.putString(BUNDLE_TOPIC_TITLE, bookmarkedTopic.getTitle());
                         intent.putExtras(extras);
                         startActivity(intent);
