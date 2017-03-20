@@ -27,7 +27,7 @@ import timber.log.Timber;
  */
 public class DownloadService extends IntentService {
     private static final String TAG = "DownloadService";
-    private static int sDownloadId =0;
+    private static int sDownloadId = 0;
 
     private Receiver receiver;
 
@@ -46,7 +46,6 @@ public class DownloadService extends IntentService {
     public static final String STARTED = "Started";
     public static final String COMPLETED = "Completed";
     public static final String FAILED = "Failed";
-
 
 
     public DownloadService() {
@@ -109,14 +108,12 @@ public class DownloadService extends IntentService {
             Response response = client.newCall(request).execute();
 
             String contentType = response.headers("Content-Type").toString();   //check if link provides a binary file
-            if(contentType.equals("[application/octet-stream]"))
-            {
+            if (contentType.equals("[application/octet-stream]")) {
                 fileName = response.headers("Content-Disposition").toString().split("\"")[1];
 
                 File dirPath = new File(SAVE_DIR);
-                if(!dirPath.isDirectory())
-                {
-                    if(dirPath.mkdirs())
+                if (!dirPath.isDirectory()) {
+                    if (dirPath.mkdirs())
                         Timber.i("mTHMMY's directory created successfully!");
                     else
                         Timber.e("Couldn't create mTHMMY's directory...");
@@ -126,20 +123,16 @@ public class DownloadService extends IntentService {
                 String nameFormat;
                 String[] tokens = fileName.split("\\.(?=[^\\.]+$)");
 
-                if(tokens.length!=2)
-                {
+                if (tokens.length != 2) {
                     Timber.w("Couldn't get file extension...");
                     nameFormat = fileName + "(%d)";
-                }
-                else
+                } else
                     nameFormat = tokens[0] + "(%d)." + tokens[1];
-
-
 
 
                 File file = new File(dirPath, fileName);
 
-                for (int i = 1;;i++) {
+                for (int i = 1; ; i++) {
                     if (!file.exists()) {
                         break;
                     }
@@ -157,21 +150,18 @@ public class DownloadService extends IntentService {
                 sink.flush();
                 Timber.i("Download OK!");
                 sendNotification(downloadId, COMPLETED, fileName);
-            }
-            else
+            } else
                 Timber.e("Response not a binary file!");
-        }
-        catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             Timber.i("Download failed...");
             Timber.e("FileNotFound", e);
             sendNotification(downloadId, FAILED, fileName);
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             Timber.i("Download failed...");
             Timber.e("IOException", e);
             sendNotification(downloadId, FAILED, fileName);
         } finally {
-            if (sink!= null) {
+            if (sink != null) {
                 try {
                     sink.close();
                 } catch (IOException e) {
@@ -181,9 +171,8 @@ public class DownloadService extends IntentService {
         }
     }
 
-    private void sendNotification(int downloadId, String type, @NonNull String fileName)
-    {
-        Intent  intent = new Intent(ACTION_DOWNLOAD);
+    private void sendNotification(int downloadId, String type, @NonNull String fileName) {
+        Intent intent = new Intent(ACTION_DOWNLOAD);
         switch (type) {
             case STARTED: {
                 intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Started");
@@ -203,7 +192,7 @@ public class DownloadService extends IntentService {
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Failed");
                 break;
             }
-            default:{
+            default: {
                 Timber.e("Invalid notification case!");
                 return;
             }

@@ -200,8 +200,6 @@ class TopicParser {
                 p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
             } else{
                 postIndex = thisRow.select("div[id^=subject]").first();
-                Log.d("TAG", "got");
-                Log.d("TAG", postIndex.toString());
                 if (postIndex == null)
                     p_postIndex = NO_INDEX;
                 else{

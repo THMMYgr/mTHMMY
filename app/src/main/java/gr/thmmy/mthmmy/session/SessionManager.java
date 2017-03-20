@@ -48,12 +48,12 @@ public class SessionManager {
     public static final int EXCEPTION = 6;
 
     // Client & Cookies
-    private OkHttpClient client;
-    private PersistentCookieJar cookieJar;
-    private SharedPrefsCookiePersistor cookiePersistor; //Used to explicitly edit cookies in cookieJar
+    private final OkHttpClient client;
+    private final PersistentCookieJar cookieJar;
+    private final SharedPrefsCookiePersistor cookiePersistor; //Used to explicitly edit cookies in cookieJar
 
     //Shared Preferences & its keys
-    private SharedPreferences sharedPrefs;
+    private final SharedPreferences sharedPrefs;
     private static final String USERNAME = "Username";
     private static final String AVATAR_LINK = "AvatarLink";
     private static final String HAS_AVATAR = "HasAvatar";
@@ -109,7 +109,7 @@ public class SessionManager {
 
             Elements unreadRepliesLinks = document.select("a[href=https://www.thmmy.gr/smf/index.php?action=unreadreplies]");
 
-            if (unreadRepliesLinks.size()>=2) //Normally it's just == 2, but who knows what can be posted by users
+            if (unreadRepliesLinks.size() >= 2) //Normally it's just == 2, but who knows what can be posted by users
             {
                 Timber.i("Login successful!");
                 setPersistentCookieSession();   //Store cookies
@@ -289,7 +289,7 @@ public class SessionManager {
     }
 
     @NonNull
-    private String extractUserName(@NonNull Document doc){
+    private String extractUserName(@NonNull Document doc) {
         //Scribbles2 Theme
         Elements user = doc.select("div[id=myuser] > h3");
         String userName = null;
@@ -301,8 +301,7 @@ public class SessionManager {
             Matcher matcher = pattern.matcher(txt);
             if (matcher.find())
                 userName = matcher.group(1);
-        }
-        else {
+        } else {
             //Helios_Multi and SMF_oneBlue
             user = doc.select("td.smalltext[width=100%] b");
             if (user.size() == 1)
@@ -314,20 +313,20 @@ public class SessionManager {
                     userName = user.first().ownText();
             }
         }
-        
-        if(userName != null && !userName.isEmpty())
+
+        if (userName != null && !userName.isEmpty())
             return userName;
 
         Timber.e("ParseException", new ParseException("Parsing failed(username extraction)"));
-        return  "User"; //return a default username
+        return "User"; //return a default username
     }
 
 
     @Nullable
     private String extractAvatarLink(@NonNull Document doc) {
-        Elements  avatar = doc.getElementsByClass("avatar");
-            if (!avatar.isEmpty())
-                return avatar.first().attr("src");
+        Elements avatar = doc.getElementsByClass("avatar");
+        if (!avatar.isEmpty())
+            return avatar.first().attr("src");
 
         Timber.i("Extracting avatar's link failed!");
         return null;
@@ -337,14 +336,13 @@ public class SessionManager {
     private String extractLogoutLink(@NonNull Document doc) {
         Elements logoutLink = doc.select("a[href^=https://www.thmmy.gr/smf/index.php?action=logout;sesc=]");
 
-        if (!logoutLink.isEmpty())
-        {
+        if (!logoutLink.isEmpty()) {
             String link = logoutLink.first().attr("href");
-            if(link != null && !link.isEmpty())
+            if (link != null && !link.isEmpty())
                 return link;
         }
         Timber.e("ParseException", new ParseException("Parsing failed(logoutLink extraction)"));
-        return  "https://www.thmmy.gr/smf/index.php?action=logout"; //return a default link
+        return "https://www.thmmy.gr/smf/index.php?action=logout"; //return a default link
     }
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------
 

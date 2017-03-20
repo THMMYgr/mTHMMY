@@ -64,8 +64,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     private static final String BOOKMARKED_TOPICS_KEY = "bookmarkedTopicsKey";
     private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
     protected Bookmark thisPageBookmark;
-    protected MenuItem thisPageBookmarkMenuButton;
-    protected ImageButton thisPageBookmarkImageButton;
+    private MenuItem thisPageBookmarkMenuButton;
+    private ImageButton thisPageBookmarkImageButton;
     private SharedPreferences bookmarksFile;
     private ArrayList<Bookmark> topicsBookmarked;
     private ArrayList<Bookmark> boardsBookmarked;
@@ -347,7 +347,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         });
     }
 
-    protected void updateDrawer() {
+    private void updateDrawer() {
         if (drawer != null) {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
@@ -376,7 +376,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * Result toast will always display a success, because when user chooses logout all data are
      * cleared regardless of the actual outcome
      */
-    protected class LogoutTask extends AsyncTask<Void, Void, Integer> { //Attempt logout
+    private class LogoutTask extends AsyncTask<Void, Void, Integer> { //Attempt logout
         ProgressDialog progressDialog;
 
         protected Integer doInBackground(Void... voids) {
@@ -419,7 +419,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void topicMenuBookmarkClick(){
+    protected void topicMenuBookmarkClick() {
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
             thisPageBookmarkMenuButton.setIcon(notBookmarked);
             toggleTopicToBookmarks(thisPageBookmark);
@@ -524,7 +524,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //Display popup gor user to grant permission
-    public void requestPerms() { //Runtime permissions request for devices with API >= 23
+    private void requestPerms() { //Runtime permissions request for devices with API >= 23
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -559,7 +559,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //Uses temp file - called after permission grant
-    public void launchDownloadService() {
+    private void launchDownloadService() {
         if (checkPerms())
             DownloadService.startActionDownload(this, tempThmmyFile.getFileUrl().toString());
 

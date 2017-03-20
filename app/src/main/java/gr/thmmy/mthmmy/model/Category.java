@@ -7,8 +7,7 @@ import java.util.List;
 
 import static android.R.attr.id;
 
-public class Category implements Parent<Board>
-{
+public class Category implements Parent<Board> {
     private final String title;
     private final String categoryURL;
     private boolean expanded = false;

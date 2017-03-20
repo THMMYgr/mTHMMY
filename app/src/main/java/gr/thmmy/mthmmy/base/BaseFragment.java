@@ -15,7 +15,7 @@ public abstract class BaseFragment extends Fragment {
     protected FragmentInteractionListener fragmentInteractionListener;
 
     private String TAG;
-    protected int sectionNumber;
+    private int sectionNumber;
     protected static OkHttpClient client;
 
     @Override
@@ -23,7 +23,7 @@ public abstract class BaseFragment extends Fragment {
         super.onCreate(savedInstanceState);
         TAG = getArguments().getString(ARG_TAG);
         sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-        if(client==null)
+        if (client == null)
             client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
         // becomes null when app restarts after crash
         Timber.d("onCreate");
@@ -76,5 +76,6 @@ public abstract class BaseFragment extends Fragment {
      * the activity that contains it, to allow communication upon interaction,
      * between the fragment and the activity/ other fragments
      */
-    public interface FragmentInteractionListener {}
+    public interface FragmentInteractionListener {
+    }
 }

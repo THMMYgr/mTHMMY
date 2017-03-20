@@ -18,7 +18,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -104,22 +103,23 @@ public class TopicActivity extends BaseActivity {
     private static final int LARGE_STEP = 10;
     private Integer pageRequestValue;
     //Bottom navigation graphics
-    LinearLayout bottomNavBar;
+    private LinearLayout bottomNavBar;
     private ImageButton firstPage;
     private ImageButton previousPage;
     private TextView pageIndicator;
     private ImageButton nextPage;
     private ImageButton lastPage;
     //Topic's info
-    SpannableStringBuilder topicTreeAndMods = new SpannableStringBuilder("Loading..."),
+    private SpannableStringBuilder topicTreeAndMods = new SpannableStringBuilder("Loading..."),
             topicViewers = new SpannableStringBuilder("Loading...");
     //Other variables
     private MaterialProgressBar progressBar;
+    TextView toolbarTitle;
     private static String base_url = "";
     private String topicTitle;
     private String parsedTitle;
     private RecyclerView recyclerView;
-    private String loadedPageUrl = "";
+    String loadedPageUrl = "";
     private boolean reloadingPage = false;
 
 
@@ -143,7 +143,7 @@ public class TopicActivity extends BaseActivity {
 
         //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        TextView toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
         toolbarTitle.setText(topicTitle);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -165,7 +165,7 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, postsList, topicTask, topicTitle);
+        topicAdapter = new TopicAdapter(this, postsList, topicTask, topicTitle, loadedPageUrl);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
@@ -271,7 +271,7 @@ public class TopicActivity extends BaseActivity {
      * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue
      * of page value when long pressing one of the page navigation buttons.
      */
-    class RepetitiveUpdater implements Runnable {
+    private class RepetitiveUpdater implements Runnable {
         private final int step;
 
         /**
@@ -490,14 +490,10 @@ public class TopicActivity extends BaseActivity {
                         return SAME_PAGE;
                 if (newPageUrl.contains("msg")) {
                     String tmpUrlSbstr = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
-                    Log.d("TAG", tmpUrlSbstr);
                     if (tmpUrlSbstr.contains("msg"))
                         tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
-                    Log.d("TAG", tmpUrlSbstr);
                     int testAgainst = Integer.parseInt(tmpUrlSbstr);
-                    Log.d("TAG", "testAgainst = " + testAgainst);
                     for (Post post : postsList) {
-                        Log.d("TAG", "post index = " + post.getPostIndex());
                         if (post.getPostIndex() == testAgainst) {
                             return SAME_PAGE;
                         }
@@ -543,11 +539,11 @@ public class TopicActivity extends BaseActivity {
                     if (topicTitle == null || Objects.equals(topicTitle, "")) {
                         thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl));
                         invalidateOptionsMenu();
-                        //setTopicBookmark(menu.getItem(0));
                     }
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     topicAdapter.customNotifyDataSetChanged(new TopicTask());
+                    topicAdapter.setTopicInfo(parsedTitle, loadedPageUrl);
                     if (replyPageUrl == null) replyFAB.hide();
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
@@ -557,8 +553,10 @@ public class TopicActivity extends BaseActivity {
 
                     paginationEnabled(true);
 
+                    if (topicTitle != null)
+                    if (parsedTitle != null)
                     if (topicTitle == null || Objects.equals(topicTitle, ""))
-                        toolbar.setTitle(parsedTitle);
+                        toolbarTitle.setText(parsedTitle);
                     break;
                 case NETWORK_ERROR:
                     Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
@@ -773,7 +771,6 @@ public class TopicActivity extends BaseActivity {
                     reloadingPage = true;
                     topicTask.execute(loadedPageUrl);
                 }
-                Log.d("TAG", "sent");
             }
         }
     }

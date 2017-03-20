@@ -105,13 +105,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private String[] replyDataHolder = new String[2];
     private int replySubject = 0, replyText = 1;
+    private String loadedPageUrl = "";
 
     /**
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
     TopicAdapter(Context context, List<Post> postsList, TopicActivity.TopicTask topicTask
-            , String topicTitle) {
+            , String topicTitle, String loadedPageUrl) {
         this.context = context;
         this.postsList = postsList;
 
@@ -122,10 +123,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         this.topicTask = topicTask;
         this.topicTitle = topicTitle;
+        this.loadedPageUrl = loadedPageUrl;
     }
 
     void prepareForReply(TopicActivity.ReplyTask replyTask) {
         this.replyTask = replyTask;
+    }
+
+    void setTopicInfo(String topicTitle, String loadedPageUrl) {
+        this.topicTitle = topicTitle;
+        this.loadedPageUrl = loadedPageUrl;
     }
 
     @Override
@@ -712,7 +719,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private class CustomEditTextListener implements TextWatcher {
-        private int positionInDataHolder;
+        private final int positionInDataHolder;
 
         CustomEditTextListener(int positionInDataHolder) {
             this.positionInDataHolder = positionInDataHolder;
@@ -777,7 +784,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (postsList.get(quotePosition).getPostIndex() != 0) {
             if (postDate != null) {
                 return "[quote author=" + postsList.get(quotePosition).getAuthor()
-                        + " link=topic=68525.msg" + postsList.get(quotePosition).getPostIndex()
+                        + " link=topic=" + ThmmyPage.getTopicId(loadedPageUrl) + ".msg"
+                        + postsList.get(quotePosition).getPostIndex()
                         + "#msg" + postsList.get(quotePosition).getPostIndex()
                         + " date=" + postDate.getTime() / 1000 + "]"
                         + "\n" + postsList.get(quotePosition).getContent()

@@ -5,10 +5,10 @@ package gr.thmmy.mthmmy.utils.exceptions;
  * exception is set, to report to FireBase.
  */
 public class UnknownException extends Exception {
-    public UnknownException() {}
+    public UnknownException() {
+    }
 
-    public UnknownException(String message)
-    {
+    public UnknownException(String message) {
         super(message);
     }
 }
