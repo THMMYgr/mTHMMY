@@ -26,19 +26,15 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
+
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 /**
  * Use the {@link LatestPostsFragment#newInstance} factory method to create an instance of this fragment.
  */
 public class LatestPostsFragment extends BaseFragment implements LatestPostsAdapter.OnLoadMoreListener{
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "LatestPostsFragment";
     /**
      * The key to use when putting profile's url String to {@link LatestPostsFragment}'s Bundle.
      */
@@ -136,7 +132,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
             profileLatestPostsTask.execute(profileUrl + ";sa=showPosts");
             pagesLoaded = 1;
         }
-        Report.d(TAG, "onActivityCreated");
+        Timber.d("onActivityCreated");
     }
 
     @Override
@@ -156,14 +152,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
      * <p>LatestPostsTask's {@link AsyncTask#execute execute} method needs a profile's url as String
      * parameter!</p>
      */
-    public class LatestPostsTask extends AsyncTask<String, Void, Boolean> {
-        //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        @SuppressWarnings("unused")
-        private static final String TAG = "LatestPostsTask"; //Separate tag for AsyncTask
-
+    private class LatestPostsTask extends AsyncTask<String, Void, Boolean> {
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
         }
@@ -176,16 +165,16 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                 Response response = BaseActivity.getClient().newCall(request).execute();
                 return parseLatestPosts(Jsoup.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
-                Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
+                Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Report.e("TAG", "ERROR", e);
+                Timber.e("ERROR", e);
             }
             return false;
         }
 
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!
-                Report.d(TAG, "Parse failed!");
+                Timber.d("Parse failed!");
                 Toast.makeText(getContext()
                         , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
                 getActivity().finish();

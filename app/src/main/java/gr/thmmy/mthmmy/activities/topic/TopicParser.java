@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,7 +18,8 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
-import mthmmy.utils.Report;
+import timber.log.Timber;
+
 
 /**
  * Singleton used for parsing a topic.
@@ -35,12 +37,6 @@ class TopicParser {
     private static final int USER_COLOR_BLUE = Color.parseColor("#536DFE");
     static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
     private static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
-
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "TopicParser";
 
     /**
      * Returns users currently viewing this topic.
@@ -160,7 +156,7 @@ class TopicParser {
         for (Element thisRow : postRows) {
             //Variables for Post constructor
             String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_profileURL, p_rank,
-                    p_specialRank, p_gender, p_personalText, p_numberOfPosts;
+                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
             ArrayList<ThmmyFile> p_attachedFiles;
@@ -175,6 +171,7 @@ class TopicParser {
             p_numberOfStars = 0;
             p_userColor = USER_COLOR_YELLOW;
             p_attachedFiles = new ArrayList<>();
+            p_postLastEditDate = null;
 
             //Language independent parsing
             //Finds thumbnail url
@@ -190,20 +187,30 @@ class TopicParser {
             //Finds post's text
             p_post = ParseHelpers.youtubeEmbeddedFix(thisRow.select("div").select(".post").first());
 
-            //Add stuff to make it work in WebView
+            //Adds stuff to make it work in WebView
             //style.css
             p_post = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + p_post);
 
-            //Find post's index
+            //Finds post's index
             //This is an int assigned by the forum used for post focusing and quotes, it is not
             //the same as reply index.
             Element postIndex = thisRow.select("a[name^=msg]").first();
-            if (postIndex == null)
-                p_postIndex = NO_INDEX;
-            else {
+            if (postIndex != null) {
                 String tmp = postIndex.attr("name");
                 p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
+            } else{
+                postIndex = thisRow.select("div[id^=subject]").first();
+                if (postIndex == null)
+                    p_postIndex = NO_INDEX;
+                else{
+                    String tmp = postIndex.attr("id");
+                    p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("subject") + 8));
+                }
             }
+
+            Element postLastEditDate = thisRow.select("td.smalltext[id^=modified_]").first();
+            if (postLastEditDate != null && !Objects.equals(postLastEditDate.text(), ""))
+                p_postLastEditDate = postLastEditDate.text();
 
             //Language dependent parsing
             Element userName;
@@ -252,7 +259,7 @@ class TopicParser {
                         try {
                             attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
                         } catch (MalformedURLException e) {
-                            Report.e(TAG, "Attached file malformed url", e);
+                            Timber.e("Attached file malformed url", e);
                             break;
                         }
                         String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
@@ -312,7 +319,7 @@ class TopicParser {
                         try {
                             attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
                         } catch (MalformedURLException e) {
-                            Report.e(TAG, "Attached file malformed url", e);
+                            Timber.e("Attached file malformed url", e);
                             break;
                         }
                         String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
@@ -406,12 +413,12 @@ class TopicParser {
                 parsedPostsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
-                        , p_attachedFiles));
+                        , p_attachedFiles, p_postLastEditDate));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 parsedPostsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
-                        , p_postNum, p_postDate, p_userColor, p_attachedFiles));
+                        , p_postNum, p_postDate, p_userColor, p_attachedFiles, p_postLastEditDate));
             }
         }
         return parsedPostsList;

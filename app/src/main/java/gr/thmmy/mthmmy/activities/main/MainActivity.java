@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
@@ -38,7 +37,6 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener {
 
     //----------------------------------------CLASS VARIABLES-----------------------------------------
-    private static final String TAG = "MainActivity";
     private static final int TIME_INTERVAL = 2000;
     private long mBackPressed;
 

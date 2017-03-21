@@ -1,40 +1,68 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
+import android.text.method.ScrollingMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Selector;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.board.BoardActivity;
+import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
+
+import okhttp3.MultipartBody;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import timber.log.Timber;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
 /**
  * Activity for topics. When creating an Intent of this activity you need to bundle a <b>String</b>
@@ -44,11 +72,6 @@ import okhttp3.Response;
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity {
     //Class variables
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "TopicActivity";
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
      */
@@ -62,10 +85,11 @@ public class TopicActivity extends BaseActivity {
     private TopicAdapter topicAdapter;
     private ArrayList<Post> postsList;
     private static final int NO_POST_FOCUS = -1;
-    private static int postFocus = NO_POST_FOCUS;
+    private int postFocus = NO_POST_FOCUS;
     private static int postFocusPosition = 0;
-    //Quotes
-    public static final ArrayList<Integer> toQuoteList = new ArrayList<>();
+    //Reply
+    private FloatingActionButton replyFAB;
+    private String replyPageUrl = null;
     //Topic's pages
     private int thisPage = 1;
     private int numberOfPages = 1;
@@ -79,19 +103,24 @@ public class TopicActivity extends BaseActivity {
     private static final int LARGE_STEP = 10;
     private Integer pageRequestValue;
     //Bottom navigation graphics
+    private LinearLayout bottomNavBar;
     private ImageButton firstPage;
     private ImageButton previousPage;
     private TextView pageIndicator;
     private ImageButton nextPage;
     private ImageButton lastPage;
+    //Topic's info
+    private SpannableStringBuilder topicTreeAndMods = new SpannableStringBuilder("Loading..."),
+            topicViewers = new SpannableStringBuilder("Loading...");
     //Other variables
-    private FloatingActionButton replyFAB;
     private MaterialProgressBar progressBar;
+    TextView toolbarTitle;
     private static String base_url = "";
     private String topicTitle;
     private String parsedTitle;
     private RecyclerView recyclerView;
-    private String loadedPageUrl = "";
+    String loadedPageUrl = "";
+    private boolean reloadingPage = false;
 
 
     @Override
@@ -105,23 +134,27 @@ public class TopicActivity extends BaseActivity {
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
                 Uri.parse(topicPageUrl));
         if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
-            Report.e(TAG, "Bundle came with a non topic url!\nUrl:\n" + topicPageUrl);
+            Timber.e("Bundle came with a non topic url!\nUrl:\n" + topicPageUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
 
+        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
+
         //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(topicTitle);
+        toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle.setText(topicTitle);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
-        thisPageBookmarkButton = (ImageButton) findViewById(R.id.bookmark);
-        setTopicBookmark();
+        //Makes title scrollable
+        toolbarTitle.setHorizontallyScrolling(true);
+        toolbarTitle.setMovementMethod(new ScrollingMovementMethod());
+
         createDrawer();
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
@@ -132,42 +165,27 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, postsList,
-                topicTask);
+        topicAdapter = new TopicAdapter(this, postsList, topicTask, topicTitle, loadedPageUrl);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
-        replyFAB.hide();
-        /*if (!sessionManager.isLoggedIn()) replyFAB.hide();
+        bottomNavBar = (LinearLayout) findViewById(R.id.bottom_navigation_bar);
+        if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
             replyFAB.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (sessionManager.isLoggedIn()) {
-                        //TODO Reply
-                    } else {
-                        new AlertDialog.Builder(TopicActivity.this)
-                                .setMessage("You need to be logged in to reply!")
-                                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        Intent intent = new Intent(TopicActivity.this, LoginActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                                    }
-                                })
-                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                    }
-                                })
-                                .show();
+                        postsList.add(null);
+                        topicAdapter.prepareForReply(new ReplyTask());
+                        replyFAB.hide();
+                        bottomNavBar.setVisibility(View.GONE);
+                        topicAdapter.notifyItemInserted(postsList.size());
                     }
                 }
             });
-        }*/
+        }
 
         //Sets bottom navigation bar
         firstPage = (ImageButton) findViewById(R.id.page_first_button);
@@ -185,6 +203,43 @@ public class TopicActivity extends BaseActivity {
         //Gets posts
         topicTask = new TopicTask();
         topicTask.execute(extras.getString(BUNDLE_TOPIC_URL)); //Attempt data parsing
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflates the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.topic_menu, menu);
+        setTopicBookmark(menu.getItem(0));
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.menu_bookmark:
+                topicMenuBookmarkClick();
+                return true;
+            case R.id.menu_info:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                LayoutInflater inflater = this.getLayoutInflater();
+                LinearLayout infoDialog = (LinearLayout) inflater.inflate(R.layout.dialog_topic_info
+                        , null);
+                ((TextView) infoDialog.findViewById(R.id.dialog_title)).setText("Info");
+                TextView treeAndMods = (TextView) infoDialog.findViewById(R.id.topic_tree_and_mods);
+                treeAndMods.setText(topicTreeAndMods);
+                treeAndMods.setMovementMethod(LinkMovementMethod.getInstance());
+                TextView usersViewing = (TextView) infoDialog.findViewById(R.id.users_viewing);
+                usersViewing.setText(topicViewers);
+                usersViewing.setMovementMethod(LinkMovementMethod.getInstance());
+
+                builder.setView(infoDialog);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -216,7 +271,7 @@ public class TopicActivity extends BaseActivity {
      * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue
      * of page value when long pressing one of the page navigation buttons.
      */
-    class RepetitiveUpdater implements Runnable {
+    private class RepetitiveUpdater implements Runnable {
         private final int step;
 
         /**
@@ -352,7 +407,8 @@ public class TopicActivity extends BaseActivity {
                     paginationEnabled(true);
                     changePage(pageRequestValue - 1);
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
+                    if (rect != null &&
+                            !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
                         incrementPageRequestValue(thisPage - pageRequestValue);
                         paginationEnabled(true);
@@ -400,11 +456,6 @@ public class TopicActivity extends BaseActivity {
      * as String parameter!</p>
      */
     class TopicTask extends AsyncTask<String, Void, Integer> {
-        //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        private static final String TAG = "TopicTask"; //Separate tag for AsyncTask
         private static final int SUCCESS = 0;
         private static final int NETWORK_ERROR = 1;
         private static final int OTHER_ERROR = 2;
@@ -419,7 +470,6 @@ public class TopicActivity extends BaseActivity {
 
         protected Integer doInBackground(String... strings) {
             Document document;
-            base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //New topic's base url
             String newPageUrl = strings[0];
 
             //Finds the index of message focus if present
@@ -434,7 +484,7 @@ public class TopicActivity extends BaseActivity {
                 }
             }
             //Checks if the page to be loaded is the one already shown
-            if (!Objects.equals(loadedPageUrl, "") && loadedPageUrl.contains(base_url)) {
+            if (!reloadingPage && !Objects.equals(loadedPageUrl, "") && newPageUrl.contains(base_url)) {
                 if (newPageUrl.contains("topicseen#new") || newPageUrl.contains("#new"))
                     if (thisPage == numberOfPages)
                         return SAME_PAGE;
@@ -448,11 +498,16 @@ public class TopicActivity extends BaseActivity {
                             return SAME_PAGE;
                         }
                     }
-                } else if (Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
+                } else if ((Objects.equals(newPageUrl, base_url) && thisPage == 1) ||
+                        Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
                     return SAME_PAGE;
             } else if (!Objects.equals(loadedPageUrl, "")) topicTitle = null;
+            if (reloadingPage) reloadingPage = !reloadingPage;
 
             loadedPageUrl = newPageUrl;
+            if (strings[0].substring(0, strings[0].lastIndexOf(".")).contains("topic="))
+                base_url = strings[0].substring(0, strings[0].lastIndexOf(".")); //New topic's base url
+            replyPageUrl = null;
             Request request = new Request.Builder()
                     .url(newPageUrl)
                     .build();
@@ -462,10 +517,10 @@ public class TopicActivity extends BaseActivity {
                 parse(document);
                 return SUCCESS;
             } catch (IOException e) {
-                Report.i(TAG, "IO Exception", e);
+                Timber.i("IO Exception", e);
                 return NETWORK_ERROR;
             } catch (Exception e) {
-                Report.e(TAG, "Exception", e);
+                Timber.e("Exception", e);
                 return OTHER_ERROR;
             }
         }
@@ -483,11 +538,13 @@ public class TopicActivity extends BaseActivity {
                 case SUCCESS:
                     if (topicTitle == null || Objects.equals(topicTitle, "")) {
                         thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl));
-                        setTopicBookmark();
+                        invalidateOptionsMenu();
                     }
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     topicAdapter.customNotifyDataSetChanged(new TopicTask());
+                    topicAdapter.setTopicInfo(parsedTitle, loadedPageUrl);
+                    if (replyPageUrl == null) replyFAB.hide();
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
                     //Set current page
@@ -496,8 +553,10 @@ public class TopicActivity extends BaseActivity {
 
                     paginationEnabled(true);
 
+                    if (topicTitle != null)
+                    if (parsedTitle != null)
                     if (topicTitle == null || Objects.equals(topicTitle, ""))
-                        toolbar.setTitle(parsedTitle);
+                        toolbarTitle.setText(parsedTitle);
                     break;
                 case NETWORK_ERROR:
                     Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
@@ -512,7 +571,7 @@ public class TopicActivity extends BaseActivity {
                     break;
                 default:
                     //Parse failed - should never happen
-                    Report.d(TAG, "Parse failed!");
+                    Timber.d("Parse failed!");  //TODO report ParseException?
                     Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
@@ -528,6 +587,20 @@ public class TopicActivity extends BaseActivity {
         private void parse(Document topic) {
             ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
+            //Finds topic's tree, mods and users viewing
+            {
+                topicTreeAndMods = getSpannableFromHtml(topic.select("div.nav").first().html());
+                topicViewers = getSpannableFromHtml(TopicParser.parseUsersViewingThisTopic(topic, language));
+            }
+
+            //Finds reply page url
+            {
+                Element replyButton = topic.select("a:has(img[alt=Reply])").first();
+                if (replyButton == null)
+                    replyButton = topic.select("a:has(img[alt=Απάντηση])").first();
+                if (replyButton != null) replyPageUrl = replyButton.attr("href");
+            }
+
             //Finds topic title if missing
             if (topicTitle == null || Objects.equals(topicTitle, "")) {
                 parsedTitle = topic.select("td[id=top_subject]").first().text();
@@ -537,7 +610,7 @@ public class TopicActivity extends BaseActivity {
                 } else {
                     parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Θέμα:") + 6
                             , parsedTitle.indexOf("(Αναγνώστηκε") - 2);
-                    Report.d(TAG, parsedTitle);
+                    Timber.d(parsedTitle);
                 }
             }
 
@@ -555,7 +628,150 @@ public class TopicActivity extends BaseActivity {
 
             postsList.clear();
             postsList.addAll(TopicParser.parseTopic(topic, language));
-            //postsList = TopicParser.parseTopic(topic, language);
+        }
+
+        private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
+            int start = strBuilder.getSpanStart(span);
+            int end = strBuilder.getSpanEnd(span);
+            int flags = strBuilder.getSpanFlags(span);
+            ClickableSpan clickable = new ClickableSpan() {
+                @Override
+                public void onClick(View view) {
+                    ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(span.getURL()));
+                    if (target.is(ThmmyPage.PageCategory.BOARD)) {
+                        Intent intent = new Intent(getApplicationContext(), BoardActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_BOARD_URL, span.getURL());
+                        extras.putString(BUNDLE_BOARD_TITLE, "");
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        getApplicationContext().startActivity(intent);
+                    } else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
+                        Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_PROFILE_URL, span.getURL());
+                        extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                        extras.putString(BUNDLE_PROFILE_USERNAME, "");
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        getApplicationContext().startActivity(intent);
+                    } else if (target.is(ThmmyPage.PageCategory.INDEX))
+                        finish();
+                }
+            };
+            strBuilder.setSpan(clickable, start, end, flags);
+            strBuilder.removeSpan(span);
+        }
+
+        private SpannableStringBuilder getSpannableFromHtml(String html) {
+            CharSequence sequence = Html.fromHtml(html);
+            SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+            URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+            for (URLSpan span : urls) {
+                makeLinkClickable(strBuilder, span);
+            }
+            return strBuilder;
+        }
+    }
+
+    class ReplyTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+            paginationEnabled(false);
+            replyFAB.setEnabled(false);
+        }
+
+        @Override
+        protected Boolean doInBackground(String... message) {
+            Document document;
+            String numReplies, seqnum, sc, subject, topic;
+
+            Request request = new Request.Builder()
+                    .url(replyPageUrl + ";wap2")
+                    .build();
+            try {
+                Response response = client.newCall(request).execute();
+                document = Jsoup.parse(response.body().string());
+
+                numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
+                seqnum = document.select("input[name=seqnum]").first().attr("value");
+                sc = document.select("input[name=sc]").first().attr("value");
+                //subject = document.select("input[name=subject]").first().attr("value");
+                topic = document.select("input[name=topic]").first().attr("value");
+            } catch (IOException e) {
+                Timber.e("Post failed.", e);
+                return false;
+            } catch (Selector.SelectorParseException e) {
+                Timber.e("Post failed.", e);
+                return false;
+            }
+
+            RequestBody postBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("message", message[1])
+                    .addFormDataPart("num_replies", numReplies)
+                    .addFormDataPart("seqnum", seqnum)
+                    .addFormDataPart("sc", sc)
+                    .addFormDataPart("subject", message[0])
+                    .addFormDataPart("topic", topic)
+                    .build();
+
+            Request post = new Request.Builder()
+                    .url("https://www.thmmy.gr/smf/index.php?action=post2")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
+                    .post(postBody)
+                    .build();
+
+            try {
+                client.newCall(post).execute();
+                Response response = client.newCall(post).execute();
+                switch (replyStatus(response)) {
+                    case SUCCESSFUL:
+                        return true;
+                    case NEW_REPLY_WHILE_POSTING:
+                        //TODO this...
+                        return true;
+                    default:
+                        Timber.e("Malformed post. Request string:\n" + post.toString());
+                        return true;
+                }
+            } catch (IOException e) {
+                Timber.e("Post failed.", e);
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            View view = getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+
+            postsList.remove(postsList.size() - 1);
+            topicAdapter.notifyItemRemoved(postsList.size());
+
+            progressBar.setVisibility(ProgressBar.GONE);
+            replyFAB.setVisibility(View.VISIBLE);
+            bottomNavBar.setVisibility(View.VISIBLE);
+
+            if (!result)
+                Toast.makeText(TopicActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
+            paginationEnabled(true);
+            replyFAB.setEnabled(true);
+
+            if (result) {
+                topicTask = new TopicTask();
+                if ((postsList.get(postsList.size() - 1).getPostNumber() + 1) % 15 == 0)
+                    topicTask.execute(base_url + "." + 2147483647);
+                else {
+                    reloadingPage = true;
+                    topicTask.execute(loadedPageUrl);
+                }
+            }
         }
     }
 }

@@ -29,10 +29,11 @@ import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
+
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 /**
  * A {@link BaseFragment} subclass.
@@ -86,7 +87,7 @@ public class RecentFragment extends BaseFragment {
             recentTask.execute();
 
         }
-        Report.d(TAG, "onActivityCreated");
+        Timber.d("onActivityCreated");
     }
 
 
@@ -141,8 +142,7 @@ public class RecentFragment extends BaseFragment {
 
     //---------------------------------------ASYNC TASK-----------------------------------
 
-    public class RecentTask extends AsyncTask<Void, Void, Integer> {
-        private static final String TAG = "RecentTask";
+    private class RecentTask extends AsyncTask<Void, Void, Integer> {
         private final HttpUrl thmmyUrl = SessionManager.indexUrl;
         private Document document;
 
@@ -161,13 +161,13 @@ public class RecentFragment extends BaseFragment {
                 parse(document);
                 return 0;
             } catch (ParseException e) {
-                Report.e(TAG, "ParseException", e);
+                Timber.e("ParseException", e);
                 return 1;
             } catch (IOException e) {
-                Report.i(TAG, "Network Error", e);
+                Timber.i("Network Error", e);
                 return 2;
             } catch (Exception e) {
-                Report.e(TAG, "Exception", e);
+                Timber.e("Exception", e);
                 return 3;
             }
 
@@ -179,7 +179,7 @@ public class RecentFragment extends BaseFragment {
             if (result == 0)
                 recentAdapter.notifyDataSetChanged();
             else if (result == 2)
-                Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show(); //Fixme, sometimes activity isn't ready
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);

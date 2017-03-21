@@ -14,7 +14,8 @@ import android.widget.Toast;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
-import mthmmy.utils.Report;
+
+import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
 import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;
@@ -34,11 +35,7 @@ public class LoginActivity extends BaseActivity {
     private String password;
     /* --Graphics End-- */
 
-    //Other variables
-    private static final String TAG = "LoginActivity";
-
     private LoginTask loginTask;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,7 +52,7 @@ public class LoginActivity extends BaseActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                Report.d(TAG, "Login");
+                Timber.d("Login");
 
                 //Get username and password strings
                 username = inputUsername.getText().toString().trim();

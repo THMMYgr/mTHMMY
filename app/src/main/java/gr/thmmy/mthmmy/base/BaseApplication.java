@@ -19,11 +19,20 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.CrashReportingTree;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import timber.log.Timber;
 
 public class BaseApplication extends Application {
 
@@ -40,7 +49,7 @@ public class BaseApplication extends Application {
     //Display Metrics
     private static float dpHeight, dpWidth;
 
-    public static BaseApplication getInstance(){
+    public static BaseApplication getInstance() {
         return baseApplication;
     }
 
@@ -49,11 +58,33 @@ public class BaseApplication extends Application {
         super.onCreate();
         baseApplication = this; //init singleton
 
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new CrashReportingTree());
+        }
+
         SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
         SharedPrefsCookiePersistor sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(getApplicationContext());
         PersistentCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
         client = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request request = chain.request();
+                        HttpUrl oldUrl = chain.request().url();
+                        if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")) {
+                            if (!oldUrl.toString().contains("theme=4")) {
+                                //Probably works but needs more testing:
+                                HttpUrl newUrl = oldUrl.newBuilder().addQueryParameter("theme", "4").build();
+                                request = request.newBuilder().url(newUrl).build();
+                            }
+                        }
+                        return chain.proceed(request);
+
+                    }
+                })
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
@@ -71,6 +102,7 @@ public class BaseApplication extends Application {
             public void set(ImageView imageView, Uri uri, Drawable placeholder) {
                 Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
             }
+
             @Override
             public void cancel(ImageView imageView) {
                 Picasso.with(imageView.getContext()).cancelRequest(imageView);

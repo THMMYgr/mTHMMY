@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              android:paddingEnd="4dp"
-              android:paddingStart="4dp"
-              tools:ignore="SmallSp">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingEnd="4dp"
+    android:paddingStart="4dp"
+    tools:ignore="SmallSp">
 
     <FrameLayout
         android:id="@+id/post_date_and_number_exp"
@@ -114,8 +115,7 @@
                         android:layout_toEndOf="@+id/thumbnail_holder"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="@string/post_subject"
-                        />
+                        android:text="@string/post_subject"/>
                 </RelativeLayout>
 
                 <ImageButton

@@ -33,6 +33,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -40,16 +41,12 @@ import javax.net.ssl.SSLHandshakeException;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
+
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 public class StatsFragment extends Fragment {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "StatsFragment";
     /**
      * The key to use when putting profile's url String to {@link StatsFragment}'s Bundle.
      */
@@ -108,7 +105,7 @@ public class StatsFragment extends Fragment {
             profileStatsTask = new ProfileStatsTask();
             profileStatsTask.execute(profileUrl + ";sa=statPanel");
         }
-        Report.d(TAG, "onActivityCreated");
+        Timber.d("onActivityCreated");
     }
 
     @Override
@@ -126,14 +123,7 @@ public class StatsFragment extends Fragment {
      * <p>Calling SummaryTask's {@link AsyncTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
-    public class ProfileStatsTask extends AsyncTask<String, Void, Boolean> {
-        //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        @SuppressWarnings("unused")
-        private static final String TAG = "ProfileStatsTask"; //Separate tag for AsyncTask
-
+    private class ProfileStatsTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -149,9 +139,9 @@ public class StatsFragment extends Fragment {
                 Response response = BaseActivity.getClient().newCall(request).execute();
                 return parseStats(Jsoup.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
-                Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
+                Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Report.e("TAG", "ERROR", e);
+                Timber.e("ERROR", e);
             }
             return false;
         }
@@ -159,7 +149,7 @@ public class StatsFragment extends Fragment {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!
-                Report.d(TAG, "Parse failed!");
+                Timber.d("Parse failed!");
                 Toast.makeText(getContext()
                         , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
                 getActivity().finish();
@@ -206,6 +196,7 @@ public class StatsFragment extends Fragment {
                                 Integer.parseInt(dataCols.last().text())));
                         mostPopularBoardsByPostsLabels.add(dataCols.first().text());
                     }
+                    Collections.reverse(mostPopularBoardsByPostsLabels);
                 }
                 {
                     Elements mostPopularBoardsByActivityRows = statsRows.last().select(">td").last()
@@ -218,6 +209,7 @@ public class StatsFragment extends Fragment {
                                 Float.parseFloat(tmp.substring(0, tmp.indexOf("%")))));
                         mostPopularBoardsByActivityLabels.add(dataCols.first().text());
                     }
+                    Collections.reverse(mostPopularBoardsByActivityLabels);
                 }
             }
             return true;
@@ -345,7 +337,7 @@ public class StatsFragment extends Fragment {
         mostPopularBoardsByActivityChart.invalidate();
     }
 
-    class MyXAxisValueFormatter implements IAxisValueFormatter {
+    private class MyXAxisValueFormatter implements IAxisValueFormatter {
         private final ArrayList<String> mValues;
 
         MyXAxisValueFormatter(ArrayList<String> values) {

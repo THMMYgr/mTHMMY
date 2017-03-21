@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
-import mthmmy.utils.Report;
 import okhttp3.OkHttpClient;
+import timber.log.Timber;
 
 public abstract class BaseFragment extends Fragment {
     protected static final String ARG_SECTION_NUMBER = "SectionNumber";
@@ -15,7 +15,7 @@ public abstract class BaseFragment extends Fragment {
     protected FragmentInteractionListener fragmentInteractionListener;
 
     private String TAG;
-    protected int sectionNumber;
+    private int sectionNumber;
     protected static OkHttpClient client;
 
     @Override
@@ -23,34 +23,34 @@ public abstract class BaseFragment extends Fragment {
         super.onCreate(savedInstanceState);
         TAG = getArguments().getString(ARG_TAG);
         sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-        if(client==null)
+        if (client == null)
             client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
         // becomes null when app restarts after crash
-        Report.d(TAG, "onCreate");
+        Timber.d("onCreate");
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Report.d(TAG, "onStart");
+        Timber.d("onStart");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Report.d(TAG, "onResume");
+        Timber.d("onResume");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Report.d(TAG, "onPause");
+        Timber.d("onPause");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Report.d(TAG, "onStop");
+        Timber.d("onStop");
     }
 
     @Override
@@ -76,5 +76,6 @@ public abstract class BaseFragment extends Fragment {
      * the activity that contains it, to allow communication upon interaction,
      * between the fragment and the activity/ other fragments
      */
-    public interface FragmentInteractionListener {}
+    public interface FragmentInteractionListener {
+    }
 }

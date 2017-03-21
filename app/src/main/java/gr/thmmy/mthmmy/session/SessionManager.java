@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.utils.exceptions.ParseException;
-import mthmmy.utils.Report;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -26,15 +25,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import timber.log.Timber;
 
 /**
  * This class handles all session related operations (e.g. login, logout)
  * and stores data to SharedPreferences (session information and cookies).
  */
 public class SessionManager {
-    //Class TAG
-    private static final String TAG = "SessionManager";
-
     //Generic constants
     public static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?theme=4");
     public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum;theme=4");
@@ -51,12 +48,12 @@ public class SessionManager {
     public static final int EXCEPTION = 6;
 
     // Client & Cookies
-    private OkHttpClient client;
-    private PersistentCookieJar cookieJar;
-    private SharedPrefsCookiePersistor cookiePersistor; //Used to explicitly edit cookies in cookieJar
+    private final OkHttpClient client;
+    private final PersistentCookieJar cookieJar;
+    private final SharedPrefsCookiePersistor cookiePersistor; //Used to explicitly edit cookies in cookieJar
 
     //Shared Preferences & its keys
-    private SharedPreferences sharedPrefs;
+    private final SharedPreferences sharedPrefs;
     private static final String USERNAME = "Username";
     private static final String AVATAR_LINK = "AvatarLink";
     private static final String HAS_AVATAR = "HasAvatar";
@@ -80,7 +77,7 @@ public class SessionManager {
      * Always call it in a separate thread.
      */
     public int login(String... strings) {
-        Report.i(TAG, "Logging in...");
+        Timber.i("Logging in...");
 
         //Build the login request for each case
         Request request;
@@ -112,9 +109,9 @@ public class SessionManager {
 
             Elements unreadRepliesLinks = document.select("a[href=https://www.thmmy.gr/smf/index.php?action=unreadreplies]");
 
-            if (unreadRepliesLinks.size()>=2) //Normally it's just == 2, but who knows what can be posted by users
+            if (unreadRepliesLinks.size() >= 2) //Normally it's just == 2, but who knows what can be posted by users
             {
-                Report.i(TAG, "Login successful!");
+                Timber.i("Login successful!");
                 setPersistentCookieSession();   //Store cookies
 
                 //Edit SharedPreferences, save session's data
@@ -133,18 +130,18 @@ public class SessionManager {
 
                 return SUCCESS;
             } else {
-                Report.i(TAG, "Login failed.");
+                Timber.i("Login failed.");
 
                 //Investigate login failure
                 Elements error = document.select("b:contains(That username does not exist.)");
                 if (error.size() == 1) { //Wrong username
-                    Report.i(TAG, "Wrong Username");
+                    Timber.i("Wrong Username");
                     return WRONG_USER;
                 }
 
                 error = document.select("body:contains(Password incorrect)");
                 if (error.size() == 1) { //Wrong password
-                    Report.i(TAG, "Wrong Password");
+                    Timber.i("Wrong Password");
                     return WRONG_PASSWORD;
                 }
 
@@ -154,13 +151,13 @@ public class SessionManager {
             }
             //Handle exception
         } catch (InterruptedIOException e) {
-            Report.i(TAG, "Login InterruptedIOException");    //users cancels LoginTask
+            Timber.i("Login InterruptedIOException");    //users cancels LoginTask
             return CANCELLED;
         } catch (IOException e) {
-            Report.w(TAG, "Login IOException", e);
+            Timber.w("Login IOException", e);
             return CONNECTION_ERROR;
         } catch (Exception e) {
-            Report.w(TAG, "Login Exception (other)", e);
+            Timber.w("Login Exception (other)", e);
             return EXCEPTION;
         }
     }
@@ -175,7 +172,7 @@ public class SessionManager {
      * fragments' data are retrieved).
      */
     public void validateSession() {
-        Report.i(TAG, "Validating session...");
+        Timber.i("Validating session...");
 
         if (isLoggedIn()) {
             int loginResult = login();
@@ -192,7 +189,7 @@ public class SessionManager {
      * Call this function when user explicitly chooses to continue as a guest (UI thread).
      */
     public void guestLogin() {
-        Report.i("TAG", "Continuing as a guest, as chosen by the user.");
+        Timber.i("Continuing as a guest, as chosen by the user.");
         clearSessionData();
         sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
     }
@@ -202,7 +199,7 @@ public class SessionManager {
      * Logout function. Always call it in a separate thread.
      */
     public int logout() {
-        Report.i(TAG, "Logging out...");
+        Timber.i("Logging out...");
 
         Request request = new Request.Builder()
                 .url(sharedPrefs.getString(LOGOUT_LINK, "LogoutLink"))
@@ -216,17 +213,17 @@ public class SessionManager {
             Elements loginButton = document.select("[value=Login]");  //Attempt to find login button
             if (!loginButton.isEmpty()) //If login button exists, logout was successful
             {
-                Report.i(TAG, "Logout successful!");
+                Timber.i("Logout successful!");
                 return SUCCESS;
             } else {
-                Report.i(TAG, "Logout failed.");
+                Timber.i("Logout failed.");
                 return FAILURE;
             }
         } catch (IOException e) {
-            Report.w(TAG, "Logout IOException", e);
+            Timber.w("Logout IOException", e);
             return CONNECTION_ERROR;
         } catch (Exception e) {
-            Report.w(TAG, "Logout Exception", e);
+            Timber.w("Logout Exception", e);
             return EXCEPTION;
         } finally {
             //All data should always be cleared from device regardless the result of logout
@@ -288,11 +285,11 @@ public class SessionManager {
         sharedPrefs.edit().clear().apply(); //Clear session data
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
         sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
-        Report.i(TAG, "Session data cleared.");
+        Timber.i("Session data cleared.");
     }
 
     @NonNull
-    private String extractUserName(@NonNull Document doc){
+    private String extractUserName(@NonNull Document doc) {
         //Scribbles2 Theme
         Elements user = doc.select("div[id=myuser] > h3");
         String userName = null;
@@ -304,8 +301,7 @@ public class SessionManager {
             Matcher matcher = pattern.matcher(txt);
             if (matcher.find())
                 userName = matcher.group(1);
-        }
-        else {
+        } else {
             //Helios_Multi and SMF_oneBlue
             user = doc.select("td.smalltext[width=100%] b");
             if (user.size() == 1)
@@ -317,22 +313,22 @@ public class SessionManager {
                     userName = user.first().ownText();
             }
         }
-        
-        if(userName != null && !userName.isEmpty())
+
+        if (userName != null && !userName.isEmpty())
             return userName;
 
-        Report.e(TAG, "ParseException", new ParseException("Parsing failed(username extraction)"));
-        return  "User"; //return a default username
+        Timber.e("ParseException", new ParseException("Parsing failed(username extraction)"));
+        return "User"; //return a default username
     }
 
 
     @Nullable
     private String extractAvatarLink(@NonNull Document doc) {
-        Elements  avatar = doc.getElementsByClass("avatar");
-            if (!avatar.isEmpty())
-                return avatar.first().attr("src");
+        Elements avatar = doc.getElementsByClass("avatar");
+        if (!avatar.isEmpty())
+            return avatar.first().attr("src");
 
-        Report.e(TAG, "Extracting avatar's link failed!");
+        Timber.i("Extracting avatar's link failed!");
         return null;
     }
 
@@ -340,14 +336,13 @@ public class SessionManager {
     private String extractLogoutLink(@NonNull Document doc) {
         Elements logoutLink = doc.select("a[href^=https://www.thmmy.gr/smf/index.php?action=logout;sesc=]");
 
-        if (!logoutLink.isEmpty())
-        {
+        if (!logoutLink.isEmpty()) {
             String link = logoutLink.first().attr("href");
-            if(link != null && !link.isEmpty())
+            if (link != null && !link.isEmpty())
                 return link;
         }
-        Report.e(TAG, "ParseException", new ParseException("Parsing failed(logoutLink extraction)"));
-        return  "https://www.thmmy.gr/smf/index.php?action=logout"; //return a default link
+        Timber.e("ParseException", new ParseException("Parsing failed(logoutLink extraction)"));
+        return "https://www.thmmy.gr/smf/index.php?action=logout"; //return a default link
     }
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------
 

@@ -27,16 +27,12 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Download;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
+
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.OnLoadMoreListener {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "DownloadsActivity";
     /**
      * The key to use when putting download's url String to {@link DownloadsActivity}'s Bundle.
      */
@@ -73,7 +69,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         if (downloadsUrl != null && !Objects.equals(downloadsUrl, "")) {
             ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(downloadsUrl));
             if (!target.is(ThmmyPage.PageCategory.DOWNLOADS)) {
-                Report.e(TAG, "Bundle came with a non board url!\nUrl:\n" + downloadsUrl);
+                Timber.e("Bundle came with a non board url!\nUrl:\n%s" , downloadsUrl);
                 Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -173,10 +169,6 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
      * as String parameter!</p>
      */
     class ParseDownloadPageTask extends AsyncTask<String, Void, Void> {
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        private static final String TAG = "ParseDownloadPageTask"; //Separate tag for AsyncTask
         private String thisPageUrl;
 
         @Override
@@ -192,12 +184,12 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                     .url(downloadsUrl[0])
                     .build();
             try {
-                Response response = BaseActivity.getClient().newCall(request).execute();
+                Response response = client.newCall(request).execute();
                 parseDownloads(Jsoup.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
-                Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
+                Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Report.e("TAG", "ERROR", e);
+                Timber.e("ERROR", e);
             }
             return null;
         }

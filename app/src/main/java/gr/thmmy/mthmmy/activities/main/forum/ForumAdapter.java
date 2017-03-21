@@ -36,7 +36,7 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
         super(categories);
         this.context = context;
         this.categories = categories;
-        mListener = (ForumFragment.ForumFragmentInteractionListener)listener;
+        mListener = (ForumFragment.ForumFragmentInteractionListener) listener;
         layoutInflater = LayoutInflater.from(context);
     }
 
@@ -68,7 +68,7 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
 
     class CategoryViewHolder extends ParentViewHolder {
 
-        private TextView categoryTextview;
+        private final TextView categoryTextview;
 
         CategoryViewHolder(View itemView) {
             super(itemView);
@@ -83,7 +83,7 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
 
     class BoardViewHolder extends ChildViewHolder {
 
-        private TextView boardTextView;
+        private final TextView boardTextView;
         public Board board;
 
         BoardViewHolder(View itemView) {

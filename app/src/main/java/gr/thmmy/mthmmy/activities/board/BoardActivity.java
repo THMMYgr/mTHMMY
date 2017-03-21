@@ -30,16 +30,11 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.Topic;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMoreListener {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "BoardActivity";
     /**
      * The key to use when putting board's url String to {@link BoardActivity}'s Bundle.
      */
@@ -76,7 +71,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         boardUrl = extras.getString(BUNDLE_BOARD_URL);
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(boardUrl));
         if (!target.is(ThmmyPage.PageCategory.BOARD)) {
-            Report.e(TAG, "Bundle came with a non board url!\nUrl:\n" + boardUrl);
+            Timber.e("Bundle came with a non board url!\nUrl:\n%s" , boardUrl);
             Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -92,8 +87,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl));
-        thisPageBookmarkButton = (ImageButton) findViewById(R.id.bookmark);
-        setBoardBookmark();
+        setBoardBookmark((ImageButton) findViewById(R.id.bookmark));
         createDrawer();
 
         progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
@@ -182,13 +176,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
      * parameter!</p>
      */
     public class BoardTask extends AsyncTask<String, Void, Void> {
-        //Class variables
-        /**
-         * Debug Tag for logging debug output to LogCat
-         */
-        @SuppressWarnings("unused")
-        private static final String TAG = "BoardTask"; //Separate tag for AsyncTask
-
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -201,12 +188,12 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     .url(boardUrl[0])
                     .build();
             try {
-                Response response = BaseActivity.getClient().newCall(request).execute();
+                Response response = client.newCall(request).execute();
                 parseBoard(Jsoup.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
-                Report.w(TAG, "Certificate problem (please switch to unsafe connection).");
+                Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Report.e("TAG", "ERROR", e);
+                Timber.e("ERROR", e);
             }
             return null;
         }

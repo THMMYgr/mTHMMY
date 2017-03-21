@@ -27,6 +27,7 @@ public class Post {
     private final boolean isDeleted;
     private final int userColor;
     private final ArrayList<ThmmyFile> attachedFiles;
+    private final String lastEdit;
 
     //Extra info
     private final String profileURL;
@@ -57,6 +58,7 @@ public class Post {
         personalText = "";
         numberOfStars = 0;
         attachedFiles = null;
+        lastEdit = null;
     }
 
     /**
@@ -80,12 +82,13 @@ public class Post {
      * @param numberOfStars author's number of stars
      * @param userColor     author's user color
      * @param attachedFiles post's attached files
+     * @param lastEdit      post's last edit date
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, String profileURl, @Nullable String rank
             , @Nullable String special_rank, @Nullable String gender, @Nullable String numberOfPosts
             , @Nullable String personalText, int numberOfStars, int userColor
-            , @Nullable ArrayList<ThmmyFile> attachedFiles) {
+            , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit) {
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -97,6 +100,7 @@ public class Post {
         this.isDeleted = false;
         this.userColor = userColor;
         this.attachedFiles = attachedFiles;
+        this.lastEdit = lastEdit;
         this.profileURL = profileURl;
         this.rank = rank;
         this.specialRank = special_rank;
@@ -120,10 +124,11 @@ public class Post {
      * @param postDate      date of submission
      * @param userColor     author's user color
      * @param attachedFiles post's attached files
+     * @param lastEdit      post's last edit date
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, int userColor
-            , @Nullable ArrayList<ThmmyFile> attachedFiles) {
+            , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit) {
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -135,6 +140,7 @@ public class Post {
         this.isDeleted = true;
         this.userColor = userColor;
         this.attachedFiles = attachedFiles;
+        this.lastEdit = lastEdit;
         profileURL = null;
         rank = "Rank";
         specialRank = "Special rank";
@@ -309,5 +315,15 @@ public class Post {
     @Nullable
     public ArrayList<ThmmyFile> getAttachedFiles() {
         return attachedFiles;
+    }
+
+    /**
+     * Gets this post's last edit date or null if post hasn't been edited.
+     *
+     * @return date of last edit or null
+     */
+    @Nullable
+    public String getLastEdit() {
+        return lastEdit;
     }
 }

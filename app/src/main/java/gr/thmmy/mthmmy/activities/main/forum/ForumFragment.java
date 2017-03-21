@@ -30,10 +30,11 @@ import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import mthmmy.utils.Report;
+
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 /**
  * A {@link BaseFragment} subclass.
@@ -87,7 +88,7 @@ public class ForumFragment extends BaseFragment
             forumTask.execute();
 
         }
-        Report.d(TAG, "onActivityCreated");
+        Timber.d("onActivityCreated");
     }
 
     @Override
@@ -151,8 +152,7 @@ public class ForumFragment extends BaseFragment
 
     //---------------------------------------ASYNC TASK-----------------------------------
 
-    public class ForumTask extends AsyncTask<Void, Void, Integer> {
-        private static final String TAG = "ForumTask";
+    private class ForumTask extends AsyncTask<Void, Void, Integer> {
         private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
         private Document document;
 
@@ -179,10 +179,10 @@ public class ForumFragment extends BaseFragment
                 fetchedCategories.clear();
                 return 0;
             } catch (IOException e) {
-                Report.d(TAG, "Network Error", e);
+                Timber.d("Network Error", e);
                 return 1;
             } catch (Exception e) {
-                Report.d(TAG, "Exception", e);
+                Timber.d("Exception", e);
                 return 2;
             }
 
@@ -225,7 +225,7 @@ public class ForumFragment extends BaseFragment
                 }
             }
             else
-                Report.e(TAG, "Parsing failed!");
+                Timber.e("Parsing failed!");
         }
 
         public void setUrl(String string)
