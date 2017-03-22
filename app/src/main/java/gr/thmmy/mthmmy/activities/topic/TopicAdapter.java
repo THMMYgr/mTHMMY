@@ -476,6 +476,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.quickReplySubject.getText().clear();
                     holder.quickReplySubject.setText("Re: " + topicTitle);
                     holder.quickReply.getText().clear();
+                    holder.submitButton.setEnabled(true);
                 }
             });
         }
