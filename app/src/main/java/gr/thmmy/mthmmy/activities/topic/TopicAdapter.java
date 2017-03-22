@@ -111,8 +111,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
-    TopicAdapter(Context context, List<Post> postsList, TopicActivity.TopicTask topicTask
-            , String topicTitle, String loadedPageUrl) {
+    TopicAdapter(Context context, List<Post> postsList, TopicActivity.TopicTask topicTask) {
         this.context = context;
         this.postsList = postsList;
 
@@ -122,15 +121,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewProperties.add(new boolean[3]);
         }
         this.topicTask = topicTask;
-        this.topicTitle = topicTitle;
-        this.loadedPageUrl = loadedPageUrl;
     }
 
-    void prepareForReply(TopicActivity.ReplyTask replyTask) {
+    void prepareForReply(TopicActivity.ReplyTask replyTask, String topicTitle, String loadedPageUrl) {
         this.replyTask = replyTask;
-    }
-
-    void setTopicInfo(String topicTitle, String loadedPageUrl) {
         this.topicTitle = topicTitle;
         this.loadedPageUrl = loadedPageUrl;
     }

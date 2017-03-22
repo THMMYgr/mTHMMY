@@ -54,6 +54,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
     private String boardUrl;
     private String boardTitle;
+    private String parsedTitle;
 
     private int numberOfPages = -1;
     private int pagesLoaded = 0;
@@ -71,7 +72,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         boardUrl = extras.getString(BUNDLE_BOARD_URL);
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(boardUrl));
         if (!target.is(ThmmyPage.PageCategory.BOARD)) {
-            Timber.e("Bundle came with a non board url!\nUrl:\n%s" , boardUrl);
+            Timber.e("Bundle came with a non board url!\nUrl:\n%s", boardUrl);
             Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -175,7 +176,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
      * <p>BoardTask's {@link AsyncTask#execute execute} method needs a boards's url as String
      * parameter!</p>
      */
-    public class BoardTask extends AsyncTask<String, Void, Void> {
+    private class BoardTask extends AsyncTask<String, Void, Void> {
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -200,7 +201,12 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         @Override
         protected void onPostExecute(Void voids) {
-            if (boardTitle == null || Objects.equals(boardTitle, "")) toolbar.setTitle(boardTitle);
+            if (boardTitle == null || Objects.equals(boardTitle, "")
+                    || !Objects.equals(boardTitle, parsedTitle)) {
+                boardTitle = parsedTitle;
+                toolbar.setTitle(boardTitle);
+                thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl));
+            }
 
             //Parse was successful
             ++pagesLoaded;
@@ -211,8 +217,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         private void parseBoard(Document boardPage) {
-            if (boardTitle == null || Objects.equals(boardTitle, ""))
-                boardTitle = boardPage.select("div.nav a.nav").last().text();
+            parsedTitle = boardPage.select("div.nav a.nav").last().text();
 
             //Removes loading item
             if (isLoadingMore) {
