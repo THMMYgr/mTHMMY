@@ -46,6 +46,8 @@
         android:layout_gravity="top|start"
         android:layout_marginTop="64dp"
         android:background="@color/background"
+        android:paddingBottom="54dp"
+        android:clipToPadding="false"
         android:scrollbars="none"
         tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity">
     </android.support.v7.widget.RecyclerView>
