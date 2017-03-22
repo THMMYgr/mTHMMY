@@ -165,7 +165,7 @@ public class TopicActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, postsList, topicTask, topicTitle, loadedPageUrl);
+        topicAdapter = new TopicAdapter(this, postsList, topicTask);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
@@ -178,10 +178,10 @@ public class TopicActivity extends BaseActivity {
                 public void onClick(View view) {
                     if (sessionManager.isLoggedIn()) {
                         postsList.add(null);
-                        topicAdapter.prepareForReply(new ReplyTask());
+                        topicAdapter.notifyItemInserted(postsList.size());
+                        topicAdapter.prepareForReply(new ReplyTask(), topicTitle, loadedPageUrl);
                         replyFAB.hide();
                         bottomNavBar.setVisibility(View.GONE);
-                        topicAdapter.notifyItemInserted(postsList.size());
                     }
                 }
             });
@@ -536,14 +536,16 @@ public class TopicActivity extends BaseActivity {
 
             switch (parseResult) {
                 case SUCCESS:
-                    if (topicTitle == null || Objects.equals(topicTitle, "")) {
+                    if (topicTitle == null || Objects.equals(topicTitle, "")
+                            || !Objects.equals(topicTitle, parsedTitle)) {
+                        toolbarTitle.setText(parsedTitle);
+                        topicTitle = parsedTitle;
                         thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl));
                         invalidateOptionsMenu();
                     }
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     topicAdapter.customNotifyDataSetChanged(new TopicTask());
-                    topicAdapter.setTopicInfo(parsedTitle, loadedPageUrl);
                     if (replyPageUrl == null) replyFAB.hide();
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
@@ -552,11 +554,6 @@ public class TopicActivity extends BaseActivity {
                     pageRequestValue = thisPage;
 
                     paginationEnabled(true);
-
-                    if (topicTitle != null)
-                    if (parsedTitle != null)
-                    if (topicTitle == null || Objects.equals(topicTitle, ""))
-                        toolbarTitle.setText(parsedTitle);
                     break;
                 case NETWORK_ERROR:
                     Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
@@ -602,7 +599,7 @@ public class TopicActivity extends BaseActivity {
             }
 
             //Finds topic title if missing
-            if (topicTitle == null || Objects.equals(topicTitle, "")) {
+            {
                 parsedTitle = topic.select("td[id=top_subject]").first().text();
                 if (parsedTitle.contains("Topic:")) {
                     parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Topic:") + 7
