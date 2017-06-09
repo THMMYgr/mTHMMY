@@ -162,7 +162,7 @@ public class ThmmyPage {
                     || Objects.equals(uriString, "https://www.thmmy.gr")
                     || Objects.equals(uriString, "https://www.thmmy.gr/smf/index.php"))
                 return PageCategory.INDEX;
-            Timber.v("Unknown thmmy link found, link: " + uriString);
+            Timber.v("Unknown thmmy link found, link: %s" , uriString);
             return PageCategory.UNKNOWN_THMMY;
         }
         return PageCategory.NOT_THMMY;

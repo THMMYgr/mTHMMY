@@ -276,11 +276,12 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             } catch (SSLHandshakeException e) {
                 Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Timber.e("ERROR", e);
+                Timber.e(e, "Exception");
             }
             return false;
         }
 
+        //TODO: better parse error handling (ParseException etc.)
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!  //TODO report as ParseException?
                 Timber.d("Parse failed!");

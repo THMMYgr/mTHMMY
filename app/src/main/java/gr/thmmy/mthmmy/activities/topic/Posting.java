@@ -1,7 +1,5 @@
 package gr.thmmy.mthmmy.activities.topic;
 
-import android.util.Log;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -11,6 +9,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import okhttp3.Response;
+import timber.log.Timber;
 
 class Posting {
     enum REPLY_STATUS {
@@ -26,8 +25,8 @@ class Posting {
             String[] errors = postErrorPage.select("tr[id=errors] div[id=error_list]").first()
                     .toString().split("<br>");
             for (int i = 0; i < errors.length; ++i) { //TODO test
-                Log.d("TAG", String.valueOf(i));
-                Log.d("TAG", errors[i]);
+                Timber.d(String.valueOf(i));
+                Timber.d(errors[i]);
             }
             for (String error : errors) {
                 if (error.contains("Your session timed out while posting") ||

@@ -29,6 +29,7 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 import okhttp3.HttpUrl;
@@ -178,12 +179,15 @@ public class ForumFragment extends BaseFragment
                 categories.addAll(fetchedCategories);
                 fetchedCategories.clear();
                 return 0;
-            } catch (IOException e) {
-                Timber.d("Network Error", e);
+            } catch (ParseException e) {
+                Timber.e(e, "ParseException");
                 return 1;
-            } catch (Exception e) {
-                Timber.d("Exception", e);
+            } catch (IOException e) {
+                Timber.i(e, "Network Error");
                 return 2;
+            } catch (Exception e) {
+                Timber.e(e, "Exception");
+                return 3;
             }
 
         }
@@ -193,14 +197,13 @@ public class ForumFragment extends BaseFragment
 
             if (result == 0)
                 forumAdapter.notifyParentDataSetChanged(false);
-            else if (result == 1)
+            else if (result == 2)
                 Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
         }
 
-        private void parse(Document document)
-        {
+        private void parse(Document document) throws ParseException {
             Elements categoryBlocks = document.select(".tborder:not([style])>table[cellpadding=5]");
             if (categoryBlocks.size() != 0) {
                 for(Element categoryBlock: categoryBlocks)
@@ -225,7 +228,7 @@ public class ForumFragment extends BaseFragment
                 }
             }
             else
-                Timber.e("Parsing failed!");
+                throw new ParseException("Parsing failed");
         }
 
         public void setUrl(String string)

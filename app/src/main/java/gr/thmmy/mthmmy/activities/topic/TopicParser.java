@@ -259,7 +259,7 @@ class TopicParser {
                         try {
                             attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
                         } catch (MalformedURLException e) {
-                            Timber.e("Attached file malformed url", e);
+                            Timber.e(e, "Attached file malformed url");
                             break;
                         }
                         String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);

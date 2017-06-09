@@ -189,7 +189,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             } catch (SSLHandshakeException e) {
                 Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Timber.e("ERROR", e);
+                Timber.e(e, "Exception");
             }
             return null;
         }

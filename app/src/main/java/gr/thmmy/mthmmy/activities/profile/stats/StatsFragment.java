@@ -141,11 +141,12 @@ public class StatsFragment extends Fragment {
             } catch (SSLHandshakeException e) {
                 Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Timber.e("ERROR", e);
+                Timber.e(e, "Exception");
             }
             return false;
         }
 
+        //TODO: better parse error handling (ParseException etc.)
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!

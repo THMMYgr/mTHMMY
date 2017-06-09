@@ -154,10 +154,10 @@ public class SessionManager {
             Timber.i("Login InterruptedIOException");    //users cancels LoginTask
             return CANCELLED;
         } catch (IOException e) {
-            Timber.w("Login IOException", e);
+            Timber.w(e ,"Login IOException");
             return CONNECTION_ERROR;
         } catch (Exception e) {
-            Timber.w("Login Exception (other)", e);
+            Timber.e(e, "Login Exception (other)");
             return EXCEPTION;
         }
     }
@@ -223,7 +223,7 @@ public class SessionManager {
             Timber.w("Logout IOException", e);
             return CONNECTION_ERROR;
         } catch (Exception e) {
-            Timber.w("Logout Exception", e);
+            Timber.e(e, "Logout Exception");
             return EXCEPTION;
         } finally {
             //All data should always be cleared from device regardless the result of logout

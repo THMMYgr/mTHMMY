@@ -161,13 +161,13 @@ public class RecentFragment extends BaseFragment {
                 parse(document);
                 return 0;
             } catch (ParseException e) {
-                Timber.e("ParseException", e);
+                Timber.e(e, "ParseException");
                 return 1;
             } catch (IOException e) {
-                Timber.i("Network Error", e);
+                Timber.i(e, "Network Error");
                 return 2;
             } catch (Exception e) {
-                Timber.e("Exception", e);
+                Timber.e(e, "Exception");
                 return 3;
             }
 

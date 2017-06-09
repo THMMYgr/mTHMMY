@@ -134,7 +134,7 @@ public class TopicActivity extends BaseActivity {
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
                 Uri.parse(topicPageUrl));
         if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
-            Timber.e("Bundle came with a non topic url!\nUrl:\n" + topicPageUrl);
+            Timber.e("Bundle came with a non topic url!\nUrl: %s" , topicPageUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -517,10 +517,10 @@ public class TopicActivity extends BaseActivity {
                 parse(document);
                 return SUCCESS;
             } catch (IOException e) {
-                Timber.i("IO Exception", e);
+                Timber.i(e, "IO Exception");
                 return NETWORK_ERROR;
             } catch (Exception e) {
-                Timber.e("Exception", e);
+                Timber.e(e, "Exception");
                 return OTHER_ERROR;
             }
         }
@@ -568,7 +568,7 @@ public class TopicActivity extends BaseActivity {
                     break;
                 default:
                     //Parse failed - should never happen
-                    Timber.d("Parse failed!");  //TODO report ParseException?
+                    Timber.d("Parse failed!");  //TODO report ParseException!!!
                     Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
