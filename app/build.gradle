@@ -38,13 +38,13 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     compile 'org.jsoup:jsoup:1.10.2'
-    compile 'com.github.franmontiel:PersistentCookieJar:v1.0.0'
-    compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
+    compile 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
     compile('com.mikepenz:materialdrawer:5.9.2@aar') {
         transitive = true
     }
     compile 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.5'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.7'
     compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
     compile 'me.zhanghai.android.materialprogressbar:library:1.4.1'
     compile 'com.jakewharton.timber:timber:4.5.1'
