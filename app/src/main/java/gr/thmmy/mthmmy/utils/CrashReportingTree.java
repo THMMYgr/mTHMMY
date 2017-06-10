@@ -14,16 +14,16 @@ public class CrashReportingTree extends DebugTree {
             return;
         }
 
-        String level;
+        char level;
 
         if (priority == Log.INFO)
-            level = "I";
+            level = 'I';
         else if (priority == Log.WARN)
-            level = "W";
+            level = 'W';
         else if(priority == Log.ERROR)
-            level = "E";
+            level = 'E';
         else
-            level = "A";
+            level = 'A';
 
         FirebaseCrash.log(level + "/" + tag + ": " + message);
 
