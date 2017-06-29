@@ -317,7 +317,7 @@ public class SessionManager {
         if (userName != null && !userName.isEmpty())
             return userName;
 
-        Timber.e("ParseException", new ParseException("Parsing failed(username extraction)"));
+        Timber.e(new ParseException("Parsing failed(username extraction)"),"ParseException");
         return "User"; //return a default username
     }
 
@@ -341,7 +341,7 @@ public class SessionManager {
             if (link != null && !link.isEmpty())
                 return link;
         }
-        Timber.e("ParseException", new ParseException("Parsing failed(logoutLink extraction)"));
+        Timber.e(new ParseException("Parsing failed(logoutLink extraction)"),"ParseException");
         return "https://www.thmmy.gr/smf/index.php?action=logout"; //return a default link
     }
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------

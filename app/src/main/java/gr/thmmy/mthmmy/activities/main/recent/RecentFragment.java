@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -28,7 +27,6 @@ import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.ParseTask;
 import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import okhttp3.Request;
 import timber.log.Timber;
 
 
@@ -144,13 +142,6 @@ public class RecentFragment extends BaseFragment {
         }
 
         @Override
-        protected Request prepareRequest(String... strings) {
-            return new Request.Builder()
-                    .url(strings[0])
-                    .build();
-        }
-
-        @Override
         public void parse(Document document) throws ParseException
         {
             Elements recent = document.select("#block8 :first-child div");
@@ -187,12 +178,9 @@ public class RecentFragment extends BaseFragment {
 
 
         @Override
-        protected void onPostExecute(ParseTask.ResultCode result) {
-
+        protected void postParsing(ParseTask.ResultCode result) {
             if (result == ResultCode.SUCCESS)
                 recentAdapter.notifyDataSetChanged();
-            else if (result == ResultCode.NETWORK_ERROR)
-                Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show(); //Fixme, sometimes activity isn't ready
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);

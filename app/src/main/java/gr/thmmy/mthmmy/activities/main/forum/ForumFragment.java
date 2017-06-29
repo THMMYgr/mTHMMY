@@ -10,16 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +26,11 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.ParseTask;
 import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.HttpUrl;
 import okhttp3.Request;
-import okhttp3.Response;
 import timber.log.Timber;
 
 /**
@@ -153,9 +149,8 @@ public class ForumFragment extends BaseFragment
 
     //---------------------------------------ASYNC TASK-----------------------------------
 
-    private class ForumTask extends AsyncTask<Void, Void, Integer> {
+    private class ForumTask extends ParseTask {
         private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
-        private Document document;
 
         private final List<Category> fetchedCategories;
 
@@ -167,43 +162,16 @@ public class ForumFragment extends BaseFragment
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
-        protected Integer doInBackground(Void... voids) {
-            Request request = new Request.Builder()
+        @Override
+        protected Request prepareRequest(String... params) {
+            return new Request.Builder()
                     .url(forumUrl)
                     .build();
-            try {
-                Response response = client.newCall(request).execute();
-                document = Jsoup.parse(response.body().string());
-                parse(document);
-                categories.clear();
-                categories.addAll(fetchedCategories);
-                fetchedCategories.clear();
-                return 0;
-            } catch (ParseException e) {
-                Timber.e(e, "ParseException");
-                return 1;
-            } catch (IOException e) {
-                Timber.i(e, "Network Error");
-                return 2;
-            } catch (Exception e) {
-                Timber.e(e, "Exception");
-                return 3;
-            }
-
         }
 
 
-        protected void onPostExecute(Integer result) {
-
-            if (result == 0)
-                forumAdapter.notifyParentDataSetChanged(false);
-            else if (result == 2)
-                Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show();
-
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-        }
-
-        private void parse(Document document) throws ParseException {
+        @Override
+        public void parse(Document document) throws ParseException {
             Elements categoryBlocks = document.select(".tborder:not([style])>table[cellpadding=5]");
             if (categoryBlocks.size() != 0) {
                 for(Element categoryBlock: categoryBlocks)
@@ -229,9 +197,21 @@ public class ForumFragment extends BaseFragment
             }
             else
                 throw new ParseException("Parsing failed");
+
+            categories.clear();
+            categories.addAll(fetchedCategories);
+            fetchedCategories.clear();
         }
 
-        public void setUrl(String string)
+        @Override
+        protected void postParsing(ParseTask.ResultCode result) {
+            if (result == ResultCode.SUCCESS)
+                forumAdapter.notifyParentDataSetChanged(false);
+
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+        }
+
+        public void setUrl(String string)   //TODO delete and simplify e.g. in prepareRequest possible?
         {
             forumUrl = HttpUrl.parse(string);
         }

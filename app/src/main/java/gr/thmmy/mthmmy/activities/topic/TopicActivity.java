@@ -49,7 +49,6 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -698,10 +697,10 @@ public class TopicActivity extends BaseActivity {
                 //subject = document.select("input[name=subject]").first().attr("value");
                 topic = document.select("input[name=topic]").first().attr("value");
             } catch (IOException e) {
-                Timber.e("Post failed.", e);
+                Timber.e(e,"Post failed.");
                 return false;
             } catch (Selector.SelectorParseException e) {
-                Timber.e("Post failed.", e);
+                Timber.e(e,"Post failed.");
                 return false;
             }
 
@@ -735,7 +734,7 @@ public class TopicActivity extends BaseActivity {
                         return true;
                 }
             } catch (IOException e) {
-                Timber.e("Post failed.", e);
+                Timber.e(e,"Post failed.");
                 return false;
             }
         }
