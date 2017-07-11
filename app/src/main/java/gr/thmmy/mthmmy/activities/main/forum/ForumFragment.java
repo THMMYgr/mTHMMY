@@ -2,9 +2,9 @@ package gr.thmmy.mthmmy.activities.main.forum;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +26,7 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.ParseTask;
 import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -47,6 +48,7 @@ public class ForumFragment extends BaseFragment
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
 
     private MaterialProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private ForumAdapter forumAdapter;
 
     private List<Category> categories;
@@ -124,13 +126,27 @@ public class ForumFragment extends BaseFragment
                 }
             });
 
-            RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+            CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                     linearLayoutManager.getOrientation());
             recyclerView.addItemDecoration(dividerItemDecoration);
             recyclerView.setAdapter(forumAdapter);
+
+            swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout.setOnRefreshListener(
+                    new SwipeRefreshLayout.OnRefreshListener() {
+                        @Override
+                        public void onRefresh() {
+                            if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING) {
+                                forumTask = new ForumTask();
+                                forumTask.execute(SessionManager.indexUrl.toString());
+                            }
+                        }
+
+                    }
+            );
 
         }
         return rootView;
@@ -209,6 +225,7 @@ public class ForumFragment extends BaseFragment
                 forumAdapter.notifyParentDataSetChanged(false);
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
+            swipeRefreshLayout.setRefreshing(false);
         }
 
         public void setUrl(String string)   //TODO delete and simplify e.g. in prepareRequest possible?
