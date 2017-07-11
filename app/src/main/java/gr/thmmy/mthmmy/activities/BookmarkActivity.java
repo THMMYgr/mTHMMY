@@ -151,9 +151,9 @@ public class BookmarkActivity extends BaseActivity {
 
     private void updateTitles()
     {
-        if(getBoardsBookmarked().isEmpty())
+        if(getBoardsBookmarked().isEmpty()&&boardsTitle!=null)
             boardsTitle.setVisibility(View.GONE);
-        if(getTopicsBookmarked().isEmpty())
+        if(getTopicsBookmarked().isEmpty()&&topicsTitle!=null)
             topicsTitle.setVisibility(View.GONE);
     }
 }
