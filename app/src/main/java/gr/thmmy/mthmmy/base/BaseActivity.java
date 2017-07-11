@@ -335,7 +335,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         drawer = drawerBuilder.build();
 
-        drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
+        if(!(BaseActivity.this instanceof MainActivity))
+            drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
+
         drawer.setOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
             @Override
             public boolean onNavigationClickListener(View clickedView) {

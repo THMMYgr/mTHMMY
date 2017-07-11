@@ -21,6 +21,9 @@ import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
+//TODO proper handling with adapter etc.
+//TODO better UI
+//TODO after clicking bookmark and then back button should return to this activity
 public class BookmarkActivity extends BaseActivity {
     private TextView boardsTitle;
     private TextView topicsTitle;

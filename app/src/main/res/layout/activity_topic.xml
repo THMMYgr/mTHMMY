@@ -27,13 +27,6 @@
                 android:id="@+id/toolbar_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:fillViewport="true"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:maxLines="1"
-                android:scrollHorizontally="true"
                 android:textColor="@color/white"
                 />
         </android.support.v7.widget.Toolbar>

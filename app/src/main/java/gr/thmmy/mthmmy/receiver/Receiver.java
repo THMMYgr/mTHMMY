@@ -49,7 +49,7 @@ public class Receiver extends BroadcastReceiver {
                     .setContentText(text)
                     .setTicker(ticker)
                     .setAutoCancel(true)
-                    .setSmallIcon(R.mipmap.ic_launcher);
+                    .setSmallIcon(R.drawable.ic_file_download);
 
             if (state.equals(STARTED))
                 builder.setOngoing(true);

@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
@@ -143,7 +144,11 @@ public class TopicActivity extends BaseActivity {
         //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle.setSingleLine(true);
+        toolbarTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        toolbarTitle.setMarqueeRepeatLimit(-1);
         toolbarTitle.setText(topicTitle);
+        toolbarTitle.setSelected(true);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
