@@ -147,7 +147,6 @@ public class RecentFragment extends BaseFragment {
             Elements recent = document.select("#block8 :first-child div");
             if (!recent.isEmpty()) {
                 topicSummaries.clear();
-
                 for (int i = 0; i < recent.size(); i += 3) {
                     String link = recent.get(i).child(0).attr("href");
                     String title = recent.get(i).child(0).attr("title");
@@ -170,7 +169,6 @@ public class RecentFragment extends BaseFragment {
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
-
                 return;
             }
             throw new ParseException("Parsing failed");

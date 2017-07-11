@@ -210,13 +210,12 @@ public class ForumFragment extends BaseFragment
 
                     fetchedCategories.add(category);
                 }
+                categories.clear();
+                categories.addAll(fetchedCategories);
+                fetchedCategories.clear();
             }
             else
                 throw new ParseException("Parsing failed");
-
-            categories.clear();
-            categories.addAll(fetchedCategories);
-            fetchedCategories.clear();
         }
 
         @Override

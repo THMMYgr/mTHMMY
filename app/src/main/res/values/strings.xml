@@ -63,8 +63,8 @@
 
     <!--Bookmarks-->
     <string name="remove_bookmark">Remove</string>
-    <string name="board_bookmarks_title">Your bookmarked boards:</string>
-    <string name="topic_bookmarks_title">Your bookmarked topics:</string>
+    <string name="board_bookmarks_title">Boards</string>
+    <string name="topic_bookmarks_title">Topics</string>
 
     <!--Licences-->
     <string name="libraries">Libraries</string>

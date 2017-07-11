@@ -41,7 +41,6 @@ import javax.net.ssl.SSLHandshakeException;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;

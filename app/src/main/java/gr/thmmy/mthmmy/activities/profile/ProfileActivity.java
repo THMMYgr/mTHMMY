@@ -19,7 +19,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
-
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -50,7 +49,6 @@ import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CenterVerticalSpan;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;

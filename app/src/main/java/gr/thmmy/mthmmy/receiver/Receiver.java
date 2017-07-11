@@ -14,7 +14,6 @@ import android.webkit.MimeTypeMap;
 import java.io.File;
 
 import gr.thmmy.mthmmy.R;
-
 import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.services.DownloadService.ACTION_DOWNLOAD;

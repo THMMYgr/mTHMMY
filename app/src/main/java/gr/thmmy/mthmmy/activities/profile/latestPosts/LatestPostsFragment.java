@@ -26,7 +26,6 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;

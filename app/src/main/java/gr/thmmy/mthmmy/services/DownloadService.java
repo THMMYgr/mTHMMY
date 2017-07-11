@@ -13,7 +13,6 @@ import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.receiver.Receiver;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
