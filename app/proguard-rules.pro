@@ -15,3 +15,20 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# OkHttp
+-dontwarn okio.**
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
+
+# Picasso
+-dontwarn com.squareup.okhttp.**
+
+# Android-Iconics (fontawesome-typeface)
+-keep class .R
+-keep class **.R$* {
+    <fields>;
+}
+
+# android-gif-drawable
+-keep public class pl.droidsonroids.gif.GifIOException{<init>(int, java.lang.String);}

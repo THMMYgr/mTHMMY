@@ -16,7 +16,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         /*debug {
@@ -45,7 +45,7 @@ dependencies {
     }
     compile 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.7'
-    compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
+    compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1' //Deprecated!
     compile 'me.zhanghai.android.materialprogressbar:library:1.4.1'
     compile 'com.jakewharton.timber:timber:4.5.1'
 }
