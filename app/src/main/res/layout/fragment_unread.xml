@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swiperefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <gr.thmmy.mthmmy.utils.CustomRecyclerView
+            android:id="@+id/list"
+            android:name="gr.thmmy.mthmmy.sections.unread.UnreadFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/background"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            app:layoutManager="LinearLayoutManager"
+            tools:context=".activities.main.unread.UnreadFragment"
+            tools:listitem="@layout/fragment_unread_row"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/progress_bar_height"
+        android:layout_alignParentTop="true"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:mpb_indeterminateTint="@color/accent"
+        app:mpb_progressStyle="horizontal"/>
+
+</RelativeLayout>

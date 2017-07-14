@@ -16,6 +16,7 @@ import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
+import gr.thmmy.mthmmy.activities.main.unread.UnreadFragment;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -33,7 +34,7 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
-public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener {
+public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener, UnreadFragment.UnreadFragmentInteractionListener {
 
     //----------------------------------------CLASS VARIABLES-----------------------------------------
     private static final int TIME_INTERVAL = 2000;
@@ -115,6 +116,14 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         startActivity(i);
     }
 
+    @Override
+    public void onUnreadFragmentInteraction(TopicSummary topicSummary){
+        Intent i = new Intent(MainActivity.this, TopicActivity.class);
+        i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
+        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
+        startActivity(i);
+    }
+
 //---------------------------------FragmentPagerAdapter---------------------------------------------
 
     /**
@@ -123,7 +132,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
      * it may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -136,6 +145,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                     return RecentFragment.newInstance(position + 1);
                 case 1:
                     return ForumFragment.newInstance(position + 1);
+                case 2:
+                    return UnreadFragment.newInstance(position + 1);
                 default:
                     return RecentFragment.newInstance(position + 1); //temp (?)
             }
@@ -143,8 +154,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
         @Override
         public int getCount() {
-            // Show 2 total pages.
-            return 2;
+            // Show 3 total pages.
+            return 3;
         }
 
         @Override
@@ -154,6 +165,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                     return "RECENT POSTS";
                 case 1:
                     return "FORUM";
+                case 2:
+                    return "UNREAD";
             }
 
             return null;

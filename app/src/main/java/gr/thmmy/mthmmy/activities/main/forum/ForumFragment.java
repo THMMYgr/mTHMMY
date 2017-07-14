@@ -42,8 +42,7 @@ import timber.log.Timber;
  * Use the {@link ForumFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ForumFragment extends BaseFragment
-{
+public class ForumFragment extends BaseFragment {
     private static final String TAG = "ForumFragment";
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
 
@@ -56,11 +55,13 @@ public class ForumFragment extends BaseFragment
     private ForumTask forumTask;
 
     // Required empty public constructor
-    public ForumFragment() {}
+    public ForumFragment() {
+    }
 
     /**
      * Use ONLY this factory method to create a new instance of
      * this fragment using the provided parameters.
+     *
      * @return A new instance of fragment Forum.
      */
     public static ForumFragment newInstance(int sectionNumber) {
@@ -81,9 +82,8 @@ public class ForumFragment extends BaseFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (categories.isEmpty())
-        {
-            forumTask =new ForumTask();
+        if (categories.isEmpty()) {
+            forumTask = new ForumTask();
             forumTask.execute();
 
         }
@@ -103,11 +103,10 @@ public class ForumFragment extends BaseFragment
             forumAdapter.setExpandCollapseListener(new ExpandableRecyclerAdapter.ExpandCollapseListener() {
                 @Override
                 public void onParentExpanded(int parentPosition) {
-                    if(BaseActivity.getSessionManager().isLoggedIn())
-                    {
-                        if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
+                    if (BaseActivity.getSessionManager().isLoggedIn()) {
+                        if (forumTask.getStatus() == AsyncTask.Status.RUNNING)
                             forumTask.cancel(true);
-                        forumTask =new ForumTask();
+                        forumTask = new ForumTask();
                         forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
                         forumTask.execute();
                     }
@@ -115,11 +114,10 @@ public class ForumFragment extends BaseFragment
 
                 @Override
                 public void onParentCollapsed(int parentPosition) {
-                    if(BaseActivity.getSessionManager().isLoggedIn())
-                    {
-                        if(forumTask.getStatus()== AsyncTask.Status.RUNNING)
+                    if (BaseActivity.getSessionManager().isLoggedIn()) {
+                        if (forumTask.getStatus() == AsyncTask.Status.RUNNING)
                             forumTask.cancel(true);
-                        forumTask =new ForumTask();
+                        forumTask = new ForumTask();
                         forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
                         forumTask.execute();
                     }
@@ -155,11 +153,11 @@ public class ForumFragment extends BaseFragment
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(forumTask!=null&&forumTask.getStatus()!= AsyncTask.Status.RUNNING)
+        if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING)
             forumTask.cancel(true);
     }
 
-    public interface ForumFragmentInteractionListener extends FragmentInteractionListener{
+    public interface ForumFragmentInteractionListener extends FragmentInteractionListener {
         void onForumFragmentInteraction(Board board);
     }
 
@@ -190,22 +188,19 @@ public class ForumFragment extends BaseFragment
         public void parse(Document document) throws ParseException {
             Elements categoryBlocks = document.select(".tborder:not([style])>table[cellpadding=5]");
             if (categoryBlocks.size() != 0) {
-                for(Element categoryBlock: categoryBlocks)
-                {
+                for (Element categoryBlock : categoryBlocks) {
                     Element categoryElement = categoryBlock.select("td[colspan=2]>[name]").first();
                     String categoryUrl = categoryElement.attr("href");
                     Category category = new Category(categoryElement.text(), categoryUrl);
 
-                    if(categoryUrl.contains("sa=collapse")|| !BaseActivity.getSessionManager().isLoggedIn())
-                    {
+                    if (categoryUrl.contains("sa=collapse") || !BaseActivity.getSessionManager().isLoggedIn()) {
                         category.setExpanded(true);
                         Elements boardsElements = categoryBlock.select("b [name]");
-                        for(Element boardElement: boardsElements) {
+                        for (Element boardElement : boardsElements) {
                             Board board = new Board(boardElement.attr("href"), boardElement.text(), null, null, null, null);
                             category.getBoards().add(board);
                         }
-                    }
-                    else
+                    } else
                         category.setExpanded(false);
 
                     fetchedCategories.add(category);
@@ -213,8 +208,7 @@ public class ForumFragment extends BaseFragment
                 categories.clear();
                 categories.addAll(fetchedCategories);
                 fetchedCategories.clear();
-            }
-            else
+            } else
                 throw new ParseException("Parsing failed");
         }
 

@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.main.recent;
+package gr.thmmy.mthmmy.activities.main.unread;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,12 +12,11 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
@@ -29,39 +28,39 @@ import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
-
 /**
  * A {@link BaseFragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link RecentFragment.RecentFragmentInteractionListener} interface
+ * {@link UnreadFragment.UnreadFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link RecentFragment#newInstance} factory method to
+ * Use the {@link UnreadFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RecentFragment extends BaseFragment {
-    private static final String TAG = "RecentFragment";
+
+public class UnreadFragment extends BaseFragment {
+    private static final String TAG = "UnreadFragment";
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
 
     private MaterialProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RecentAdapter recentAdapter;
+    private UnreadAdapter unreadAdapter;
 
     private List<TopicSummary> topicSummaries;
 
-    private RecentTask recentTask;
+    private UnreadTask unreadTask;
 
     // Required empty public constructor
-    public RecentFragment() {
+    public UnreadFragment() {
     }
 
     /**
      * Use ONLY this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment Recent.
+     * @return A new instance of fragment Unread.
      */
-    public static RecentFragment newInstance(int sectionNumber) {
-        RecentFragment fragment = new RecentFragment();
+    public static UnreadFragment newInstance(int sectionNumber) {
+        UnreadFragment fragment = new UnreadFragment();
         Bundle args = new Bundle();
         args.putString(ARG_TAG, TAG);
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -79,8 +78,8 @@ public class RecentFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (topicSummaries.isEmpty()) {
-            recentTask = new RecentTask();
-            recentTask.execute(SessionManager.indexUrl.toString());
+            unreadTask = new UnreadTask();
+            unreadTask.execute(SessionManager.unreadUrl.toString());
 
         }
         Timber.d("onActivityCreated");
@@ -91,12 +90,12 @@ public class RecentFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View rootView = inflater.inflate(R.layout.fragment_recent, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_unread, container, false);
 
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
-            recentAdapter = new RecentAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
+            unreadAdapter = new UnreadAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
@@ -104,16 +103,16 @@ public class RecentFragment extends BaseFragment {
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                     linearLayoutManager.getOrientation());
             recyclerView.addItemDecoration(dividerItemDecoration);
-            recyclerView.setAdapter(recentAdapter);
+            recyclerView.setAdapter(unreadAdapter);
 
             swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
             swipeRefreshLayout.setOnRefreshListener(
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override
                         public void onRefresh() {
-                            if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING) {
-                                recentTask = new RecentTask();
-                                recentTask.execute(SessionManager.indexUrl.toString());
+                            if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                                unreadTask = new UnreadTask();
+                                unreadTask.execute(SessionManager.unreadUrl.toString());
                             }
                         }
 
@@ -127,60 +126,59 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING)
-            recentTask.cancel(true);
+        if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING)
+            unreadTask.cancel(true);
     }
 
 
-    public interface RecentFragmentInteractionListener extends FragmentInteractionListener {
-        void onRecentFragmentInteraction(TopicSummary topicSummary);
+    public interface UnreadFragmentInteractionListener extends FragmentInteractionListener {
+        void onUnreadFragmentInteraction(TopicSummary topicSummary);
     }
 
     //---------------------------------------ASYNC TASK-----------------------------------
-    private class RecentTask extends ParseTask {
+    private class UnreadTask extends ParseTask {
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
         @Override
         public void parse(Document document) throws ParseException {
-            Elements recent = document.select("#block8 :first-child div");
-            if (!recent.isEmpty()) {
+            Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
+            if (!unread.isEmpty()) {
                 topicSummaries.clear();
-                for (int i = 0; i < recent.size(); i += 3) {
-                    String link = recent.get(i).child(0).attr("href");
-                    String title = recent.get(i).child(0).attr("title");
+                for (Element row : unread) {
+                    Elements information = row.select("td");
+                    String link = information.get(2).select("a").first().attr("href");
+                    String title = information.get(2).select("a").first().text();
 
-                    String lastUser = recent.get(i + 1).text();
-                    Pattern pattern = Pattern.compile("\\b (.*)");
-                    Matcher matcher = pattern.matcher(lastUser);
-                    if (matcher.find())
-                        lastUser = matcher.group(1);
-                    else
-                        throw new ParseException("Parsing failed (lastUser)");
-
-                    String dateTime = recent.get(i + 2).text();
-                    pattern = Pattern.compile("\\[(.*)\\]");
-                    matcher = pattern.matcher(dateTime);
-                    if (matcher.find())
-                        dateTime = matcher.group(1);
-                    else
-                        throw new ParseException("Parsing failed (dateTime)");
+                    Element lastUserAndDate = information.get(6);
+                    String lastUser = lastUserAndDate.select("a").text();
+                    String dateTime = lastUserAndDate.select("span").html();
+                    dateTime = dateTime.substring(3, dateTime.indexOf("<b"));
+                    dateTime = dateTime.replace("</b>", "");
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
-                return;
+            } else {
+                String message = document.select("table.bordercolor[cellspacing=1]").first().text();
+                if (message.contains("No messages")){ //It's english
+                    message = "No unread posts!";
+                }else{ //It's greek
+                    message = "Δεν υπάρχουν μη διαβασμένα μυνήματα!";
+                }
+                topicSummaries.add(new TopicSummary(null, null, null, message));
             }
-            throw new ParseException("Parsing failed");
         }
+
 
         @Override
         protected void postParsing(ParseTask.ResultCode result) {
             if (result == ResultCode.SUCCESS)
-                recentAdapter.notifyDataSetChanged();
+                unreadAdapter.notifyDataSetChanged();
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);
         }
+
     }
 }
