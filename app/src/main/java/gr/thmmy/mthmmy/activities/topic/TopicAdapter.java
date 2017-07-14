@@ -99,6 +99,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final String[] replyDataHolder = new String[2];
     private final int replySubject = 0, replyText = 1;
     private String loadedPageUrl = "";
+    private boolean canReply = false;
 
     /**
      * @param context   the context of the {@link RecyclerView}
@@ -403,9 +404,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             //noinspection PointlessBooleanExpression,ConstantConditions
-            if (!BaseActivity.getSessionManager().isLoggedIn())
+            if (!BaseActivity.getSessionManager().isLoggedIn() || !canReply) {
                 holder.quoteToggle.setVisibility(View.GONE);
-            else {
+            } else {
                 if (viewProperties.get(position)[isQuoteButtonChecked])
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
                 else
@@ -469,8 +470,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    void customNotifyDataSetChanged(TopicActivity.TopicTask topicTask) {
+    void customNotifyDataSetChanged(TopicActivity.TopicTask topicTask, boolean canReply) {
         this.topicTask = topicTask;
+        this.canReply = canReply;
         viewProperties.clear();
         for (int i = 0; i < postsList.size(); ++i) {
             //Initializes properties, array's values will be false by default

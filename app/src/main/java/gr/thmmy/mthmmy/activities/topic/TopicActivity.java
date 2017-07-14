@@ -135,7 +135,7 @@ public class TopicActivity extends BaseActivity {
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
                 Uri.parse(topicPageUrl));
         if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
-            Timber.e("Bundle came with a non topic url!\nUrl: %s" , topicPageUrl);
+            Timber.e("Bundle came with a non topic url!\nUrl: %s", topicPageUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -551,8 +551,11 @@ public class TopicActivity extends BaseActivity {
                     }
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    topicAdapter.customNotifyDataSetChanged(new TopicTask());
-                    if (replyPageUrl == null) replyFAB.hide();
+                    if (replyPageUrl == null) {
+                        replyFAB.hide();
+                        topicAdapter.customNotifyDataSetChanged(new TopicTask(), false);
+                    } else topicAdapter.customNotifyDataSetChanged(new TopicTask(), true);
+
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
                     //Set current page
@@ -566,7 +569,10 @@ public class TopicActivity extends BaseActivity {
                     break;
                 case SAME_PAGE:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    topicAdapter.customNotifyDataSetChanged(new TopicTask());
+                    if (replyPageUrl == null) {
+                        replyFAB.hide();
+                        topicAdapter.customNotifyDataSetChanged(new TopicTask(), false);
+                    } else topicAdapter.customNotifyDataSetChanged(new TopicTask(), true);
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
                     paginationEnabled(true);
                     Toast.makeText(TopicActivity.this, "That's the same page.", Toast.LENGTH_SHORT).show();
@@ -709,10 +715,10 @@ public class TopicActivity extends BaseActivity {
                 sc = document.select("input[name=sc]").first().attr("value");
                 topic = document.select("input[name=topic]").first().attr("value");
             } catch (IOException e) {
-                Timber.e(e,"Post failed.");
+                Timber.e(e, "Post failed.");
                 return false;
             } catch (Selector.SelectorParseException e) {
-                Timber.e(e,"Post failed.");
+                Timber.e(e, "Post failed.");
                 return false;
             }
 
@@ -746,7 +752,7 @@ public class TopicActivity extends BaseActivity {
                         return true;
                 }
             } catch (IOException e) {
-                Timber.e(e,"Post failed.");
+                Timber.e(e, "Post failed.");
                 return false;
             }
         }

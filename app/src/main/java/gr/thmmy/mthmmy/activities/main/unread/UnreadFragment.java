@@ -158,16 +158,22 @@ public class UnreadFragment extends BaseFragment {
                     String dateTime = lastUserAndDate.select("span").html();
                     //dateTime = dateTime.replace("<br>", "");
                     dateTime = dateTime.substring(0, dateTime.indexOf("<br>"));
+                    dateTime = dateTime.replace("<b>", "");
                     dateTime = dateTime.replace("</b>", "");
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
+                Element markRead = document.select("table:not(.bordercolor):not([width])").select("a")
+                        .first();
+                if (markRead != null)
+                    topicSummaries.add(new TopicSummary(markRead.attr("href"), markRead.text(), null,
+                            null));
             } else {
                 topicSummaries.clear();
                 String message = document.select("table.bordercolor[cellspacing=1]").first().text();
-                if (message.contains("No messages")){ //It's english
+                if (message.contains("No messages")) { //It's english
                     message = "No unread posts!";
-                }else{ //It's greek
+                } else { //It's greek
                     message = "Δεν υπάρχουν μη διαβασμένα μυνήματα!";
                 }
                 topicSummaries.add(new TopicSummary(null, null, null, message));

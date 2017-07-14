@@ -36,7 +36,7 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener, UnreadFragment.UnreadFragmentInteractionListener {
 
-    //----------------------------------------CLASS VARIABLES-----------------------------------------
+//-----------------------------------------CLASS VARIABLES------------------------------------------
     private static final int TIME_INTERVAL = 2000;
     private long mBackPressed;
 
@@ -56,7 +56,6 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             finish();
             overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
         }
-
 
         //Initialize drawer
         createDrawer();
@@ -117,7 +116,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     }
 
     @Override
-    public void onUnreadFragmentInteraction(TopicSummary topicSummary){
+    public void onUnreadFragmentInteraction(TopicSummary topicSummary) {
+        if (topicSummary.getLastUser() == null && topicSummary.getDateTimeModified() == null) {
+            return; //TODO!
+        }
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
         i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
         i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());

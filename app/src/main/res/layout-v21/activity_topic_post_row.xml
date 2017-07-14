@@ -164,6 +164,8 @@
                 android:id="@+id/post_date_and_number_exp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
                 android:layout_marginTop="16dp">
 
                 <TextView
@@ -173,7 +175,7 @@
                     android:gravity="start"
                     android:text=""
                     android:textColor="@color/card_expand_text_color"
-                    android:textSize="8sp" />
+                    android:textSize="10sp" />
 
                 <TextView
                     android:id="@+id/post_number"
@@ -182,7 +184,7 @@
                     android:gravity="end"
                     android:text=""
                     android:textColor="@color/card_expand_text_color"
-                    android:textSize="8sp" />
+                    android:textSize="10sp" />
             </FrameLayout>
 
 
