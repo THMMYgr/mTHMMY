@@ -9,6 +9,7 @@
     <string name="about">About</string>
     <string name="home">Home</string>
     <string name="bookmark">Bookmarks</string>
+    <string name="info">Info</string>
 
     <!--Login Activity-->
     <string name="thmmy_img_description">thmmy.gr</string>

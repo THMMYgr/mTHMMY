@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -114,12 +115,12 @@ public class TopicActivity extends BaseActivity {
             topicViewers = new SpannableStringBuilder("Loading...");
     //Other variables
     private MaterialProgressBar progressBar;
-    TextView toolbarTitle;
+    private TextView toolbarTitle;
     private static String base_url = "";
     private String topicTitle;
     private String parsedTitle;
     private RecyclerView recyclerView;
-    String loadedPageUrl = "";
+    private String loadedPageUrl = "";
     private boolean reloadingPage = false;
 
 
@@ -665,7 +666,13 @@ public class TopicActivity extends BaseActivity {
         }
 
         private SpannableStringBuilder getSpannableFromHtml(String html) {
-            CharSequence sequence = Html.fromHtml(html);
+            CharSequence sequence;
+            if (Build.VERSION.SDK_INT >= 24) {
+                sequence = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
+            } else {
+                //noinspection deprecation
+                sequence = Html.fromHtml(html);
+            }
             SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
             URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
             for (URLSpan span : urls) {
@@ -687,7 +694,7 @@ public class TopicActivity extends BaseActivity {
         @Override
         protected Boolean doInBackground(String... message) {
             Document document;
-            String numReplies, seqnum, sc, subject, topic;
+            String numReplies, seqnum, sc, topic;
 
             Request request = new Request.Builder()
                     .url(replyPageUrl + ";wap2")
@@ -699,7 +706,6 @@ public class TopicActivity extends BaseActivity {
                 numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
                 seqnum = document.select("input[name=seqnum]").first().attr("value");
                 sc = document.select("input[name=sc]").first().attr("value");
-                //subject = document.select("input[name=subject]").first().attr("value");
                 topic = document.select("input[name=topic]").first().attr("value");
             } catch (IOException e) {
                 Timber.e(e,"Post failed.");

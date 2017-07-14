@@ -150,18 +150,20 @@ public class UnreadFragment extends BaseFragment {
                 Log.d("UnreadFragment", unread.html());
                 for (Element row : unread) {
                     Elements information = row.select("td");
-                    String link = information.get(2).select("a").first().attr("href");
+                    String link = information.last().select("a").first().attr("href");
                     String title = information.get(2).select("a").first().text();
 
                     Element lastUserAndDate = information.get(6);
                     String lastUser = lastUserAndDate.select("a").text();
                     String dateTime = lastUserAndDate.select("span").html();
-                    dateTime = dateTime.substring(3, dateTime.indexOf("<br>"));
+                    //dateTime = dateTime.replace("<br>", "");
+                    dateTime = dateTime.substring(0, dateTime.indexOf("<br>"));
                     dateTime = dateTime.replace("</b>", "");
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
             } else {
+                topicSummaries.clear();
                 String message = document.select("table.bordercolor[cellspacing=1]").first().text();
                 if (message.contains("No messages")){ //It's english
                     message = "No unread posts!";
