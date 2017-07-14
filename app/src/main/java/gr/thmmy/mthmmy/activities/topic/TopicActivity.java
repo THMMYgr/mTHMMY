@@ -187,6 +187,7 @@ public class TopicActivity extends BaseActivity {
                         topicAdapter.prepareForReply(new ReplyTask(), topicTitle, loadedPageUrl);
                         replyFAB.hide();
                         bottomNavBar.setVisibility(View.GONE);
+                        recyclerView.scrollToPosition(postsList.size() - 1);
                     }
                 }
             });

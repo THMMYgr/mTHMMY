@@ -123,7 +123,7 @@
         android:layout_marginBottom="50dp"
         android:layout_marginEnd="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
-        app:srcCompat="@drawable/ic_add_fab"/>
+        app:srcCompat="@drawable/ic_reply"/>
 </android.support.design.widget.CoordinatorLayout>
 
 

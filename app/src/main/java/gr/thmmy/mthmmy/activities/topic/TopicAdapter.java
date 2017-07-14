@@ -21,6 +21,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -136,6 +137,23 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_quick_reply_row, parent, false);
             view.findViewById(R.id.quick_reply_submit).setEnabled(true);
+
+            final EditText quickReplyText = (EditText) view.findViewById(R.id.quick_reply_text);
+            quickReplyText.setFocusableInTouchMode(true);
+            quickReplyText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    quickReplyText.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.showSoftInput(quickReplyText, InputMethodManager.SHOW_IMPLICIT);
+                        }
+                    });
+                }
+            });
+            quickReplyText.requestFocus();
+
             //Default post subject
             replyDataHolder[replySubject] = "Re: " + topicTitle;
             //Build quotes
