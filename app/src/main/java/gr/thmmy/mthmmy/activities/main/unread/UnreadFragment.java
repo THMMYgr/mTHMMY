@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,6 +147,7 @@ public class UnreadFragment extends BaseFragment {
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
             if (!unread.isEmpty()) {
                 topicSummaries.clear();
+                Log.d("UnreadFragment", unread.html());
                 for (Element row : unread) {
                     Elements information = row.select("td");
                     String link = information.get(2).select("a").first().attr("href");
@@ -154,7 +156,7 @@ public class UnreadFragment extends BaseFragment {
                     Element lastUserAndDate = information.get(6);
                     String lastUser = lastUserAndDate.select("a").text();
                     String dateTime = lastUserAndDate.select("span").html();
-                    dateTime = dateTime.substring(3, dateTime.indexOf("<b"));
+                    dateTime = dateTime.substring(3, dateTime.indexOf("<br>"));
                     dateTime = dateTime.replace("</b>", "");
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
