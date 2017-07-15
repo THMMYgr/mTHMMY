@@ -18,15 +18,19 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
     private final List<TopicSummary> unreadList;
     private final UnreadFragment.UnreadFragmentInteractionListener mListener;
+    private final MarkReadInteractionListener markReadListener;
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_NADA = 1;
     private final int VIEW_TYPE_MARK_READ = 2;
 
-    UnreadAdapter(Context context, @NonNull List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
+    UnreadAdapter(Context context, @NonNull List<TopicSummary> topicSummaryList,
+                  BaseFragment.FragmentInteractionListener listener,
+                  MarkReadInteractionListener markReadInteractionListener) {
         this.context = context;
         this.unreadList = topicSummaryList;
         mListener = (UnreadFragment.UnreadFragmentInteractionListener) listener;
+        markReadListener = markReadInteractionListener;
     }
 
     @Override
@@ -54,7 +58,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof UnreadAdapter.EmptyViewHolder) {
             final UnreadAdapter.EmptyViewHolder emptyViewHolder = (UnreadAdapter.EmptyViewHolder) holder;
             emptyViewHolder.text.setText(unreadList.get(position).getDateTimeModified());
@@ -70,14 +74,11 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     if (null != mListener) {
                         // Notify the active callbacks interface (the activity, if the
                         // fragment is attached to one) that an item has been selected.
                         mListener.onUnreadFragmentInteraction(viewHolder.topic);  //?
-
                     }
-
                 }
             });
         } else if (holder instanceof UnreadAdapter.MarkReadViewHolder) {
@@ -88,11 +89,10 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             markReadViewHolder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     if (null != mListener) {
                         // Notify the active callbacks interface (the activity, if the
                         // fragment is attached to one) that an item has been selected.
-                        mListener.onUnreadFragmentInteraction(markReadViewHolder.topic);
+                        markReadListener.onMarkReadInteraction(unreadList.get(position).getTopicUrl());
                     }
                 }
             });
@@ -139,5 +139,9 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             mView = view;
             text = (TextView) view.findViewById(R.id.mark_read);
         }
+    }
+
+    public interface MarkReadInteractionListener {
+        void onMarkReadInteraction(String markReadLinkUrl);
     }
 }

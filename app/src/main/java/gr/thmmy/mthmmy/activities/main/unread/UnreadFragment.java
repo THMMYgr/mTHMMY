@@ -5,17 +5,18 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.ParseTask;
 import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import okhttp3.Request;
 import timber.log.Timber;
 
 /**
@@ -49,6 +51,7 @@ public class UnreadFragment extends BaseFragment {
     private List<TopicSummary> topicSummaries;
 
     private UnreadTask unreadTask;
+    private MarkReadTask markReadTask;
 
     // Required empty public constructor
     public UnreadFragment() {
@@ -81,8 +84,8 @@ public class UnreadFragment extends BaseFragment {
         if (topicSummaries.isEmpty()) {
             unreadTask = new UnreadTask();
             unreadTask.execute(SessionManager.unreadUrl.toString());
-
         }
+        markReadTask = new MarkReadTask();
         Timber.d("onActivityCreated");
     }
 
@@ -96,7 +99,16 @@ public class UnreadFragment extends BaseFragment {
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
-            unreadAdapter = new UnreadAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
+            unreadAdapter = new UnreadAdapter(getActivity(), topicSummaries,
+                    fragmentInteractionListener, new UnreadAdapter.MarkReadInteractionListener() {
+                @Override
+                public void onMarkReadInteraction(String markReadLinkUrl) {
+                    if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                        markReadTask = new MarkReadTask();
+                        markReadTask.execute(markReadLinkUrl);
+                    }
+                }
+            });
 
             CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
@@ -129,8 +141,9 @@ public class UnreadFragment extends BaseFragment {
         super.onDestroy();
         if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING)
             unreadTask.cancel(true);
+        if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING)
+            markReadTask.cancel(true);
     }
-
 
     public interface UnreadFragmentInteractionListener extends FragmentInteractionListener {
         void onUnreadFragmentInteraction(TopicSummary topicSummary);
@@ -147,7 +160,6 @@ public class UnreadFragment extends BaseFragment {
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
             if (!unread.isEmpty()) {
                 topicSummaries.clear();
-                Log.d("UnreadFragment", unread.html());
                 for (Element row : unread) {
                     Elements information = row.select("td");
                     String link = information.last().select("a").first().attr("href");
@@ -180,7 +192,6 @@ public class UnreadFragment extends BaseFragment {
             }
         }
 
-
         @Override
         protected void postParsing(ParseTask.ResultCode result) {
             if (result == ResultCode.SUCCESS)
@@ -189,6 +200,52 @@ public class UnreadFragment extends BaseFragment {
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);
         }
+    }
 
+    private class MarkReadTask extends AsyncTask<String, Void, Integer> {
+        private static final int SUCCESS = 0;
+        private static final int NETWORK_ERROR = 1;
+        private static final int OTHER_ERROR = 2;
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            Request request = new Request.Builder()
+                    .url(strings[0])
+                    .build();
+            try {
+                client.newCall(request).execute();
+                return SUCCESS;
+            } catch (IOException e) {
+                Timber.i(e, "IO Exception");
+                return NETWORK_ERROR;
+            } catch (Exception e) {
+                Timber.e(e, "Exception");
+                return OTHER_ERROR;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            progressBar.setVisibility(ProgressBar.GONE);
+
+            if (result == NETWORK_ERROR) {
+                Toast.makeText(getContext()
+                        , "Task was unsuccessful!\n Please check your internet conneciton.",
+                        Toast.LENGTH_LONG).show();
+            } else if (result == OTHER_ERROR) {
+                Toast.makeText(getContext()
+                        , "Fatal error!\n Task aborted...", Toast.LENGTH_LONG).show();
+            } else {
+                if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                    unreadTask = new UnreadTask();
+                    unreadTask.execute(SessionManager.unreadUrl.toString());
+                }
+            }
+        }
     }
 }
