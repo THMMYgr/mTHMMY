@@ -172,7 +172,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @SuppressLint({"SetJavaScriptEnabled", "SetTextI18n"})
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder currentHolder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder currentHolder,
+                                 final int position) {
         if (currentHolder instanceof PostViewHolder) {
             final Post currentPost = postsList.get(position);
             final PostViewHolder holder = (PostViewHolder) currentHolder;
@@ -478,7 +479,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
-        notifyDataSetChanged();
+        notifyItemRangeInserted(0, postsList.size());
+        //notifyDataSetChanged();
     }
 
     @Override

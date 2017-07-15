@@ -303,8 +303,5 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             boardAdapter.notifyDataSetChanged();
             isLoadingMore = false;
         }
-
-
     }
-
 }

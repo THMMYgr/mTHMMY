@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -49,6 +48,7 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
+import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.MultipartBody;
@@ -168,7 +168,17 @@ public class TopicActivity extends BaseActivity {
 
         recyclerView = (RecyclerView) findViewById(R.id.topic_recycler_view);
         recyclerView.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setOnTouchListener(
+                new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return topicTask != null && topicTask.getStatus() == AsyncTask.Status.RUNNING;
+                    }
+                }
+        );
+        //LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(
+                getApplicationContext(), loadedPageUrl);
         recyclerView.setLayoutManager(layoutManager);
         topicAdapter = new TopicAdapter(this, postsList, topicTask);
         recyclerView.setAdapter(topicAdapter);
@@ -551,6 +561,7 @@ public class TopicActivity extends BaseActivity {
                     }
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
+                    recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
                     if (replyPageUrl == null) {
                         replyFAB.hide();
                         topicAdapter.customNotifyDataSetChanged(new TopicTask(), false);
@@ -636,6 +647,9 @@ public class TopicActivity extends BaseActivity {
             }
 
             postsList.clear();
+            int oldSize = postsList.size();
+            topicAdapter.notifyItemRangeRemoved(0, oldSize);
+            recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
             postsList.addAll(TopicParser.parseTopic(topic, language));
         }
 
