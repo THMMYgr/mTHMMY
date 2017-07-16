@@ -75,6 +75,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected Toolbar toolbar;
     protected Drawer drawer;
 
+    private MainActivity mainActivity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -394,6 +396,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         protected void onPostExecute(Integer result) {
             Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
             updateDrawer();
+            if(mainActivity!=null)
+                mainActivity.updateTabs();
             progressDialog.dismiss();
         }
     }
@@ -561,6 +565,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (checkPerms())
             DownloadService.startActionDownload(this, tempThmmyFile.getFileUrl().toString());
 
+    }
+
+    //----------------------------------MISC----------------------
+    protected void setMainActivity(MainActivity mainActivity)
+    {
+        this.mainActivity = mainActivity;
     }
 
 }
