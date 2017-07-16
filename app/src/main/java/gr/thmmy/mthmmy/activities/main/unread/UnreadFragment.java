@@ -186,7 +186,7 @@ public class UnreadFragment extends BaseFragment {
                 if (message.contains("No messages")) { //It's english
                     message = "No unread posts!";
                 } else { //It's greek
-                    message = "Δεν υπάρχουν μη διαβασμένα μυνήματα!";
+                    message = "Δεν υπάρχουν μη διαβασμένα μηνύματα!";
                 }
                 topicSummaries.add(new TopicSummary(null, null, null, message));
             }

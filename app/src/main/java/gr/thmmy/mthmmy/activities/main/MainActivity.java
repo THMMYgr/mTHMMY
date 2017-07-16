@@ -164,7 +164,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "RECENT POSTS";
+                    return "RECENT";
                 case 1:
                     return "FORUM";
                 case 2:
