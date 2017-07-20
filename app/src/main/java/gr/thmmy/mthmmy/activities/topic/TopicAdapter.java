@@ -178,8 +178,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             final Post currentPost = postsList.get(position);
             final PostViewHolder holder = (PostViewHolder) currentHolder;
 
-            holder.setIsRecyclable(false);
-
             //Post's WebView parameters
             holder.post.setClickable(true);
             holder.post.setWebViewClient(new LinkLauncher());

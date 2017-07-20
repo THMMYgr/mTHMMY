@@ -10,7 +10,7 @@
     <item
         android:id="@+id/menu_info"
         android:icon="@drawable/ic_info"
-        app:showAsAction="ifRoom|withText"
+        app:showAsAction="ifRoom"
         android:title="@string/info">
     </item>
 </menu>
