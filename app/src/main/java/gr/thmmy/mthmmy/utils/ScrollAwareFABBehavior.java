@@ -41,8 +41,7 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
                     fab.setVisibility(View.INVISIBLE);
                 }
             });
-        } else if ((dyConsumed < 0 || (!target.canScrollVertically(1) && dyConsumed == 0
-                && dyUnconsumed > 40)) && child.getVisibility() != View.VISIBLE) {
+        } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
             child.show();
         }
     }
