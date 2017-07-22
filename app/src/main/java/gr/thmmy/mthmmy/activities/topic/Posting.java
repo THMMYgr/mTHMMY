@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.util.Log;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -11,11 +13,52 @@ import java.util.regex.Matcher;
 import okhttp3.Response;
 import timber.log.Timber;
 
+/**
+ * This is a utility class containing a collection of static methods to help with topic replying.
+ */
 class Posting {
+    /**
+     * {@link REPLY_STATUS} enum defines the different possible outcomes of a topic reply request.
+     */
     enum REPLY_STATUS {
-        SUCCESSFUL, NO_SUBJECT, EMPTY_BODY, NEW_REPLY_WHILE_POSTING, NOT_FOUND, SESSION_ENDED, OTHER_ERROR
+        /**
+         * The request was successful
+         */
+        SUCCESSFUL,
+        /**
+         * Request was lacking a subject
+         */
+        NO_SUBJECT,
+        /**
+         * Request had empty body
+         */
+        EMPTY_BODY,
+        /**
+         * There were new topic replies while making the request
+         */
+        NEW_REPLY_WHILE_POSTING,
+        /**
+         * Error 404, page was not found
+         */
+        NOT_FOUND,
+        /**
+         * User session ended while posting the reply
+         */
+        SESSION_ENDED,
+        /**
+         * Other undefined of unidentified error
+         */
+        OTHER_ERROR
     }
 
+    /**
+     * This method can be used to check whether a topic post request was successful or not and if
+     * not maybe get the reason why.
+     *
+     * @param response {@link okhttp3.Response} of the request
+     * @return a {@link REPLY_STATUS} that describes the response status
+     * @throws IOException method relies to {@link org.jsoup.Jsoup#parse(String)}
+     */
     static REPLY_STATUS replyStatus(Response response) throws IOException {
         if (response.code() == 404) return REPLY_STATUS.NOT_FOUND;
         if (response.code() < 200 || response.code() >= 400) return REPLY_STATUS.OTHER_ERROR;
@@ -44,10 +87,19 @@ class Posting {
         return REPLY_STATUS.SUCCESSFUL;
     }
 
+    /**
+     * This is a fucked up method.. Just don't waste your time here unless you have suicidal
+     * tendencies.
+     *
+     * @param html the html string to be transformed to BBcode
+     * @return the BBcode string
+     */
     static String htmlToBBcode(String html) {
+        Log.d("Cancer", html);
         Map<String, String> bbMap = new HashMap<>();
         Map<String, String> smileysMap1 = new HashMap<>();
         Map<String, String> smileysMap2 = new HashMap<>();
+
         smileysMap1.put("Smiley", ":)");
         smileysMap1.put("Wink", ";)");
         smileysMap1.put("Cheesy", ":D");
@@ -170,64 +222,66 @@ class Posting {
         //html stuff on the beginning
         bbMap.put("<link rel=.+\">\n ", "");
         //quotes and code headers
-        bbMap.put("\n\\s+?<div class=\"quoteheader\">\n  (.+?)\n </div>", "");
-        bbMap.put("\n\\s+?<div class=\"codeheader\">\n  (.+?)\n </div>", "");
-        bbMap.put("\n\\s+?<div class=\"quote\">\n  (.+?)\n </div>", "");
-        bbMap.put("<br>", "\n");
+        bbMap.put("\\s*?<div class=\"quoteheader\">(.*?(\\n))*?.*?<\\/div>", "");
+        bbMap.put("\\s*?<div class=\"codeheader\">(.*?(\\n))+?.*?<\\/div>", "");
+        bbMap.put("\\s*?<div class=\"quote\">(.*?(\\n))+?.*?<\\/div>", "");
+        bbMap.put("<br>", "\\\n");
+        //Non-breaking space
+        bbMap.put("&nbsp;", " ");
         //bold
-        bbMap.put("\n\\s+?<b>(.+?)</b>", "\\[b\\]$1\\[/b\\]");
+        bbMap.put("\\s*?<b>([\\S\\s]+?)<\\/b>", "\\[b\\]$1\\[/b\\]");
         //italics
-        bbMap.put("\n\\s+?<i>(.+?)</i>", "\\[i\\]$1\\[/i\\]");
+        bbMap.put("\\s*?<i>([\\S\\s]+?)<\\/i>", "\\[i\\]$1\\[/i\\]");
         //underline
-        bbMap.put("\n\\s+?<span style=\"text-decoration: underline;\">(.+?)</span>", "\\[u\\]$1\\[/u\\]");
+        bbMap.put("\\s*?<span style=\"text-decoration: underline;\">([\\S\\s]+?)<\\/span>", "\\[u\\]$1\\[/u\\]");
         //deleted
-        bbMap.put("\n\\s+?<del>(.+?)</del>", "\\[s\\]$1\\[/s\\]");
+        bbMap.put("\\s*?<del>([\\S\\s]+?)<\\/del>", "\\[s\\]$1\\[/s\\]");
         //text color
-        bbMap.put("\n\\s+?<span style=\"color: (.+?);\">(.+?)</span>", "\\[color=$1\\]$2\\[/color\\]");
+        bbMap.put("\\s*?<span style=\"color: (.+?);\">([\\S\\s]+?)<\\/span>", "\\[color=$1\\]$2\\[/color\\]");
         //glow
-        bbMap.put("\n\\s+?<span style=\"background-color: (.+?);\">(.+?)</span>", "\\[glow=$1,2,300\\]$2\\[/glow\\]");
+        bbMap.put("\\s*?<span style=\"background-color: (.+?);\">([\\S\\s]+?)<\\/span>", "\\[glow=$1,2,300\\]$2\\[/glow\\]");
         //shadow
-        bbMap.put("\n\\s+?<span style=\"text-shadow: (.+?) (.+?)\">(.+?)</span>", "\\[shadow=$1,$2\\]$3\\[/shadow\\]");
+        bbMap.put("\\s*?<span style=\"text-shadow: (.+?) (.+?)\">([\\S\\s]+?)<\\/span>", "\\[shadow=$1,$2\\]$3\\[/shadow\\]");
         //running text
-        bbMap.put("\\s+?<marquee>\n  (.+?)\n </marquee>", "\\[move\\]$1\\[/move\\]");
+        bbMap.put("\\s*?<marquee>\n  ([\\S\\s]+?)\n <\\/marquee>", "\\[move\\]$1\\[/move\\]");
         //alignment
-        bbMap.put("\n\\s+?<div align=\"center\">\n (.+?)\n </div>", "\\[center\\]$1\\[/center\\]");
-        bbMap.put("\n\\s+?<div style=\"text-align: (.+?);\">\n  (.+?)\n </div>", "\\[$1\\]$2\\[/$1\\]");
+        bbMap.put("\\s*?<div align=\"center\">\n ([\\S\\s]+?)\n <\\/div>", "\\[center\\]$1\\[/center\\]");
+        bbMap.put("\\s*?<div style=\"text-align: (.+?);\">\n  ([\\S\\s]+?)\n <\\/div>", "\\[$1\\]$2\\[/$1\\]");
         //preformated
-        bbMap.put("\n\\s+?<pre>(.+?)</pre>", "\\[pre\\]$1\\[/pre\\]");
+        bbMap.put("\\s*?<pre>([\\S\\s]+?)<\\/pre>", "\\[pre\\]$1\\[/pre\\]");
         //horizontal rule
-        bbMap.put("\n\\s+?<hr>", "\\[hr\\]");
+        bbMap.put("\\s*?<hr>", "\\[hr\\]");
         //resize
-        bbMap.put("\n\\s+?<span style=\"font-size: (.+?);(.+?)\">(.+?)</span>", "\\[size=$1\\]$3\\[/size\\]");
+        bbMap.put("\\s*?<span style=\"font-size: (.+?);(.+?)\">([\\S\\s]+?)<\\/span>", "\\[size=$1\\]$3\\[/size\\]");
         //font
-        bbMap.put("\n\\s+?<span style=\"font-family: (.+?);\">(.+?)</span>", "\\[font=$1\\]$2\\[/font\\]");
+        bbMap.put("\\s*?<span style=\"font-family: (.+?);\">([\\S\\s]+?)<\\/span>", "\\[font=$1\\]$2\\[/font\\]");
         //lists
-        bbMap.put("\\s+<li>(.+?)</li>", "\\[li\\]$1\\[/li\\]");
-        bbMap.put("\n\\s+<ul style=\"margin-top: 0; margin-bottom: 0;\">([\\S\\s]+?)\n\\s+</ul>",
+        bbMap.put("\\s+<li>(.+?)<\\/li>", "\\[li\\]$1\\[/li\\]");
+        bbMap.put("\n\\s+<ul style=\"margin-top: 0; margin-bottom: 0;\">([\\S\\s]+?)\n\\s+<\\/ul>",
                 "\\[list\\]\n$1\n\\[/list\\]");
         //latex code
-        bbMap.put("\n\\s+?<img src=\".+?eq=(.+?)\" .+?\">", "\\[tex\\]$1\\[/tex\\]");
+        bbMap.put("\\s*?<img src=\".+?eq=([\\S\\s]+?)\" .+?\">", "\\[tex\\]$1\\[/tex\\]");
         //code
-        bbMap.put("\n\\s+?<div class=\"code\">\n  (.+?)\n </div>", "\\[code\\]$1\\[/code\\]");
+        bbMap.put("\\s*?<div class=\"code\">((.*?(\\n))+?.*?)<\\/div>", "\\[code\\]$1\\[/code\\]");
         //teletype
-        bbMap.put("\n\\s+?<tt>(.+?)</tt>", "\\[tt\\]$1\\[/tt\\]");
+        bbMap.put("\\s*?<tt>([\\S\\s]+?)<\\/tt>", "\\[tt\\]$1\\[/tt\\]");
         //superscript/subscript
-        bbMap.put("\n\\s+?<sub>(.+?)</sub>", "\\[sub\\]$1\\[/sub\\]");
-        bbMap.put("\n\\s+?<sup>(.+?)</sup>", "\\[sup\\]$1\\[/sup\\]");
+        bbMap.put("\\s*?<sub>([\\S\\s]+?)<\\/sub>", "\\[sub\\]$1\\[/sub\\]");
+        bbMap.put("\\s*?<sup>([\\S\\s]+?)<\\/sup>", "\\[sup\\]$1\\[/sup\\]");
         //tables
-        bbMap.put("\\s+?<td.+?>([\\S\\s]+?)</td>", "\\[td\\]$1\\[/td\\]");
-        bbMap.put("<tr>([\\S\\s]+?)\n   </tr>", "\\[tr\\]$1\\[/tr\\]");
-        bbMap.put("\n\\s+?<table style=\"(.+?)\">\n  <tbody>\n   ([\\S\\s]+?)\n  </tbody>\n </table>"
+        bbMap.put("\\s*?<td.+?>([\\S\\s]+?)<\\/td>", "\\[td\\]$1\\[/td\\]");
+        bbMap.put("<tr>([\\S\\s]+?)\n   <\\/tr>", "\\[tr\\]$1\\[/tr\\]");
+        bbMap.put("\\s*?<table style=\"(.+?)\">\n  <tbody>\n   ([\\S\\s]+?)\n  <\\/tbody>\n <\\/table>"
                 , "\\[table\\]$2\\[/table\\]");
         //videos
-        bbMap.put("\n\\s+?<div class=\"yt\"><a href=\".+?watch\\?v=(.+?)\"((.|\\n)*?)\\/div>\n",
+        bbMap.put("\\s*?<div class=\"yt\">.+?watch\\?v=(.+?)\"((.|\\n)*?)/div>\n",
                 "[youtube]https://www.youtube.com/watch?v=$1[/youtube]");
         //ftp
-        bbMap.put("<a href=\"ftp:(.+?)\" .+?>([\\S\\s]+?)</a>", "\\[fpt=ftp:$1\\]$2\\[/ftp\\]");
+        bbMap.put("<a href=\"ftp:(.+?)\" .+?>([\\S\\s]+?)<\\/a>", "\\[fpt=ftp:$1\\]$2\\[/ftp\\]");
         //mailto
-        bbMap.put("\n\\s+?<a href=\"mailto:(.+?)\">([\\S\\s]+?)</a>", "\\[email\\]$2\\[/email\\]");
+        bbMap.put("\\s*?<a href=\"mailto:(.+?)\">([\\S\\s]+?)<\\/a>", "\\[email\\]$2\\[/email\\]");
         //links
-        bbMap.put("\n\\s+?<a href=\"(.+?)\" .+?>([\\S\\s]+?)</a>", "\\[url=$1\\]$2\\[/url\\]");
+        bbMap.put("\\s*?<a href=\"(.+?)\" .+?>([\\S\\s]+?)</a>", "\\[url=$1\\]$2\\[/url\\]");
         //smileys
         for (Map.Entry entry : smileysMap1.entrySet()) {
             bbMap.put("\n <img src=\"(.+?)//www.thmmy.gr/smf/Smileys/default_dither/(.+?) alt=\""
@@ -257,6 +311,7 @@ class Posting {
         html = html.replaceAll("\\s+<img src=\"(.+?)\" .+? height=\"(.+?)\" .+?>", "\\[img height=$2\\]$1\\[/img\\]");
         html = html.replaceAll("\\s+<img src=\"(.+?)\".+?>", "\\[img\\]$1\\[/img\\]");
 
+        Log.d("Cancer", html);
         return html;
     }
 }

@@ -156,7 +156,7 @@ public class ParseHelpers {
                             + "<a href=\"https://www.youtube.com/watch?v="
                             + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
                             + "<img class=\"embedded-video-play\" "
-                            + "src=\"http://www.youtube.com/yt/brand/media/image/YouTube_light_color_icon.png\">"
+                            + "src=\"YouTube_light_color_icon.png\">"
                             + "</a>"
                             + "<img src=\"https://img.youtube.com/vi/"
                             + embededVideosUrls.get(tmp_counter)

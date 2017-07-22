@@ -181,6 +181,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Post's WebView parameters
             holder.post.setClickable(true);
             holder.post.setWebViewClient(new LinkLauncher());
+            holder.post.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
             //Avoids errors about layout having 0 width/height
             holder.thumbnail.setMinimumWidth(1);

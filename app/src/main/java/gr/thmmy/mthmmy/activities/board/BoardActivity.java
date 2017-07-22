@@ -8,6 +8,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -159,6 +160,13 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             boardTask = new BoardTask();
             boardTask.execute(boardUrl.substring(0, boardUrl.lastIndexOf(".")) + "." + pagesLoaded * 20);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("Boardaa", "onResume called!");
+        refreshBoardBookmark((ImageButton) findViewById(R.id.bookmark));
     }
 
     @Override

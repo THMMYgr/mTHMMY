@@ -226,6 +226,7 @@ public class TopicActivity extends BaseActivity {
         // Inflates the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.topic_menu, menu);
         setTopicBookmark(menu.getItem(0));
+        super.onCreateOptionsMenu(menu);
         return true;
     }
 
@@ -269,8 +270,9 @@ public class TopicActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-        drawer.setSelection(-1);
         super.onResume();
+        refreshTopicBookmark();
+        drawer.setSelection(-1);
     }
 
     @Override

@@ -337,7 +337,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         drawer = drawerBuilder.build();
 
-        if(!(BaseActivity.this instanceof MainActivity))
+        if (!(BaseActivity.this instanceof MainActivity))
             drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
 
         drawer.setOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
@@ -396,7 +396,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         protected void onPostExecute(Integer result) {
             Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
             updateDrawer();
-            if(mainActivity!=null)
+            if (mainActivity != null)
                 mainActivity.updateTabs();
             progressDialog.dismiss();
         }
@@ -415,6 +415,18 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void setTopicBookmark(MenuItem thisPageBookmarkMenuButton) {
         this.thisPageBookmarkMenuButton = thisPageBookmarkMenuButton;
+        if (thisPageBookmark.matchExists(topicsBookmarked)) {
+            thisPageBookmarkMenuButton.setIcon(bookmarked);
+        } else {
+            thisPageBookmarkMenuButton.setIcon(notBookmarked);
+        }
+    }
+
+    protected void refreshTopicBookmark() {
+        if (thisPageBookmarkMenuButton == null) {
+            return;
+        }
+        loadSavedBookmarks();
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
             thisPageBookmarkMenuButton.setIcon(bookmarked);
         } else {
@@ -453,6 +465,17 @@ public abstract class BaseActivity extends AppCompatActivity {
                 toggleBoardToBookmarks(thisPageBookmark);
             }
         });
+    }
+
+    protected void refreshBoardBookmark(final ImageButton thisPageBookmarkImageButton) {
+        if (thisPageBookmarkImageButton == null)
+            return;
+        loadSavedBookmarks();
+        if (thisPageBookmark.matchExists(boardsBookmarked)) {
+            thisPageBookmarkImageButton.setImageDrawable(bookmarked);
+        } else {
+            thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
+        }
     }
 
     private void loadSavedBookmarks() {
@@ -568,8 +591,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //----------------------------------MISC----------------------
-    protected void setMainActivity(MainActivity mainActivity)
-    {
+    protected void setMainActivity(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
 
