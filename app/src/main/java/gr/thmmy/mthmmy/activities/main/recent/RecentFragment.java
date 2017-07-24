@@ -10,13 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -27,13 +24,11 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.ParseTask;
 import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
 import timber.log.Timber;
+
 
 /**
  * A {@link BaseFragment} subclass.
@@ -56,11 +51,13 @@ public class RecentFragment extends BaseFragment {
     private RecentTask recentTask;
 
     // Required empty public constructor
-    public RecentFragment() {}
+    public RecentFragment() {
+    }
 
     /**
      * Use ONLY this factory method to create a new instance of
      * this fragment using the provided parameters.
+     *
      * @return A new instance of fragment Recent.
      */
     public static RecentFragment newInstance(int sectionNumber) {
@@ -81,10 +78,9 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (topicSummaries.isEmpty())
-        {
-            recentTask =new RecentTask();
-            recentTask.execute();
+        if (topicSummaries.isEmpty()) {
+            recentTask = new RecentTask();
+            recentTask.execute(SessionManager.indexUrl.toString());
 
         }
         Timber.d("onActivityCreated");
@@ -117,7 +113,7 @@ public class RecentFragment extends BaseFragment {
                         public void onRefresh() {
                             if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING) {
                                 recentTask = new RecentTask();
-                                recentTask.execute();
+                                recentTask.execute(SessionManager.indexUrl.toString());
                             }
                         }
 
@@ -131,7 +127,7 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(recentTask!=null&&recentTask.getStatus()!= AsyncTask.Status.RUNNING)
+        if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING)
             recentTask.cancel(true);
     }
 
@@ -141,55 +137,16 @@ public class RecentFragment extends BaseFragment {
     }
 
     //---------------------------------------ASYNC TASK-----------------------------------
-
-    private class RecentTask extends AsyncTask<Void, Void, Integer> {
-        private final HttpUrl thmmyUrl = SessionManager.indexUrl;
-        private Document document;
-
+    private class RecentTask extends ParseTask {
         protected void onPreExecute() {
-
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
-        protected Integer doInBackground(Void... voids) {
-            Request request = new Request.Builder()
-                    .url(thmmyUrl)
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                document = Jsoup.parse(response.body().string());
-                parse(document);
-                return 0;
-            } catch (ParseException e) {
-                Timber.e("ParseException", e);
-                return 1;
-            } catch (IOException e) {
-                Timber.i("Network Error", e);
-                return 2;
-            } catch (Exception e) {
-                Timber.e("Exception", e);
-                return 3;
-            }
-
-        }
-
-
-        protected void onPostExecute(Integer result) {
-
-            if (result == 0)
-                recentAdapter.notifyDataSetChanged();
-            else if (result == 2)
-                Toast.makeText(getActivity(), "Network error", Toast.LENGTH_SHORT).show(); //Fixme, sometimes activity isn't ready
-
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            swipeRefreshLayout.setRefreshing(false);
-        }
-
-        private void parse(Document document) throws ParseException {
+        @Override
+        public void parse(Document document) throws ParseException {
             Elements recent = document.select("#block8 :first-child div");
             if (!recent.isEmpty()) {
                 topicSummaries.clear();
-
                 for (int i = 0; i < recent.size(); i += 3) {
                     String link = recent.get(i).child(0).attr("href");
                     String title = recent.get(i).child(0).attr("title");
@@ -212,11 +169,18 @@ public class RecentFragment extends BaseFragment {
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
-
                 return;
             }
             throw new ParseException("Parsing failed");
         }
-    }
 
+        @Override
+        protected void postParsing(ParseTask.ResultCode result) {
+            if (result == ResultCode.SUCCESS)
+                recentAdapter.notifyDataSetChanged();
+
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
 }

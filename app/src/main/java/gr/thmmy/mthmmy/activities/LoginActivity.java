@@ -14,7 +14,6 @@ import android.widget.Toast;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
-
 import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;

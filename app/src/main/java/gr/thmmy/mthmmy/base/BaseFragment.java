@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import okhttp3.OkHttpClient;
-import timber.log.Timber;
 
 public abstract class BaseFragment extends Fragment {
     protected static final String ARG_SECTION_NUMBER = "SectionNumber";
@@ -26,31 +25,6 @@ public abstract class BaseFragment extends Fragment {
         if (client == null)
             client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
         // becomes null when app restarts after crash
-        Timber.d("onCreate");
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Timber.d("onStart");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Timber.d("onResume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Timber.d("onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Timber.d("onStop");
     }
 
     @Override
@@ -76,6 +50,5 @@ public abstract class BaseFragment extends Fragment {
      * the activity that contains it, to allow communication upon interaction,
      * between the fragment and the activity/ other fragments
      */
-    public interface FragmentInteractionListener {
-    }
+    public interface FragmentInteractionListener {}
 }

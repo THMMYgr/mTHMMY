@@ -13,7 +13,6 @@ import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.receiver.Receiver;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -142,7 +141,7 @@ public class DownloadService extends IntentService {
 
                 fileName = file.getName();
 
-                Timber.v("Started saving file " + fileName);
+                Timber.v("Started saving file %s" , fileName);
                 sendNotification(downloadId, STARTED, fileName);
 
                 sink = Okio.buffer(Okio.sink(file));
@@ -154,11 +153,11 @@ public class DownloadService extends IntentService {
                 Timber.e("Response not a binary file!");
         } catch (FileNotFoundException e) {
             Timber.i("Download failed...");
-            Timber.e("FileNotFound", e);
+            Timber.e(e, "FileNotFound");
             sendNotification(downloadId, FAILED, fileName);
         } catch (IOException e) {
             Timber.i("Download failed...");
-            Timber.e("IOException", e);
+            Timber.e(e, "IOException");
             sendNotification(downloadId, FAILED, fileName);
         } finally {
             if (sink != null) {

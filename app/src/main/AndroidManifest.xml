@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="gr.thmmy.mthmmy"
-          android:installLocation="auto">
+    package="gr.thmmy.mthmmy"
+    android:installLocation="auto">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".base.BaseApplication"
@@ -23,33 +23,32 @@
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-
-                <data
-                    android:host="thmmy.gr"
-                    android:scheme="http"/>
-                <data
-                    android:host="www.thmmy.gr"
-                    android:scheme="http"/>
-
-                <data
-                    android:host="www.thmmy.gr"
-                    android:scheme="https"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
                     android:host="thmmy.gr"
-                    android:scheme="https"/>
+                    android:scheme="http" />
+                <data
+                    android:host="www.thmmy.gr"
+                    android:scheme="http" />
 
                 <data
-                    android:host="thmmy.gr"/>
+                    android:host="www.thmmy.gr"
+                    android:scheme="https" />
+
+                <data
+                    android:host="thmmy.gr"
+                    android:scheme="https" />
+
+                <data android:host="thmmy.gr" />
             </intent-filter>
         </activity>
         <activity
@@ -58,14 +57,15 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".activities.AboutActivity"
+            android:launchMode="singleInstance"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity"/>
+                android:value=".activities.main.MainActivity" />
         </activity>
         <activity
             android:name=".activities.topic.TopicActivity"
@@ -74,11 +74,11 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity"/>
+                android:value=".activities.main.MainActivity" />
         </activity>
         <activity
             android:name=".activities.profile.ProfileActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.board.BoardActivity"
             android:configChanges="orientation|screenSize"
@@ -86,15 +86,16 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity"/>
+                android:value=".activities.main.MainActivity" />
         </activity>
         <activity
             android:name=".activities.downloads.DownloadsActivity"
+            android:launchMode="singleInstance"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity"/>
+                android:value=".activities.main.MainActivity" />
         </activity>
         <activity
             android:name=".activities.BookmarkActivity"
@@ -102,7 +103,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity"/>
+                android:value=".activities.main.MainActivity" />
         </activity>
 
         <provider
@@ -112,20 +113,20 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
         <service
             android:name=".services.DownloadService"
-            android:exported="false"/>
+            android:exported="false" />
 
         <receiver
             android:name=".receiver.Receiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.media.action.ACTION_DOWNLOAD"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.media.action.ACTION_DOWNLOAD" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
     </application>

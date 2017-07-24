@@ -27,13 +27,6 @@
                 android:id="@+id/toolbar_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:fillViewport="true"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:maxLines="1"
-                android:scrollHorizontally="true"
                 android:textColor="@color/white"
                 />
         </android.support.v7.widget.Toolbar>
@@ -44,12 +37,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
-        android:layout_marginTop="64dp"
         android:background="@color/background"
-        android:paddingBottom="54dp"
+        android:paddingTop="4dp"
         android:clipToPadding="false"
         android:scrollbars="none"
-        tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity">
+        tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
     </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
@@ -130,7 +123,7 @@
         android:layout_marginBottom="50dp"
         android:layout_marginEnd="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
-        app:srcCompat="@drawable/ic_add_fab"/>
+        app:srcCompat="@drawable/ic_reply"/>
 </android.support.design.widget.CoordinatorLayout>
 
 

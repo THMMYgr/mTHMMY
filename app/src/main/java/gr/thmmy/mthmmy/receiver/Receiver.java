@@ -14,7 +14,6 @@ import android.webkit.MimeTypeMap;
 import java.io.File;
 
 import gr.thmmy.mthmmy.R;
-
 import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.services.DownloadService.ACTION_DOWNLOAD;
@@ -50,7 +49,7 @@ public class Receiver extends BroadcastReceiver {
                     .setContentText(text)
                     .setTicker(ticker)
                     .setAutoCancel(true)
-                    .setSmallIcon(R.mipmap.ic_launcher);
+                    .setSmallIcon(R.drawable.ic_file_download);
 
             if (state.equals(STARTED))
                 builder.setOngoing(true);

@@ -65,7 +65,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
     protected Bookmark thisPageBookmark;
     private MenuItem thisPageBookmarkMenuButton;
-    private ImageButton thisPageBookmarkImageButton;
     private SharedPreferences bookmarksFile;
     private ArrayList<Bookmark> topicsBookmarked;
     private ArrayList<Bookmark> boardsBookmarked;
@@ -75,6 +74,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     //Common UI elements
     protected Toolbar toolbar;
     protected Drawer drawer;
+
+    private MainActivity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,25 +87,23 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (sessionManager == null)
             sessionManager = BaseApplication.getInstance().getSessionManager();
 
-
-        if (sessionManager.isLoggedIn()) {
-            if (bookmarked == null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true, null);
-                } else //noinspection deprecation
-                    bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true);
-            }
-            if (notBookmarked == null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false, null);
-                } else //noinspection deprecation
-                    notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false);
-            }
-            if (topicsBookmarked == null || boardsBookmarked == null) {
-                bookmarksFile = getSharedPreferences(BOOKMARKS_SHARED_PREFS, Context.MODE_PRIVATE);
-                loadSavedBookmarks();
-            }
+        if (bookmarked == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true, null);
+            } else //noinspection deprecation
+                bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true);
         }
+        if (notBookmarked == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false, null);
+            } else //noinspection deprecation
+                notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false);
+        }
+        if (topicsBookmarked == null || boardsBookmarked == null) {
+            bookmarksFile = getSharedPreferences(BOOKMARKS_SHARED_PREFS, Context.MODE_PRIVATE);
+            loadSavedBookmarks();
+        }
+
     }
 
     @Override
@@ -221,14 +220,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                     .withName(R.string.downloads)
                     .withIcon(downloadsIcon)
                     .withSelectedIcon(downloadsIconSelected);
-            bookmarksItem = new PrimaryDrawerItem()
-                    .withTextColor(primaryColor)
-                    .withSelectedColor(selectedPrimaryColor)
-                    .withSelectedTextColor(selectedSecondaryColor)
-                    .withIdentifier(BOOKMARKS_ID)
-                    .withName(R.string.bookmark)
-                    .withIcon(bookmarksIcon)
-                    .withSelectedIcon(bookmarksIconSelected);
         } else
             loginLogoutItem = new PrimaryDrawerItem()
                     .withTextColor(primaryColor)
@@ -236,6 +227,15 @@ public abstract class BaseActivity extends AppCompatActivity {
                     .withIdentifier(LOG_ID).withName(R.string.login)
                     .withIcon(loginIcon)
                     .withSelectable(false);
+
+        bookmarksItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(BOOKMARKS_ID)
+                .withName(R.string.bookmark)
+                .withIcon(bookmarksIcon)
+                .withSelectedIcon(bookmarksIconSelected);
 
         aboutItem = new PrimaryDrawerItem()
                 .withTextColor(primaryColor)
@@ -333,11 +333,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (sessionManager.isLoggedIn())
             drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, loginLogoutItem, aboutItem);
         else
-            drawerBuilder.addDrawerItems(homeItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, loginLogoutItem, aboutItem);
 
         drawer = drawerBuilder.build();
 
-        drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
+        if (!(BaseActivity.this instanceof MainActivity))
+            drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
+
         drawer.setOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
             @Override
             public boolean onNavigationClickListener(View clickedView) {
@@ -352,7 +354,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 drawer.removeItem(DOWNLOADS_ID);
-                drawer.removeItem(BOOKMARKS_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername()).withIcon(new IconicsDrawable(this)
                         .icon(FontAwesome.Icon.faw_user)
@@ -395,6 +396,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         protected void onPostExecute(Integer result) {
             Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
             updateDrawer();
+            if (mainActivity != null)
+                mainActivity.updateTabs();
             progressDialog.dismiss();
         }
     }
@@ -419,6 +422,18 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
+    protected void refreshTopicBookmark() {
+        if (thisPageBookmarkMenuButton == null) {
+            return;
+        }
+        loadSavedBookmarks();
+        if (thisPageBookmark.matchExists(topicsBookmarked)) {
+            thisPageBookmarkMenuButton.setIcon(bookmarked);
+        } else {
+            thisPageBookmarkMenuButton.setIcon(notBookmarked);
+        }
+    }
+
     protected void topicMenuBookmarkClick() {
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
             thisPageBookmarkMenuButton.setIcon(notBookmarked);
@@ -432,7 +447,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void setBoardBookmark(final ImageButton thisPageBookmarkImageButton) {
-        this.thisPageBookmarkImageButton = thisPageBookmarkImageButton;
         if (thisPageBookmark.matchExists(boardsBookmarked)) {
             thisPageBookmarkImageButton.setImageDrawable(bookmarked);
         } else {
@@ -451,6 +465,17 @@ public abstract class BaseActivity extends AppCompatActivity {
                 toggleBoardToBookmarks(thisPageBookmark);
             }
         });
+    }
+
+    protected void refreshBoardBookmark(final ImageButton thisPageBookmarkImageButton) {
+        if (thisPageBookmarkImageButton == null)
+            return;
+        loadSavedBookmarks();
+        if (thisPageBookmark.matchExists(boardsBookmarked)) {
+            thisPageBookmarkImageButton.setImageDrawable(bookmarked);
+        } else {
+            thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
+        }
     }
 
     private void loadSavedBookmarks() {
@@ -563,6 +588,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (checkPerms())
             DownloadService.startActionDownload(this, tempThmmyFile.getFileUrl().toString());
 
+    }
+
+    //----------------------------------MISC----------------------
+    protected void setMainActivity(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
     }
 
 }

@@ -26,7 +26,6 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -167,7 +166,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
             } catch (SSLHandshakeException e) {
                 Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Timber.e("ERROR", e);
+                Timber.e(e, "Exception");
             }
             return false;
         }
@@ -185,6 +184,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
             isLoadingMore = false;
         }
 
+        //TODO: better parse error handling (ParseException etc.)
         private boolean parseLatestPosts(Document latestPostsPage) {
             Elements latestPostsRows = latestPostsPage.
                     select("td:has(table:Contains(Show Posts)):not([style]) > table");

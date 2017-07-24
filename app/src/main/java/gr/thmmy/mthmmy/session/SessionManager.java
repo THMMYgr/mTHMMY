@@ -36,6 +36,7 @@ public class SessionManager {
     public static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?theme=4");
     public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum;theme=4");
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
+    public static final HttpUrl unreadUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=unread;all;start=0;theme=4");
     private static final String guestName = "Guest";
 
     //Response Codes
@@ -154,10 +155,10 @@ public class SessionManager {
             Timber.i("Login InterruptedIOException");    //users cancels LoginTask
             return CANCELLED;
         } catch (IOException e) {
-            Timber.w("Login IOException", e);
+            Timber.w(e ,"Login IOException");
             return CONNECTION_ERROR;
         } catch (Exception e) {
-            Timber.w("Login Exception (other)", e);
+            Timber.e(e, "Login Exception (other)");
             return EXCEPTION;
         }
     }
@@ -223,7 +224,7 @@ public class SessionManager {
             Timber.w("Logout IOException", e);
             return CONNECTION_ERROR;
         } catch (Exception e) {
-            Timber.w("Logout Exception", e);
+            Timber.e(e, "Logout Exception");
             return EXCEPTION;
         } finally {
             //All data should always be cleared from device regardless the result of logout
@@ -317,7 +318,7 @@ public class SessionManager {
         if (userName != null && !userName.isEmpty())
             return userName;
 
-        Timber.e("ParseException", new ParseException("Parsing failed(username extraction)"));
+        Timber.e(new ParseException("Parsing failed(username extraction)"),"ParseException");
         return "User"; //return a default username
     }
 
@@ -341,7 +342,7 @@ public class SessionManager {
             if (link != null && !link.isEmpty())
                 return link;
         }
-        Timber.e("ParseException", new ParseException("Parsing failed(logoutLink extraction)"));
+        Timber.e(new ParseException("Parsing failed(logoutLink extraction)"),"ParseException");
         return "https://www.thmmy.gr/smf/index.php?action=logout"; //return a default link
     }
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------

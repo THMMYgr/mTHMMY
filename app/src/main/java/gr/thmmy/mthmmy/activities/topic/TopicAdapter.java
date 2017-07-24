@@ -18,11 +18,10 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -54,7 +53,6 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
-
 import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -76,36 +74,32 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private String topicTitle;
-    private ArrayList<Integer> toQuoteList = new ArrayList<>();
+    private final ArrayList<Integer> toQuoteList = new ArrayList<>();
     private final List<Post> postsList;
     /**
      * Used to hold the state of visibility and other attributes for views that are animated or
-     * otherwise changed. Used in combination with {@link #isPostDateAndNumberVisibile},
-     * {@link #isUserExtraInfoVisibile} and {@link #isQuoteButtonChecked}.
+     * otherwise changed. Used in combination with {@link #isUserExtraInfoVisibile} and
+     * {@link #isQuoteButtonChecked}.
      */
     private final ArrayList<boolean[]> viewProperties = new ArrayList<>();
-    /**
-     * Index of state indicator in the boolean array. If true post is expanded and post's date and
-     * number are visible.
-     */
-    private static final int isPostDateAndNumberVisibile = 0;
     /**
      * Index of state indicator in the boolean array. If true user's extra info are expanded and
      * visible.
      */
-    private static final int isUserExtraInfoVisibile = 1;
+    private static final int isUserExtraInfoVisibile = 0;
     /**
      * Index of state indicator in the boolean array. If true quote button for this post is checked.
      */
-    private static final int isQuoteButtonChecked = 2;
+    private static final int isQuoteButtonChecked = 1;
     private TopicActivity.TopicTask topicTask;
     private TopicActivity.ReplyTask replyTask;
     private final int VIEW_TYPE_POST = 0;
     private final int VIEW_TYPE_QUICK_REPLY = 1;
 
-    private String[] replyDataHolder = new String[2];
-    private int replySubject = 0, replyText = 1;
+    private final String[] replyDataHolder = new String[2];
+    private final int replySubject = 0, replyText = 1;
     private String loadedPageUrl = "";
+    private boolean canReply = false;
 
     /**
      * @param context   the context of the {@link RecyclerView}
@@ -144,6 +138,23 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_quick_reply_row, parent, false);
             view.findViewById(R.id.quick_reply_submit).setEnabled(true);
+
+            final EditText quickReplyText = (EditText) view.findViewById(R.id.quick_reply_text);
+            quickReplyText.setFocusableInTouchMode(true);
+            quickReplyText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    quickReplyText.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.showSoftInput(quickReplyText, InputMethodManager.SHOW_IMPLICIT);
+                        }
+                    });
+                }
+            });
+            quickReplyText.requestFocus();
+
             //Default post subject
             replyDataHolder[replySubject] = "Re: " + topicTitle;
             //Build quotes
@@ -161,7 +172,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @SuppressLint({"SetJavaScriptEnabled", "SetTextI18n"})
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder currentHolder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder currentHolder,
+                                 final int position) {
         if (currentHolder instanceof PostViewHolder) {
             final Post currentPost = postsList.get(position);
             final PostViewHolder holder = (PostViewHolder) currentHolder;
@@ -169,6 +181,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Post's WebView parameters
             holder.post.setClickable(true);
             holder.post.setWebViewClient(new LinkLauncher());
+            holder.post.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
             //Avoids errors about layout having 0 width/height
             holder.thumbnail.setMinimumWidth(1);
@@ -325,9 +338,23 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (!currentPost.isDeleted() && viewProperties.get(position)[isUserExtraInfoVisibile]) {
                 holder.userExtraInfo.setVisibility(View.VISIBLE);
                 holder.userExtraInfo.setAlpha(1.0f);
+
+                holder.username.setMaxLines(Integer.MAX_VALUE);
+                holder.username.setEllipsize(null);
+
+                holder.subject.setTextColor(Color.parseColor("#FFFFFF"));
+                holder.subject.setMaxLines(Integer.MAX_VALUE);
+                holder.subject.setEllipsize(null);
             } else {
                 holder.userExtraInfo.setVisibility(View.GONE);
                 holder.userExtraInfo.setAlpha(0.0f);
+
+                holder.username.setMaxLines(1);
+                holder.username.setEllipsize(TextUtils.TruncateAt.END);
+
+                holder.subject.setTextColor(Color.parseColor("#757575"));
+                holder.subject.setMaxLines(1);
+                holder.subject.setEllipsize(TextUtils.TruncateAt.END);
             }
             if (!currentPost.isDeleted()) {
                 //Sets graphics behavior
@@ -355,7 +382,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
                         tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];
                         viewProperties.set(holder.getAdapterPosition(), tmp);
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.userExtraInfo);
+                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                                holder.subject, Color.parseColor("#FFFFFF"),
+                                Color.parseColor("#757575"), holder.userExtraInfo);
                     }
                 });
                 //Clicking the expanded part of a header (the extra info) makes it collapse
@@ -366,7 +395,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         tmp[isUserExtraInfoVisibile] = false;
                         viewProperties.set(holder.getAdapterPosition(), tmp);
 
-                        TopicAnimations.animateUserExtraInfoVisibility(v);
+                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                                holder.subject, Color.parseColor("#FFFFFF"),
+                                Color.parseColor("#757575"), v);
                     }
                 });
             } else {
@@ -374,34 +405,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.userExtraInfo.setOnClickListener(null);
             }
 
-            //Avoid's view's visibility recycling
-            if (viewProperties.get(position)[isPostDateAndNumberVisibile]) { //Expanded
-                holder.postDateAndNumberExp.setVisibility(View.VISIBLE);
-                holder.postDateAndNumberExp.setAlpha(1.0f);
-                holder.postDateAndNumberExp.setTranslationY(0);
-
-                holder.username.setMaxLines(Integer.MAX_VALUE);
-                holder.username.setEllipsize(null);
-
-                holder.subject.setTextColor(Color.parseColor("#FFFFFF"));
-                holder.subject.setMaxLines(Integer.MAX_VALUE);
-                holder.subject.setEllipsize(null);
-            } else { //Collapsed
-                holder.postDateAndNumberExp.setVisibility(View.GONE);
-                holder.postDateAndNumberExp.setAlpha(0.0f);
-                holder.postDateAndNumberExp.setTranslationY(holder.postDateAndNumberExp.getHeight());
-
-                holder.username.setMaxLines(1);
-                holder.username.setEllipsize(TextUtils.TruncateAt.END);
-
-                holder.subject.setTextColor(Color.parseColor("#757575"));
-                holder.subject.setMaxLines(1);
-                holder.subject.setEllipsize(TextUtils.TruncateAt.END);
-            }
             //noinspection PointlessBooleanExpression,ConstantConditions
-            if (!BaseActivity.getSessionManager().isLoggedIn())
+            if (!BaseActivity.getSessionManager().isLoggedIn() || !canReply) {
                 holder.quoteToggle.setVisibility(View.GONE);
-            else {
+            } else {
                 if (viewProperties.get(position)[isQuoteButtonChecked])
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
                 else
@@ -427,23 +434,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     }
                 });
             }
-            //Card expand/collapse when card is touched
-            holder.cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Change post's viewProperties accordingly
-                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                    tmp[isPostDateAndNumberVisibile] = !tmp[isPostDateAndNumberVisibile];
-                    viewProperties.set(holder.getAdapterPosition(), tmp);
-
-                    TopicAnimations.animatePostExtraInfoVisibility(holder.postDateAndNumberExp
-                            , holder.username, holder.subject
-                            , Color.parseColor("#FFFFFF")
-                            , Color.parseColor("#757575"));
-                }
-            });
-            //Also when post is clicked
-            holder.post.setOnTouchListener(new CustomTouchListener(holder.post, holder.cardView));
         } else if (currentHolder instanceof QuickReplyViewHolder) {
             final QuickReplyViewHolder holder = (QuickReplyViewHolder) currentHolder;
 
@@ -482,14 +472,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    void customNotifyDataSetChanged(TopicActivity.TopicTask topicTask) {
+    void customNotifyDataSetChanged(TopicActivity.TopicTask topicTask, boolean canReply) {
         this.topicTask = topicTask;
+        this.canReply = canReply;
         viewProperties.clear();
         for (int i = 0; i < postsList.size(); ++i) {
             //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
-        notifyDataSetChanged();
+        notifyItemRangeInserted(0, postsList.size());
+        //notifyDataSetChanged();
     }
 
     @Override
@@ -503,7 +495,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private class PostViewHolder extends RecyclerView.ViewHolder {
         final CardView cardView;
         final LinearLayout cardChildLinear;
-        final FrameLayout postDateAndNumberExp;
+        final FrameLayout postDateAndNumber;
         final TextView postDate, postNum, username, subject;
         final ImageView thumbnail;
         final public WebView post;
@@ -521,7 +513,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Standard stuff
             cardView = (CardView) view.findViewById(R.id.card_view);
             cardChildLinear = (LinearLayout) view.findViewById(R.id.card_child_linear);
-            postDateAndNumberExp = (FrameLayout) view.findViewById(R.id.post_date_and_number_exp);
+            postDateAndNumber = (FrameLayout) view.findViewById(R.id.post_date_and_number_exp);
             postDate = (TextView) view.findViewById(R.id.post_date);
             postNum = (TextView) view.findViewById(R.id.post_number);
             thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
@@ -567,71 +559,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.replySubject = replySubject;
             quickReplySubject.addTextChangedListener(replySubject);
             submitButton = (AppCompatImageButton) quickReply.findViewById(R.id.quick_reply_submit);
-        }
-    }
-
-    /**
-     * This class is a gesture detector for WebViews. It handles post's clicks, long clicks and
-     * touch and drag.
-     */
-    private class CustomTouchListener implements View.OnTouchListener {
-        //Long press handling
-        private float downCoordinateX;
-        private float downCoordinateY;
-        private final float SCROLL_THRESHOLD = 7;
-        final private WebView post;
-        final private CardView cardView;
-
-        //Other variables
-        final static int FINGER_RELEASED = 0;
-        final static int FINGER_TOUCHED = 1;
-        final static int FINGER_DRAGGING = 2;
-        final static int FINGER_UNDEFINED = 3;
-
-        private int fingerState = FINGER_RELEASED;
-
-        CustomTouchListener(WebView pPost, CardView pCard) {
-            post = pPost;
-            cardView = pCard;
-        }
-
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    //Logs XY
-                    downCoordinateX = motionEvent.getX();
-                    downCoordinateY = motionEvent.getY();
-
-                    if (fingerState == FINGER_RELEASED)
-                        fingerState = FINGER_TOUCHED;
-                    else
-                        fingerState = FINGER_UNDEFINED;
-                    break;
-                case MotionEvent.ACTION_UP:
-                    if (fingerState != FINGER_DRAGGING) {
-                        //Doesn't expand the card if this was a link
-                        WebView.HitTestResult htResult = post.getHitTestResult();
-                        if (htResult.getExtra() != null
-                                && htResult.getExtra() != null) {
-                            fingerState = FINGER_RELEASED;
-                            return false;
-                        }
-                        cardView.performClick();
-                    }
-                    fingerState = FINGER_RELEASED;
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    //Cancels long click if finger moved too much
-                    if (((Math.abs(downCoordinateX - motionEvent.getX()) > SCROLL_THRESHOLD ||
-                            Math.abs(downCoordinateY - motionEvent.getY()) > SCROLL_THRESHOLD))) {
-                        fingerState = FINGER_DRAGGING;
-                    } else fingerState = FINGER_UNDEFINED;
-                    break;
-                default:
-                    fingerState = FINGER_UNDEFINED;
-            }
-            return false;
         }
     }
 

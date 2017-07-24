@@ -13,14 +13,15 @@
 
         <gr.thmmy.mthmmy.utils.CustomRecyclerView
             android:id="@+id/list"
-            android:name="gr.thmmy.mthmmy.sections.forum.ForumFragment"
+            android:name="gr.thmmy.mthmmy.sections.unread.UnreadFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/background"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
             app:layoutManager="LinearLayoutManager"
-            tools:context=".activities.main.forum.ForumFragment" />
+            tools:context=".activities.main.unread.UnreadFragment"
+            tools:listitem="@layout/fragment_unread_row"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar

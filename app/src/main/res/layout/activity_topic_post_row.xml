@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,40 +8,7 @@
     android:paddingStart="4dp"
     tools:ignore="SmallSp">
 
-    <FrameLayout
-        android:id="@+id/post_date_and_number_exp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
-        android:animateLayoutChanges="true"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/post_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:paddingEnd="5dp"
-            android:paddingStart="5dp"
-            android:text=""
-            android:textColor="@color/card_expand_text_color"
-            android:textSize="8sp"/>
-
-        <TextView
-            android:id="@+id/post_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:paddingEnd="5dp"
-            android:paddingStart="5dp"
-            android:text=""
-            android:textColor="@color/card_expand_text_color"
-            android:textSize="8sp"
-            />
-    </FrameLayout>
-
-    <android.support.v7.widget.CardView
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -92,7 +58,7 @@
                             android:contentDescription="@string/post_thumbnail"
                             android:maxHeight="@dimen/thumbnail_size"
                             android:maxWidth="@dimen/thumbnail_size"
-                            android:src="@drawable/ic_default_user_thumbnail"/>
+                            android:src="@drawable/ic_default_user_thumbnail" />
                     </FrameLayout>
 
                     <TextView
@@ -105,7 +71,7 @@
                         android:maxLines="1"
                         android:text="@string/post_author"
                         android:textColor="@color/primary_text"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/subject"
@@ -115,7 +81,7 @@
                         android:layout_toEndOf="@+id/thumbnail_holder"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="@string/post_subject"/>
+                        android:text="@string/post_subject" />
                 </RelativeLayout>
 
                 <ImageButton
@@ -127,7 +93,7 @@
                     android:background="@color/card_background"
                     android:clickable="true"
                     android:contentDescription="@string/post_quote_button"
-                    android:src="@drawable/ic_format_quote_unchecked"/>
+                    android:src="@drawable/ic_format_quote_unchecked" />
             </LinearLayout>
 
             <LinearLayout
@@ -148,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/card_expand_text_color"
                     android:textSize="10sp"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/rank"
@@ -156,7 +122,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/card_expand_text_color"
                     android:textSize="10sp"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/stars"
@@ -164,8 +130,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textSize="10sp"
-                    android:visibility="gone">
-                </TextView>
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/gender"
@@ -173,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/card_expand_text_color"
                     android:textSize="10sp"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/number_of_posts"
@@ -181,7 +146,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/card_expand_text_color"
                     android:textSize="10sp"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/personal_text"
@@ -190,9 +155,37 @@
                     android:textColor="@color/card_expand_text_color"
                     android:textSize="10sp"
                     android:textStyle="italic"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
 
             </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/post_date_and_number_exp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/post_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text=""
+                    android:textColor="@color/card_expand_text_color"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/post_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:text=""
+                    android:textColor="@color/card_expand_text_color"
+                    android:textSize="10sp" />
+            </FrameLayout>
+
 
             <View
                 android:id="@+id/header_body_devider"
@@ -201,8 +194,8 @@
                 android:layout_marginBottom="9dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginTop="16dp"
-                android:background="@color/divider"/>
+                android:layout_marginTop="5dp"
+                android:background="@color/divider" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -218,8 +211,7 @@
                     android:layout_marginRight="16dp"
                     android:background="@color/card_background"
                     android:clickable="true"
-                    android:text="@string/post"
-                    />
+                    android:text="@string/post" />
             </FrameLayout>
 
             <View
@@ -231,7 +223,7 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="9dp"
                 android:background="@color/divider"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/post_footer"
@@ -240,8 +232,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="9dp"
                 android:paddingLeft="16dp"
-                android:paddingRight="16dp">
-            </LinearLayout>
+                android:paddingRight="16dp" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>

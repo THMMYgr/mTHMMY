@@ -8,12 +8,12 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -21,17 +21,15 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import javax.net.ssl.SSLHandshakeException;
-
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.Topic;
+import gr.thmmy.mthmmy.utils.ParseTask;
+import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import okhttp3.Request;
-import okhttp3.Response;
 import timber.log.Timber;
 
 public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMoreListener {
@@ -165,6 +163,13 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("Boardaa", "onResume called!");
+        refreshBoardBookmark((ImageButton) findViewById(R.id.bookmark));
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if (boardTask != null && boardTask.getStatus() != AsyncTask.Status.RUNNING)
@@ -176,47 +181,15 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
      * <p>BoardTask's {@link AsyncTask#execute execute} method needs a boards's url as String
      * parameter!</p>
      */
-    private class BoardTask extends AsyncTask<String, Void, Void> {
+    private class BoardTask extends ParseTask {
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
             if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(false);
         }
 
-        @Override
-        protected Void doInBackground(String... boardUrl) {
-            Request request = new Request.Builder()
-                    .url(boardUrl[0])
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                parseBoard(Jsoup.parse(response.body().string()));
-            } catch (SSLHandshakeException e) {
-                Timber.w("Certificate problem (please switch to unsafe connection).");
-            } catch (Exception e) {
-                Timber.e("ERROR", e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void voids) {
-            if (boardTitle == null || Objects.equals(boardTitle, "")
-                    || !Objects.equals(boardTitle, parsedTitle)) {
-                boardTitle = parsedTitle;
-                toolbar.setTitle(boardTitle);
-                thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl));
-            }
-
-            //Parse was successful
-            ++pagesLoaded;
-            if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            boardAdapter.notifyDataSetChanged();
-            isLoadingMore = false;
-        }
-
-        private void parseBoard(Document boardPage) {
+        @Override   //TODO should throw ParseException
+        public void parse(Document boardPage) throws ParseException {
             parsedTitle = boardPage.select("div.nav a.nav").last().text();
 
             //Removes loading item
@@ -319,6 +292,24 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     }
                 }
             }
+        }
+
+        @Override
+        protected void postParsing(ResultCode result) {
+            //TODO if (result == ResultCode.SUCCESS)...
+            if (boardTitle == null || Objects.equals(boardTitle, "")
+                    || !Objects.equals(boardTitle, parsedTitle)) {
+                boardTitle = parsedTitle;
+                toolbar.setTitle(boardTitle);
+                thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl));
+            }
+
+            //Parse was successful
+            ++pagesLoaded;
+            if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            boardAdapter.notifyDataSetChanged();
+            isLoadingMore = false;
         }
     }
 }

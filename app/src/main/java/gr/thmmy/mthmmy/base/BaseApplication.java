@@ -35,8 +35,6 @@ import okhttp3.Response;
 import timber.log.Timber;
 
 public class BaseApplication extends Application {
-
-
     private static BaseApplication baseApplication; //BaseApplication singleton
 
     // Client & SessionManager

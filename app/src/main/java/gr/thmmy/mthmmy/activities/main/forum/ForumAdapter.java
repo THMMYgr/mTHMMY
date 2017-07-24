@@ -26,7 +26,6 @@ import gr.thmmy.mthmmy.model.TopicSummary;
  * specified {@link ForumFragment.ForumFragmentInteractionListener}.
  */
 class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapter.CategoryViewHolder, ForumAdapter.BoardViewHolder> {
-    private final Context context;
     private final LayoutInflater layoutInflater;
 
     private final List<Category> categories;
@@ -34,7 +33,6 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
 
     ForumAdapter(Context context, @NonNull List<Category> categories, BaseFragment.FragmentInteractionListener listener) {
         super(categories);
-        this.context = context;
         this.categories = categories;
         mListener = (ForumFragment.ForumFragmentInteractionListener) listener;
         layoutInflater = LayoutInflater.from(context);

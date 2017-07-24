@@ -41,7 +41,6 @@ import javax.net.ssl.SSLHandshakeException;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -141,11 +140,12 @@ public class StatsFragment extends Fragment {
             } catch (SSLHandshakeException e) {
                 Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Timber.e("ERROR", e);
+                Timber.e(e, "Exception");
             }
             return false;
         }
 
+        //TODO: better parse error handling (ParseException etc.)
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!

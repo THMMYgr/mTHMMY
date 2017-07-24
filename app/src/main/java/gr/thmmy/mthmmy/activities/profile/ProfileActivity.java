@@ -19,7 +19,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
-
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -50,7 +49,6 @@ import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CenterVerticalSpan;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -276,11 +274,12 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             } catch (SSLHandshakeException e) {
                 Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
-                Timber.e("ERROR", e);
+                Timber.e(e, "Exception");
             }
             return false;
         }
 
+        //TODO: better parse error handling (ParseException etc.)
         protected void onPostExecute(Boolean result) {
             if (!result) { //Parse failed!  //TODO report as ParseException?
                 Timber.d("Parse failed!");

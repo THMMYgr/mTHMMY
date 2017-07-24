@@ -8,8 +8,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
@@ -17,6 +19,7 @@ import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
+import gr.thmmy.mthmmy.activities.main.unread.UnreadFragment;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -34,11 +37,13 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
-public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener {
+public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener, UnreadFragment.UnreadFragmentInteractionListener {
 
-    //----------------------------------------CLASS VARIABLES-----------------------------------------
+//-----------------------------------------CLASS VARIABLES------------------------------------------
     private static final int TIME_INTERVAL = 2000;
     private long mBackPressed;
+    private SectionsPagerAdapter sectionsPagerAdapter;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +53,6 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         setContentView(R.layout.activity_main);
 
         if (sessionManager.isLoginScreenDefault())
-
         {
             //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -57,25 +61,25 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
         }
 
-        //Initialize toolbar
-        toolbar = (Toolbar)
-
-                findViewById(R.id.toolbar);
-
-        setSupportActionBar(toolbar);
-
         //Initialize drawer
         createDrawer();
 
         //Create the adapter that will return a fragment for each section of the activity
-        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        sectionsPagerAdapter.addFragment(RecentFragment.newInstance(1), "RECENT");
+        sectionsPagerAdapter.addFragment(ForumFragment.newInstance(2), "FORUM");
+        if(sessionManager.isLoggedIn())
+            sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
+
 
         //Set up the ViewPager with the sections adapter.
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        viewPager = (ViewPager) findViewById(R.id.container);
+        viewPager.setAdapter(sectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setupWithViewPager(viewPager);
+
+        setMainActivity(this);
     }
 
     @Override
@@ -88,6 +92,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     protected void onResume() {
         drawer.setSelection(HOME_ID);
+        updateTabs();
         super.onResume();
     }
 
@@ -122,6 +127,17 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         startActivity(i);
     }
 
+    @Override
+    public void onUnreadFragmentInteraction(TopicSummary topicSummary) {
+        if (topicSummary.getLastUser() == null && topicSummary.getDateTimeModified() == null) {
+            return; //TODO!
+        }
+        Intent i = new Intent(MainActivity.this, TopicActivity.class);
+        i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
+        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
+        startActivity(i);
+    }
+
 //---------------------------------FragmentPagerAdapter---------------------------------------------
 
     /**
@@ -130,41 +146,56 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
      * it may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> fragmentList = new ArrayList<>();
+        private final List<String> fragmentTitleList = new ArrayList<>();
 
         SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
+        void addFragment(Fragment fragment, String title) {
+            fragmentList.add(fragment);
+            fragmentTitleList.add(title);
+            notifyDataSetChanged();
+        }
+
+        void removeFragment(int position) {
+            fragmentList.remove(position);
+            fragmentTitleList.remove(position);
+            notifyDataSetChanged();
+            if(viewPager.getCurrentItem()==position)
+                viewPager.setCurrentItem(position-1);
+        }
+
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return RecentFragment.newInstance(position + 1);
-                case 1:
-                    return ForumFragment.newInstance(position + 1);
-                default:
-                    return RecentFragment.newInstance(position + 1); //temp (?)
-            }
+            return fragmentList.get(position);
         }
 
         @Override
         public int getCount() {
-            // Show 2 total pages.
-            return 2;
+            return fragmentList.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "RECENT POSTS";
-                case 1:
-                    return "FORUM";
-            }
-
-            return null;
+            return fragmentTitleList.get(position);
         }
+
+        @Override
+        public int getItemPosition(Object object) {
+            int position = fragmentList.indexOf(object);
+            return position == -1 ? POSITION_NONE : position;
+        }
+    }
+
+    public void updateTabs()
+    {
+        if(!sessionManager.isLoggedIn()&&sectionsPagerAdapter.getCount()==3)
+            sectionsPagerAdapter.removeFragment(2);
+        else if(sessionManager.isLoggedIn()&&sectionsPagerAdapter.getCount()==2)
+            sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
 

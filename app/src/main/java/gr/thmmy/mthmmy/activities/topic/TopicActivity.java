@@ -5,15 +5,16 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
@@ -47,9 +48,9 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
+import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -114,12 +115,12 @@ public class TopicActivity extends BaseActivity {
             topicViewers = new SpannableStringBuilder("Loading...");
     //Other variables
     private MaterialProgressBar progressBar;
-    TextView toolbarTitle;
+    private TextView toolbarTitle;
     private static String base_url = "";
     private String topicTitle;
     private String parsedTitle;
     private RecyclerView recyclerView;
-    String loadedPageUrl = "";
+    private String loadedPageUrl = "";
     private boolean reloadingPage = false;
 
 
@@ -134,7 +135,7 @@ public class TopicActivity extends BaseActivity {
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
                 Uri.parse(topicPageUrl));
         if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
-            Timber.e("Bundle came with a non topic url!\nUrl:\n" + topicPageUrl);
+            Timber.e("Bundle came with a non topic url!\nUrl: %s", topicPageUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -144,7 +145,11 @@ public class TopicActivity extends BaseActivity {
         //Initializes graphics
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle.setSingleLine(true);
+        toolbarTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        toolbarTitle.setMarqueeRepeatLimit(-1);
         toolbarTitle.setText(topicTitle);
+        toolbarTitle.setSelected(true);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -163,7 +168,17 @@ public class TopicActivity extends BaseActivity {
 
         recyclerView = (RecyclerView) findViewById(R.id.topic_recycler_view);
         recyclerView.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setOnTouchListener(
+                new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return topicTask != null && topicTask.getStatus() == AsyncTask.Status.RUNNING;
+                    }
+                }
+        );
+        //LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(
+                getApplicationContext(), loadedPageUrl);
         recyclerView.setLayoutManager(layoutManager);
         topicAdapter = new TopicAdapter(this, postsList, topicTask);
         recyclerView.setAdapter(topicAdapter);
@@ -182,6 +197,7 @@ public class TopicActivity extends BaseActivity {
                         topicAdapter.prepareForReply(new ReplyTask(), topicTitle, loadedPageUrl);
                         replyFAB.hide();
                         bottomNavBar.setVisibility(View.GONE);
+                        recyclerView.scrollToPosition(postsList.size() - 1);
                     }
                 }
             });
@@ -210,6 +226,7 @@ public class TopicActivity extends BaseActivity {
         // Inflates the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.topic_menu, menu);
         setTopicBookmark(menu.getItem(0));
+        super.onCreateOptionsMenu(menu);
         return true;
     }
 
@@ -253,8 +270,9 @@ public class TopicActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-        drawer.setSelection(-1);
         super.onResume();
+        refreshTopicBookmark();
+        drawer.setSelection(-1);
     }
 
     @Override
@@ -517,10 +535,10 @@ public class TopicActivity extends BaseActivity {
                 parse(document);
                 return SUCCESS;
             } catch (IOException e) {
-                Timber.i("IO Exception", e);
+                Timber.i(e, "IO Exception");
                 return NETWORK_ERROR;
             } catch (Exception e) {
-                Timber.e("Exception", e);
+                Timber.e(e, "Exception");
                 return OTHER_ERROR;
             }
         }
@@ -545,8 +563,12 @@ public class TopicActivity extends BaseActivity {
                     }
 
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    topicAdapter.customNotifyDataSetChanged(new TopicTask());
-                    if (replyPageUrl == null) replyFAB.hide();
+                    recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
+                    if (replyPageUrl == null) {
+                        replyFAB.hide();
+                        topicAdapter.customNotifyDataSetChanged(new TopicTask(), false);
+                    } else topicAdapter.customNotifyDataSetChanged(new TopicTask(), true);
+
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
                     //Set current page
@@ -560,7 +582,10 @@ public class TopicActivity extends BaseActivity {
                     break;
                 case SAME_PAGE:
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    topicAdapter.customNotifyDataSetChanged(new TopicTask());
+                    if (replyPageUrl == null) {
+                        replyFAB.hide();
+                        topicAdapter.customNotifyDataSetChanged(new TopicTask(), false);
+                    } else topicAdapter.customNotifyDataSetChanged(new TopicTask(), true);
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
                     paginationEnabled(true);
                     Toast.makeText(TopicActivity.this, "That's the same page.", Toast.LENGTH_SHORT).show();
@@ -568,7 +593,7 @@ public class TopicActivity extends BaseActivity {
                     break;
                 default:
                     //Parse failed - should never happen
-                    Timber.d("Parse failed!");  //TODO report ParseException?
+                    Timber.d("Parse failed!");  //TODO report ParseException!!!
                     Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
@@ -624,6 +649,9 @@ public class TopicActivity extends BaseActivity {
             }
 
             postsList.clear();
+            int oldSize = postsList.size();
+            topicAdapter.notifyItemRangeRemoved(0, oldSize);
+            recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
             postsList.addAll(TopicParser.parseTopic(topic, language));
         }
 
@@ -661,7 +689,13 @@ public class TopicActivity extends BaseActivity {
         }
 
         private SpannableStringBuilder getSpannableFromHtml(String html) {
-            CharSequence sequence = Html.fromHtml(html);
+            CharSequence sequence;
+            if (Build.VERSION.SDK_INT >= 24) {
+                sequence = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
+            } else {
+                //noinspection deprecation
+                sequence = Html.fromHtml(html);
+            }
             SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
             URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
             for (URLSpan span : urls) {
@@ -683,7 +717,7 @@ public class TopicActivity extends BaseActivity {
         @Override
         protected Boolean doInBackground(String... message) {
             Document document;
-            String numReplies, seqnum, sc, subject, topic;
+            String numReplies, seqnum, sc, topic;
 
             Request request = new Request.Builder()
                     .url(replyPageUrl + ";wap2")
@@ -695,13 +729,12 @@ public class TopicActivity extends BaseActivity {
                 numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
                 seqnum = document.select("input[name=seqnum]").first().attr("value");
                 sc = document.select("input[name=sc]").first().attr("value");
-                //subject = document.select("input[name=subject]").first().attr("value");
                 topic = document.select("input[name=topic]").first().attr("value");
             } catch (IOException e) {
-                Timber.e("Post failed.", e);
+                Timber.e(e, "Post failed.");
                 return false;
             } catch (Selector.SelectorParseException e) {
-                Timber.e("Post failed.", e);
+                Timber.e(e, "Post failed.");
                 return false;
             }
 
@@ -735,7 +768,7 @@ public class TopicActivity extends BaseActivity {
                         return true;
                 }
             } catch (IOException e) {
-                Timber.e("Post failed.", e);
+                Timber.e(e, "Post failed.");
                 return false;
             }
         }
