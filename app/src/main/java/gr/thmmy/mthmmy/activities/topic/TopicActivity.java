@@ -241,7 +241,6 @@ public class TopicActivity extends BaseActivity {
                 LayoutInflater inflater = this.getLayoutInflater();
                 LinearLayout infoDialog = (LinearLayout) inflater.inflate(R.layout.dialog_topic_info
                         , null);
-                ((TextView) infoDialog.findViewById(R.id.dialog_title)).setText("Info");
                 TextView treeAndMods = infoDialog.findViewById(R.id.topic_tree_and_mods);
                 treeAndMods.setText(topicTreeAndMods);
                 treeAndMods.setMovementMethod(LinkMovementMethod.getInstance());
@@ -317,25 +316,25 @@ public class TopicActivity extends BaseActivity {
         lastPage.setEnabled(enabled);
     }
 
-    private void paginationEnabledExcept(boolean enabled, View exception) {
+    private void paginationDisable(View exception) {
         if (exception == firstPage) {
-            previousPage.setEnabled(enabled);
-            nextPage.setEnabled(enabled);
-            lastPage.setEnabled(enabled);
+            previousPage.setEnabled(false);
+            nextPage.setEnabled(false);
+            lastPage.setEnabled(false);
         } else if (exception == previousPage) {
-            firstPage.setEnabled(enabled);
-            nextPage.setEnabled(enabled);
-            lastPage.setEnabled(enabled);
+            firstPage.setEnabled(false);
+            nextPage.setEnabled(false);
+            lastPage.setEnabled(false);
         } else if (exception == nextPage) {
-            firstPage.setEnabled(enabled);
-            previousPage.setEnabled(enabled);
-            lastPage.setEnabled(enabled);
+            firstPage.setEnabled(false);
+            previousPage.setEnabled(false);
+            lastPage.setEnabled(false);
         } else if (exception == lastPage) {
-            firstPage.setEnabled(enabled);
-            previousPage.setEnabled(enabled);
-            nextPage.setEnabled(enabled);
+            firstPage.setEnabled(false);
+            previousPage.setEnabled(false);
+            nextPage.setEnabled(false);
         } else {
-            paginationEnabled(enabled);
+            paginationEnabled(false);
         }
     }
 
@@ -356,7 +355,7 @@ public class TopicActivity extends BaseActivity {
         increment.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
-                        paginationEnabledExcept(false, arg0);
+                        paginationDisable(arg0);
                         autoIncrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
@@ -404,7 +403,7 @@ public class TopicActivity extends BaseActivity {
         decrement.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
-                        paginationEnabledExcept(false, arg0);
+                        paginationDisable(arg0);
                         autoDecrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;

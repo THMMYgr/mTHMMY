@@ -33,7 +33,7 @@ import timber.log.Timber;
 /**
  * Use the {@link LatestPostsFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class LatestPostsFragment extends BaseFragment implements LatestPostsAdapter.OnLoadMoreListener{
+public class LatestPostsFragment extends BaseFragment implements LatestPostsAdapter.OnLoadMoreListener {
     /**
      * The key to use when putting profile's url String to {@link LatestPostsFragment}'s Bundle.
      */

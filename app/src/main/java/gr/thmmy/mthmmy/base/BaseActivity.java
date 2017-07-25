@@ -138,10 +138,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
-    private PrimaryDrawerItem homeItem, downloadsItem, bookmarksItem, loginLogoutItem, aboutItem;
-    private IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected,
-            bookmarksIcon, bookmarksIconSelected, loginIcon, logoutIcon, aboutIcon,
-            aboutIconSelected;
+    private PrimaryDrawerItem downloadsItem, loginLogoutItem;
+    private IconicsDrawable loginIcon, logoutIcon;
 
     /**
      * Call only after initializing Toolbar
@@ -150,6 +148,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         final int primaryColor = ContextCompat.getColor(this, R.color.iron);
         final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
+
+        PrimaryDrawerItem homeItem, bookmarksItem, aboutItem;
+        IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected,
+                bookmarksIcon, bookmarksIconSelected, aboutIcon,
+                aboutIconSelected;
 
         //Drawer Icons
         homeIcon = new IconicsDrawable(this)

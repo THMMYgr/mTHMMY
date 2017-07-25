@@ -26,6 +26,7 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicSummary;
+import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
@@ -39,7 +40,7 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener, UnreadFragment.UnreadFragmentInteractionListener {
 
-//-----------------------------------------CLASS VARIABLES------------------------------------------
+    //-----------------------------------------CLASS VARIABLES------------------------------------------
     private static final int TIME_INTERVAL = 2000;
     private long mBackPressed;
     private SectionsPagerAdapter sectionsPagerAdapter;
@@ -52,8 +53,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         redirectToActivityFromIntent(intentFilter);
         setContentView(R.layout.activity_main);
 
-        if (sessionManager.isLoginScreenDefault())
-        {
+        if (sessionManager.isLoginScreenDefault()) {
             //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -68,7 +68,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         sectionsPagerAdapter.addFragment(RecentFragment.newInstance(1), "RECENT");
         sectionsPagerAdapter.addFragment(ForumFragment.newInstance(2), "FORUM");
-        if(sessionManager.isLoggedIn())
+        if (sessionManager.isLoggedIn())
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
 
 
@@ -129,13 +129,13 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
     @Override
     public void onUnreadFragmentInteraction(TopicSummary topicSummary) {
-        if (topicSummary.getLastUser() == null && topicSummary.getDateTimeModified() == null) {
-            return; //TODO!
-        }
-        Intent i = new Intent(MainActivity.this, TopicActivity.class);
-        i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
-        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
-        startActivity(i);
+        if (topicSummary.getTopicUrl() != null) {
+            Intent i = new Intent(MainActivity.this, TopicActivity.class);
+            i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
+            i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
+            startActivity(i);
+        } else
+            Timber.e("onUnreadFragmentInteraction TopicSummary came without a link");
     }
 
 //---------------------------------FragmentPagerAdapter---------------------------------------------
@@ -164,8 +164,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             fragmentList.remove(position);
             fragmentTitleList.remove(position);
             notifyDataSetChanged();
-            if(viewPager.getCurrentItem()==position)
-                viewPager.setCurrentItem(position-1);
+            if (viewPager.getCurrentItem() == position)
+                viewPager.setCurrentItem(position - 1);
         }
 
         @Override
@@ -185,16 +185,16 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
         @Override
         public int getItemPosition(Object object) {
-            int position = fragmentList.indexOf(object);
+            @SuppressWarnings("RedundantCast")
+            int position = fragmentList.indexOf((Fragment) object);
             return position == -1 ? POSITION_NONE : position;
         }
     }
 
-    public void updateTabs()
-    {
-        if(!sessionManager.isLoggedIn()&&sectionsPagerAdapter.getCount()==3)
+    public void updateTabs() {
+        if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3)
             sectionsPagerAdapter.removeFragment(2);
-        else if(sessionManager.isLoggedIn()&&sectionsPagerAdapter.getCount()==2)
+        else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2)
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------

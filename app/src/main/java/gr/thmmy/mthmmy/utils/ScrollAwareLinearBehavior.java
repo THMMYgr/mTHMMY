@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.utils;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
@@ -14,7 +15,7 @@ import android.view.ViewPropertyAnimator;
  * <p>When a nested ScrollView is scrolled down, the view will disappear.
  * When the ScrollView is scrolled back up, the view will reappear.</p>
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings("unused")
 public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> {
     private static final int ANIMATION_DURATION = 100;
 
@@ -23,15 +24,19 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
     }
 
     @Override
-    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, View child, View directTargetChild, View target, int nestedScrollAxes) {
+    public boolean onStartNestedScroll(@NonNull CoordinatorLayout coordinatorLayout,
+                                       @NonNull View child, @NonNull View directTargetChild,
+                                       @NonNull View target, int nestedScrollAxes, int type) {
         return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override
-    public void onNestedScroll(CoordinatorLayout coordinatorLayout, View bottomNavBar, View target,
+    public void onNestedScroll(@NonNull CoordinatorLayout coordinatorLayout,
+                               @NonNull View bottomNavBar, @NonNull View target,
                                int dxConsumed, int dyConsumed,
-                               int dxUnconsumed, int dyUnconsumed) {
-        super.onNestedScroll(coordinatorLayout, bottomNavBar, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+                               int dxUnconsumed, int dyUnconsumed, int type) {
+        super.onNestedScroll(coordinatorLayout, bottomNavBar, target, dxConsumed, dyConsumed,
+                dxUnconsumed, dyUnconsumed, type);
         if ((dyConsumed > 0 || (!target.canScrollVertically(-1) && dyConsumed == 0
                 && dyUnconsumed < 40)) && bottomNavBar.getVisibility() == View.VISIBLE) {
             hide(bottomNavBar);
