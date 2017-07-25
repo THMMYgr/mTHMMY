@@ -7,7 +7,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -72,6 +71,12 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             Timber.e("Bundle came with a non board url!\nUrl:\n%s", boardUrl);
             Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
             finish();
+        }
+        //Fixes url
+        {
+            String tmpUrlSbstr = boardUrl.replaceAll("(.+)(board=)([0-9]*)(\\.*[0-9]*).*", "$1$2$3");
+            if (!tmpUrlSbstr.substring(tmpUrlSbstr.indexOf("board=")).contains("."))
+                boardUrl = tmpUrlSbstr + ".0";
         }
 
         //Initializes graphics
@@ -164,7 +169,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("Boardaa", "onResume called!");
         refreshBoardBookmark((ImageButton) findViewById(R.id.bookmark));
     }
 
