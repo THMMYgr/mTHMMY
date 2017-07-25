@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -34,7 +33,7 @@ public class BookmarkActivity extends BaseActivity {
         setContentView(R.layout.activity_bookmark);
 
         //Initialize toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Bookmarks");
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -45,7 +44,7 @@ public class BookmarkActivity extends BaseActivity {
         createDrawer();
         drawer.setSelection(BOOKMARKS_ID);
 
-        LinearLayout bookmarksLinearView = (LinearLayout) findViewById(R.id.bookmarks_container);
+        LinearLayout bookmarksLinearView = findViewById(R.id.bookmarks_container);
         LayoutInflater layoutInflater = getLayoutInflater();
 
         if(!getBoardsBookmarked().isEmpty()) {

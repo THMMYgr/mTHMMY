@@ -6,7 +6,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebView;
@@ -36,10 +35,10 @@ public class AboutActivity extends BaseActivity {
         String versionName = BuildConfig.VERSION_NAME;
 
         //Initialize appbar
-        appBar = (AppBarLayout) findViewById(R.id.appbar);
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_content);
+        appBar = findViewById(R.id.appbar);
+        coordinatorLayout = findViewById(R.id.main_content);
         //Initialize toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.about);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -50,10 +49,10 @@ public class AboutActivity extends BaseActivity {
         createDrawer();
         drawer.setSelection(ABOUT_ID);
 
-        final ScrollView mainContent = (ScrollView) findViewById(R.id.scrollview);
-        trollGif = (FrameLayout) findViewById(R.id.trollPicFrame);
+        final ScrollView mainContent = findViewById(R.id.scrollview);
+        trollGif = findViewById(R.id.trollPicFrame);
 
-        TextView tv = (TextView) findViewById(R.id.version);
+        TextView tv = findViewById(R.id.version);
         if (tv != null)
             tv.setText(getString(R.string.version, versionName));
 

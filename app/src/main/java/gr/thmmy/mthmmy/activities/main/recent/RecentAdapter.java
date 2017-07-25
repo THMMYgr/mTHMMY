@@ -77,9 +77,9 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
         ViewHolder(View view) {
             super(view);
             mView = view;
-            mTitleView = (TextView) view.findViewById(R.id.title);
-            mUserView = (TextView) view.findViewById(R.id.lastUser);
-            mDateTimeView = (TextView) view.findViewById(R.id.dateTime);
+            mTitleView = view.findViewById(R.id.title);
+            mUserView = view.findViewById(R.id.lastUser);
+            mDateTimeView = view.findViewById(R.id.dateTime);
         }
     }
 }

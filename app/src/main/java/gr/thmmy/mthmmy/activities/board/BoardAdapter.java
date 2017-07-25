@@ -275,13 +275,13 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         SubBoardViewHolder(View board) {
             super(board);
-            boardRow = (LinearLayout) board.findViewById(R.id.child_board_row);
-            boardExpandable = (LinearLayout) board.findViewById(R.id.child_board_expandable);
-            showHideExpandable = (ImageButton) board.findViewById(R.id.child_board_expand_collapse_button);
-            boardTitle = (TextView) board.findViewById(R.id.child_board_title);
-            boardMods = (TextView) board.findViewById(R.id.child_board_mods);
-            boardStats = (TextView) board.findViewById(R.id.child_board_stats);
-            boardLastPost = (TextView) board.findViewById(R.id.child_board_last_post);
+            boardRow = board.findViewById(R.id.child_board_row);
+            boardExpandable = board.findViewById(R.id.child_board_expandable);
+            showHideExpandable = board.findViewById(R.id.child_board_expand_collapse_button);
+            boardTitle = board.findViewById(R.id.child_board_title);
+            boardMods = board.findViewById(R.id.child_board_mods);
+            boardStats = board.findViewById(R.id.child_board_stats);
+            boardLastPost = board.findViewById(R.id.child_board_last_post);
         }
     }
 
@@ -292,13 +292,13 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         TopicViewHolder(View topic) {
             super(topic);
-            topicRow = (LinearLayout) topic.findViewById(R.id.topic_row_linear);
-            topicExpandable = (LinearLayout) topic.findViewById(R.id.topic_expandable);
-            showHideExpandable = (ImageButton) topic.findViewById(R.id.topic_expand_collapse_button);
-            topicSubject = (TextView) topic.findViewById(R.id.topic_subject);
-            topicStartedBy = (TextView) topic.findViewById(R.id.topic_started_by);
-            topicStats = (TextView) topic.findViewById(R.id.topic_stats);
-            topicLastPost = (TextView) topic.findViewById(R.id.topic_last_post);
+            topicRow = topic.findViewById(R.id.topic_row_linear);
+            topicExpandable = topic.findViewById(R.id.topic_expandable);
+            showHideExpandable = topic.findViewById(R.id.topic_expand_collapse_button);
+            topicSubject = topic.findViewById(R.id.topic_subject);
+            topicStartedBy = topic.findViewById(R.id.topic_started_by);
+            topicStats = topic.findViewById(R.id.topic_stats);
+            topicLastPost = topic.findViewById(R.id.topic_last_post);
         }
     }
 
@@ -313,7 +313,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         LoadingViewHolder(View itemView) {
             super(itemView);
-            progressBar = (MaterialProgressBar) itemView.findViewById(R.id.recycler_progress_bar);
+            progressBar = itemView.findViewById(R.id.recycler_progress_bar);
         }
     }
 }

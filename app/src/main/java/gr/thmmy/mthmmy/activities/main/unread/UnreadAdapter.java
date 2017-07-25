@@ -114,9 +114,9 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder(View view) {
             super(view);
             mView = view;
-            mTitleView = (TextView) view.findViewById(R.id.title);
-            mUserView = (TextView) view.findViewById(R.id.lastUser);
-            mDateTimeView = (TextView) view.findViewById(R.id.dateTime);
+            mTitleView = view.findViewById(R.id.title);
+            mUserView = view.findViewById(R.id.lastUser);
+            mDateTimeView = view.findViewById(R.id.dateTime);
         }
     }
 
@@ -125,7 +125,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         EmptyViewHolder(View view) {
             super(view);
-            text = (TextView) view.findViewById(R.id.text);
+            text = view.findViewById(R.id.text);
         }
     }
 
@@ -137,7 +137,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         MarkReadViewHolder(View view) {
             super(view);
             mView = view;
-            text = (TextView) view.findViewById(R.id.mark_read);
+            text = view.findViewById(R.id.mark_read);
         }
     }
 

@@ -42,10 +42,10 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
 
         //Variables initialization
-        inputUsername = (EditText) findViewById(R.id.username);
-        inputPassword = (EditText) findViewById(R.id.password);
-        btnLogin = (AppCompatButton) findViewById(R.id.btnLogin);
-        AppCompatButton btnGuest = (AppCompatButton) findViewById(R.id.btnContinueAsGuest);
+        inputUsername = findViewById(R.id.username);
+        inputPassword = findViewById(R.id.password);
+        btnLogin = findViewById(R.id.btnLogin);
+        AppCompatButton btnGuest = findViewById(R.id.btnContinueAsGuest);
 
         //Login button Click Event
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -138,8 +138,8 @@ public class LoginActivity extends BaseActivity {
         protected void onPreExecute() { //Show a progress dialog until done
             btnLogin.setEnabled(false); //Login button shouldn't be pressed during this
 
-            spinner = (LinearLayout) findViewById(R.id.login_progress_bar);
-            loginContent = (ScrollView) findViewById(R.id.inner_scroll_view);
+            spinner = findViewById(R.id.login_progress_bar);
+            loginContent = findViewById(R.id.inner_scroll_view);
 
             View view = getCurrentFocus();
             if (view != null) {

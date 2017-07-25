@@ -98,7 +98,7 @@ public class UnreadFragment extends BaseFragment {
 
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
-            progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
+            progressBar = rootView.findViewById(R.id.progressBar);
             unreadAdapter = new UnreadAdapter(getActivity(), topicSummaries,
                     fragmentInteractionListener, new UnreadAdapter.MarkReadInteractionListener() {
                 @Override
@@ -110,7 +110,7 @@ public class UnreadFragment extends BaseFragment {
                 }
             });
 
-            CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
+            CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
@@ -118,7 +118,7 @@ public class UnreadFragment extends BaseFragment {
             recyclerView.addItemDecoration(dividerItemDecoration);
             recyclerView.setAdapter(unreadAdapter);
 
-            swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
             swipeRefreshLayout.setOnRefreshListener(
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override

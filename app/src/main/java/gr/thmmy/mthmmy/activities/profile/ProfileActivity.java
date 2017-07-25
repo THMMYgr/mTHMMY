@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -105,7 +104,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         profileUrl = extras.getString(BUNDLE_PROFILE_URL);
 
         //Initializes graphic elements
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(null);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -115,9 +114,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         createDrawer();
 
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
 
-        thumbnailView = (ImageView) findViewById(R.id.user_thumbnail);
+        thumbnailView = findViewById(R.id.user_thumbnail);
         if (!Objects.equals(thumbnailUrl, ""))
             //noinspection ConstantConditions
             Picasso.with(this)
@@ -130,15 +129,15 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                             , R.drawable.ic_default_user_thumbnail, null))
                     .transform(new CircleTransform())
                     .into(thumbnailView);
-        usernameView = (TextView) findViewById(R.id.profile_activity_username);
+        usernameView = findViewById(R.id.profile_activity_username);
         usernameView.setTypeface(Typeface.createFromAsset(this.getAssets()
                 , "fonts/fontawesome-webfont.ttf"));
         if (username != null && !Objects.equals(username, "")) usernameView.setText(username);
-        personalTextView = (TextView) findViewById(R.id.profile_activity_personal_text);
+        personalTextView = findViewById(R.id.profile_activity_personal_text);
 
-        viewPager = (ViewPager) findViewById(R.id.profile_tab_container);
+        viewPager = findViewById(R.id.profile_tab_container);
 
-        pmFAB = (FloatingActionButton) findViewById(R.id.profile_fab);
+        pmFAB = findViewById(R.id.profile_fab);
         pmFAB.setEnabled(false);
         pmFAB.hide();
         /*if (!sessionManager.isLoggedIn()) pmFAB.hide();
@@ -311,7 +310,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             }
 
             setupViewPager(viewPager, profilePage);
-            TabLayout tabLayout = (TabLayout) findViewById(R.id.profile_tabs);
+            TabLayout tabLayout = findViewById(R.id.profile_tabs);
             tabLayout.setupWithViewPager(viewPager);
             if (tabSelect != 0) {
                 TabLayout.Tab tab = tabLayout.getTabAt(tabSelect);

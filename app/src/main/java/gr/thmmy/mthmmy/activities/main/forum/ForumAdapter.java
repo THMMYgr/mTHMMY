@@ -70,7 +70,7 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
 
         CategoryViewHolder(View itemView) {
             super(itemView);
-            categoryTextview = (TextView) itemView.findViewById(R.id.category);
+            categoryTextview = itemView.findViewById(R.id.category);
         }
 
         void bind(Category category) {
@@ -86,7 +86,7 @@ class ForumAdapter extends ExpandableRecyclerAdapter<Category, Board, ForumAdapt
 
         BoardViewHolder(View itemView) {
             super(itemView);
-            boardTextView = (TextView) itemView.findViewById(R.id.board);
+            boardTextView = itemView.findViewById(R.id.board);
         }
 
         void bind(final Board board) {

@@ -174,14 +174,14 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         DownloadViewHolder(View download) {
             super(download);
-            upperLinear = (LinearLayout) download.findViewById(R.id.upper_linear);
-            downloadRow = (LinearLayout) download.findViewById(R.id.download_row);
-            informationExpandable = (LinearLayout) download.findViewById(R.id.child_board_expandable);
-            title = (TextView) download.findViewById(R.id.download_title);
-            subTitle = (TextView) download.findViewById(R.id.download_sub_title);
-            uploaderDate = (TextView) download.findViewById(R.id.download_extra_info);
-            extraInfo = (TextView) download.findViewById(R.id.download_uploader_date);
-            informationExpandableBtn = (ImageButton) download.findViewById(R.id.download_information_button);
+            upperLinear = download.findViewById(R.id.upper_linear);
+            downloadRow = download.findViewById(R.id.download_row);
+            informationExpandable = download.findViewById(R.id.child_board_expandable);
+            title = download.findViewById(R.id.download_title);
+            subTitle = download.findViewById(R.id.download_sub_title);
+            uploaderDate = download.findViewById(R.id.download_extra_info);
+            extraInfo = download.findViewById(R.id.download_uploader_date);
+            informationExpandableBtn = download.findViewById(R.id.download_information_button);
         }
     }
 
@@ -190,7 +190,7 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         LoadingViewHolder(View itemView) {
             super(itemView);
-            progressBar = (MaterialProgressBar) itemView.findViewById(R.id.recycler_progress_bar);
+            progressBar = itemView.findViewById(R.id.recycler_progress_bar);
         }
     }
 }

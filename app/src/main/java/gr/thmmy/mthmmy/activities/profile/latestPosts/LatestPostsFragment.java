@@ -84,7 +84,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_latest_posts, container, false);
         latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener, parsedTopicSummaries);
-        RecyclerView mainContent = (RecyclerView) rootView.findViewById(R.id.profile_latest_posts_recycler);
+        RecyclerView mainContent = rootView.findViewById(R.id.profile_latest_posts_recycler);
         mainContent.setAdapter(latestPostsAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mainContent.setLayoutManager(layoutManager);
@@ -106,7 +106,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                 }
             }
         });
-        progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
+        progressBar = rootView.findViewById(R.id.progressBar);
         return rootView;
     }
 

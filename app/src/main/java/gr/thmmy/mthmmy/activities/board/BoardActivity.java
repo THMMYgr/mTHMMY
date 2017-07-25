@@ -7,7 +7,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -76,7 +75,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         //Initializes graphics
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         if (boardTitle != null && !Objects.equals(boardTitle, "")) toolbar.setTitle(boardTitle);
         else toolbar.setTitle("Board");
         setSupportActionBar(toolbar);
@@ -89,8 +88,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         setBoardBookmark((ImageButton) findViewById(R.id.bookmark));
         createDrawer();
 
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
-        newTopicFAB = (FloatingActionButton) findViewById(R.id.board_fab);
+        progressBar = findViewById(R.id.progressBar);
+        newTopicFAB = findViewById(R.id.board_fab);
         newTopicFAB.setEnabled(false);
         newTopicFAB.hide();
         /*if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
@@ -124,7 +123,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }*/
 
         boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
-        RecyclerView mainContent = (RecyclerView) findViewById(R.id.board_recycler_view);
+        RecyclerView mainContent = findViewById(R.id.board_recycler_view);
         mainContent.setAdapter(boardAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mainContent.setLayoutManager(layoutManager);

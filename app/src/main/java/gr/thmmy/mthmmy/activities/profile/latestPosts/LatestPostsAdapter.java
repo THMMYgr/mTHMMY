@@ -97,10 +97,10 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         LatestPostViewHolder(View itemView) {
             super(itemView);
-            latestPostsRow = (RelativeLayout) itemView.findViewById(R.id.latest_posts_row);
-            postTitle = (TextView) itemView.findViewById(R.id.title);
-            postDate = (TextView) itemView.findViewById(R.id.date);
-            post = (WebView) itemView.findViewById(R.id.post);
+            latestPostsRow = itemView.findViewById(R.id.latest_posts_row);
+            postTitle = itemView.findViewById(R.id.title);
+            postDate = itemView.findViewById(R.id.date);
+            post = itemView.findViewById(R.id.post);
         }
     }
 
@@ -109,7 +109,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         LoadingViewHolder(View itemView) {
             super(itemView);
-            progressBar = (MaterialProgressBar) itemView.findViewById(R.id.recycler_progress_bar);
+            progressBar = itemView.findViewById(R.id.recycler_progress_bar);
         }
     }
 }
