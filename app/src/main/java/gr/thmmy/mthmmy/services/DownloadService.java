@@ -106,9 +106,9 @@ public class DownloadService extends IntentService {
             Request request = new Request.Builder().url(downloadLink).build();
             Response response = client.newCall(request).execute();
 
-            String contentType = response.headers("Content-Type").toString();   //check if link provides a binary file
-            if (contentType.equals("[application/octet-stream]")) {
-                fileName = response.headers("Content-Disposition").toString().split("\"")[1];
+            String contentDisposition = response.headers("Content-Disposition").toString();   //check if link provides an attachment
+            if (contentDisposition.contains("attachment")){
+                fileName = contentDisposition.split("\"")[1];
 
                 File dirPath = new File(SAVE_DIR);
                 if (!dirPath.isDirectory()) {
@@ -150,7 +150,7 @@ public class DownloadService extends IntentService {
                 Timber.i("Download OK!");
                 sendNotification(downloadId, COMPLETED, fileName);
             } else
-                Timber.e("Response not a binary file!");
+                Timber.e("No attachment in response!");
         } catch (FileNotFoundException e) {
             Timber.i("Download failed...");
             Timber.e(e, "FileNotFound");
