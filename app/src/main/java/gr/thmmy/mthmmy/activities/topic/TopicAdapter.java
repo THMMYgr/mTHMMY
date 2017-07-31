@@ -139,7 +139,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     inflate(R.layout.activity_topic_quick_reply_row, parent, false);
             view.findViewById(R.id.quick_reply_submit).setEnabled(true);
 
-            final EditText quickReplyText = (EditText) view.findViewById(R.id.quick_reply_text);
+            final EditText quickReplyText = view.findViewById(R.id.quick_reply_text);
             quickReplyText.setFocusableInTouchMode(true);
             quickReplyText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
@@ -511,29 +511,29 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             super(view);
             //Initializes layout's graphic elements
             //Standard stuff
-            cardView = (CardView) view.findViewById(R.id.card_view);
-            cardChildLinear = (LinearLayout) view.findViewById(R.id.card_child_linear);
-            postDateAndNumber = (FrameLayout) view.findViewById(R.id.post_date_and_number_exp);
-            postDate = (TextView) view.findViewById(R.id.post_date);
-            postNum = (TextView) view.findViewById(R.id.post_number);
-            thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
-            username = (TextView) view.findViewById(R.id.username);
-            subject = (TextView) view.findViewById(R.id.subject);
-            post = (WebView) view.findViewById(R.id.post);
+            cardView = view.findViewById(R.id.card_view);
+            cardChildLinear = view.findViewById(R.id.card_child_linear);
+            postDateAndNumber = view.findViewById(R.id.post_date_and_number_exp);
+            postDate = view.findViewById(R.id.post_date);
+            postNum = view.findViewById(R.id.post_number);
+            thumbnail = view.findViewById(R.id.thumbnail);
+            username = view.findViewById(R.id.username);
+            subject = view.findViewById(R.id.subject);
+            post = view.findViewById(R.id.post);
             post.setBackgroundColor(Color.argb(1, 255, 255, 255));
-            quoteToggle = (ImageButton) view.findViewById(R.id.toggle_quote_button);
+            quoteToggle = view.findViewById(R.id.toggle_quote_button);
             bodyFooterDivider = view.findViewById(R.id.body_footer_divider);
-            postFooter = (LinearLayout) view.findViewById(R.id.post_footer);
+            postFooter = view.findViewById(R.id.post_footer);
 
             //User's extra info
-            header = (RelativeLayout) view.findViewById(R.id.header);
-            userExtraInfo = (LinearLayout) view.findViewById(R.id.user_extra_info);
-            specialRank = (TextView) view.findViewById(R.id.special_rank);
-            rank = (TextView) view.findViewById(R.id.rank);
-            gender = (TextView) view.findViewById(R.id.gender);
-            numberOfPosts = (TextView) view.findViewById(R.id.number_of_posts);
-            personalText = (TextView) view.findViewById(R.id.personal_text);
-            stars = (TextView) view.findViewById(R.id.stars);
+            header = view.findViewById(R.id.header);
+            userExtraInfo = view.findViewById(R.id.user_extra_info);
+            specialRank = view.findViewById(R.id.special_rank);
+            rank = view.findViewById(R.id.rank);
+            gender = view.findViewById(R.id.gender);
+            numberOfPosts = view.findViewById(R.id.number_of_posts);
+            personalText = view.findViewById(R.id.personal_text);
+            stars = view.findViewById(R.id.stars);
         }
     }
 
@@ -550,15 +550,15 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         QuickReplyViewHolder(View quickReply, CustomEditTextListener replySubject
                 , CustomEditTextListener replyText) {
             super(quickReply);
-            thumbnail = (ImageView) quickReply.findViewById(R.id.thumbnail);
-            username = (TextView) quickReply.findViewById(R.id.username);
-            this.quickReply = (EditText) quickReply.findViewById(R.id.quick_reply_text);
+            thumbnail = quickReply.findViewById(R.id.thumbnail);
+            username = quickReply.findViewById(R.id.username);
+            this.quickReply = quickReply.findViewById(R.id.quick_reply_text);
             this.replyText = replyText;
             this.quickReply.addTextChangedListener(replyText);
-            quickReplySubject = (EditText) quickReply.findViewById(R.id.quick_reply_subject);
+            quickReplySubject = quickReply.findViewById(R.id.quick_reply_subject);
             this.replySubject = replySubject;
             quickReplySubject.addTextChangedListener(replySubject);
-            submitButton = (AppCompatImageButton) quickReply.findViewById(R.id.quick_reply_submit);
+            submitButton = quickReply.findViewById(R.id.quick_reply_submit);
         }
     }
 

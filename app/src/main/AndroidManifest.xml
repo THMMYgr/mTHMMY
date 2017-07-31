@@ -90,7 +90,6 @@
         </activity>
         <activity
             android:name=".activities.downloads.DownloadsActivity"
-            android:launchMode="singleInstance"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

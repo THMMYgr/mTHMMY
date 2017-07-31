@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -143,8 +142,8 @@ public class TopicActivity extends BaseActivity {
         thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
 
         //Initializes graphics
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolbar = findViewById(R.id.toolbar);
+        toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
         toolbarTitle.setSingleLine(true);
         toolbarTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         toolbarTitle.setMarqueeRepeatLimit(-1);
@@ -162,11 +161,11 @@ public class TopicActivity extends BaseActivity {
 
         createDrawer();
 
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
 
         postsList = new ArrayList<>();
 
-        recyclerView = (RecyclerView) findViewById(R.id.topic_recycler_view);
+        recyclerView = findViewById(R.id.topic_recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setOnTouchListener(
                 new View.OnTouchListener() {
@@ -183,9 +182,9 @@ public class TopicActivity extends BaseActivity {
         topicAdapter = new TopicAdapter(this, postsList, topicTask);
         recyclerView.setAdapter(topicAdapter);
 
-        replyFAB = (FloatingActionButton) findViewById(R.id.topic_fab);
+        replyFAB = findViewById(R.id.topic_fab);
         replyFAB.setEnabled(false);
-        bottomNavBar = (LinearLayout) findViewById(R.id.bottom_navigation_bar);
+        bottomNavBar = findViewById(R.id.bottom_navigation_bar);
         if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
             replyFAB.setOnClickListener(new View.OnClickListener() {
@@ -204,11 +203,11 @@ public class TopicActivity extends BaseActivity {
         }
 
         //Sets bottom navigation bar
-        firstPage = (ImageButton) findViewById(R.id.page_first_button);
-        previousPage = (ImageButton) findViewById(R.id.page_previous_button);
-        pageIndicator = (TextView) findViewById(R.id.page_indicator);
-        nextPage = (ImageButton) findViewById(R.id.page_next_button);
-        lastPage = (ImageButton) findViewById(R.id.page_last_button);
+        firstPage = findViewById(R.id.page_first_button);
+        previousPage = findViewById(R.id.page_previous_button);
+        pageIndicator = findViewById(R.id.page_indicator);
+        nextPage = findViewById(R.id.page_next_button);
+        lastPage = findViewById(R.id.page_last_button);
 
         initDecrementButton(firstPage, LARGE_STEP);
         initDecrementButton(previousPage, SMALL_STEP);
@@ -242,11 +241,10 @@ public class TopicActivity extends BaseActivity {
                 LayoutInflater inflater = this.getLayoutInflater();
                 LinearLayout infoDialog = (LinearLayout) inflater.inflate(R.layout.dialog_topic_info
                         , null);
-                ((TextView) infoDialog.findViewById(R.id.dialog_title)).setText("Info");
-                TextView treeAndMods = (TextView) infoDialog.findViewById(R.id.topic_tree_and_mods);
+                TextView treeAndMods = infoDialog.findViewById(R.id.topic_tree_and_mods);
                 treeAndMods.setText(topicTreeAndMods);
                 treeAndMods.setMovementMethod(LinkMovementMethod.getInstance());
-                TextView usersViewing = (TextView) infoDialog.findViewById(R.id.users_viewing);
+                TextView usersViewing = infoDialog.findViewById(R.id.users_viewing);
                 usersViewing.setText(topicViewers);
                 usersViewing.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -318,25 +316,25 @@ public class TopicActivity extends BaseActivity {
         lastPage.setEnabled(enabled);
     }
 
-    private void paginationEnabledExcept(boolean enabled, View exception) {
+    private void paginationDisable(View exception) {
         if (exception == firstPage) {
-            previousPage.setEnabled(enabled);
-            nextPage.setEnabled(enabled);
-            lastPage.setEnabled(enabled);
+            previousPage.setEnabled(false);
+            nextPage.setEnabled(false);
+            lastPage.setEnabled(false);
         } else if (exception == previousPage) {
-            firstPage.setEnabled(enabled);
-            nextPage.setEnabled(enabled);
-            lastPage.setEnabled(enabled);
+            firstPage.setEnabled(false);
+            nextPage.setEnabled(false);
+            lastPage.setEnabled(false);
         } else if (exception == nextPage) {
-            firstPage.setEnabled(enabled);
-            previousPage.setEnabled(enabled);
-            lastPage.setEnabled(enabled);
+            firstPage.setEnabled(false);
+            previousPage.setEnabled(false);
+            lastPage.setEnabled(false);
         } else if (exception == lastPage) {
-            firstPage.setEnabled(enabled);
-            previousPage.setEnabled(enabled);
-            nextPage.setEnabled(enabled);
+            firstPage.setEnabled(false);
+            previousPage.setEnabled(false);
+            nextPage.setEnabled(false);
         } else {
-            paginationEnabled(enabled);
+            paginationEnabled(false);
         }
     }
 
@@ -357,7 +355,7 @@ public class TopicActivity extends BaseActivity {
         increment.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
-                        paginationEnabledExcept(false, arg0);
+                        paginationDisable(arg0);
                         autoIncrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;
@@ -405,7 +403,7 @@ public class TopicActivity extends BaseActivity {
         decrement.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     public boolean onLongClick(View arg0) {
-                        paginationEnabledExcept(false, arg0);
+                        paginationDisable(arg0);
                         autoDecrement = true;
                         repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
                         return false;

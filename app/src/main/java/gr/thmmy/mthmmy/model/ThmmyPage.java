@@ -162,7 +162,7 @@ public class ThmmyPage {
                     || Objects.equals(uriString, "https://www.thmmy.gr")
                     || Objects.equals(uriString, "https://www.thmmy.gr/smf/index.php"))
                 return PageCategory.INDEX;
-            Timber.v("Unknown thmmy link found, link: %s" , uriString);
+            Timber.v("Unknown thmmy link found, link: %s", uriString);
             return PageCategory.UNKNOWN_THMMY;
         }
         return PageCategory.NOT_THMMY;
@@ -172,7 +172,7 @@ public class ThmmyPage {
         if (resolvePageCategory(Uri.parse(boardUrl)) == PageCategory.BOARD) {
             String returnString = boardUrl.substring(boardUrl.indexOf("board=") + 6);
             if (returnString.contains("."))
-                returnString = boardUrl.substring(boardUrl.indexOf("board=") + 6, boardUrl.lastIndexOf("."));
+                returnString = returnString.substring(0, returnString.indexOf("."));
             return returnString;
         }
         return null;
@@ -180,8 +180,10 @@ public class ThmmyPage {
 
     public static String getTopicId(String topicUrl) {
         if (resolvePageCategory(Uri.parse(topicUrl)) == PageCategory.TOPIC) {
-            String tmp = topicUrl.substring(topicUrl.indexOf("topic=") + 6);
-            return tmp.substring(0, tmp.indexOf("."));
+            String returnString = topicUrl.substring(topicUrl.indexOf("topic=") + 6);
+            if (returnString.contains("."))
+                returnString = returnString.substring(0, returnString.indexOf("."));
+            return returnString;
         }
         return null;
     }

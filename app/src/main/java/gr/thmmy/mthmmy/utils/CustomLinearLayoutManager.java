@@ -3,12 +3,11 @@ package gr.thmmy.mthmmy.utils;
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import timber.log.Timber;
 
 public class CustomLinearLayoutManager extends LinearLayoutManager {
-    private String pageUrl;
+    private final String pageUrl;
 
     public CustomLinearLayoutManager(Context context, String pageUrl) {
         super(context);
@@ -21,8 +20,6 @@ public class CustomLinearLayoutManager extends LinearLayoutManager {
             super.onLayoutChildren(recycler, state);
         } catch (IndexOutOfBoundsException e) {
             Timber.wtf(e, "Inconsistency detected: topic_requested = \"" + pageUrl + "\"");
-            Log.d("CustomLinearLayoutMan", "Inconsistency detected: topic_requested = \""
-                    + pageUrl + "\"", e);
         }
     }
 

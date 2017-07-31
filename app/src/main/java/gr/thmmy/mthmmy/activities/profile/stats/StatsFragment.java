@@ -90,8 +90,8 @@ public class StatsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_stats, container, false);
-        mainContent = (LinearLayout) rootView.findViewById(R.id.main_content);
-        progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
+        mainContent = rootView.findViewById(R.id.main_content);
+        progressBar = rootView.findViewById(R.id.progressBar);
         if (haveParsed)
             populateLayout();
         return rootView;
@@ -224,7 +224,7 @@ public class StatsFragment extends Fragment {
         ((TextView) mainContent.findViewById(R.id.posting_activity_by_time_title))
                 .setText(postingActivityByTimeTitle);
 
-        LineChart postingActivityByTimeChart = (LineChart) mainContent
+        LineChart postingActivityByTimeChart = mainContent
                 .findViewById(R.id.posting_activity_by_time_chart);
         postingActivityByTimeChart.setDescription(null);
         postingActivityByTimeChart.getLegend().setEnabled(false);
@@ -257,7 +257,7 @@ public class StatsFragment extends Fragment {
         ((TextView) mainContent.findViewById(R.id.most_popular_boards_by_posts_title))
                 .setText(mostPopularBoardsByPostsTitle);
 
-        HorizontalBarChart mostPopularBoardsByPostsChart = (HorizontalBarChart) mainContent.
+        HorizontalBarChart mostPopularBoardsByPostsChart = mainContent.
                 findViewById(R.id.most_popular_boards_by_posts_chart);
         mostPopularBoardsByPostsChart.setDescription(null);
         mostPopularBoardsByPostsChart.getLegend().setEnabled(false);
@@ -298,7 +298,7 @@ public class StatsFragment extends Fragment {
         ((TextView) mainContent.findViewById(R.id.most_popular_boards_by_activity_title))
                 .setText(mostPopularBoardsByActivityTitle);
 
-        HorizontalBarChart mostPopularBoardsByActivityChart = (HorizontalBarChart) mainContent.
+        HorizontalBarChart mostPopularBoardsByActivityChart = mainContent.
                 findViewById(R.id.most_popular_boards_by_activity_chart);
         mostPopularBoardsByActivityChart.setDescription(null);
         mostPopularBoardsByActivityChart.getLegend().setEnabled(false);

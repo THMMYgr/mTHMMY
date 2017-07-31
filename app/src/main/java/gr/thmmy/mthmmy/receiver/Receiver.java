@@ -29,8 +29,7 @@ import static gr.thmmy.mthmmy.services.DownloadService.STARTED;
 
 public class Receiver extends BroadcastReceiver {
 
-    public Receiver() {
-    }
+    public Receiver() {}
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -48,11 +47,11 @@ public class Receiver extends BroadcastReceiver {
             builder.setContentTitle(title)
                     .setContentText(text)
                     .setTicker(ticker)
-                    .setAutoCancel(true)
-                    .setSmallIcon(R.drawable.ic_file_download);
+                    .setAutoCancel(true);
 
             if (state.equals(STARTED))
-                builder.setOngoing(true);
+                builder.setOngoing(true)
+                        .setSmallIcon(android.R.drawable.stat_sys_download);
             else if (state.equals(COMPLETED)) {
                 String fileName = extras.getString(EXTRA_FILE_NAME, "NONE");
 
@@ -68,7 +67,8 @@ public class Receiver extends BroadcastReceiver {
                     Intent chooser = Intent.createChooser(chooserIntent, "Open With...");
 
                     PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, chooser, PendingIntent.FLAG_CANCEL_CURRENT);
-                    builder.setContentIntent(pendingIntent);
+                    builder.setContentIntent(pendingIntent)
+                            .setSmallIcon(android.R.drawable.stat_sys_download_done);
 
                 } else
                     Timber.w("File doesn't exist.");

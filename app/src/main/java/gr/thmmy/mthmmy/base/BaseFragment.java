@@ -13,15 +13,12 @@ public abstract class BaseFragment extends Fragment {
 
     protected FragmentInteractionListener fragmentInteractionListener;
 
-    private String TAG;
-    private int sectionNumber;
     protected static OkHttpClient client;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TAG = getArguments().getString(ARG_TAG);
-        sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+        //int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
         if (client == null)
             client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
         // becomes null when app restarts after crash

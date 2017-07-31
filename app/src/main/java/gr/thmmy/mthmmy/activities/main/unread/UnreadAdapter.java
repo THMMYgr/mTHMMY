@@ -58,18 +58,18 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof UnreadAdapter.EmptyViewHolder) {
             final UnreadAdapter.EmptyViewHolder emptyViewHolder = (UnreadAdapter.EmptyViewHolder) holder;
-            emptyViewHolder.text.setText(unreadList.get(position).getDateTimeModified());
+            emptyViewHolder.text.setText(unreadList.get(holder.getAdapterPosition()).getDateTimeModified());
         } else if (holder instanceof UnreadAdapter.ViewHolder) {
             final UnreadAdapter.ViewHolder viewHolder = (UnreadAdapter.ViewHolder) holder;
 
-            viewHolder.mTitleView.setText(unreadList.get(position).getSubject());
-            viewHolder.mDateTimeView.setText(unreadList.get(position).getDateTimeModified());
+            viewHolder.mTitleView.setText(unreadList.get(holder.getAdapterPosition()).getSubject());
+            viewHolder.mDateTimeView.setText(unreadList.get(holder.getAdapterPosition()).getDateTimeModified());
             viewHolder.mUserView.setText(context.getString(R.string.byUser, unreadList.get(position).getLastUser()));
 
-            viewHolder.topic = unreadList.get(position);
+            viewHolder.topic = unreadList.get(holder.getAdapterPosition());
 
             viewHolder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -83,8 +83,8 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         } else if (holder instanceof UnreadAdapter.MarkReadViewHolder) {
             final UnreadAdapter.MarkReadViewHolder markReadViewHolder = (UnreadAdapter.MarkReadViewHolder) holder;
-            markReadViewHolder.text.setText(unreadList.get(position).getSubject());
-            markReadViewHolder.topic = unreadList.get(position);
+            markReadViewHolder.text.setText(unreadList.get(holder.getAdapterPosition()).getSubject());
+            markReadViewHolder.topic = unreadList.get(holder.getAdapterPosition());
 
             markReadViewHolder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -92,7 +92,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     if (null != mListener) {
                         // Notify the active callbacks interface (the activity, if the
                         // fragment is attached to one) that an item has been selected.
-                        markReadListener.onMarkReadInteraction(unreadList.get(position).getTopicUrl());
+                        markReadListener.onMarkReadInteraction(unreadList.get(holder.getAdapterPosition()).getTopicUrl());
                     }
                 }
             });
@@ -114,9 +114,9 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ViewHolder(View view) {
             super(view);
             mView = view;
-            mTitleView = (TextView) view.findViewById(R.id.title);
-            mUserView = (TextView) view.findViewById(R.id.lastUser);
-            mDateTimeView = (TextView) view.findViewById(R.id.dateTime);
+            mTitleView = view.findViewById(R.id.title);
+            mUserView = view.findViewById(R.id.lastUser);
+            mDateTimeView = view.findViewById(R.id.dateTime);
         }
     }
 
@@ -125,7 +125,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         EmptyViewHolder(View view) {
             super(view);
-            text = (TextView) view.findViewById(R.id.text);
+            text = view.findViewById(R.id.text);
         }
     }
 
@@ -137,11 +137,11 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         MarkReadViewHolder(View view) {
             super(view);
             mView = view;
-            text = (TextView) view.findViewById(R.id.mark_read);
+            text = view.findViewById(R.id.mark_read);
         }
     }
 
-    public interface MarkReadInteractionListener {
+    interface MarkReadInteractionListener {
         void onMarkReadInteraction(String markReadLinkUrl);
     }
 }

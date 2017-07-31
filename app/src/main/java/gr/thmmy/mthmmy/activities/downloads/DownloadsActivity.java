@@ -7,7 +7,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -75,7 +74,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         } else downloadsUrl = downloadsIndexUrl;
 
         //Initialize toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
             toolbar.setTitle("Downloads");
         toolbar.setTitle(downloadsTitle);
@@ -88,9 +87,9 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         createDrawer();
         drawer.setSelection(DOWNLOADS_ID);
 
-        progressBar = (MaterialProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
 
-        recyclerView = (RecyclerView) findViewById(R.id.downloads_recycler_view);
+        recyclerView = findViewById(R.id.downloads_recycler_view);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -113,7 +112,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             }
         });
 
-        uploadFAB = (FloatingActionButton) findViewById(R.id.download_fab);
+        uploadFAB = findViewById(R.id.download_fab);
         uploadFAB.setEnabled(false);
         uploadFAB.hide();
 

@@ -77,7 +77,7 @@ public class SummaryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_summary, container, false);
-        mainContent = (LinearLayout) rootView.findViewById(R.id.profile_activity_content);
+        mainContent = rootView.findViewById(R.id.profile_activity_content);
         if (!parsedProfileSummaryData.isEmpty() && isAdded())
             populateLayout();
         return rootView;

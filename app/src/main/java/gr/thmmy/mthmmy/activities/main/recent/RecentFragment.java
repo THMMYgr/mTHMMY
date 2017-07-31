@@ -95,10 +95,10 @@ public class RecentFragment extends BaseFragment {
 
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
-            progressBar = (MaterialProgressBar) rootView.findViewById(R.id.progressBar);
+            progressBar = rootView.findViewById(R.id.progressBar);
             recentAdapter = new RecentAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
 
-            CustomRecyclerView recyclerView = (CustomRecyclerView) rootView.findViewById(R.id.list);
+            CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
@@ -106,7 +106,7 @@ public class RecentFragment extends BaseFragment {
             recyclerView.addItemDecoration(dividerItemDecoration);
             recyclerView.setAdapter(recentAdapter);
 
-            swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
             swipeRefreshLayout.setOnRefreshListener(
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override
