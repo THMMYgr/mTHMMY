@@ -16,6 +16,9 @@
 #   public *;
 #}
 
+# Don't obfuscate code (due to issues in Firebase)
+-dontobfuscate
+
 # OkHttp
 -dontwarn okio.**
 -dontwarn javax.annotation.Nullable
@@ -33,5 +36,5 @@
 # android-gif-drawable
 -keep public class pl.droidsonroids.gif.GifIOException{<init>(int, java.lang.String);}
 
-#JSoup
+# JSoup
 -keep class org.jsoup.**

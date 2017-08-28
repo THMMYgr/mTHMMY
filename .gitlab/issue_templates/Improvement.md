@@ -1,5 +1,0 @@
-### Description
-
-### Proposal
-
-### Links / references
