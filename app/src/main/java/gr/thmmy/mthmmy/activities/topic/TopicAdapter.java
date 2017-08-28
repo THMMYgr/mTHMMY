@@ -181,7 +181,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Post's WebView parameters
             holder.post.setClickable(true);
             holder.post.setWebViewClient(new LinkLauncher());
-            holder.post.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
             //Avoids errors about layout having 0 width/height
             holder.thumbnail.setMinimumWidth(1);
@@ -482,6 +481,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         notifyItemRangeInserted(0, postsList.size());
         //notifyDataSetChanged();
+    }
+
+    //Fix for WebView not rendering with Hardware Acceleration
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder instanceof PostViewHolder)
+            ((PostViewHolder) holder).post.reload();
     }
 
     @Override
