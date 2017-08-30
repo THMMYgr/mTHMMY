@@ -483,14 +483,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         //notifyDataSetChanged();
     }
 
-    //Fix for WebView not rendering with Hardware Acceleration
-    @Override
-    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        if (holder instanceof PostViewHolder)
-            ((PostViewHolder) holder).post.reload();
-    }
-
     @Override
     public int getItemCount() {
         return postsList.size();
