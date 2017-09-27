@@ -138,6 +138,7 @@ public class RecentFragment extends BaseFragment {
 
     //---------------------------------------ASYNC TASK-----------------------------------
     private class RecentTask extends ParseTask {
+        @Override
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
         }

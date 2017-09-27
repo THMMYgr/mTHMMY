@@ -39,6 +39,7 @@
         android:layout_gravity="top|start"
         android:background="@color/background"
         android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:clipToPadding="false"
         android:scrollbars="none"
         tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity"

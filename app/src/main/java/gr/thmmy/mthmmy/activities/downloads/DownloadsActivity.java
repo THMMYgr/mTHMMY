@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -19,15 +18,13 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import javax.net.ssl.SSLHandshakeException;
-
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Download;
 import gr.thmmy.mthmmy.model.ThmmyPage;
+import gr.thmmy.mthmmy.utils.ParseTask;
+import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import okhttp3.Request;
-import okhttp3.Response;
 import timber.log.Timber;
 
 public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.OnLoadMoreListener {
@@ -159,16 +156,14 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     }
 
     /**
-     * An {@link AsyncTask} that handles asynchronous fetching of a downloads page and parsing it's
-     * data. {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link RecyclerView#swapAdapter}
+     * An {@link ParseTask} that handles asynchronous fetching of a downloads page and parsing it's
+     * data. {@link ParseTask#postParsing(ResultCode) postParsing} method calls {@link RecyclerView#swapAdapter}
      * to build graphics.
      * <p>
-     * <p>Calling TopicTask's {@link AsyncTask#execute execute} method needs to have profile's url
+     * <p>Calling TopicTask's {@link ParseTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
-    class ParseDownloadPageTask extends AsyncTask<String, Void, Void> {
-        private String thisPageUrl;
-
+    private class ParseDownloadPageTask extends ParseTask {
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -176,36 +171,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         }
 
         @Override
-        protected Void doInBackground(String... downloadsUrl) {
-            thisPageUrl = downloadsUrl[0];
-            Request request = new Request.Builder()
-                    .url(downloadsUrl[0])
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                parseDownloads(Jsoup.parse(response.body().string()));
-            } catch (SSLHandshakeException e) {
-                Timber.w("Certificate problem (please switch to unsafe connection).");
-            } catch (Exception e) {
-                Timber.e(e, "Exception");
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void voids) {
-            if (downloadsTitle != null && !Objects.equals(downloadsTitle, "") &&
-                    toolbar.getTitle() != downloadsTitle)
-                toolbar.setTitle(downloadsTitle);
-
-            ++pagesLoaded;
-            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(true);
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            downloadsAdapter.notifyDataSetChanged();
-            isLoadingMore = false;
-        }
-
-        private void parseDownloads(Document downloadPage) {
+        protected void parse(Document downloadPage) throws ParseException {
             if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
                 downloadsTitle = downloadPage.select("div.nav>b>a.nav").last().text();
 
@@ -215,7 +181,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             }
 
             Download.DownloadItemType type;
-            if (ThmmyPage.resolvePageCategory(Uri.parse(thisPageUrl)).is(ThmmyPage.
+            if (ThmmyPage.resolvePageCategory(Uri.parse(url)).is(ThmmyPage.
                     PageCategory.DOWNLOADS_CATEGORY))
                 type = Download.DownloadItemType.DOWNLOADS_CATEGORY;
             else type = Download.DownloadItemType.DOWNLOADS_FILE;
@@ -264,6 +230,20 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                         false,
                         rows.select("span:has(a)").first().text()));
             }
+        }
+
+
+        @Override
+        protected void postParsing(ResultCode result) {
+            if (downloadsTitle != null && !Objects.equals(downloadsTitle, "") &&
+                    toolbar.getTitle() != downloadsTitle)
+                toolbar.setTitle(downloadsTitle);
+
+            ++pagesLoaded;
+            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(true);
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            downloadsAdapter.notifyDataSetChanged();
+            isLoadingMore = false;
         }
     }
 }

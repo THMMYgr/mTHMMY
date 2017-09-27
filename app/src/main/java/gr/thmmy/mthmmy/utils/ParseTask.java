@@ -21,6 +21,7 @@ import timber.log.Timber;
  * and modify prepareRequest() as needed.
  */
 public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.ResultCode> {
+    protected String url;
     protected enum ResultCode {
         SUCCESS, PARSING_ERROR, NETWORK_ERROR, OTHER_ERROR
     }
@@ -29,8 +30,9 @@ public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.Result
     protected abstract void postParsing (ParseTask.ResultCode result);  //ResultCode.NETWORK_ERROR is handled automatically
 
     protected Request prepareRequest(String... params) {
+        url = params[0];
         return new Request.Builder()
-                .url(params[0])
+                .url(url)
                 .build();
     }
 
