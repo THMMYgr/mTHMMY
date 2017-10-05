@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
  * specified {@link LatestPostsFragment.LatestPostsFragmentInteractionListener}.
  */
 class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private final int VIEW_TYPE_EMPTY = -1;
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     final private LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
@@ -38,11 +40,18 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
+        if (parsedTopicSummaries.get(position) == null && position == 0) return VIEW_TYPE_EMPTY;
         return parsedTopicSummaries.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_EMPTY) {
+            Log.d("This", "in");
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.fragment_latest_posts_empty_message, parent, false);
+            return new RecyclerView.ViewHolder(view){};
+        }
         if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.fragment_latest_posts_row, parent, false);

@@ -56,6 +56,7 @@ public class StatsFragment extends Fragment {
     private MaterialProgressBar progressBar;
     private boolean haveParsed = false;
 
+    private boolean userHasPosts = true;
     private String generalStatisticsTitle = "", generalStatistics = "", postingActivityByTimeTitle = "", mostPopularBoardsByPostsTitle = "", mostPopularBoardsByActivityTitle = "";
     final private List<Entry> postingActivityByTime = new ArrayList<>();
     final private List<BarEntry> mostPopularBoardsByPosts = new ArrayList<>(), mostPopularBoardsByActivity = new ArrayList<>();
@@ -123,6 +124,7 @@ public class StatsFragment extends Fragment {
      * as String parameter!</p>
      */
     private class ProfileStatsTask extends AsyncTask<String, Void, Boolean> {
+
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -160,14 +162,23 @@ public class StatsFragment extends Fragment {
         }
 
         private boolean parseStats(Document statsPage) {
+            //Doesn't go through all the parsing if this user has no posts
+            if (!statsPage.select("td:contains(No posts to speak of!)").isEmpty()) {
+                userHasPosts = false;
+            }
+            if (!statsPage.select("td:contains(Δεν υπάρχει καμία αποστολή μηνύματος!)").isEmpty()) {
+                userHasPosts = false;
+            }
             if (statsPage.select("table.bordercolor[align]>tbody>tr").size() != 6)
                 return false;
             {
                 Elements titleRows = statsPage.select("table.bordercolor[align]>tbody>tr.titlebg");
                 generalStatisticsTitle = titleRows.first().text();
-                postingActivityByTimeTitle = titleRows.get(1).text();
-                mostPopularBoardsByPostsTitle = titleRows.last().select("td").first().text();
-                mostPopularBoardsByActivityTitle = titleRows.last().select("td").last().text();
+                if (userHasPosts) {
+                    postingActivityByTimeTitle = titleRows.get(1).text();
+                    mostPopularBoardsByPostsTitle = titleRows.last().select("td").first().text();
+                    mostPopularBoardsByActivityTitle = titleRows.last().select("td").last().text();
+                }
             }
             {
                 Elements statsRows = statsPage.select("table.bordercolor[align]>tbody>tr:not(.titlebg)");
@@ -177,39 +188,41 @@ public class StatsFragment extends Fragment {
                         generalStatistics += generalStatisticsRow.text() + "\n";
                     generalStatistics = generalStatistics.trim();
                 }
-                {
-                    Elements postingActivityByTimeCols = statsRows.get(1).select(">td").last()
-                            .select("tr").first().select("td[width=4%]");
-                    int i = -1;
-                    for (Element postingActivityByTimeColumn : postingActivityByTimeCols) {
-                        postingActivityByTime.add(new Entry(++i, Float.parseFloat(postingActivityByTimeColumn
-                                .select("img").first().attr("height"))));
+                if (userHasPosts) {
+                    {
+                        Elements postingActivityByTimeCols = statsRows.get(1).select(">td").last()
+                                .select("tr").first().select("td[width=4%]");
+                        int i = -1;
+                        for (Element postingActivityByTimeColumn : postingActivityByTimeCols) {
+                            postingActivityByTime.add(new Entry(++i, Float.parseFloat(postingActivityByTimeColumn
+                                    .select("img").first().attr("height"))));
+                        }
                     }
-                }
-                {
-                    Elements mostPopularBoardsByPostsRows = statsRows.last().select(">td").get(1)
-                            .select(">table>tbody>tr");
-                    int i = mostPopularBoardsByPostsRows.size();
-                    for (Element mostPopularBoardsByPostsRow : mostPopularBoardsByPostsRows) {
-                        Elements dataCols = mostPopularBoardsByPostsRow.select("td");
-                        mostPopularBoardsByPosts.add(new BarEntry(--i,
-                                Integer.parseInt(dataCols.last().text())));
-                        mostPopularBoardsByPostsLabels.add(dataCols.first().text());
+                    {
+                        Elements mostPopularBoardsByPostsRows = statsRows.last().select(">td").get(1)
+                                .select(">table>tbody>tr");
+                        int i = mostPopularBoardsByPostsRows.size();
+                        for (Element mostPopularBoardsByPostsRow : mostPopularBoardsByPostsRows) {
+                            Elements dataCols = mostPopularBoardsByPostsRow.select("td");
+                            mostPopularBoardsByPosts.add(new BarEntry(--i,
+                                    Integer.parseInt(dataCols.last().text())));
+                            mostPopularBoardsByPostsLabels.add(dataCols.first().text());
+                        }
+                        Collections.reverse(mostPopularBoardsByPostsLabels);
                     }
-                    Collections.reverse(mostPopularBoardsByPostsLabels);
-                }
-                {
-                    Elements mostPopularBoardsByActivityRows = statsRows.last().select(">td").last()
-                            .select(">table>tbody>tr");
-                    int i = mostPopularBoardsByActivityRows.size();
-                    for (Element mostPopularBoardsByActivityRow : mostPopularBoardsByActivityRows) {
-                        Elements dataCols = mostPopularBoardsByActivityRow.select("td");
-                        String tmp = dataCols.last().text();
-                        mostPopularBoardsByActivity.add(new BarEntry(--i,
-                                Float.parseFloat(tmp.substring(0, tmp.indexOf("%")))));
-                        mostPopularBoardsByActivityLabels.add(dataCols.first().text());
+                    {
+                        Elements mostPopularBoardsByActivityRows = statsRows.last().select(">td").last()
+                                .select(">table>tbody>tr");
+                        int i = mostPopularBoardsByActivityRows.size();
+                        for (Element mostPopularBoardsByActivityRow : mostPopularBoardsByActivityRows) {
+                            Elements dataCols = mostPopularBoardsByActivityRow.select("td");
+                            String tmp = dataCols.last().text();
+                            mostPopularBoardsByActivity.add(new BarEntry(--i,
+                                    Float.parseFloat(tmp.substring(0, tmp.indexOf("%")))));
+                            mostPopularBoardsByActivityLabels.add(dataCols.first().text());
+                        }
+                        Collections.reverse(mostPopularBoardsByActivityLabels);
                     }
-                    Collections.reverse(mostPopularBoardsByActivityLabels);
                 }
             }
             return true;
@@ -221,6 +234,13 @@ public class StatsFragment extends Fragment {
                 .setText(generalStatisticsTitle);
         ((TextView) mainContent.findViewById(R.id.general_statistics))
                 .setText(generalStatistics);
+
+        if (!userHasPosts) {
+            mainContent.removeViews(2, mainContent.getChildCount() - 2);
+            //mainContent.removeViews(2, 6);
+            return;
+        }
+
         ((TextView) mainContent.findViewById(R.id.posting_activity_by_time_title))
                 .setText(postingActivityByTimeTitle);
 

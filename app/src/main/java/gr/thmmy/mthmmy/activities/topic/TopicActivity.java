@@ -710,8 +710,7 @@ public class TopicActivity extends BaseActivity {
             }
 
             postsList.clear();
-            int oldSize = postsList.size();
-            topicAdapter.notifyItemRangeRemoved(0, oldSize);
+            topicAdapter.notifyItemRangeRemoved(0, postsList.size());
             recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
             postsList.addAll(TopicParser.parseTopic(topic, language));
         }
