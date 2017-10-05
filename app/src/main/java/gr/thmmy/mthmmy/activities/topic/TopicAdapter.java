@@ -396,7 +396,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                         TopicAnimations.animateUserExtraInfoVisibility(holder.username,
                                 holder.subject, Color.parseColor("#FFFFFF"),
-                                Color.parseColor("#757575"), v);
+                                Color.parseColor("#757575"), (LinearLayout) v);
                     }
                 });
             } else {

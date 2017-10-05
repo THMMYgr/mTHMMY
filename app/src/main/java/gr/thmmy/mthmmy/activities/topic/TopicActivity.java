@@ -65,13 +65,14 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
 /**
- * Activity for topics. When creating an Intent of this activity you need to bundle a <b>String</b>
- * containing this topics's url using the key {@link #BUNDLE_TOPIC_URL} and a <b>String</b> containing
- * this topic's title using the key {@link #BUNDLE_TOPIC_TITLE}.
+ * Activity for parsing and rendering topics. When creating an Intent of this activity you need to
+ * bundle a <b>String</b> containing this topic's url using the key {@link #BUNDLE_TOPIC_URL}.
+ * You can also bundle a <b>String</b> containing this topic's title, if its available, using the
+ * key {@link #BUNDLE_TOPIC_TITLE} for faster title rendering.
  */
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity {
-    //Class variables
+    //Activity's variables
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
      */
@@ -81,46 +82,110 @@ public class TopicActivity extends BaseActivity {
      */
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
     private static TopicTask topicTask;
-    //About posts
+    private MaterialProgressBar progressBar;
+    private TextView toolbarTitle;
+    /**
+     * Holds this topic's base url. For example a topic with url similar to
+     * "https://www.thmmy.gr/smf/index.php?topic=1.15;topicseen" or
+     * "https://www.thmmy.gr/smf/index.php?topic=1.msg1#msg1"
+     * has the base url "https://www.thmmy.gr/smf/index.php?topic=1"
+     */
+    private static String base_url = "";
+    /**
+     * Holds this topic's title. At first this gets the value of the topic title that came with
+     * bundle and is rendered in the toolbar while parsing this topic. Later, after topic's parsing
+     * is done, it gets the value of {@link #parsedTitle} if bundle title and parsed title differ.
+     */
+    private String topicTitle;
+    /**
+     * Holds this topic's title as parsed from the html source. If this (parsed) title is different
+     * than the one that came with activity's bundle then the parsed title is preferred over the
+     * bundle one and gets rendered in the toolbar.
+     */
+    private String parsedTitle;
+    private RecyclerView recyclerView;
+    /**
+     * Holds the url of this page
+     */
+    private String loadedPageUrl = "";
+    /**
+     * Becomes true after user has posted in this topic and the page is being reloaded and false
+     * when topic's reloading is done
+     */
+    private boolean reloadingPage = false;
+    //Posts related
     private TopicAdapter topicAdapter;
+    /**
+     * Holds a list of this topic's posts
+     */
     private ArrayList<Post> postsList;
+    /**
+     * Gets assigned to {@link #postFocus} when there is no post focus information in the url
+     */
     private static final int NO_POST_FOCUS = -1;
+    /**
+     * Holds the index of the post that has focus
+     */
     private int postFocus = NO_POST_FOCUS;
+    /**
+     * Holds the position in the {@link #postsList} of the post with focus
+     */
     private static int postFocusPosition = 0;
-    //Reply
+    //Reply related
     private FloatingActionButton replyFAB;
+    /**
+     * Holds this topic's reply url
+     */
     private String replyPageUrl = null;
-    //Topic's pages
+    //Topic's pages related
+    /**
+     * Holds current page's index (starting from 1, not 0)
+     */
     private int thisPage = 1;
+    /**
+     * Holds this topic's number of pages
+     */
     private int numberOfPages = 1;
+    /**
+     * Holds a list of this topic's pages urls
+     */
     private final SparseArray<String> pagesUrls = new SparseArray<>();
-    //Page select
+    //Page select related
+    /**
+     * Used for handling bottom navigation bar's buttons long click user interactions
+     */
     private final Handler repeatUpdateHandler = new Handler();
+    /**
+     * Holds the initial time delay before a click on bottom navigation bar is considered long
+     */
     private final long INITIAL_DELAY = 500;
     private boolean autoIncrement = false;
     private boolean autoDecrement = false;
+    /**
+     * Holds the number of pages to be added or subtracted from current page on each step while a
+     * long click is held in either next or previous buttons
+     */
     private static final int SMALL_STEP = 1;
+    /**
+     * Holds the number of pages to be added or subtracted from current page on each step while a
+     * long click is held in either first or last buttons
+     */
     private static final int LARGE_STEP = 10;
+    /**
+     * Holds the value (index) of the page to be requested when a user interaction with bottom
+     * navigation bar occurs
+     */
     private Integer pageRequestValue;
-    //Bottom navigation graphics
+    //Bottom navigation bar graphics related
     private LinearLayout bottomNavBar;
     private ImageButton firstPage;
     private ImageButton previousPage;
     private TextView pageIndicator;
     private ImageButton nextPage;
     private ImageButton lastPage;
-    //Topic's info
+    //Topic's info related
     private SpannableStringBuilder topicTreeAndMods = new SpannableStringBuilder("Loading..."),
             topicViewers = new SpannableStringBuilder("Loading...");
-    //Other variables
-    private MaterialProgressBar progressBar;
-    private TextView toolbarTitle;
-    private static String base_url = "";
-    private String topicTitle;
-    private String parsedTitle;
-    private RecyclerView recyclerView;
-    private String loadedPageUrl = "";
-    private boolean reloadingPage = false;
 
 
     @Override
@@ -464,12 +529,10 @@ public class TopicActivity extends BaseActivity {
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
 
     /**
-     * An {@link AsyncTask} that handles asynchronous fetching of a topic page and parsing it's
-     * data. {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link RecyclerView#swapAdapter}
-     * to build graphics.
-     * <p>
-     * <p>Calling TopicTask's {@link AsyncTask#execute execute} method needs to have profile's url
-     * as String parameter!</p>
+     * An {@link AsyncTask} that handles asynchronous fetching of this topic page and parsing of it's
+     * data.
+     * <p>TopicTask's {@link AsyncTask#execute execute} method needs a topic's url as String
+     * parameter.</p>
      */
     class TopicTask extends AsyncTask<String, Void, Integer> {
         private static final int SUCCESS = 0;

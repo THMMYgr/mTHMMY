@@ -4,68 +4,67 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 class TopicAnimations {
-//--------------------------USER'S INFO VISIBILITY CHANGE ANIMATION METHOD--------------------------
-
     /**
      * Method that animates view's visibility changes for user's extra info
      */
-    static void animateUserExtraInfoVisibility(TextView username, TextView subject,
-                                               int expandedColor, int collapsedColor,
-                                               final View userExtra) {
-        //If the view is gone fade it in
-        if (userExtra.getVisibility() == View.GONE) {
-            userExtra.clearAnimation();
-            userExtra.setVisibility(View.VISIBLE);
-            userExtra.setAlpha(0.0f);
+    static void animateUserExtraInfoVisibility(final TextView username, final TextView subject,
+                                               int expandedColor, final int collapsedColor,
+                                               final LinearLayout userExtraInfo) {
+        //If the view is currently gone it fades it in
+        if (userExtraInfo.getVisibility() == View.GONE) {
+            userExtraInfo.clearAnimation();
+            userExtraInfo.setVisibility(View.VISIBLE);
+            userExtraInfo.setAlpha(0.0f);
 
-            // Start the animation
-            userExtra.animate()
+            //Animation start
+            userExtraInfo.animate()
                     .alpha(1.0f)
                     .setDuration(300)
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
-                            userExtra.setVisibility(View.VISIBLE);
+                            userExtraInfo.setVisibility(View.VISIBLE);
                         }
                     });
 
-            //Show full username
+            //Shows full username
             username.setMaxLines(Integer.MAX_VALUE); //As in the android sourcecode
             username.setEllipsize(null);
 
-            //Show full subject
+            //Shows full subject
             subject.setTextColor(expandedColor);
             subject.setMaxLines(Integer.MAX_VALUE); //As in the android sourcecode
             subject.setEllipsize(null);
         }
-        //If the view is visible fade it out
+        //If the view is currently visible then it fades it out
         else {
-            userExtra.clearAnimation();
+            userExtraInfo.clearAnimation();
 
-            // Start the animation
-            userExtra.animate()
+            //Animation start
+            userExtraInfo.animate()
                     .alpha(0.0f)
                     .setDuration(300)
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
-                            userExtra.setVisibility(View.GONE);
+                            userExtraInfo.setVisibility(View.GONE);
+
+                            //Ellipsizes username
+                            username.setMaxLines(1); //As in the android sourcecode
+                            username.setEllipsize(TextUtils.TruncateAt.END);
+
+                            //Ellipsizes subject
+                            subject.setTextColor(collapsedColor);
+                            subject.setMaxLines(1); //As in the android sourcecode
+                            subject.setEllipsize(TextUtils.TruncateAt.END);
                         }
                     });
-
-            username.setMaxLines(1); //As in the android sourcecode
-            username.setEllipsize(TextUtils.TruncateAt.END);
-
-            subject.setTextColor(collapsedColor);
-            subject.setMaxLines(1); //As in the android sourcecode
-            subject.setEllipsize(TextUtils.TruncateAt.END);
         }
     }
-//------------------------POST'S INFO VISIBILITY CHANGE ANIMATION METHOD END------------------------
-
 }
