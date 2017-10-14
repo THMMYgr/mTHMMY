@@ -1,11 +1,14 @@
 package gr.thmmy.mthmmy.services;
 
+import android.app.DownloadManager;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -107,7 +110,7 @@ public class DownloadService extends IntentService {
             Response response = client.newCall(request).execute();
 
             String contentDisposition = response.headers("Content-Disposition").toString();   //check if link provides an attachment
-            if (contentDisposition.contains("attachment")){
+            if (contentDisposition.contains("attachment")) {
                 fileName = contentDisposition.split("\"")[1];
 
                 File dirPath = new File(SAVE_DIR);
@@ -141,7 +144,7 @@ public class DownloadService extends IntentService {
 
                 fileName = file.getName();
 
-                Timber.v("Started saving file %s" , fileName);
+                Timber.v("Started saving file %s", fileName);
                 sendNotification(downloadId, STARTED, fileName);
 
                 sink = Okio.buffer(Okio.sink(file));
@@ -149,6 +152,12 @@ public class DownloadService extends IntentService {
                 sink.flush();
                 Timber.i("Download OK!");
                 sendNotification(downloadId, COMPLETED, fileName);
+
+                // Register download
+                DownloadManager mManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                long length = file.length();
+                mManager.addCompletedDownload(fileName, "edo mporei na mpei ena description", false, getMimeType(file), SAVE_DIR +File.separator+ fileName, length, false);
+
             } else
                 Timber.e("No attachment in response!");
         } catch (FileNotFoundException e) {
@@ -201,6 +210,20 @@ public class DownloadService extends IntentService {
         intent.putExtra(EXTRA_FILE_NAME, fileName);
         sendBroadcast(intent);
 
+    }
+
+    @NonNull
+    static String getMimeType(@NonNull File file) {
+        String type = null;
+        final String url = file.toString();
+        final String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+        }
+        if (type == null) {
+            type = ""; // fallback type. You might set it to */*
+        }
+        return type;
     }
 
 }
