@@ -471,7 +471,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    void customNotifyDataSetChanged(TopicActivity.TopicTask topicTask, boolean canReply) {
+    void resetTopic(TopicActivity.TopicTask topicTask, boolean canReply) {
         this.topicTask = topicTask;
         this.canReply = canReply;
         viewProperties.clear();
@@ -479,8 +479,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
-        notifyItemRangeInserted(0, postsList.size());
-        //notifyDataSetChanged();
     }
 
     @Override

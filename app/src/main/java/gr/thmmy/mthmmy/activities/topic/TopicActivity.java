@@ -540,6 +540,8 @@ public class TopicActivity extends BaseActivity {
         private static final int OTHER_ERROR = 2;
         private static final int SAME_PAGE = 3;
 
+        ArrayList<Post> localPostsList;
+
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -593,7 +595,7 @@ public class TopicActivity extends BaseActivity {
             try {
                 Response response = client.newCall(request).execute();
                 document = Jsoup.parse(response.body().string());
-                parse(document);
+                localPostsList = parse(document);
                 return SUCCESS;
             } catch (IOException e) {
                 Timber.i(e, "IO Exception");
@@ -623,12 +625,19 @@ public class TopicActivity extends BaseActivity {
                         invalidateOptionsMenu();
                     }
 
+                    if (!(postsList.isEmpty() || postsList.size() == 0)){
+                        recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
+                        postsList.clear();
+                        topicAdapter.notifyItemRangeRemoved(0, postsList.size()-1);
+                    }
+                    postsList.addAll(localPostsList);
+                    topicAdapter.notifyItemRangeInserted(0, postsList.size());
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
+
                     if (replyPageUrl == null) {
                         replyFAB.hide();
-                        topicAdapter.customNotifyDataSetChanged(new TopicTask(), false);
-                    } else topicAdapter.customNotifyDataSetChanged(new TopicTask(), true);
+                        topicAdapter.resetTopic(new TopicTask(), false);
+                    } else topicAdapter.resetTopic(new TopicTask(), true);
 
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
@@ -645,8 +654,8 @@ public class TopicActivity extends BaseActivity {
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     if (replyPageUrl == null) {
                         replyFAB.hide();
-                        topicAdapter.customNotifyDataSetChanged(new TopicTask(), false);
-                    } else topicAdapter.customNotifyDataSetChanged(new TopicTask(), true);
+                        topicAdapter.resetTopic(new TopicTask(), false);
+                    } else topicAdapter.resetTopic(new TopicTask(), true);
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
                     paginationEnabled(true);
                     Toast.makeText(TopicActivity.this, "That's the same page.", Toast.LENGTH_SHORT).show();
@@ -667,7 +676,7 @@ public class TopicActivity extends BaseActivity {
          * @param topic {@link Document} object containing this topic's source code
          * @see org.jsoup.Jsoup Jsoup
          */
-        private void parse(Document topic) {
+        private ArrayList<Post> parse(Document topic) {
             ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
             //Finds topic's tree, mods and users viewing
@@ -709,10 +718,7 @@ public class TopicActivity extends BaseActivity {
                 }
             }
 
-            postsList.clear();
-            topicAdapter.notifyItemRangeRemoved(0, postsList.size());
-            recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
-            postsList.addAll(TopicParser.parseTopic(topic, language));
+            return TopicParser.parseTopic(topic, language);
         }
 
         private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {

@@ -37,10 +37,11 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
                                int dxUnconsumed, int dyUnconsumed, int type) {
         super.onNestedScroll(coordinatorLayout, bottomNavBar, target, dxConsumed, dyConsumed,
                 dxUnconsumed, dyUnconsumed, type);
-        if ((dyConsumed > 0 || (!target.canScrollVertically(-1) && dyConsumed == 0
-                && dyUnconsumed < 40)) && bottomNavBar.getVisibility() == View.VISIBLE) {
+        if (bottomNavBar.getVisibility() == View.VISIBLE && (dyConsumed > 0
+                || (!target.canScrollVertically(-1) && dyConsumed == 0 && dyUnconsumed > 50))) {
             hide(bottomNavBar);
-        } else if (dyConsumed < 0 && bottomNavBar.getVisibility() != View.VISIBLE) {
+        } else if (bottomNavBar.getVisibility() == View.INVISIBLE && (dyConsumed < 0
+                || (!target.canScrollVertically(-1) && dyConsumed == 0 && dyUnconsumed < -50))) {
             show(bottomNavBar);
         }
     }
