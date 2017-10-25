@@ -214,6 +214,7 @@ public class TopicActivity extends BaseActivity {
         toolbarTitle.setMarqueeRepeatLimit(-1);
         toolbarTitle.setText(topicTitle);
         toolbarTitle.setSelected(true);
+        toolbarTitle.setEnabled(false);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

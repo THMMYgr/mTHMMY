@@ -358,14 +358,15 @@ public abstract class BaseActivity extends AppCompatActivity {
             {
                 drawer.removeItem(DOWNLOADS_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
-                profileDrawerItem.withName(sessionManager.getUsername()).withIcon(new IconicsDrawable(this)
-                        .icon(FontAwesome.Icon.faw_user)
-                        .paddingDp(10)
-                        .color(ContextCompat.getColor(this, R.color.primary_light))
-                        .backgroundColor(ContextCompat.getColor(this, R.color.primary)));
+                profileDrawerItem.withName(sessionManager.getUsername());
+                setDefaultAvatar();
             } else {
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
-                profileDrawerItem.withName(sessionManager.getUsername()).withIcon(sessionManager.getAvatarLink());
+                profileDrawerItem.withName(sessionManager.getUsername());
+                if(sessionManager.hasAvatar())
+                    profileDrawerItem.withIcon(sessionManager.getAvatarLink());
+                else
+                    setDefaultAvatar();
             }
             accountHeader.updateProfile(profileDrawerItem);
             drawer.updateItem(loginLogoutItem);
@@ -373,6 +374,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
+    private void setDefaultAvatar() {
+        profileDrawerItem.withIcon(new IconicsDrawable(this)
+                .icon(FontAwesome.Icon.faw_user)
+                .paddingDp(10)
+                .color(ContextCompat.getColor(this, R.color.primary_light))
+                .backgroundColor(ContextCompat.getColor(this, R.color.primary)));
+    }
 
 //-------------------------------------------LOGOUT-------------------------------------------------
 
