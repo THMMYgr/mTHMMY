@@ -237,6 +237,7 @@ public class TopicActivity extends BaseActivity {
                 new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
+                        v.performClick();
                         return topicTask != null && topicTask.getStatus() == AsyncTask.Status.RUNNING;
                     }
                 }
@@ -257,12 +258,8 @@ public class TopicActivity extends BaseActivity {
                 @Override
                 public void onClick(View view) {
                     if (sessionManager.isLoggedIn()) {
-                        postsList.add(null);
-                        topicAdapter.notifyItemInserted(postsList.size());
-                        topicAdapter.prepareForReply(new ReplyTask(), topicTitle, loadedPageUrl);
-                        replyFAB.hide();
-                        bottomNavBar.setVisibility(View.GONE);
-                        recyclerView.scrollToPosition(postsList.size() - 1);
+                        PrepareForReply prepareForReply = new PrepareForReply();
+                        prepareForReply.execute(topicAdapter.getToQuoteList());
                     }
                 }
             });
@@ -626,10 +623,10 @@ public class TopicActivity extends BaseActivity {
                         invalidateOptionsMenu();
                     }
 
-                    if (!(postsList.isEmpty() || postsList.size() == 0)){
+                    if (!(postsList.isEmpty() || postsList.size() == 0)) {
                         recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
                         postsList.clear();
-                        topicAdapter.notifyItemRangeRemoved(0, postsList.size()-1);
+                        topicAdapter.notifyItemRangeRemoved(0, postsList.size() - 1);
                     }
                     postsList.addAll(localPostsList);
                     topicAdapter.notifyItemRangeInserted(0, postsList.size());
@@ -772,6 +769,78 @@ public class TopicActivity extends BaseActivity {
         }
     }
 
+    class PrepareForReply extends AsyncTask<ArrayList<Integer>, Void, Boolean> {
+        String numReplies, seqnum, sc, topic, buildedQuotes = "";
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+            paginationEnabled(false);
+            replyFAB.setEnabled(false);
+            replyFAB.hide();
+            bottomNavBar.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected Boolean doInBackground(ArrayList<Integer>... quoteList) {
+            Document document;
+            Request request = new Request.Builder()
+                    .url(replyPageUrl + ";wap2")
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                document = Jsoup.parse(response.body().string());
+
+                numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
+                seqnum = document.select("input[name=seqnum]").first().attr("value");
+                sc = document.select("input[name=sc]").first().attr("value");
+                topic = document.select("input[name=topic]").first().attr("value");
+            } catch (IOException | Selector.SelectorParseException e) {
+                Timber.e(e, "Prepare failed.");
+                return false;
+            }
+
+            for (Integer quotePosition : quoteList[0]) {
+                request = new Request.Builder()
+                        .url("https://www.thmmy.gr/smf/index.php?action=quotefast;quote=" +
+                                postsList.get(quotePosition).getPostIndex() +
+                                ";" + "sesc=" + sc + ";xml")
+                        .build();
+
+                try {
+                    Response response = client.newCall(request).execute();
+                    document = Jsoup.parse(response.body().string());
+                    String html = document.outerHtml();
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        buildedQuotes += Html.fromHtml(
+                                html.substring(html.indexOf("<quote>"), html.indexOf("</quote>")),
+                                Html.FROM_HTML_MODE_LEGACY).toString();
+                    } else {
+                        buildedQuotes += Html.fromHtml(
+                                html.substring(html.indexOf("<quote>"), html.indexOf("</quote>")))
+                                .toString();
+                    }
+                    buildedQuotes += "\n\n";
+                } catch (IOException | Selector.SelectorParseException e) {
+                    Timber.e(e, "Quote building failed.");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            postsList.add(null);
+            topicAdapter.notifyItemInserted(postsList.size());
+            topicAdapter.prepareForReply(new ReplyTask(), topicTitle, numReplies, seqnum, sc,
+                    topic, buildedQuotes);
+            recyclerView.scrollToPosition(postsList.size() - 1);
+            progressBar.setVisibility(ProgressBar.GONE);
+        }
+    }
+
     class ReplyTask extends AsyncTask<String, Void, Boolean> {
 
         @Override
@@ -782,37 +851,15 @@ public class TopicActivity extends BaseActivity {
         }
 
         @Override
-        protected Boolean doInBackground(String... message) {
-            Document document;
-            String numReplies, seqnum, sc, topic;
-
-            Request request = new Request.Builder()
-                    .url(replyPageUrl + ";wap2")
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                document = Jsoup.parse(response.body().string());
-
-                numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
-                seqnum = document.select("input[name=seqnum]").first().attr("value");
-                sc = document.select("input[name=sc]").first().attr("value");
-                topic = document.select("input[name=topic]").first().attr("value");
-            } catch (IOException e) {
-                Timber.e(e, "Post failed.");
-                return false;
-            } catch (Selector.SelectorParseException e) {
-                Timber.e(e, "Post failed.");
-                return false;
-            }
-
+        protected Boolean doInBackground(String... args) {
             RequestBody postBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("message", message[1])
-                    .addFormDataPart("num_replies", numReplies)
-                    .addFormDataPart("seqnum", seqnum)
-                    .addFormDataPart("sc", sc)
-                    .addFormDataPart("subject", message[0])
-                    .addFormDataPart("topic", topic)
+                    .addFormDataPart("message", args[1])
+                    .addFormDataPart("num_replies", args[2])
+                    .addFormDataPart("seqnum", args[3])
+                    .addFormDataPart("sc", args[4])
+                    .addFormDataPart("subject", args[0])
+                    .addFormDataPart("topic", args[5])
                     .build();
 
             Request post = new Request.Builder()

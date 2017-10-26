@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
@@ -21,8 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/ToolbarTheme">
-        </android.support.v7.widget.Toolbar>
+            app:popupTheme="@style/ToolbarTheme"></android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
 
@@ -30,11 +28,10 @@
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="@color/background">
+        android:background="@color/background"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,11 +48,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
                 android:contentDescription="@string/logo"
-                android:src="@drawable/logo_animated"
-                />
+                android:src="@drawable/logo_animated" />
 
 
             <TextView
@@ -65,73 +61,74 @@
                 android:layout_below="@+id/logoView"
                 android:layout_centerHorizontal="true"
                 android:clickable="true"
+                android:focusable="true"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/accent"
-                android:textStyle="italic"/>
+                android:textStyle="italic" />
 
             <TextView
                 android:id="@+id/open_source_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/open_source"
-                android:textColor="@color/accent"
-                android:layout_below="@+id/version"
                 android:layout_alignParentStart="true"
+                android:layout_below="@+id/version"
+                android:layout_marginTop="20dp"
+                android:text="@string/open_source"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/accent"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/open_source_text"
-                android:layout_below="@+id/open_source_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/open_source_header"
                 android:autoLink="web"
                 android:text="@string/open_source_text"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/iron"
-                android:layout_alignParentStart="true" />
+                android:textColor="@color/iron" />
 
             <TextView
                 android:id="@+id/libraries_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/libraries"
-                android:textColor="@color/accent"
-                android:layout_below="@+id/open_source_text"
                 android:layout_alignParentStart="true"
+                android:layout_below="@+id/open_source_text"
+                android:layout_marginTop="20dp"
+                android:text="@string/libraries"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/accent"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/libraries_text"
-                android:layout_below="@+id/libraries_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/libraries_header"
                 android:text="@string/libraries_text"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/iron"
-                android:layout_alignParentStart="true" />
+                android:textColor="@color/iron" />
 
             <TextView
-                android:layout_below="@+id/libraries_text"
-                android:onClick="displayApacheLibraries"
+                android:id="@+id/apache_libs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/apache_v2_0_libraries"
-                android:id="@+id/apache_libs"
                 android:layout_alignParentStart="true"
+                android:layout_below="@+id/libraries_text"
+                android:onClick="displayApacheLibraries"
+                android:text="@string/apache_v2_0_libraries"
                 android:textColor="@color/accent" />
 
             <TextView
                 android:id="@+id/mit_libs"
-                android:onClick="displayMITLibraries"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/the_mit_libraries"
-                android:layout_below="@+id/apache_libs"
                 android:layout_alignParentStart="true"
+                android:layout_below="@+id/apache_libs"
+                android:onClick="displayMITLibraries"
+                android:text="@string/the_mit_libraries"
                 android:textColor="@color/accent" />
 
 
@@ -139,24 +136,24 @@
                 android:id="@+id/contact_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/contact"
-                android:textColor="@color/accent"
-                android:layout_below="@+id/mit_libs"
                 android:layout_alignParentStart="true"
+                android:layout_below="@+id/mit_libs"
+                android:layout_marginTop="20dp"
+                android:text="@string/contact"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/accent"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/contact_text"
-                android:layout_below="@+id/contact_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/contact_header"
                 android:autoLink="email|web"
                 android:text="@string/contact_text"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/iron"
-                android:layout_alignParentStart="true" />
+                android:textColor="@color/iron" />
 
         </RelativeLayout>
     </ScrollView>
@@ -175,7 +172,6 @@
             android:layout_gravity="center"
             android:contentDescription="@string/trollPic"
             android:foregroundGravity="center"
-            android:src="@drawable/fun"
-            />
+            android:src="@drawable/fun" />
     </FrameLayout>
 </android.support.design.widget.CoordinatorLayout>

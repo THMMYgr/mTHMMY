@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/topic_row_linear"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -27,7 +26,7 @@
             android:paddingBottom="2dp"
             android:text="@string/topic_subject"
             android:textColor="@color/primary_text"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
         <ImageButton
             android:id="@+id/topic_expand_collapse_button"
@@ -35,7 +34,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:contentDescription="@string/child_board_button"
-            android:src="@drawable/ic_arrow_drop_down"/>
+            android:src="@drawable/ic_arrow_drop_down" />
     </LinearLayout>
 
     <LinearLayout
@@ -54,7 +53,7 @@
             android:layout_marginTop="1dp"
             android:text="@string/topic_started_by"
             android:textColor="@color/secondary_text"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/topic_stats"
@@ -64,7 +63,7 @@
             android:layout_marginTop="1dp"
             android:text="@string/topic_stats"
             android:textColor="@color/secondary_text"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/topic_last_post"
@@ -73,8 +72,9 @@
             android:layout_marginBottom="1dp"
             android:layout_marginTop="1dp"
             android:clickable="true"
+            android:focusable="true"
             android:text="@string/topic_last_post"
             android:textColor="@color/primary_text"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>
