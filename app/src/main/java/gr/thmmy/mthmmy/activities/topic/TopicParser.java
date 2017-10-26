@@ -35,7 +35,8 @@ class TopicParser {
     private static final int USER_COLOR_GREEN = Color.parseColor("#4CAF50");
     private static final int USER_COLOR_BLUE = Color.parseColor("#536DFE");
     static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
-    private static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
+    static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
+    static final int USER_COLOR_WHITE = Color.WHITE;
 
     /**
      * Returns users currently viewing this topic.

@@ -62,6 +62,8 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.Posting.htmlToBBcode;
+import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
+import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
 import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
 
 /**
@@ -309,6 +311,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.personalText.setVisibility(View.VISIBLE);
             } else
                 holder.personalText.setVisibility(View.GONE);
+            if (mUserColor != USER_COLOR_YELLOW){
+                holder.username.setTextColor(mUserColor);
+            } else {
+                holder.username.setTextColor(USER_COLOR_WHITE);
+            }
             if (mNumberOfStars > 0) {
                 holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));

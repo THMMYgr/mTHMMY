@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +46,6 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_EMPTY) {
-            Log.d("This", "in");
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.fragment_latest_posts_empty_message, parent, false);
             return new RecyclerView.ViewHolder(view){};
