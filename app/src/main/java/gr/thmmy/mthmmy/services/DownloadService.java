@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
