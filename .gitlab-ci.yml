@@ -2,30 +2,38 @@ image: openjdk:8-jdk
 
 variables:
   ANDROID_TARGET_SDK: "26"
-  ANDROID_BUILD_TOOLS: "26.0.2"
-  ANDROID_SDK_TOOLS: "25.2.5"
+  ANDROID_BUILD_TOOLS: "27.0.0"
+  ANDROID_SDK_TOOLS_REV: "3859397"
 
 before_script:
   - apt-get --quiet update --yes
-  - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
-  - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/tools_r${ANDROID_SDK_TOOLS}-linux.zip
-  - unzip android-sdk.zip -d android-sdk-linux
-  - echo y | android-sdk-linux/tools/android --silent update sdk --no-ui --all --filter android-${ANDROID_TARGET_SDK}
-  - echo y | android-sdk-linux/tools/android --silent update sdk --no-ui --all --filter platform-tools
-  - echo y | android-sdk-linux/tools/android --silent update sdk --no-ui --all --filter build-tools-${ANDROID_BUILD_TOOLS}
-  - echo y | android-sdk-linux/tools/android --silent update sdk --no-ui --all --filter extra-android-m2repository
-  - echo y | android-sdk-linux/tools/android --silent update sdk --no-ui --all --filter extra-google-google_play_services
-  - echo y | android-sdk-linux/tools/android --silent update sdk --no-ui --all --filter extra-google-m2repository
+  - apt-get --quiet install --yes wget unzip lib32stdc++6 lib32z1
+  - mkdir $HOME/.android # for sdkmanager configs
+  - echo 'count=0' > $HOME/.android/repositories.cfg # avoid warning
+  - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS_REV}.zip
+  - mkdir $PWD/android-sdk-linux
+  - unzip -qq android-sdk.zip -d $PWD/android-sdk-linux
   - export ANDROID_HOME=$PWD/android-sdk-linux
-  - export PATH=$PATH:$PWD/android-sdk-linux/platform-tools/
+  - echo y | $ANDROID_HOME/tools/bin/sdkmanager --update  > /dev/null
+  - echo y | $ANDROID_HOME/tools/bin/sdkmanager 'tools' > /dev/null
+  - echo y | $ANDROID_HOME/tools/bin/sdkmanager 'platform-tools'  > /dev/null
+  - echo y | $ANDROID_HOME/tools/bin/sdkmanager 'build-tools;'$ANDROID_BUILD_TOOLS  > /dev/null
+  - echo y | $ANDROID_HOME/tools/bin/sdkmanager 'platforms;android-'$ANDROID_TARGET_SDK > /dev/null
+  - echo y | $ANDROID_HOME/tools/bin/sdkmanager 'extras;android;m2repository' > /dev/null
+  - echo y | $ANDROID_HOME/tools/bin/sdkmanager 'extras;google;google_play_services'  > /dev/null
+  - echo y | $ANDROID_HOME/tools/bin/sdkmanager 'extras;google;m2repository'  > /dev/null
   - chmod +x ./gradlew
 
-build_develop:
+stages:
+  - build
+
+build:
+  stage: build
   script:
-    - ./gradlew assembleDebug
+    - ./gradlew assembleDebug > /dev/null
   except:
     - master
   artifacts:
     name: "${CI_BUILD_NAME}"
     paths:
-    - app/build/outputs/apk
+    - app/build/outputs/
