@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -107,6 +108,8 @@ public class RecentFragment extends BaseFragment {
             recyclerView.setAdapter(recentAdapter);
 
             swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
+            swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override

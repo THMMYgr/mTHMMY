@@ -119,6 +119,8 @@ public class UnreadFragment extends BaseFragment {
             recyclerView.setAdapter(unreadAdapter);
 
             swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
+            swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override
