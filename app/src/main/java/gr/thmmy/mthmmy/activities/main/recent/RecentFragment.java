@@ -164,10 +164,14 @@ public class RecentFragment extends BaseFragment {
                         throw new ParseException("Parsing failed (lastUser)");
 
                     String dateTime = recent.get(i + 2).text();
-                    pattern = Pattern.compile("\\[(.*)\\]");
+                    pattern = Pattern.compile("\\[(.*)]");
                     matcher = pattern.matcher(dateTime);
-                    if (matcher.find())
+                    if (matcher.find()) {
                         dateTime = matcher.group(1);
+                        dateTime=dateTime.substring(0,dateTime.lastIndexOf(":"));
+                        if(!dateTime.contains(","))
+                            dateTime=dateTime.substring(dateTime.lastIndexOf(" ")+1);
+                    }
                     else
                         throw new ParseException("Parsing failed (dateTime)");
 

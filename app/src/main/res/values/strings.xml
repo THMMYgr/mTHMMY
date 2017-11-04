@@ -18,9 +18,6 @@
     <string name="btn_login">LOGIN</string>
     <string name="btn_continue_as_guest">Don\'t have an account? Continue as guest!</string>
 
-    <!--Main Activity-->
-    <string name="byUser">by %1$s</string>
-
     <!--Board Activity-->
     <string name="child_board_title">Child Boards</string>
     <string name="child_board_button">Exp/Coll</string>
