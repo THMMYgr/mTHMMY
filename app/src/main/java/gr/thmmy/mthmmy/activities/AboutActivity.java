@@ -33,6 +33,7 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
         String versionName = BuildConfig.VERSION_NAME;
+        String buildType = BuildConfig.BUILD_TYPE;
 
         //Initialize appbar
         appBar = findViewById(R.id.appbar);
@@ -54,7 +55,12 @@ public class AboutActivity extends BaseActivity {
 
         TextView tv = findViewById(R.id.version);
         if (tv != null)
-            tv.setText(getString(R.string.version, versionName));
+        {
+            if(buildType.equals("debug"))
+                tv.setText(getString(R.string.version, versionName + "-debug"));
+            else
+                tv.setText(getString(R.string.version, versionName));
+        }
 
         tv.setOnClickListener(new View.OnClickListener() {
             @Override

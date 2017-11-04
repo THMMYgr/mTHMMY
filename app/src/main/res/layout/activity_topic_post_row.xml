@@ -95,7 +95,6 @@
                     android:clickable="true"
                     android:contentDescription="@string/post_quote_button"
                     android:focusable="true"
-                    android:visibility="gone"
                     android:src="@drawable/ic_format_quote_unchecked" />
             </LinearLayout>
 

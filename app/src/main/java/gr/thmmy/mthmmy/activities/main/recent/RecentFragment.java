@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
