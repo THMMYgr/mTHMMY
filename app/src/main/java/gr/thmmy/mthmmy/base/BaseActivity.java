@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -156,27 +157,27 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         //Drawer Icons
         homeIcon = new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_home)
+                .icon(GoogleMaterial.Icon.gmd_home)
                 .color(primaryColor);
 
         homeIconSelected = new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_home)
-                .color(selectedSecondaryColor);
-
-        downloadsIcon = new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_download)
-                .color(primaryColor);
-
-        downloadsIconSelected = new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_download)
+                .icon(GoogleMaterial.Icon.gmd_home)
                 .color(selectedSecondaryColor);
 
         bookmarksIcon = new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_bookmark)
+                .icon(GoogleMaterial.Icon.gmd_bookmark)
                 .color(primaryColor);
 
         bookmarksIconSelected = new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_bookmark)
+                .icon(GoogleMaterial.Icon.gmd_bookmark)
+                .color(selectedSecondaryColor);
+
+        downloadsIcon = new IconicsDrawable(this)
+                .icon(GoogleMaterial.Icon.gmd_file_download)
+                .color(primaryColor);
+
+        downloadsIconSelected = new IconicsDrawable(this)
+                .icon(GoogleMaterial.Icon.gmd_file_download)
                 .color(selectedSecondaryColor);
 
         loginIcon = new IconicsDrawable(this)
@@ -188,11 +189,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .color(primaryColor);
 
         aboutIcon = new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_info_circle)
+                .icon(GoogleMaterial.Icon.gmd_info)
                 .color(primaryColor);
 
         aboutIconSelected = new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_info_circle)
+                .icon(GoogleMaterial.Icon.gmd_info)
                 .color(selectedSecondaryColor);
 
         //Drawer Items
