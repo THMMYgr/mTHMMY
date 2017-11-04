@@ -81,6 +81,10 @@ public class TopicActivity extends BaseActivity {
      * The key to use when putting topic's title String to {@link TopicActivity}'s Bundle.
      */
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
+    /**
+     * The key to use when activity should scroll to bottom, for example when coming from recent.
+     */
+    public static final String BUNDLE_FOCUS_TO_LAST_POST = "BUNDLE_FOCUS_TO_LAST_POST";
     private static TopicTask topicTask;
     private MaterialProgressBar progressBar;
     private TextView toolbarTitle;
@@ -103,6 +107,7 @@ public class TopicActivity extends BaseActivity {
      * bundle one and gets rendered in the toolbar.
      */
     private String parsedTitle;
+    private Boolean focusToLastPost;
     private RecyclerView recyclerView;
     /**
      * Holds the url of this page
@@ -203,6 +208,7 @@ public class TopicActivity extends BaseActivity {
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
+        focusToLastPost = extras.getBoolean(BUNDLE_FOCUS_TO_LAST_POST);
 
         thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
 
@@ -246,7 +252,7 @@ public class TopicActivity extends BaseActivity {
         CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(
                 getApplicationContext(), loadedPageUrl);
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, postsList, topicTask);
+        topicAdapter = new TopicAdapter(this, postsList, base_url, topicTask);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = findViewById(R.id.topic_fab);
@@ -594,6 +600,14 @@ public class TopicActivity extends BaseActivity {
                 Response response = client.newCall(request).execute();
                 document = Jsoup.parse(response.body().string());
                 localPostsList = parse(document);
+
+                //Finds the position of the focused message if present
+                for (int i = 0; i < localPostsList.size(); ++i) {
+                    if (localPostsList.get(i).getPostIndex() == postFocus) {
+                        postFocusPosition = i;
+                        break;
+                    }
+                }
                 return SUCCESS;
             } catch (IOException e) {
                 Timber.i(e, "IO Exception");
@@ -605,14 +619,6 @@ public class TopicActivity extends BaseActivity {
         }
 
         protected void onPostExecute(Integer parseResult) {
-            //Finds the position of the focused message if present
-            for (int i = 0; i < postsList.size(); ++i) {
-                if (postsList.get(i).getPostIndex() == postFocus) {
-                    postFocusPosition = i;
-                    break;
-                }
-            }
-
             switch (parseResult) {
                 case SUCCESS:
                     if (topicTitle == null || Objects.equals(topicTitle, "")
@@ -634,14 +640,18 @@ public class TopicActivity extends BaseActivity {
 
                     if (replyPageUrl == null) {
                         replyFAB.hide();
-                        topicAdapter.resetTopic(new TopicTask(), false);
-                    } else topicAdapter.resetTopic(new TopicTask(), true);
+                        topicAdapter.resetTopic(base_url, new TopicTask(), false);
+                    } else topicAdapter.resetTopic(base_url, new TopicTask(), true);
 
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
 
                     //Set current page
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
+
+                    if (focusToLastPost) {
+                        recyclerView.scrollToPosition(postsList.size() - 1);
+                    }
 
                     paginationEnabled(true);
                     break;
@@ -652,8 +662,8 @@ public class TopicActivity extends BaseActivity {
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     if (replyPageUrl == null) {
                         replyFAB.hide();
-                        topicAdapter.resetTopic(new TopicTask(), false);
-                    } else topicAdapter.resetTopic(new TopicTask(), true);
+                        topicAdapter.resetTopic(base_url, new TopicTask(), false);
+                    } else topicAdapter.resetTopic(base_url, new TopicTask(), true);
                     if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
                     paginationEnabled(true);
                     Toast.makeText(TopicActivity.this, "That's the same page.", Toast.LENGTH_SHORT).show();

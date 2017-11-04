@@ -52,6 +52,7 @@ import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
 import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
 import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
@@ -66,6 +67,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private String topicTitle;
+    private String baseUrl;
     private final ArrayList<Integer> toQuoteList = new ArrayList<>();
     private final List<Post> postsList;
     /**
@@ -97,9 +99,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
-    TopicAdapter(Context context, List<Post> postsList, TopicActivity.TopicTask topicTask) {
+    TopicAdapter(Context context, List<Post> postsList, String baseUrl,
+                 TopicActivity.TopicTask topicTask) {
         this.context = context;
         this.postsList = postsList;
+        this.baseUrl = baseUrl;
 
         THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
         for (int i = 0; i < postsList.size(); ++i) {
@@ -473,7 +477,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    void resetTopic(TopicActivity.TopicTask topicTask, boolean canReply) {
+    void resetTopic(String baseUrl, TopicActivity.TopicTask topicTask, boolean canReply) {
+        this.baseUrl = baseUrl;
         this.topicTask = topicTask;
         this.canReply = canReply;
         viewProperties.clear();
@@ -582,7 +587,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if this is the current topic
-                /*if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
+                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), baseUrl)) {
                     //Gets uri's targeted message's index number
                     String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
                     if (msgIndexReq.contains("#"))
@@ -597,9 +602,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             return true;
                         }
                     }
-                }*/
 
-                topicTask.execute(uri.toString());
+                    topicTask.execute(uri.toString());
+                }
+
+                Intent intent = new Intent(context, TopicActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_TOPIC_URL, uriString);
+                intent.putExtras(extras);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
                 return true;
             } else if (target.is(ThmmyPage.PageCategory.BOARD)) {
                 Intent intent = new Intent(context, BoardActivity.class);
