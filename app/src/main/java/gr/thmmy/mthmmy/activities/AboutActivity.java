@@ -33,7 +33,6 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
         String versionName = BuildConfig.VERSION_NAME;
-        String buildType = BuildConfig.BUILD_TYPE;
 
         //Initialize appbar
         appBar = findViewById(R.id.appbar);
@@ -54,33 +53,33 @@ public class AboutActivity extends BaseActivity {
         trollGif = findViewById(R.id.trollPicFrame);
 
         TextView tv = findViewById(R.id.version);
-        if (tv != null)
-        {
-            if(buildType.equals("debug"))
+        if (tv != null) {
+            if (BuildConfig.DEBUG)
                 tv.setText(getString(R.string.version, versionName + "-debug"));
             else
                 tv.setText(getString(R.string.version, versionName));
-        }
 
-        tv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mVersionLastPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
-                    if (mVersionPressedCounter == TIMES_TO_PRESS) {
-                        appBar.setVisibility(View.INVISIBLE);
-                        mainContent.setVisibility(View.INVISIBLE);
-                        trollGif.setVisibility(View.VISIBLE);
-                        drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+            tv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mVersionLastPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
+                        if (mVersionPressedCounter == TIMES_TO_PRESS) {
+                            appBar.setVisibility(View.INVISIBLE);
+                            mainContent.setVisibility(View.INVISIBLE);
+                            trollGif.setVisibility(View.VISIBLE);
+                            drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        }
+                        mVersionLastPressedTime = System.currentTimeMillis();
+                        ++mVersionPressedCounter;
+                    } else {
+                        mVersionLastPressedTime = System.currentTimeMillis();
+                        mVersionPressedCounter = 0;
                     }
-                    mVersionLastPressedTime = System.currentTimeMillis();
-                    ++mVersionPressedCounter;
-                } else {
-                    mVersionLastPressedTime = System.currentTimeMillis();
-                    mVersionPressedCounter = 0;
                 }
-            }
-        });
+            });
+        }
 
     }
 
@@ -101,7 +100,8 @@ public class AboutActivity extends BaseActivity {
                 .setView(webView)
                 .setPositiveButton(android.R.string.ok, null)
                 .show();
-        alertDialog.getWindow().setLayout(width, height);
+        if(alertDialog.getWindow()!=null)
+            alertDialog.getWindow().setLayout(width, height);
     }
 
     public void displayMITLibraries(View v) {
@@ -115,7 +115,8 @@ public class AboutActivity extends BaseActivity {
                 .setView(webView)
                 .setPositiveButton(android.R.string.ok, null)
                 .show();
-        alertDialog.getWindow().setLayout(width, height);
+        if(alertDialog.getWindow()!=null)
+            alertDialog.getWindow().setLayout(width, height);
     }
 
 }

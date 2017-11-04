@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/ToolbarTheme"></android.support.v7.widget.Toolbar>
+            app:popupTheme="@style/ToolbarTheme" />
     </android.support.design.widget.AppBarLayout>
 
 
@@ -28,7 +28,7 @@
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background"
+        android:background="@color/primary_light"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -41,18 +41,15 @@
             android:paddingTop="@dimen/activity_vertical_margin"
             tools:context="com.eternalpixels.toinfinity.Info">
 
-
-            <pl.droidsonroids.gif.GifImageView
+            <ImageView
                 android:id="@+id/logoView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
+                android:layout_margin="15dp"
                 android:layout_centerHorizontal="true"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:contentDescription="@string/logo"
-                android:src="@drawable/logo_animated" />
-
+                android:layout_alignParentTop="true"
+                android:src="@mipmap/ic_launcher"
+                android:contentDescription="@string/logo" />
 
             <TextView
                 android:id="@+id/version"
