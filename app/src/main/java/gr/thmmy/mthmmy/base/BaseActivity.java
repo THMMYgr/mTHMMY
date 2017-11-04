@@ -411,6 +411,11 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (mainActivity != null)
                 mainActivity.updateTabs();
             progressDialog.dismiss();
+            //if (BaseActivity.this instanceof TopicActivity){
+                Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            //}
         }
     }
 //-----------------------------------------LOGOUT END-----------------------------------------------
