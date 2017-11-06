@@ -174,9 +174,10 @@ public class UnreadFragment extends BaseFragment {
                     dateTime = dateTime.substring(0, dateTime.indexOf("<br>"));
                     dateTime = dateTime.replace("<b>", "");
                     dateTime = dateTime.replace("</b>", "");
-                    dateTime=dateTime.substring(0,dateTime.lastIndexOf(":"));
-                    if(!dateTime.contains(","))
-                        dateTime=dateTime.substring(dateTime.lastIndexOf(" ")+1);
+                    dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
+                    if (!dateTime.contains(",")) {
+                        dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
+                    }
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }

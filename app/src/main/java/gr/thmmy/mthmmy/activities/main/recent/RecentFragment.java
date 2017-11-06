@@ -167,11 +167,11 @@ public class RecentFragment extends BaseFragment {
                     matcher = pattern.matcher(dateTime);
                     if (matcher.find()) {
                         dateTime = matcher.group(1);
-                        dateTime=dateTime.substring(0,dateTime.lastIndexOf(":"));
-                        if(!dateTime.contains(","))
-                            dateTime=dateTime.substring(dateTime.lastIndexOf(" ")+1);
-                    }
-                    else
+                        dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
+                        if (!dateTime.contains(",")) {
+                            dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
+                        }
+                    } else
                         throw new ParseException("Parsing failed (dateTime)");
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
