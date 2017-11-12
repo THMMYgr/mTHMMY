@@ -37,6 +37,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:clickable="true"
+                    android:focusable="true"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
                     android:paddingTop="16dp">
@@ -93,6 +94,7 @@
                     android:background="@color/card_background"
                     android:clickable="true"
                     android:contentDescription="@string/post_quote_button"
+                    android:focusable="true"
                     android:src="@drawable/ic_format_quote_unchecked" />
             </LinearLayout>
 
@@ -101,6 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
+                android:focusable="true"
                 android:orientation="vertical"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
@@ -173,8 +176,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="start"
                     android:text=""
-                    android:textColor="@color/card_expand_text_color"
-                    android:textSize="10sp" />
+                    android:textColor="@color/accent"
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/post_number"
@@ -182,8 +185,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="end"
                     android:text=""
-                    android:textColor="@color/card_expand_text_color"
-                    android:textSize="10sp" />
+                    android:textColor="@color/accent"
+                    android:textSize="11sp" />
             </FrameLayout>
 
 
@@ -211,6 +214,7 @@
                     android:layout_marginRight="16dp"
                     android:background="@color/card_background"
                     android:clickable="true"
+                    android:focusable="true"
                     android:text="@string/post" />
             </FrameLayout>
 

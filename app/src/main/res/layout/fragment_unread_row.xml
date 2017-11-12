@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/spacer"
-            android:textColor="@color/secondary_text"/>
+            android:textColor="@color/accent"/>
 
         <TextView
             android:id="@+id/lastUser"

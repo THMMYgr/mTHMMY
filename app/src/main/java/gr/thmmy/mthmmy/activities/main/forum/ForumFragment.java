@@ -125,7 +125,7 @@ public class ForumFragment extends BaseFragment {
             });
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                     linearLayoutManager.getOrientation());
@@ -133,6 +133,8 @@ public class ForumFragment extends BaseFragment {
             recyclerView.setAdapter(forumAdapter);
 
             swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
+            swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override

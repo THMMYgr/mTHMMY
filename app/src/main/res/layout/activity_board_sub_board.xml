@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/card_background"
@@ -33,7 +32,7 @@
                 android:paddingBottom="2dp"
                 android:text="@string/child_board_title"
                 android:textColor="@color/accent"
-                android:textSize="22sp"/>
+                android:textSize="22sp" />
 
             <ImageButton
                 android:id="@+id/child_board_expand_collapse_button"
@@ -41,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:contentDescription="@string/child_board_button"
-                android:src="@drawable/ic_arrow_drop_down"/>
+                android:src="@drawable/ic_arrow_drop_down" />
         </LinearLayout>
 
         <LinearLayout
@@ -61,7 +60,7 @@
                 android:text="@string/child_board_mods"
                 android:textColor="@color/secondary_text"
                 android:textSize="12sp"
-                android:textStyle="italic"/>
+                android:textStyle="italic" />
 
             <TextView
                 android:id="@+id/child_board_stats"
@@ -71,7 +70,7 @@
                 android:layout_marginTop="1dp"
                 android:text="@string/child_board_stats"
                 android:textColor="@color/secondary_text"
-                android:textSize="12sp"/>
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/child_board_last_post"
@@ -80,9 +79,10 @@
                 android:layout_marginBottom="1dp"
                 android:layout_marginTop="1dp"
                 android:clickable="true"
+                android:focusable="true"
                 android:text="@string/child_board_last_post"
                 android:textColor="@color/primary_text"
-                android:textSize="12sp"/>
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

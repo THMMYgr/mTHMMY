@@ -10,10 +10,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -26,7 +24,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,14 +32,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
@@ -61,7 +52,9 @@ import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
-import static gr.thmmy.mthmmy.activities.topic.Posting.htmlToBBcode;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
+import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
 import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
 
 /**
@@ -74,6 +67,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private String topicTitle;
+    private String baseUrl;
     private final ArrayList<Integer> toQuoteList = new ArrayList<>();
     private final List<Post> postsList;
     /**
@@ -98,16 +92,18 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final String[] replyDataHolder = new String[2];
     private final int replySubject = 0, replyText = 1;
-    private String loadedPageUrl = "";
+    private String numReplies, seqnum, sc, topic, buildedQuotes;
     private boolean canReply = false;
 
     /**
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
-    TopicAdapter(Context context, List<Post> postsList, TopicActivity.TopicTask topicTask) {
+    TopicAdapter(Context context, List<Post> postsList, String baseUrl,
+                 TopicActivity.TopicTask topicTask) {
         this.context = context;
         this.postsList = postsList;
+        this.baseUrl = baseUrl;
 
         THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
         for (int i = 0; i < postsList.size(); ++i) {
@@ -117,10 +113,19 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.topicTask = topicTask;
     }
 
-    void prepareForReply(TopicActivity.ReplyTask replyTask, String topicTitle, String loadedPageUrl) {
+    ArrayList<Integer> getToQuoteList(){
+        return toQuoteList;
+    }
+
+    void prepareForReply(TopicActivity.ReplyTask replyTask, String topicTitle, String numReplies,
+                         String seqnum, String sc, String topic, String buildedQuotes) {
         this.replyTask = replyTask;
         this.topicTitle = topicTitle;
-        this.loadedPageUrl = loadedPageUrl;
+        this.numReplies = numReplies;
+        this.seqnum = seqnum;
+        this.sc = sc;
+        this.topic = topic;
+        this.buildedQuotes = buildedQuotes;
     }
 
     @Override
@@ -158,12 +163,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Default post subject
             replyDataHolder[replySubject] = "Re: " + topicTitle;
             //Build quotes
-            String quotes = "";
-            for (int quotePosition : toQuoteList) {
-                quotes += buildQuote(quotePosition);
-            }
-            if (!Objects.equals(quotes, ""))
-                replyDataHolder[replyText] = htmlToBBcode(quotes);
+            if (!Objects.equals(buildedQuotes, ""))
+                replyDataHolder[replyText] = buildedQuotes;
             return new QuickReplyViewHolder(view, new CustomEditTextListener(replySubject),
                     new CustomEditTextListener(replyText));
         }
@@ -309,6 +310,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.personalText.setVisibility(View.VISIBLE);
             } else
                 holder.personalText.setVisibility(View.GONE);
+            if (mUserColor != USER_COLOR_YELLOW) {
+                holder.username.setTextColor(mUserColor);
+            } else {
+                holder.username.setTextColor(USER_COLOR_WHITE);
+            }
             if (mNumberOfStars > 0) {
                 holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));
@@ -396,7 +402,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                         TopicAnimations.animateUserExtraInfoVisibility(holder.username,
                                 holder.subject, Color.parseColor("#FFFFFF"),
-                                Color.parseColor("#757575"), v);
+                                Color.parseColor("#757575"), (LinearLayout) v);
                     }
                 });
             } else {
@@ -460,7 +466,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     if (holder.quickReply.getText().toString().isEmpty()) return;
                     holder.submitButton.setEnabled(false);
                     replyTask.execute(holder.quickReplySubject.getText().toString(),
-                            holder.quickReply.getText().toString());
+                            holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic);
 
                     holder.quickReplySubject.getText().clear();
                     holder.quickReplySubject.setText("Re: " + topicTitle);
@@ -471,7 +477,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    void customNotifyDataSetChanged(TopicActivity.TopicTask topicTask, boolean canReply) {
+    void resetTopic(String baseUrl, TopicActivity.TopicTask topicTask, boolean canReply) {
+        this.baseUrl = baseUrl;
         this.topicTask = topicTask;
         this.canReply = canReply;
         viewProperties.clear();
@@ -479,8 +486,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
-        notifyItemRangeInserted(0, postsList.size());
-        //notifyDataSetChanged();
     }
 
     @Override
@@ -492,9 +497,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * Custom {@link RecyclerView.ViewHolder} implementation
      */
     private class PostViewHolder extends RecyclerView.ViewHolder {
-        final CardView cardView;
         final LinearLayout cardChildLinear;
-        final FrameLayout postDateAndNumber;
         final TextView postDate, postNum, username, subject;
         final ImageView thumbnail;
         final public WebView post;
@@ -510,9 +513,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             super(view);
             //Initializes layout's graphic elements
             //Standard stuff
-            cardView = view.findViewById(R.id.card_view);
             cardChildLinear = view.findViewById(R.id.card_child_linear);
-            postDateAndNumber = view.findViewById(R.id.post_date_and_number_exp);
             postDate = view.findViewById(R.id.post_date);
             postNum = view.findViewById(R.id.post_number);
             thumbnail = view.findViewById(R.id.thumbnail);
@@ -544,7 +545,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView username;
         final EditText quickReply, quickReplySubject;
         final AppCompatImageButton submitButton;
-        final CustomEditTextListener replySubject, replyText;
 
         QuickReplyViewHolder(View quickReply, CustomEditTextListener replySubject
                 , CustomEditTextListener replyText) {
@@ -552,10 +552,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             thumbnail = quickReply.findViewById(R.id.thumbnail);
             username = quickReply.findViewById(R.id.username);
             this.quickReply = quickReply.findViewById(R.id.quick_reply_text);
-            this.replyText = replyText;
             this.quickReply.addTextChangedListener(replyText);
             quickReplySubject = quickReply.findViewById(R.id.quick_reply_subject);
-            this.replySubject = replySubject;
             quickReplySubject.addTextChangedListener(replySubject);
             submitButton = quickReply.findViewById(R.id.quick_reply_submit);
         }
@@ -589,7 +587,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if this is the current topic
-                /*if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), base_url)) {
+                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), baseUrl)) {
                     //Gets uri's targeted message's index number
                     String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
                     if (msgIndexReq.contains("#"))
@@ -604,9 +602,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             return true;
                         }
                     }
-                }*/
 
-                topicTask.execute(uri.toString());
+                    topicTask.execute(uri.toString());
+                }
+
+                Intent intent = new Intent(context, TopicActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_TOPIC_URL, uriString);
+                intent.putExtras(extras);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
                 return true;
             } else if (target.is(ThmmyPage.PageCategory.BOARD)) {
                 Intent intent = new Intent(context, BoardActivity.class);
@@ -658,62 +663,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @Override
         public void afterTextChanged(Editable editable) {
         }
-    }
-
-    @Nullable
-    private String buildQuote(int quotePosition) {
-        Date postDate = null;
-        {
-            String date = postsList.get(quotePosition).getPostDate();
-            if (date != null) {
-                DateFormat format = new SimpleDateFormat("MMMM d, yyyy, h:m:s a", Locale.ENGLISH);
-                date = date.replace("Ιανουαρίου", "January");
-                date = date.replace("Φεβρουαρίου", "February");
-                date = date.replace("Μαρτίου", "March");
-                date = date.replace("Απριλίου", "April");
-                date = date.replace("Μαΐου", "May");
-                date = date.replace("Ιουνίου", "June");
-                date = date.replace("Ιουλίου", "July");
-                date = date.replace("Αυγούστου", "August");
-                date = date.replace("Σεπτεμβρίου", "September");
-                date = date.replace("Οκτωβρίου", "October");
-                date = date.replace("Νοεμβρίου", "November");
-                date = date.replace("Δεκεμβρίου", "December");
-
-                if (date.contains("Today")) {
-                    date = date.replace("Today at",
-                            Calendar.getInstance().getDisplayName(Calendar.MONTH,
-                                    Calendar.LONG, Locale.ENGLISH)
-                                    + " " + Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-                                    + ", " + Calendar.getInstance().get(Calendar.YEAR) + ",");
-                } else if (date.contains("Σήμερα")) {
-                    date = date.replace("Σήμερα στις",
-                            Calendar.getInstance().getDisplayName(Calendar.MONTH,
-                                    Calendar.LONG, Locale.ENGLISH)
-                                    + " " + Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-                                    + ", " + Calendar.getInstance().get(Calendar.YEAR) + ",");
-                    if (date.contains("πμ")) date = date.replace("πμ", "am");
-                    if (date.contains("μμ")) date = date.replace("μμ", "pm");
-                }
-                try {
-                    postDate = format.parse(date);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        if (postsList.get(quotePosition).getPostIndex() != 0) {
-            if (postDate != null) {
-                return "[quote author=" + postsList.get(quotePosition).getAuthor()
-                        + " link=topic=" + ThmmyPage.getTopicId(loadedPageUrl) + ".msg"
-                        + postsList.get(quotePosition).getPostIndex()
-                        + "#msg" + postsList.get(quotePosition).getPostIndex()
-                        + " date=" + postDate.getTime() / 1000 + "]"
-                        + "\n" + postsList.get(quotePosition).getContent()
-                        + "\n" + "[/quote]" + "\n\n";
-            }
-        }
-        return null;
     }
 
     /**

@@ -111,7 +111,7 @@ public class UnreadFragment extends BaseFragment {
             });
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                     linearLayoutManager.getOrientation());
@@ -119,6 +119,8 @@ public class UnreadFragment extends BaseFragment {
             recyclerView.setAdapter(unreadAdapter);
 
             swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
+            swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override
@@ -172,6 +174,10 @@ public class UnreadFragment extends BaseFragment {
                     dateTime = dateTime.substring(0, dateTime.indexOf("<br>"));
                     dateTime = dateTime.replace("<b>", "");
                     dateTime = dateTime.replace("</b>", "");
+                    dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
+                    if (!dateTime.contains(",")) {
+                        dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
+                    }
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }

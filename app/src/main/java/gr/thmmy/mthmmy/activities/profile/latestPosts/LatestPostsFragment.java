@@ -50,6 +50,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
     private LatestPostsTask profileLatestPostsTask;
     private MaterialProgressBar progressBar;
     private boolean isLoadingMore;
+    private boolean userHasPosts = true;
     private static final int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
 
@@ -100,7 +101,8 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                 totalItemCount = layoutManager.getItemCount();
                 lastVisibleItem = layoutManager.findLastVisibleItemPosition();
 
-                if (!isLoadingMore && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                if (userHasPosts && !isLoadingMore &&
+                        totalItemCount <= (lastVisibleItem + visibleThreshold)) {
                     isLoadingMore = true;
                     onLoadMore();
                 }
@@ -126,7 +128,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (parsedTopicSummaries.isEmpty()) {
+        if (parsedTopicSummaries.isEmpty() && userHasPosts) {
             profileLatestPostsTask = new LatestPostsTask();
             profileLatestPostsTask.execute(profileUrl + ";sa=showPosts");
             pagesLoaded = 1;
@@ -186,6 +188,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
 
         //TODO: better parse error handling (ParseException etc.)
         private boolean parseLatestPosts(Document latestPostsPage) {
+            //td:contains( Sorry, no matches were found)
             Elements latestPostsRows = latestPostsPage.
                     select("td:has(table:Contains(Show Posts)):not([style]) > table");
             if (latestPostsRows.isEmpty()) {
@@ -195,6 +198,13 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
             //Removes loading item
             if (isLoadingMore) {
                 parsedTopicSummaries.remove(parsedTopicSummaries.size() - 1);
+            }
+
+            if (!latestPostsRows.select("td:contains(Sorry, no matches were found)").isEmpty() ||
+                    !latestPostsRows.select("td:contains(Δυστυχώς δεν βρέθηκε τίποτα)").isEmpty()){
+                userHasPosts = false;
+                parsedTopicSummaries.add(null);
+                return true;
             }
 
             for (Element row : latestPostsRows) {

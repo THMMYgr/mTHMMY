@@ -172,7 +172,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(profileUrl));
         if (!target.is(ThmmyPage.PageCategory.PROFILE)) {
-            Timber.e("Bundle came with a non profile url!\nUrl:\n%s" , profileUrl);
+            Timber.e("Bundle came with a non profile url!\nUrl:\n%s", profileUrl);
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -217,6 +217,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         //Class variables
         Document profilePage;
         Spannable usernameSpan;
+        Boolean isOnline = false;
 
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -261,13 +262,17 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     usernameSpan.setSpan(new RelativeSizeSpan(0.45f)
                             , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
                     if (contentsTable.toString().contains("Online")
                             || contentsTable.toString().contains("Συνδεδεμένος")) {
-                        usernameSpan.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50"))
-                                , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    } else
-                        usernameSpan.setSpan(new ForegroundColorSpan(Color.GRAY)
-                                , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        isOnline = true;
+                    } else {
+                        isOnline = false;
+                        /*usernameSpan.setSpan(new ForegroundColorSpan(Color.GRAY)
+                                , 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
+                    }
+                    usernameSpan.setSpan(new ForegroundColorSpan(Color.parseColor("#26A69A"))
+                            , 2, usernameSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 return true;
             } catch (SSLHandshakeException e) {
@@ -290,8 +295,14 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
 
-            if (usernameSpan != null) usernameView.setText(usernameSpan);
-            else if (usernameView.getText() != username) usernameView.setText(username);
+            if (usernameSpan != null) {
+                if (isOnline) {
+                    usernameView.setTextColor(Color.parseColor("#4CAF50"));
+                } else {
+                    usernameView.setTextColor(Color.GRAY);
+                }
+                usernameView.setText(usernameSpan);
+            } else if (usernameView.getText() != username) usernameView.setText(username);
             if (thumbnailUrl != null && !Objects.equals(thumbnailUrl, ""))
                 //noinspection ConstantConditions
                 Picasso.with(getApplicationContext())

@@ -99,7 +99,7 @@ public class RecentFragment extends BaseFragment {
             recentAdapter = new RecentAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(rootView.findViewById(R.id.list).getContext());
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                     linearLayoutManager.getOrientation());
@@ -107,6 +107,8 @@ public class RecentFragment extends BaseFragment {
             recyclerView.setAdapter(recentAdapter);
 
             swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
+            swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
                     new SwipeRefreshLayout.OnRefreshListener() {
                         @Override
@@ -161,11 +163,20 @@ public class RecentFragment extends BaseFragment {
                         throw new ParseException("Parsing failed (lastUser)");
 
                     String dateTime = recent.get(i + 2).text();
-                    pattern = Pattern.compile("\\[(.*)\\]");
+                    pattern = Pattern.compile("\\[(.*)]");
                     matcher = pattern.matcher(dateTime);
-                    if (matcher.find())
+                    if (matcher.find()) {
                         dateTime = matcher.group(1);
-                    else
+                        if (dateTime.contains(" am") || dateTime.contains(" pm") ||
+                                dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
+                            dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
+                        } else {
+                            dateTime=dateTime.substring(0,dateTime.lastIndexOf(":"));
+                        }
+                        if (!dateTime.contains(",")) {
+                            dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
+                        }
+                    } else
                         throw new ParseException("Parsing failed (dateTime)");
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));

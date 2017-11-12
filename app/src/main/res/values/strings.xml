@@ -18,9 +18,6 @@
     <string name="btn_login">LOGIN</string>
     <string name="btn_continue_as_guest">Don\'t have an account? Continue as guest!</string>
 
-    <!--Main Activity-->
-    <string name="byUser">by %1$s</string>
-
     <!--Board Activity-->
     <string name="child_board_title">Child Boards</string>
     <string name="child_board_button">Exp/Coll</string>
@@ -51,6 +48,7 @@
 
     <!--Profile Activity-->
     <string name="username">Username</string>
+    <string name="latest_posts_empty_message">This user has no posts yet</string>
     <string name="general_statistics_title">General Statistics</string>
     <string name="general_statistics">Statistics</string>
     <string name="posting_activity_by_time_title">Posting Activity</string>

@@ -67,7 +67,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             viewHolder.mTitleView.setText(unreadList.get(holder.getAdapterPosition()).getSubject());
             viewHolder.mDateTimeView.setText(unreadList.get(holder.getAdapterPosition()).getDateTimeModified());
-            viewHolder.mUserView.setText(context.getString(R.string.byUser, unreadList.get(position).getLastUser()));
+            viewHolder.mUserView.setText(unreadList.get(position).getLastUser());
 
             viewHolder.topic = unreadList.get(holder.getAdapterPosition());
 
