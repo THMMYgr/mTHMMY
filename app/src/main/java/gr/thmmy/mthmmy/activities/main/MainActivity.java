@@ -35,7 +35,6 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_FOCUS_TO_LAST_POST;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
@@ -117,7 +116,6 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
         i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
         i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
-        i.putExtra(BUNDLE_FOCUS_TO_LAST_POST, true);
         startActivity(i);
     }
 

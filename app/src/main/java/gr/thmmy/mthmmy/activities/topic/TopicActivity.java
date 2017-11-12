@@ -81,10 +81,6 @@ public class TopicActivity extends BaseActivity {
      * The key to use when putting topic's title String to {@link TopicActivity}'s Bundle.
      */
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
-    /**
-     * The key to use when activity should scroll to bottom, for example when coming from recent.
-     */
-    public static final String BUNDLE_FOCUS_TO_LAST_POST = "BUNDLE_FOCUS_TO_LAST_POST";
     private static TopicTask topicTask;
     private MaterialProgressBar progressBar;
     private TextView toolbarTitle;
@@ -107,7 +103,6 @@ public class TopicActivity extends BaseActivity {
      * bundle one and gets rendered in the toolbar.
      */
     private String parsedTitle;
-    private Boolean focusToLastPost;
     private RecyclerView recyclerView;
     /**
      * Holds the url of this page
@@ -208,7 +203,6 @@ public class TopicActivity extends BaseActivity {
             Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
-        focusToLastPost = extras.getBoolean(BUNDLE_FOCUS_TO_LAST_POST);
 
         thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
 
@@ -649,10 +643,6 @@ public class TopicActivity extends BaseActivity {
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
 
-                    if (focusToLastPost) {
-                        recyclerView.scrollToPosition(postsList.size() - 1);
-                    }
-
                     paginationEnabled(true);
                     break;
                 case NETWORK_ERROR:
@@ -820,17 +810,8 @@ public class TopicActivity extends BaseActivity {
 
                 try {
                     Response response = client.newCall(request).execute();
-                    document = Jsoup.parse(response.body().string());
-                    String html = document.outerHtml();
-                    if (Build.VERSION.SDK_INT >= 24) {
-                        buildedQuotes += Html.fromHtml(
-                                html.substring(html.indexOf("<quote>"), html.indexOf("</quote>")),
-                                Html.FROM_HTML_MODE_LEGACY).toString();
-                    } else {
-                        buildedQuotes += Html.fromHtml(
-                                html.substring(html.indexOf("<quote>"), html.indexOf("</quote>")))
-                                .toString();
-                    }
+                    String body = response.body().string();
+                    buildedQuotes += body.substring(body.indexOf("<quote>") + 7, body.indexOf("</quote>"));
                     buildedQuotes += "\n\n";
                 } catch (IOException | Selector.SelectorParseException e) {
                     Timber.e(e, "Quote building failed.");

@@ -167,7 +167,12 @@ public class RecentFragment extends BaseFragment {
                     matcher = pattern.matcher(dateTime);
                     if (matcher.find()) {
                         dateTime = matcher.group(1);
-                        dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
+                        if (dateTime.contains(" am") || dateTime.contains(" pm") ||
+                                dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
+                            dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
+                        } else {
+                            dateTime=dateTime.substring(0,dateTime.lastIndexOf(":"));
+                        }
                         if (!dateTime.contains(",")) {
                             dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
                         }
