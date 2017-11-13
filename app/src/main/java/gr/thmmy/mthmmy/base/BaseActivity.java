@@ -251,7 +251,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withSelectedIcon(aboutIconSelected);
 
         //Profile
-        profileDrawerItem = new ProfileDrawerItem().withName(sessionManager.getUsername());
+        profileDrawerItem = new ProfileDrawerItem().withName(sessionManager.getUsername()).withIdentifier(0);
 
         //AccountHeader
         accountHeader = new AccountHeaderBuilder()
