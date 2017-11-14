@@ -691,10 +691,10 @@ public class TopicActivity extends BaseActivity {
                 parsedTitle = topic.select("td[id=top_subject]").first().text();
                 if (parsedTitle.contains("Topic:")) {
                     parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Topic:") + 7
-                            , parsedTitle.indexOf("(Read") - 1);
+                            , parsedTitle.indexOf("(Read") - 2);
                 } else {
                     parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Θέμα:") + 6
-                            , parsedTitle.indexOf("(Αναγνώστηκε") - 1);
+                            , parsedTitle.indexOf("(Αναγνώστηκε") - 2);
                     Timber.d("Parsed title: %s", parsedTitle);
                 }
             }
