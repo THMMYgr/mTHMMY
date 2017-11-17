@@ -29,4 +29,4 @@ Do not hesitate to contact us for any matter, either by sending an email to `thm
 **Legal attribution: Google Play and the Google Play logo are trademarks of Google Inc.*
 
 [discord-server]: https://discord.gg/CVt3yrn
-[trello-board]: https://trello.com/invite/b/4MVlkrkg/44a931707bd0b84a5e0bdfc42b9ae4f1/mthmmy
+[trello-board]: https://trello.com/b/4MVlkrkg/mthmmy

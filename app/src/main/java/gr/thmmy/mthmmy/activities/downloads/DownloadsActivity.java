@@ -64,7 +64,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         if (downloadsUrl != null && !Objects.equals(downloadsUrl, "")) {
             ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(downloadsUrl));
             if (!target.is(ThmmyPage.PageCategory.DOWNLOADS)) {
-                Timber.e("Bundle came with a non board url!\nUrl:\n%s" , downloadsUrl);
+                Timber.e("Bundle came with a non downloads url!\nUrl:\n%s" , downloadsUrl);
                 Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -72,9 +72,10 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);
-        if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
+        if (downloadsTitle == null || downloadsTitle.equals(""))
             toolbar.setTitle("Downloads");
-        toolbar.setTitle(downloadsTitle);
+        else
+            toolbar.setTitle(downloadsTitle);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -235,8 +236,9 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
         @Override
         protected void postParsing(ResultCode result) {
-            if (downloadsTitle != null && !Objects.equals(downloadsTitle, "") &&
-                    toolbar.getTitle() != downloadsTitle)
+            if (downloadsTitle != null && !downloadsTitle.equals("")
+                    && !downloadsTitle.equals("Αρχεία για λήψη")
+                    && toolbar.getTitle() != downloadsTitle)
                 toolbar.setTitle(downloadsTitle);
 
             ++pagesLoaded;
