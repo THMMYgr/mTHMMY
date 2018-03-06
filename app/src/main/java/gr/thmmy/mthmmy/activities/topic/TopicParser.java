@@ -223,7 +223,7 @@ class TopicParser {
                             .select("td:has(div.smalltext:containsOwn(Επισκέπτης))[style^=overflow]")
                             .first().text();
                     p_userName = p_userName.substring(0, p_userName.indexOf(" Επισκέπτης"));
-                    p_userColor = USER_COLOR_BLACK;
+                    p_userColor = USER_COLOR_YELLOW;
                 } else {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
@@ -283,7 +283,7 @@ class TopicParser {
                             .select("td:has(div.smalltext:containsOwn(Guest))[style^=overflow]")
                             .first().text();
                     p_userName = p_userName.substring(0, p_userName.indexOf(" Guest"));
-                    p_userColor = USER_COLOR_BLACK;
+                    p_userColor = USER_COLOR_YELLOW;
                 } else {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
@@ -319,7 +319,7 @@ class TopicParser {
                         try {
                             attachedUrl = new URL(tmpAttachedFileUrlAndName.attr("href"));
                         } catch (MalformedURLException e) {
-                            Timber.e("Attached file malformed url", e);
+                            Timber.e(e, "Attached file malformed url");
                             break;
                         }
                         String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);

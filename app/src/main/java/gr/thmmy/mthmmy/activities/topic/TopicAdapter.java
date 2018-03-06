@@ -203,6 +203,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .into(holder.thumbnail);
 
             //Sets username,submit date, index number, subject, post's and attached files texts
+            Timber.i("ASDF " + currentPost.getAuthor());
             holder.username.setText(currentPost.getAuthor());
             holder.postDate.setText(currentPost.getPostDate());
             if (currentPost.getPostNumber() != 0)
@@ -274,7 +275,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 mNumberOfPosts = currentPost.getNumberOfPosts();
                 mPersonalText = currentPost.getPersonalText();
                 mNumberOfStars = currentPost.getNumberOfStars();
-                mUserColor = currentPost.getUserColor();
             } else {
                 mSpecialRank = null;
                 mRank = null;
@@ -282,8 +282,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 mNumberOfPosts = null;
                 mPersonalText = null;
                 mNumberOfStars = 0;
-                mUserColor = 0;
             }
+            mUserColor = currentPost.getUserColor();
 
             if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
                 holder.specialRank.setText(mSpecialRank);

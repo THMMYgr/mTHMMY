@@ -153,6 +153,7 @@ public class RecentFragment extends BaseFragment {
                 for (int i = 0; i < recent.size(); i += 3) {
                     String link = recent.get(i).child(0).attr("href");
                     String title = recent.get(i).child(0).attr("title");
+                    title = title.trim();
 
                     String lastUser = recent.get(i + 1).text();
                     Pattern pattern = Pattern.compile("\\b (.*)");
