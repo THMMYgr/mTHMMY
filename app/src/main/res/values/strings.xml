@@ -31,6 +31,7 @@
     <string name="topic_last_post">Last post on: %1$s</string>
 
     <!--Topic Activity-->
+    <string name="share">Share</string>
     <string name="post_author">Post author</string>
     <string name="post_subject">Post subject</string>
     <string name="post">Post</string>

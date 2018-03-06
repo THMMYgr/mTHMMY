@@ -15,7 +15,6 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.util.SparseArray;
@@ -103,6 +102,7 @@ public class TopicActivity extends BaseActivity {
      * bundle one and gets rendered in the toolbar.
      */
     private String parsedTitle;
+    private String topicPageUrl;
     private RecyclerView recyclerView;
     /**
      * Holds the url of this page
@@ -195,7 +195,7 @@ public class TopicActivity extends BaseActivity {
 
         Bundle extras = getIntent().getExtras();
         topicTitle = extras.getString(BUNDLE_TOPIC_TITLE);
-        String topicPageUrl = extras.getString(BUNDLE_TOPIC_URL);
+        topicPageUrl = extras.getString(BUNDLE_TOPIC_URL);
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
                 Uri.parse(topicPageUrl));
         if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
@@ -309,6 +309,12 @@ public class TopicActivity extends BaseActivity {
                 builder.setView(infoDialog);
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                return true;
+            case R.id.menu_share:
+                Intent sendIntent  = new Intent(android.content.Intent.ACTION_SEND);
+                sendIntent.setType("text/plain");
+                sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, topicPageUrl);
+                startActivity(Intent.createChooser(sendIntent, "Share via"));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
