@@ -108,9 +108,7 @@ public class SessionManager {
             Response response = client.newCall(request).execute();
             Document document = Jsoup.parse(response.body().string());
 
-            Elements unreadRepliesLinks = document.select("a[href=https://www.thmmy.gr/smf/index.php?action=unreadreplies]");
-
-            if (unreadRepliesLinks.size() >= 2) //Normally it's just == 2, but who knows what can be posted by users
+            if (validateRetrievedCookies())
             {
                 Timber.i("Login successful!");
                 setPersistentCookieSession();   //Store cookies
@@ -262,23 +260,24 @@ public class SessionManager {
     //--------------------------------------GETTERS END---------------------------------------------
 
     //------------------------------------OTHER FUNCTIONS-------------------------------------------
+    private boolean validateRetrievedCookies() {
+        List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
+        return (cookieList.size() == 2) && (cookieList.get(0).name().equals("THMMYgrC00ki3")) && (cookieList.get(1).name().equals("PHPSESSID"));
+    }
+
+    // Call validateRetrievedCookies() first
     private void setPersistentCookieSession() {
         List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
+        Cookie.Builder builder = new Cookie.Builder();
+        builder.name(cookieList.get(1).name())
+                .value(cookieList.get(1).value())
+                .domain(cookieList.get(1).domain())
+                .expiresAt(cookieList.get(0).expiresAt());
+        cookieList.remove(1);
+        cookieList.add(builder.build());
+        cookiePersistor.clear();
+        cookiePersistor.saveAll(cookieList);
 
-        if (cookieList.size() == 2) {
-            if ((cookieList.get(0).name().equals("THMMYgrC00ki3"))
-                    && (cookieList.get(1).name().equals("PHPSESSID"))) {
-                Cookie.Builder builder = new Cookie.Builder();
-                builder.name(cookieList.get(1).name())
-                        .value(cookieList.get(1).value())
-                        .domain(cookieList.get(1).domain())
-                        .expiresAt(cookieList.get(0).expiresAt());
-                cookieList.remove(1);
-                cookieList.add(builder.build());
-                cookiePersistor.clear();
-                cookiePersistor.saveAll(cookieList);
-            }
-        }
     }
 
     private void clearSessionData() {

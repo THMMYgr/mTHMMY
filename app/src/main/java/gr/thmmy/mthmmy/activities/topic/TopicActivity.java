@@ -327,6 +327,17 @@ public class TopicActivity extends BaseActivity {
             drawer.closeDrawer();
             return;
         }
+        else if(postsList.get(postsList.size()-1)==null)
+        {
+            postsList.remove(postsList.size() - 1);
+            topicAdapter.notifyItemRemoved(postsList.size());
+            topicAdapter.setBackButtonHidden();
+            replyFAB.setVisibility(View.INVISIBLE);
+            bottomNavBar.setVisibility(View.INVISIBLE);
+            paginationEnabled(true);
+            replyFAB.setEnabled(true);
+            return;
+        }
         super.onBackPressed();
     }
 
@@ -528,7 +539,7 @@ public class TopicActivity extends BaseActivity {
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
 
     /**
-     * An {@link AsyncTask} that handles asynchronous fetching of this topic page and parsing of it's
+     * An {@link AsyncTask} that handles asynchronous fetching of this topic page and parsing of its
      * data.
      * <p>TopicTask's {@link AsyncTask#execute execute} method needs a topic's url as String
      * parameter.</p>

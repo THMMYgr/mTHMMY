@@ -203,7 +203,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .into(holder.thumbnail);
 
             //Sets username,submit date, index number, subject, post's and attached files texts
-            Timber.i("ASDF " + currentPost.getAuthor());
             holder.username.setText(currentPost.getAuthor());
             holder.postDate.setText(currentPost.getPostDate());
             if (currentPost.getPostNumber() != 0)
@@ -474,6 +473,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.submitButton.setEnabled(true);
                 }
             });
+            if(backPressHidden)
+            {
+                holder.quickReply.requestFocus();
+                backPressHidden = false;
+            }
         }
     }
 
@@ -536,6 +540,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             stars = view.findViewById(R.id.stars);
         }
     }
+
+    private boolean backPressHidden = false;
+
+    void setBackButtonHidden() {
+        this.backPressHidden = true;
+    }
+
 
     /**
      * Custom {@link RecyclerView.ViewHolder} implementation
