@@ -1,6 +1,5 @@
 # mTHMMY
 
-[![build status](https://gitlab.com/ThmmyNoLife/mTHMMY/badges/develop/build.svg)](https://gitlab.com/ThmmyNoLife/mTHMMY/commits/develop)
 [![API](https://img.shields.io/badge/API-19%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=19)
 [![Discord Channel](https://img.shields.io/badge/discord-public@mTHMMY-738bd7.svg?style=flat)][discord-server]
 [![Trello Board](https://img.shields.io/badge/trello-mTHMMY-red.svg?style=flat)][trello-board]
