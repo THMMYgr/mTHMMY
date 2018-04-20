@@ -28,6 +28,7 @@ public class Post {
     private final int userColor;
     private final ArrayList<ThmmyFile> attachedFiles;
     private final String lastEdit;
+    private final String postURL;
 
     //Extra info
     private final String profileURL;
@@ -59,6 +60,7 @@ public class Post {
         numberOfStars = 0;
         attachedFiles = null;
         lastEdit = null;
+        postURL = null;
     }
 
     /**
@@ -83,12 +85,13 @@ public class Post {
      * @param userColor     author's user color
      * @param attachedFiles post's attached files
      * @param lastEdit      post's last edit date
+     * @param postURL      post's URL
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, String profileURl, @Nullable String rank
             , @Nullable String special_rank, @Nullable String gender, @Nullable String numberOfPosts
             , @Nullable String personalText, int numberOfStars, int userColor
-            , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit) {
+            , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL) {
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -108,6 +111,7 @@ public class Post {
         this.numberOfPosts = numberOfPosts;
         this.personalText = personalText;
         this.numberOfStars = numberOfStars;
+        this.postURL = postURL;
     }
 
     /**
@@ -125,10 +129,11 @@ public class Post {
      * @param userColor     author's user color
      * @param attachedFiles post's attached files
      * @param lastEdit      post's last edit date
+     * @param postURL      post's URL
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, int userColor
-            , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit) {
+            , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL) {
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -148,6 +153,7 @@ public class Post {
         numberOfPosts = "Posts: 0";
         personalText = "";
         numberOfStars = 0;
+        this.postURL = postURL;
     }
 
     //Getters
@@ -158,7 +164,7 @@ public class Post {
      * @return author's thumbnail url
      */
     @Nullable
-    public String getThumbnailUrl() {
+    public String getThumbnailURL() {
         return thumbnailUrl;
     }
 
@@ -325,5 +331,15 @@ public class Post {
     @Nullable
     public String getLastEdit() {
         return lastEdit;
+    }
+
+    /**
+     * Gets this post's url.
+     *
+     * @return post's url
+     */
+    @Nullable
+    public String getPostURL() {
+        return postURL;
     }
 }

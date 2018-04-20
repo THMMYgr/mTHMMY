@@ -406,7 +406,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Integer result) {
-            Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
             updateDrawer();
             if (mainActivity != null)
                 mainActivity.updateTabs();

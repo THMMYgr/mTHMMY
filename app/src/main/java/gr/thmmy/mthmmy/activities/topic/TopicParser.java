@@ -155,8 +155,8 @@ class TopicParser {
 
         for (Element thisRow : postRows) {
             //Variables for Post constructor
-            String p_userName, p_thumbnailUrl, p_subject, p_post, p_postDate, p_profileURL, p_rank,
-                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate;
+            String p_userName, p_thumbnailURL, p_subject, p_post, p_postDate, p_profileURL, p_rank,
+                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate, p_postURL;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
             ArrayList<ThmmyFile> p_attachedFiles;
@@ -176,13 +176,16 @@ class TopicParser {
             //Language independent parsing
             //Finds thumbnail url
             Element thumbnailUrl = thisRow.select("img.avatar").first();
-            p_thumbnailUrl = null; //In case user doesn't have an avatar
+            p_thumbnailURL = null; //In case user doesn't have an avatar
             if (thumbnailUrl != null) {
-                p_thumbnailUrl = thumbnailUrl.attr("abs:src");
+                p_thumbnailURL = thumbnailUrl.attr("abs:src");
             }
 
             //Finds subject
             p_subject = thisRow.select("div[id^=subject_]").first().select("a").first().text();
+
+            //Finds post's link
+            p_postURL = thisRow.select("div[id^=subject_]").first().select("a").first() .attr("href");
 
             //Finds post's text
             p_post = ParseHelpers.youtubeEmbeddedFix(thisRow.select("div").select(".post").first());
@@ -410,15 +413,15 @@ class TopicParser {
                     }
                 }
                 //Add new post in postsList, extended information needed
-                parsedPostsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
+                parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
-                        , p_attachedFiles, p_postLastEditDate));
+                        , p_attachedFiles, p_postLastEditDate, p_postURL));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
-                parsedPostsList.add(new Post(p_thumbnailUrl, p_userName, p_subject, p_post, p_postIndex
-                        , p_postNum, p_postDate, p_userColor, p_attachedFiles, p_postLastEditDate));
+                parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
+                        , p_postNum, p_postDate, p_userColor, p_attachedFiles, p_postLastEditDate, p_postURL));
             }
         }
         return parsedPostsList;

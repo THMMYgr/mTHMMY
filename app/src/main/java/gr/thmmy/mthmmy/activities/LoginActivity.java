@@ -157,7 +157,7 @@ public class LoginActivity extends BaseActivity {
             switch (result) {
                 case SUCCESS: //Successful login
                     Toast.makeText(getApplicationContext(),
-                            "Login successful!", Toast.LENGTH_LONG)
+                            "Welcome, " + sessionManager.getUsername() + "!", Toast.LENGTH_LONG)
                             .show();
                     //Go to main
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);

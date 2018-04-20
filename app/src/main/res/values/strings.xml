@@ -37,6 +37,7 @@
     <string name="post">Post</string>
     <string name="post_thumbnail">Thumbnail</string>
     <string name="post_quote_button">Quote button</string>
+    <string name="post_share_button">Share button</string>
     <string name="user_number_of_posts">#%1$d</string>
     <string name="button_first">first</string>
     <string name="button_previous">previous</string>
@@ -66,7 +67,7 @@
     <string name="contact">Contact</string>
     <string name="contact_text">Do not hesitate to contact us for any matter either by email at thmmynolife@gmail.com, or by joining our discord server at https://discord.gg/CVt3yrn.</string>
     <string name="open_source">Open Source</string>
-    <string name="open_source_text">The source code of mTHMMY can be found on GitLab (https://gitlab.com/ThmmyNoLife/mTHMMY) along with further details of how one can contribute.</string>
+    <string name="open_source_text">The source code of mTHMMY can be found on Github (https://github.com/ThmmyNoLife/mTHMMY) along with further details of how one can contribute.</string>
     <string name="trollPic">You should see a funny pic!</string>
 
     <!--Bookmarks-->
