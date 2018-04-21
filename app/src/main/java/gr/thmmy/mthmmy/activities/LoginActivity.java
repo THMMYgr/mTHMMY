@@ -16,6 +16,7 @@ import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import timber.log.Timber;
 
+import static gr.thmmy.mthmmy.session.SessionManager.BANNED_USER;
 import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
 import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;
 import static gr.thmmy.mthmmy.session.SessionManager.FAILURE;
@@ -173,6 +174,11 @@ public class LoginActivity extends BaseActivity {
                 case WRONG_PASSWORD:
                     Toast.makeText(getApplicationContext(),
                             "Wrong password!", Toast.LENGTH_LONG).show();
+                    inputPassword.requestFocus();
+                    break;
+                case BANNED_USER:
+                    Toast.makeText(getApplicationContext(),
+                            "You are banned!", Toast.LENGTH_LONG).show();
                     inputPassword.requestFocus();
                     break;
                 case FAILURE:

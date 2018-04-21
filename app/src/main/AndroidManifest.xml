@@ -61,7 +61,7 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".activities.AboutActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

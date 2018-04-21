@@ -47,6 +47,7 @@ public class SessionManager {
     public static final int CANCELLED = 4;
     public static final int CONNECTION_ERROR = 5;
     public static final int EXCEPTION = 6;
+    public static final int BANNED_USER = 7;
 
     // Client & Cookies
     private final OkHttpClient client;
@@ -114,8 +115,8 @@ public class SessionManager {
                 setPersistentCookieSession();   //Store cookies
 
                 //Edit SharedPreferences, save session's data
+                setLoginScreenAsDefault(false);
                 sharedPrefs.edit().putBoolean(LOGGED_IN, true).apply();
-                sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
                 sharedPrefs.edit().putString(USERNAME, extractUserName(document)).apply();
                 String avatar = extractAvatarLink(document);
                 if (avatar != null) {
@@ -133,15 +134,21 @@ public class SessionManager {
 
                 //Investigate login failure
                 Elements error = document.select("b:contains(That username does not exist.)");
-                if (error.size() == 1) { //Wrong username
+                if (error.size() > 0) { //Wrong username
                     Timber.i("Wrong Username");
                     return WRONG_USER;
                 }
 
                 error = document.select("body:contains(Password incorrect)");
-                if (error.size() == 1) { //Wrong password
+                if (error.size() > 0) { //Wrong password
                     Timber.i("Wrong Password");
                     return WRONG_PASSWORD;
+                }
+
+                error = document.select("body:contains(you are banned from using this forum!),body:contains(έχετε αποκλειστεί από αυτή τη δημόσια συζήτηση!)");
+                if (error.size() > 0) { //User is banned
+                    Timber.i("User is banned");
+                    return BANNED_USER;
                 }
 
                 //Other error e.g. session was reset server-side
@@ -180,7 +187,7 @@ public class SessionManager {
         } else if (isLoginScreenDefault())
             return;
 
-        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, true).apply();
+        setLoginScreenAsDefault(true);
         clearSessionData();
     }
 
@@ -190,7 +197,7 @@ public class SessionManager {
     public void guestLogin() {
         Timber.i("Continuing as a guest, as chosen by the user.");
         clearSessionData();
-        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
+        setLoginScreenAsDefault(false);
     }
 
 
@@ -219,7 +226,7 @@ public class SessionManager {
                 return FAILURE;
             }
         } catch (IOException e) {
-            Timber.w("Logout IOException", e);
+            Timber.w(e, "Logout IOException");
             return CONNECTION_ERROR;
         } catch (Exception e) {
             Timber.e(e, "Logout Exception");
@@ -253,16 +260,17 @@ public class SessionManager {
         return sharedPrefs.getBoolean(LOGIN_SCREEN_AS_DEFAULT, true);
     }
 
-    public String getCookieHeader() {
-        return cookiePersistor.loadAll().get(0).toString();
-    }
-
     //--------------------------------------GETTERS END---------------------------------------------
 
     //------------------------------------OTHER FUNCTIONS-------------------------------------------
     private boolean validateRetrievedCookies() {
         List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
-        return (cookieList.size() == 2) && (cookieList.get(0).name().equals("THMMYgrC00ki3")) && (cookieList.get(1).name().equals("PHPSESSID"));
+        for(Cookie cookie: cookieList)
+        {
+            if(cookie.name().equals("THMMYgrC00ki3"))
+                return true;
+        }
+        return false;
     }
 
     // Call validateRetrievedCookies() first
@@ -286,6 +294,10 @@ public class SessionManager {
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
         sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
         Timber.i("Session data cleared.");
+    }
+
+    private void setLoginScreenAsDefault(boolean b){
+        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, b).apply();
     }
 
     @NonNull
