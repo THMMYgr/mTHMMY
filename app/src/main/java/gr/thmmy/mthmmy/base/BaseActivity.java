@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -522,8 +523,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (topicsBookmarked == null) return;
         if (bookmark.matchExists(topicsBookmarked)) {
             topicsBookmarked.remove(bookmark.findIndex(topicsBookmarked));
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
         } else {
             topicsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), true));
+            FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
         }
         updateTopicBookmarks();
     }
@@ -552,7 +555,11 @@ public abstract class BaseActivity extends AppCompatActivity {
             topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).toggleNotificationsEnabled();
             updateTopicBookmarks();
 
-            //TODO toggle firebase here!
+            if (topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled()){
+                FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
+            } else {
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
+            }
 
             return topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled();
         }
