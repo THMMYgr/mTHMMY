@@ -327,7 +327,7 @@ public class TopicActivity extends BaseActivity {
             drawer.closeDrawer();
             return;
         }
-        else if(postsList.get(postsList.size()-1)==null)
+        else if(postsList!=null && postsList.size()>0 && postsList.get(postsList.size()-1)==null)
         {
             postsList.remove(postsList.size() - 1);
             topicAdapter.notifyItemRemoved(postsList.size());
