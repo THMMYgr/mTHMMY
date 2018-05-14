@@ -2,12 +2,16 @@ package gr.thmmy.mthmmy.activities;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
@@ -27,6 +31,9 @@ public class BookmarkActivity extends BaseActivity {
     private TextView boardsTitle;
     private TextView topicsTitle;
 
+    private static Drawable notificationsEnabledButtonImage;
+    private static Drawable notificationsDisabledButtonImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +50,18 @@ public class BookmarkActivity extends BaseActivity {
 
         createDrawer();
         drawer.setSelection(BOOKMARKS_ID);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            notificationsEnabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_on, null);
+        } else {
+            notificationsEnabledButtonImage = VectorDrawableCompat.create(getResources(), R.drawable.ic_notification_on, null);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            notificationsDisabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_off, null);
+        } else {
+            notificationsDisabledButtonImage = VectorDrawableCompat.create(getResources(), R.drawable.ic_notification_off, null);
+        }
 
         LinearLayout bookmarksLinearView = findViewById(R.id.bookmarks_container);
         LayoutInflater layoutInflater = getLayoutInflater();
@@ -131,10 +150,21 @@ public class BookmarkActivity extends BaseActivity {
                         }
                     });
                     ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmarkedTopic.getTitle());
-                    (row.findViewById(R.id.toggle_notification)).setOnClickListener(new View.OnClickListener() {
+
+                    final ImageButton notificationsEnabledButton = row.findViewById(R.id.toggle_notification);
+                    if (!bookmarkedTopic.isNotificationsEnabled()){
+                        notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
+                    }
+
+                    notificationsEnabledButton.setOnClickListener(new View.OnClickListener() {
+
                         @Override
                         public void onClick(View view) {
-                           //TODO
+                            if(toggleNotification(bookmarkedTopic)){
+                                notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
+                            } else {
+                                notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
+                            }
                         }
                     });
                     (row.findViewById(R.id.remove_bookmark)).setOnClickListener(new View.OnClickListener() {
@@ -142,6 +172,7 @@ public class BookmarkActivity extends BaseActivity {
                         public void onClick(View view) {
                             removeBookmark(bookmarkedTopic);
                             row.setVisibility(View.GONE);
+                            Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
                             updateTitles();
                         }
                     });

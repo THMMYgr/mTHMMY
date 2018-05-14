@@ -8,10 +8,12 @@ import java.util.Objects;
 
 public class Bookmark implements java.io.Serializable {
     private final String title, id;
+    private boolean isNotificationsEnabled;
 
-    public Bookmark(String title, String id) {
+    public Bookmark(String title, String id, boolean isNotificationsEnabled) {
         this.title = title;
         this.id = id;
+        this.isNotificationsEnabled = isNotificationsEnabled;
     }
 
     public String getTitle() {
@@ -20,6 +22,14 @@ public class Bookmark implements java.io.Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public boolean isNotificationsEnabled() {
+        return isNotificationsEnabled;
+    }
+
+    public void toggleNotificationsEnabled(){
+        this.isNotificationsEnabled = !this.isNotificationsEnabled;
     }
 
     public boolean matchExists(ArrayList<Bookmark> array) {
@@ -52,7 +62,8 @@ public class Bookmark implements java.io.Serializable {
         for (Bookmark bookmark : arrayList) {
             if (bookmark != null) {
                 returnString += (bookmark.getId() + "\t");
-                returnString += (bookmark.getTitle() + "\n");
+                returnString += (bookmark.getTitle() + "\t");
+                returnString += (bookmark.isNotificationsEnabled() + "\n");
             }
         }
         if (!Objects.equals(returnString, "")) return returnString;
@@ -65,8 +76,8 @@ public class Bookmark implements java.io.Serializable {
         for (String line : lines) {
             if (line == null || line.isEmpty() || Objects.equals(line, "")) break;
             String[] parameters = line.split("\t");
-            if (parameters.length != 2) break;
-            returnArray.add(new Bookmark(parameters[1], parameters[0]));
+            if (parameters.length != 3) break;
+            returnArray.add(new Bookmark(parameters[1], parameters[0], Boolean.parseBoolean(parameters[2])));
         }
         return returnArray;
     }

@@ -204,7 +204,7 @@ public class TopicActivity extends BaseActivity {
             finish();
         }
 
-        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
+        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl), true);
 
         //Initializes graphics
         toolbar = findViewById(R.id.toolbar);
@@ -631,7 +631,7 @@ public class TopicActivity extends BaseActivity {
                             || !Objects.equals(topicTitle, parsedTitle)) {
                         toolbarTitle.setText(parsedTitle);
                         topicTitle = parsedTitle;
-                        thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl));
+                        thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl), true);
                         invalidateOptionsMenu();
                     }
 

@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:contentDescription="@string/toggle_notification"
-        app:srcCompat="@drawable/ic_notification_off"/>
+        app:srcCompat="@drawable/ic_notification_on"/>
 
     <ImageButton
         android:id="@+id/remove_bookmark"

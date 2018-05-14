@@ -514,7 +514,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (boardsBookmarked == null) return;
         if (bookmark.matchExists(boardsBookmarked)) {
             boardsBookmarked.remove(bookmark.findIndex(boardsBookmarked));
-        } else boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId()));
+        } else boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), false));
         updateBoardBookmarks();
     }
 
@@ -523,7 +523,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (bookmark.matchExists(topicsBookmarked)) {
             topicsBookmarked.remove(bookmark.findIndex(topicsBookmarked));
         } else {
-            topicsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId()));
+            topicsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), true));
         }
         updateTopicBookmarks();
     }
@@ -545,6 +545,18 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void removeBookmark(Bookmark bookmark) {
         if (bookmark.matchExists(boardsBookmarked)) toggleBoardToBookmarks(bookmark);
         else if (bookmark.matchExists(topicsBookmarked)) toggleTopicToBookmarks(bookmark);
+    }
+
+    protected boolean toggleNotification(Bookmark bookmark){
+        if (bookmark.matchExists(topicsBookmarked)){
+            topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).toggleNotificationsEnabled();
+            updateTopicBookmarks();
+
+            //TODO toggle firebase here!
+
+            return topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled();
+        }
+        return false;
     }
 //-------------------------------------------BOOKMARKS END------------------------------------------
 

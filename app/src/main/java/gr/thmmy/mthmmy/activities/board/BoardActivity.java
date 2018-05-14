@@ -89,7 +89,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl));
+        thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
         setBoardBookmark((ImageButton) findViewById(R.id.bookmark));
         createDrawer();
 
@@ -304,7 +304,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     || !Objects.equals(boardTitle, parsedTitle)) {
                 boardTitle = parsedTitle;
                 toolbar.setTitle(boardTitle);
-                thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl));
+                thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
             }
 
             //Parse was successful
