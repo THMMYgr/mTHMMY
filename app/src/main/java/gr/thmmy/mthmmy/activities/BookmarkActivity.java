@@ -67,7 +67,7 @@ public class BookmarkActivity extends BaseActivity {
             for (final Bookmark bookmarkedBoard : getBoardsBookmarked()) {
                 if (bookmarkedBoard != null && bookmarkedBoard.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
-                            R.layout.activity_bookmark_row, bookmarksLinearView, false);
+                            R.layout.activity_bookmark_board_row, bookmarksLinearView, false);
                     row.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -116,7 +116,7 @@ public class BookmarkActivity extends BaseActivity {
             for (final Bookmark bookmarkedTopic : getTopicsBookmarked()) {
                 if (bookmarkedTopic != null && bookmarkedTopic.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
-                            R.layout.activity_bookmark_row, bookmarksLinearView, false);
+                            R.layout.activity_bookmark_topic_row, bookmarksLinearView, false);
                     row.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -131,6 +131,12 @@ public class BookmarkActivity extends BaseActivity {
                         }
                     });
                     ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmarkedTopic.getTitle());
+                    (row.findViewById(R.id.toggle_notification)).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                           //TODO
+                        }
+                    });
                     (row.findViewById(R.id.remove_bookmark)).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

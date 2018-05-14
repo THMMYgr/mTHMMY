@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bookmark_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
     android:gravity="center_vertical"
@@ -24,10 +25,18 @@
         android:textSize="18sp"/>
 
     <ImageButton
+        android:id="@+id/toggle_notification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:contentDescription="@string/toggle_notification"
+        app:srcCompat="@drawable/ic_notification_off"/>
+
+    <ImageButton
         android:id="@+id/remove_bookmark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackground"
         android:contentDescription="@string/remove_bookmark"
         android:src="@drawable/ic_remove_circle"/>
 </LinearLayout>

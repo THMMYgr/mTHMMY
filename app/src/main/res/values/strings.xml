@@ -90,4 +90,5 @@
     <string name="fa_sticky">&#xf249;</string>
     <string name="fa_folder">&#xf07b;</string>
     <string name="fa_circle">&#xf111;</string>
+    <string name="toggle_notification">Toggle Notification</string>
 </resources>

@@ -119,6 +119,13 @@
         <service
             android:name=".services.DownloadService"
             android:exported="false" />
+        <service
+            android:name=".services.FirebaseService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
 
         <receiver
             android:name=".receiver.Receiver"
