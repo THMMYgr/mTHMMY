@@ -57,6 +57,7 @@ public class SessionManager {
     //Shared Preferences & its keys
     private final SharedPreferences sharedPrefs;
     private static final String USERNAME = "Username";
+    private static final String USER_ID = "UserID";
     private static final String AVATAR_LINK = "AvatarLink";
     private static final String HAS_AVATAR = "HasAvatar";
     private static final String LOGOUT_LINK = "LogoutLink";
@@ -118,6 +119,7 @@ public class SessionManager {
                 setLoginScreenAsDefault(false);
                 sharedPrefs.edit().putBoolean(LOGGED_IN, true).apply();
                 sharedPrefs.edit().putString(USERNAME, extractUserName(document)).apply();
+                sharedPrefs.edit().putInt(USER_ID, extractUserId(document)).apply();
                 String avatar = extractAvatarLink(document);
                 if (avatar != null) {
                     sharedPrefs.edit().putBoolean(HAS_AVATAR, true).apply();
@@ -241,11 +243,15 @@ public class SessionManager {
 
     //---------------------------------------GETTERS------------------------------------------------
     public String getUsername() {
-        return sharedPrefs.getString(USERNAME, "Username");
+        return sharedPrefs.getString(USERNAME, USERNAME);
+    }
+
+    public int getUserId() {
+        return sharedPrefs.getInt(USER_ID, -1);
     }
 
     public String getAvatarLink() {
-        return sharedPrefs.getString(AVATAR_LINK, "AvatarLink");
+        return sharedPrefs.getString(AVATAR_LINK, AVATAR_LINK);
     }
 
     public boolean hasAvatar() {
@@ -292,6 +298,7 @@ public class SessionManager {
         cookieJar.clear();
         sharedPrefs.edit().clear().apply(); //Clear session data
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
+        sharedPrefs.edit().putInt(USER_ID, -1).apply();
         sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
         Timber.i("Session data cleared.");
     }
@@ -331,6 +338,25 @@ public class SessionManager {
 
         Timber.e(new ParseException("Parsing failed(username extraction)"),"ParseException");
         return "User"; //return a default username
+    }
+
+    @NonNull
+    private int extractUserId(@NonNull Document doc) {
+        try{
+            Elements elements = doc.select("a:containsOwn(Εμφάνιση των μηνυμάτων σας), a:containsOwn(Show own posts)");
+            if (elements.size() == 1) {
+                String link = elements.first().attr("href");
+
+                Pattern pattern = Pattern.compile("https://www.thmmy.gr/smf/index.php\\?action=profile;u=(\\d*);sa=showPosts");
+                Matcher matcher = pattern.matcher(link);
+                if (matcher.find())
+                    return Integer.parseInt(matcher.group(1));
+            }
+        } catch (Exception e) {
+            Timber.e(new ParseException("Parsing failed(user id extraction)"),"ParseException");
+        }
+        Timber.e(new ParseException("Parsing failed(user id extraction)"),"ParseException");
+        return -1;
     }
 
 

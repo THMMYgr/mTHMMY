@@ -19,7 +19,9 @@ import org.json.JSONObject;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.PostNotification;
+import gr.thmmy.mthmmy.session.SessionManager;
 import timber.log.Timber;
 
 import static android.support.v4.app.NotificationCompat.PRIORITY_HIGH;
@@ -33,12 +35,16 @@ public class FirebaseService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             JSONObject json = new JSONObject(remoteMessage.getData());
             try {
-                int topicId = Integer.parseInt(json.getString("topicId"));
-                int postId = Integer.parseInt(json.getString("postId"));
-                String topicTitle = json.getString("topicTitle");
-                String poster = json.getString("poster");
-                sendNotification(new PostNotification(postId, topicId, topicTitle, poster));
-
+                int userId = BaseApplication.getInstance().getSessionManager().getUserId();
+                //Don't notify me if the sender is me!
+                if(Integer.parseInt(json.getString("posterId"))!= userId)
+                {
+                    int topicId = Integer.parseInt(json.getString("topicId"));
+                    int postId = Integer.parseInt(json.getString("postId"));
+                    String topicTitle = json.getString("topicTitle");
+                    String poster = json.getString("poster");
+                    sendNotification(new PostNotification(postId, topicId, topicTitle, poster));
+                }
             } catch (JSONException e) {
                 Timber.e(e, "JSON Exception");
             }
@@ -85,6 +91,7 @@ public class FirebaseService extends FirebaseMessagingService {
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setGroupSummary(true)
                             .setGroup(GROUP_KEY)
+                            .setAutoCancel(true)
                             .setStyle(new NotificationCompat.InboxStyle()
                                     .setSummaryText("New Posts"))
                             .setSound(defaultSoundUri)
