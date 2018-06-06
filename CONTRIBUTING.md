@@ -15,15 +15,19 @@ There are many ways of contributing to mTHMMY:
 
 - Simply using the [latest release version][google-play] from Google Play (anonymous reports are sent automatically)
 - Joining our [Discord server][discord-server]
-- Submitting bugs and ideas on our [Trello board][trello-board]
+- Submitting bugs and ideas to our [issue tracker][github-issues]
 - Forking mTHMMY and submitting [pull requests](#pull-requests)
 - Joining our core team
 - Contacting us by email at `thmmynolife@gmail.com`
 
 ## Issue tracker
 
-The [mTHMMY Board on trello.com][trello-board] is used as an Issue Tracker, for bugs and improvements concerning the available mTHMMY releases.
-Before creating a card to submit an issue please **search the board** for similar entries.
+For bugs and improvements we use [GitHub’s issue tracking][github-issues].
+Before creating a new issue make sure to **search the tracker** for similar ones.
+
+## Compiling
+
+Due to the app's integration with Firebase, a `google-services.json` is required inside the `app` directory. To get one, either [set up your own Firebase project][firebase-console] (with or without a self hosted [backend][sisyphus], or ask us to provide you the one we use for development.
 
 ## Pull requests
 
@@ -38,8 +42,8 @@ follow the workflow below to make a pull request:
 1. Fill the PR description with a brief motive for your change and the method you used to achieve it
 1. Submit the PR.
 
-
-
 [google-play]: https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy
-[trello-board]: https://trello.com/invite/b/4MVlkrkg/44a931707bd0b84a5e0bdfc42b9ae4f1/mthmmy
+[github-issues]: https://github.com/ThmmyNoLife/mTHMMY/issues
 [discord-server]: https://discord.gg/CVt3yrn
+[sisyphus]: https://github.com/ThmmyNoLife/Sisyphus
+[firebase-console]: https://console.firebase.google.com/
