@@ -1,12 +1,13 @@
 package gr.thmmy.mthmmy.receiver;
 
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.webkit.MimeTypeMap;
@@ -27,12 +28,14 @@ import static gr.thmmy.mthmmy.services.DownloadService.SAVE_DIR;
 import static gr.thmmy.mthmmy.services.DownloadService.STARTED;
 
 public class Receiver extends BroadcastReceiver {
+    private static final String DOWNLOADS_CHANNEL_ID = "Downloads";
+    private static final String DOWNLOADS_CHANNEL_NAME = "Downloads";
 
     public Receiver() {}
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, DOWNLOADS_CHANNEL_ID);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (intent.getAction().equals(ACTION_DOWNLOAD)) {
@@ -43,13 +46,13 @@ public class Receiver extends BroadcastReceiver {
             String text = extras.getString(EXTRA_NOTIFICATION_TEXT);
             String ticker = extras.getString(EXTRA_NOTIFICATION_TICKER);
 
-            builder.setContentTitle(title)
+            notificationBuilder.setContentTitle(title)
                     .setContentText(text)
                     .setTicker(ticker)
                     .setAutoCancel(true);
 
             if (state.equals(STARTED))
-                builder.setOngoing(true)
+                notificationBuilder.setOngoing(true)
                         .setSmallIcon(android.R.drawable.stat_sys_download);
             else if (state.equals(COMPLETED)) {
                 String fileName = extras.getString(EXTRA_FILE_NAME, "NONE");
@@ -66,14 +69,18 @@ public class Receiver extends BroadcastReceiver {
                     Intent chooser = Intent.createChooser(chooserIntent, "Open With...");
 
                     PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, chooser, PendingIntent.FLAG_CANCEL_CURRENT);
-                    builder.setContentIntent(pendingIntent)
+                    notificationBuilder.setContentIntent(pendingIntent)
                             .setSmallIcon(android.R.drawable.stat_sys_download_done);
 
                 } else
                     Timber.w("File doesn't exist.");
             }
-            Notification notification = builder.build();
-            notificationManager.notify(id, notification);
+
+            // Since Android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                notificationManager.createNotificationChannel(new NotificationChannel(DOWNLOADS_CHANNEL_ID, DOWNLOADS_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
+
+            notificationManager.notify(id, notificationBuilder.build());
         }
     }
 

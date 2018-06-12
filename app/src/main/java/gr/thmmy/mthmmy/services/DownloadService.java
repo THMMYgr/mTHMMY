@@ -134,9 +134,8 @@ public class DownloadService extends IntentService {
                 File file = new File(dirPath, fileName);
 
                 for (int i = 1; ; i++) {
-                    if (!file.exists()) {
+                    if (!file.exists())
                         break;
-                    }
 
                     file = new File(dirPath, String.format(nameFormat, i));
                 }
@@ -155,7 +154,7 @@ public class DownloadService extends IntentService {
                 // Register download
                 DownloadManager mManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
                 long length = file.length();
-                mManager.addCompletedDownload(fileName, "edo mporei na mpei ena description", false, getMimeType(file), SAVE_DIR +File.separator+ fileName, length, false);
+                mManager.addCompletedDownload(fileName, fileName, false, getMimeType(file), SAVE_DIR +File.separator+ fileName, length, false);
 
             } else
                 Timber.e("No attachment in response!");
@@ -182,20 +181,20 @@ public class DownloadService extends IntentService {
         Intent intent = new Intent(ACTION_DOWNLOAD);
         switch (type) {
             case STARTED: {
-                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Started");
-                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" downloading...");
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\" downloading...");
+                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "Download Started");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Downloading...");
                 break;
             }
             case COMPLETED: {
-                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Completed");
-                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" finished downloading.");
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\" finished downloading.");
+                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "Download Completed");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Completed");
                 break;
             }
             case FAILED: {
-                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "Download Failed");
-                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "\"" + fileName + "\" failed.");
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\" failed.");
+                intent.putExtra(EXTRA_NOTIFICATION_TEXT, "Download Failed");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Failed");
                 break;
             }
@@ -216,12 +215,11 @@ public class DownloadService extends IntentService {
         String type = null;
         final String url = file.toString();
         final String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
+        if (extension != null)
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
-        }
-        if (type == null) {
-            type = ""; // fallback type. You might set it to */*
-        }
+        if (type == null)
+            type = "*/*";
+
         return type;
     }
 
