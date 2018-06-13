@@ -61,9 +61,9 @@ public class NotificationService extends FirebaseMessagingService {
     private static int requestCode = 0;
 
     private static final String NEW_POSTS_COUNT = "newPostsCount";
-    private static final String NEW_POST_TAG = "NEW_POST"; //notification tag
+    private static final String NEW_POST_TAG = "NEW_POST";
     private static final String SUMMARY_TAG = "SUMMARY";
-    private static final String DELETED_MESSAGES_TAG = "DELETED_MESSAGES_TAG"; //notification tag
+    private static final String DELETED_MESSAGES_TAG = "DELETED_MESSAGES";
 
     /**
      * Create and show a new post notification.

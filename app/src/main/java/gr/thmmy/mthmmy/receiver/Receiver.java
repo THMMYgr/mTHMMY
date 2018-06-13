@@ -28,6 +28,7 @@ import static gr.thmmy.mthmmy.services.DownloadService.SAVE_DIR;
 import static gr.thmmy.mthmmy.services.DownloadService.STARTED;
 
 public class Receiver extends BroadcastReceiver {
+    private static final String NOTIFICATION_TAG = "DOWNLOADS";
     private static final String DOWNLOADS_CHANNEL_ID = "Downloads";
     private static final String DOWNLOADS_CHANNEL_NAME = "Downloads";
 
@@ -80,7 +81,7 @@ public class Receiver extends BroadcastReceiver {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 notificationManager.createNotificationChannel(new NotificationChannel(DOWNLOADS_CHANNEL_ID, DOWNLOADS_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
 
-            notificationManager.notify(id, notificationBuilder.build());
+            notificationManager.notify(NOTIFICATION_TAG, id, notificationBuilder.build());
         }
     }
 

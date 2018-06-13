@@ -181,19 +181,19 @@ public class DownloadService extends IntentService {
         Intent intent = new Intent(ACTION_DOWNLOAD);
         switch (type) {
             case STARTED: {
-                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\" downloading...");
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\"");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "Download Started");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Downloading...");
                 break;
             }
             case COMPLETED: {
-                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\" finished downloading.");
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\"");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "Download Completed");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Completed");
                 break;
             }
             case FAILED: {
-                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\" failed.");
+                intent.putExtra(EXTRA_NOTIFICATION_TITLE, "\"" + fileName + "\"");
                 intent.putExtra(EXTRA_NOTIFICATION_TEXT, "Download Failed");
                 intent.putExtra(EXTRA_NOTIFICATION_TICKER, "Download Failed");
                 break;
