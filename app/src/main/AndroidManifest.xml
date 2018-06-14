@@ -117,7 +117,7 @@
         </provider>
 
         <service
-            android:name=".services.DownloadService"
+            android:name=".services.downloads.DownloadsService"
             android:exported="false" />
         <service
             android:name=".services.NotificationService"
@@ -128,7 +128,7 @@
         </service>
 
         <receiver
-            android:name=".receiver.Receiver"
+            android:name=".services.downloads.DownloadsReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

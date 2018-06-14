@@ -16,17 +16,17 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
-import gr.thmmy.mthmmy.utils.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
 
 
 /**
  * Singleton used for parsing a topic.
  * <p>Class contains the methods:<ul><li>{@link #parseUsersViewingThisTopic(Document,
- * gr.thmmy.mthmmy.utils.ParseHelpers.Language)}</li>
- * <li>{@link #parseCurrentPageIndex(Document, gr.thmmy.mthmmy.utils.ParseHelpers.Language)}</li>
- * <li>{@link #parseTopicNumberOfPages(Document, int, gr.thmmy.mthmmy.utils.ParseHelpers.Language)}</li>
- * <li>{@link #parseTopic(Document, gr.thmmy.mthmmy.utils.ParseHelpers.Language)}</li>
+ * ParseHelpers.Language)}</li>
+ * <li>{@link #parseCurrentPageIndex(Document, ParseHelpers.Language)}</li>
+ * <li>{@link #parseTopicNumberOfPages(Document, int, ParseHelpers.Language)}</li>
+ * <li>{@link #parseTopic(Document, ParseHelpers.Language)}</li>
  */
 class TopicParser {
     //User colors
@@ -42,9 +42,9 @@ class TopicParser {
      * Returns users currently viewing this topic.
      *
      * @param topic    {@link Document} object containing this topic's source code
-     * @param language a {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language} containing this topic's
+     * @param language a {@link ParseHelpers.Language} containing this topic's
      *                 language set, this is returned by
-     *                 {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language#getLanguage(Document)}
+     *                 {@link ParseHelpers.Language#getLanguage(Document)}
      * @return String containing html with the usernames of users
      * @see org.jsoup.Jsoup Jsoup
      */
@@ -58,9 +58,9 @@ class TopicParser {
      * Returns current topic's page index.
      *
      * @param topic    {@link Document} object containing this topic's source code
-     * @param language a {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language} containing this topic's
+     * @param language a {@link ParseHelpers.Language} containing this topic's
      *                 language set, this is returned by
-     *                 {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language#getLanguage(Document)}
+     *                 {@link ParseHelpers.Language#getLanguage(Document)}
      * @return int containing parsed topic's current page
      * @see org.jsoup.Jsoup Jsoup
      */
@@ -96,9 +96,9 @@ class TopicParser {
      *
      * @param topic       {@link Document} object containing this topic's source code
      * @param currentPage an int containing current page of this topic
-     * @param language    a {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language} containing this topic's
+     * @param language    a {@link ParseHelpers.Language} containing this topic's
      *                    language set, this is returned by
-     *                    {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language#getLanguage(Document)}
+     *                    {@link ParseHelpers.Language#getLanguage(Document)}
      * @return int containing the number of pages
      * @see org.jsoup.Jsoup Jsoup
      */
@@ -134,9 +134,9 @@ class TopicParser {
      * This method parses all the information of a topic and it's posts.
      *
      * @param topic    {@link Document} object containing this topic's source code
-     * @param language a {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language} containing this topic's
+     * @param language a {@link ParseHelpers.Language} containing this topic's
      *                 language set, this is returned by
-     *                 {@link gr.thmmy.mthmmy.utils.ParseHelpers.Language#getLanguage(Document)}
+     *                 {@link ParseHelpers.Language#getLanguage(Document)}
      * @return {@link ArrayList} of {@link Post}s
      * @see org.jsoup.Jsoup Jsoup
      */

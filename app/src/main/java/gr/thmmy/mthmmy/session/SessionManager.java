@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import gr.thmmy.mthmmy.utils.exceptions.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;

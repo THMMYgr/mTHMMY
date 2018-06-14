@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.utils.parsing;
 
 import android.os.AsyncTask;
 import android.widget.Toast;
@@ -9,7 +9,6 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;

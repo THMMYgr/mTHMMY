@@ -3,6 +3,8 @@ package gr.thmmy.mthmmy.model;
 import android.net.Uri;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
@@ -186,5 +188,19 @@ public class ThmmyPage {
             return returnString;
         }
         return null;
+    }
+
+    /**
+     * This method gets a VALID topic url and strips any unnecessary stuff (like e.g. wap2)
+     *
+     * @param topicUrl a valid topic url
+     * @return sanitized topic url
+     */
+    public  static String sanitizeTopicUrl(String topicUrl) {
+        Pattern pattern = Pattern.compile("http.*topic=\\d*\\.?\\d*");
+        Matcher matcher = pattern.matcher(topicUrl);
+        if (matcher.find())
+            return matcher.group(0);
+       return null;
     }
 }

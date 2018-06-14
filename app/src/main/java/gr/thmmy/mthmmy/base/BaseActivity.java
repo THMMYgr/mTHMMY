@@ -43,7 +43,7 @@ import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
-import gr.thmmy.mthmmy.services.DownloadService;
+import gr.thmmy.mthmmy.services.downloads.DownloadsService;
 import gr.thmmy.mthmmy.session.SessionManager;
 import okhttp3.OkHttpClient;
 
@@ -611,7 +611,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void launchDownloadService(ThmmyFile thmmyFile) {
         if (checkPerms())
-            DownloadService.startActionDownload(this, thmmyFile.getFileUrl().toString());
+            DownloadsService.startActionDownload(this, thmmyFile.getFileUrl().toString());
         else {
             tempThmmyFile = thmmyFile;
             requestPerms();
@@ -621,7 +621,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //Uses temp file - called after permission grant
     private void launchDownloadService() {
         if (checkPerms())
-            DownloadService.startActionDownload(this, tempThmmyFile.getFileUrl().toString());
+            DownloadsService.startActionDownload(this, tempThmmyFile.getFileUrl().toString());
 
     }
 

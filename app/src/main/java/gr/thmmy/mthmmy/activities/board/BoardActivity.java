@@ -25,8 +25,8 @@ import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.Topic;
-import gr.thmmy.mthmmy.utils.ParseTask;
-import gr.thmmy.mthmmy.utils.exceptions.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseTask;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 

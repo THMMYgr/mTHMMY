@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.services;
+package gr.thmmy.mthmmy.services.downloads;
 
 import android.app.DownloadManager;
 import android.app.IntentService;
@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.receiver.Receiver;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -26,11 +25,11 @@ import timber.log.Timber;
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  */
-public class DownloadService extends IntentService {
-    private static final String TAG = "DownloadService";
+public class DownloadsService extends IntentService {
+    private static final String TAG = "DownloadsService";
     private static int sDownloadId = 0;
 
-    private Receiver receiver;
+    private DownloadsReceiver receiver;
 
     public static final String SAVE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "mthmmy";
 
@@ -49,15 +48,15 @@ public class DownloadService extends IntentService {
     public static final String FAILED = "Failed";
 
 
-    public DownloadService() {
-        super("DownloadService");
+    public DownloadsService() {
+        super("DownloadsService");
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        final IntentFilter filter = new IntentFilter(DownloadService.ACTION_DOWNLOAD);
-        receiver = new Receiver();
+        final IntentFilter filter = new IntentFilter(DownloadsService.ACTION_DOWNLOAD);
+        receiver = new DownloadsReceiver();
         registerReceiver(receiver, filter);
 
     }
@@ -75,7 +74,7 @@ public class DownloadService extends IntentService {
      * @see IntentService
      */
     public static void startActionDownload(Context context, String downloadUrl) {
-        Intent intent = new Intent(context, DownloadService.class);
+        Intent intent = new Intent(context, DownloadsService.class);
         intent.setAction(ACTION_DOWNLOAD);
         intent.putExtra(EXTRA_DOWNLOAD_URL, downloadUrl);
         context.startService(intent);

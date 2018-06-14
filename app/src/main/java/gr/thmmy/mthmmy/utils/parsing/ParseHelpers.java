@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.utils.parsing;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

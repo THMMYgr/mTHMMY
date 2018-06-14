@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.receiver;
+package gr.thmmy.mthmmy.services.downloads;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -16,23 +16,23 @@ import java.io.File;
 
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.services.DownloadService.ACTION_DOWNLOAD;
-import static gr.thmmy.mthmmy.services.DownloadService.COMPLETED;
-import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_DOWNLOAD_ID;
-import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_DOWNLOAD_STATE;
-import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_FILE_NAME;
-import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_NOTIFICATION_TEXT;
-import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_NOTIFICATION_TICKER;
-import static gr.thmmy.mthmmy.services.DownloadService.EXTRA_NOTIFICATION_TITLE;
-import static gr.thmmy.mthmmy.services.DownloadService.SAVE_DIR;
-import static gr.thmmy.mthmmy.services.DownloadService.STARTED;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.ACTION_DOWNLOAD;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.COMPLETED;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.EXTRA_DOWNLOAD_ID;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.EXTRA_DOWNLOAD_STATE;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.EXTRA_FILE_NAME;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.EXTRA_NOTIFICATION_TEXT;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.EXTRA_NOTIFICATION_TICKER;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.EXTRA_NOTIFICATION_TITLE;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.SAVE_DIR;
+import static gr.thmmy.mthmmy.services.downloads.DownloadsService.STARTED;
 
-public class Receiver extends BroadcastReceiver {
+public class DownloadsReceiver extends BroadcastReceiver {
     private static final String NOTIFICATION_TAG = "DOWNLOADS";
     private static final String DOWNLOADS_CHANNEL_ID = "Downloads";
     private static final String DOWNLOADS_CHANNEL_NAME = "Downloads";
 
-    public Receiver() {}
+    public DownloadsReceiver() {}
 
     @Override
     public void onReceive(Context context, Intent intent) {
