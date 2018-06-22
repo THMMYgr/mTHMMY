@@ -254,6 +254,16 @@ public class SessionManager {
         return sharedPrefs.getString(AVATAR_LINK, AVATAR_LINK);
     }
 
+    public Cookie getThmmyCookie() {
+        List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
+        for(Cookie cookie: cookieList)
+        {
+            if(cookie.name().equals("THMMYgrC00ki3"))
+                return cookie;
+        }
+        return null;
+    }
+
     public boolean hasAvatar() {
         return sharedPrefs.getBoolean(HAS_AVATAR, false);
     }

@@ -25,8 +25,8 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
-import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import timber.log.Timber;
@@ -204,7 +204,7 @@ public class UnreadFragment extends BaseFragment {
         }
 
         @Override
-        protected void postParsing(ParseTask.ResultCode result) {
+        protected void postExecution(ParseTask.ResultCode result) {
             if (result == ResultCode.SUCCESS)
                 unreadAdapter.notifyDataSetChanged();
 

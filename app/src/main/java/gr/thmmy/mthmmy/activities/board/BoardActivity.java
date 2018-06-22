@@ -25,8 +25,8 @@ import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.Topic;
-import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
@@ -298,7 +298,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         @Override
-        protected void postParsing(ResultCode result) {
+        protected void postExecution(ResultCode result) {
             //TODO if (result == ResultCode.SUCCESS)...
             if (boardTitle == null || Objects.equals(boardTitle, "")
                     || !Objects.equals(boardTitle, parsedTitle)) {

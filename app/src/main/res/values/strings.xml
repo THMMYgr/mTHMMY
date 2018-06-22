@@ -75,7 +75,7 @@
     <string name="board_bookmarks_title">Boards</string>
     <string name="topic_bookmarks_title">Topics</string>
 
-    <!--FontAwesome strings-->
+    <!--FontAwesome-->
     <string name="fa_icon_star">&#xf005;</string>
     <string name="fa_file">&#xf15b;</string>
     <string name="fa_file_image_o">&#xf1c5;</string>
@@ -90,5 +90,14 @@
     <string name="fa_sticky">&#xf249;</string>
     <string name="fa_folder">&#xf07b;</string>
     <string name="fa_circle">&#xf111;</string>
+
+    <!--Notifications-->
     <string name="toggle_notification">Toggle Notification</string>
+
+    <!--Download Prompt-->
+    <string name="downloadPromptText">File \"%1$s\" already exists. Download again?"</string>
+    <string name="download_symbol">Download Symbol</string>
+    <string name="cancel">Cancel</string>
+    <string name="open">Open</string>
+    <string name="download">Download</string>
 </resources>

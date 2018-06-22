@@ -127,8 +127,8 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     @Override
                     public void onClick(View view) {
                         try {
-                            ((BaseActivity) context).launchDownloadService(new ThmmyFile(
-                                    new URL(download.getUrl()), null, null));
+                            ((BaseActivity) context).downloadFile(new ThmmyFile(
+                                    new URL(download.getUrl()), download.getFileName(), null));
                         } catch (MalformedURLException e) {
                             e.printStackTrace();
                         }

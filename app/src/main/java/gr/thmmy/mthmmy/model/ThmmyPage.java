@@ -3,8 +3,6 @@ package gr.thmmy.mthmmy.model;
 import android.net.Uri;
 
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import timber.log.Timber;
 

@@ -7,16 +7,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -32,6 +37,7 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
@@ -43,9 +49,11 @@ import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
-import gr.thmmy.mthmmy.services.downloads.DownloadsService;
+import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.FileUtils;
 import okhttp3.OkHttpClient;
+import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
@@ -53,6 +61,8 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies
@@ -600,7 +610,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             , @NonNull int[] grantResults) {
         switch (permsRequestCode) {
             case PERMISSIONS_REQUEST_CODE:
-                launchDownloadService();
+                downloadFile();
                 break;
         }
     }
@@ -609,9 +619,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     //----------------------------------DOWNLOAD----------------------
     private ThmmyFile tempThmmyFile;
 
-    public void launchDownloadService(ThmmyFile thmmyFile) {
+    public void downloadFile(ThmmyFile thmmyFile) {
         if (checkPerms())
-            DownloadsService.startActionDownload(this, thmmyFile.getFileUrl().toString());
+            prepareDownload(thmmyFile);
         else {
             tempThmmyFile = thmmyFile;
             requestPerms();
@@ -619,15 +629,64 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //Uses temp file - called after permission grant
-    private void launchDownloadService() {
+    private void downloadFile() {
         if (checkPerms())
-            DownloadsService.startActionDownload(this, tempThmmyFile.getFileUrl().toString());
+            prepareDownload(tempThmmyFile);
+    }
 
+    private void prepareDownload(ThmmyFile thmmyFile){
+        String fileName = thmmyFile.getFilename();
+        if(FileUtils.fileNameExists(fileName))
+            openDownloadPrompt(thmmyFile);
+        else
+            DownloadHelper.enqueueDownload(thmmyFile);
+    }
+
+    private void openDownloadPrompt(final ThmmyFile thmmyFile) {
+        View view = getLayoutInflater().inflate(R.layout.download_prompt_dialog, null);
+        final BottomSheetDialog dialog = new BottomSheetDialog(this);
+        dialog.setContentView(view);
+        TextView downloadPromptTextView = view.findViewById(R.id.downloadPromptTextView);
+        downloadPromptTextView.setText(getString(R.string.downloadPromptText,thmmyFile.getFilename()));
+        Button cancelButton = view.findViewById(R.id.cancel);
+        Button openButton = view.findViewById(R.id.open);
+        Button downloadButton = view.findViewById(R.id.download);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        openButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                try{
+                    String fileName = thmmyFile.getFilename();
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    Uri fileUri =  FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", new File(SAVE_DIR, fileName));
+                    intent.setDataAndType(fileUri, getMimeType(fileName));
+                    BaseActivity.this.startActivity(intent);
+                }catch (Exception e){
+                    Timber.e(e,"Couldn't open downloaded file...");
+                    Toast.makeText(BaseActivity.this, "Couldn't open file...", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                DownloadHelper.enqueueDownload(thmmyFile);
+            }
+        });
+        dialog.show();
     }
 
     //----------------------------------MISC----------------------
     protected void setMainActivity(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
-
 }

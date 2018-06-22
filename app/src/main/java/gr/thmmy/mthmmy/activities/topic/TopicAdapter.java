@@ -238,7 +238,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         attached.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                ((BaseActivity) context).launchDownloadService(attachedFile);
+                                ((BaseActivity) context).downloadFile(attachedFile);
                             }
                         });
 

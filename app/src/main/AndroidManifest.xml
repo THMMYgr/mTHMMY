@@ -117,25 +117,12 @@
         </provider>
 
         <service
-            android:name=".services.downloads.DownloadsService"
-            android:exported="false" />
-        <service
             android:name=".services.NotificationService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
-
-        <receiver
-            android:name=".services.downloads.DownloadsReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.media.action.ACTION_DOWNLOAD" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

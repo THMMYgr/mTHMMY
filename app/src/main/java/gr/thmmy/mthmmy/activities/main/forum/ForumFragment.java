@@ -27,8 +27,8 @@ import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
-import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -215,7 +215,7 @@ public class ForumFragment extends BaseFragment {
         }
 
         @Override
-        protected void postParsing(ParseTask.ResultCode result) {
+        protected void postExecution(ParseTask.ResultCode result) {
             if (result == ResultCode.SUCCESS)
                 forumAdapter.notifyParentDataSetChanged(false);
 
