@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -64,6 +65,7 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
+import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
 
 /**
  * Activity for parsing and rendering topics. When creating an Intent of this activity you need to
@@ -110,6 +112,10 @@ public class TopicActivity extends BaseActivity {
      * Holds the url of this page
      */
     private String loadedPageUrl = "";
+    /**
+     * Holds the topicId of this page
+     */
+    private int loadedPageTopicId = -1;
     /**
      * Becomes true after user has posted in this topic and the page is being reloaded and false
      * when topic's reloading is done
@@ -612,6 +618,8 @@ public class TopicActivity extends BaseActivity {
                 document = Jsoup.parse(response.body().string());
                 localPostsList = parse(document);
 
+                loadedPageTopicId = Integer.parseInt(ThmmyPage.getTopicId(loadedPageUrl));
+
                 //Finds the position of the focused message if present
                 for (int i = 0; i < localPostsList.size(); ++i) {
                     if (localPostsList.get(i).getPostIndex() == postFocus) {
@@ -641,7 +649,7 @@ public class TopicActivity extends BaseActivity {
                             || !Objects.equals(topicTitle, parsedTitle)) {
                         toolbarTitle.setText(parsedTitle);
                         topicTitle = parsedTitle;
-                        thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl), true);
+                        thisPageBookmark = new Bookmark(parsedTitle, Integer.toString(loadedPageTopicId), true);
                         invalidateOptionsMenu();
                     }
 
@@ -664,6 +672,12 @@ public class TopicActivity extends BaseActivity {
                     //Set current page
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
+
+                    if(thisPage==numberOfPages){
+                        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        if(notificationManager!=null)
+                            notificationManager.cancel(NEW_POST_TAG, loadedPageTopicId);
+                    }
 
                     paginationEnabled(true);
                     break;

@@ -35,6 +35,7 @@ public class NotificationService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         if (remoteMessage.getData().size() > 0) {
+            Timber.i("FCM data message received.");
             JSONObject json = new JSONObject(remoteMessage.getData());
             try {
                 int userId = BaseApplication.getInstance().getSessionManager().getUserId();
@@ -61,7 +62,7 @@ public class NotificationService extends FirebaseMessagingService {
     private static int requestCode = 0;
 
     private static final String NEW_POSTS_COUNT = "newPostsCount";
-    private static final String NEW_POST_TAG = "NEW_POST";
+    public static final String NEW_POST_TAG = "NEW_POST";
     private static final String SUMMARY_TAG = "SUMMARY";
     private static final String DELETED_MESSAGES_TAG = "DELETED_MESSAGES";
 

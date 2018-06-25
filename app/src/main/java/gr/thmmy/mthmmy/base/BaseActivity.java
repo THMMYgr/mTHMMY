@@ -465,11 +465,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
             thisPageBookmarkMenuButton.setIcon(notBookmarked);
             toggleTopicToBookmarks(thisPageBookmark);
-            Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
         } else {
             thisPageBookmarkMenuButton.setIcon(bookmarked);
             toggleTopicToBookmarks(thisPageBookmark);
-            Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -484,10 +484,10 @@ public abstract class BaseActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (thisPageBookmark.matchExists(boardsBookmarked)) {
                     thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
-                    Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
                 } else {
                     thisPageBookmarkImageButton.setImageDrawable(bookmarked);
-                    Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
                 }
                 toggleBoardToBookmarks(thisPageBookmark);
             }
@@ -670,7 +670,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     BaseActivity.this.startActivity(intent);
                 }catch (Exception e){
                     Timber.e(e,"Couldn't open downloaded file...");
-                    Toast.makeText(BaseActivity.this, "Couldn't open file...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
                 }
 
             }
