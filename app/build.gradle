@@ -49,7 +49,8 @@ dependencies {
     implementation 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
     implementation 'com.mikepenz:google-material-typeface:3.0.1.2.original@aar'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
-    implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1' //TODO: needs replacement
+    implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
+    //TODO: needs replacement
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
     implementation 'com.jakewharton.timber:timber:4.7.0'
 }

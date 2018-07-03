@@ -72,8 +72,8 @@
 
     <!--Bookmarks-->
     <string name="remove_bookmark">Remove</string>
-    <string name="board_bookmarks_title">Boards</string>
-    <string name="topic_bookmarks_title">Topics</string>
+    <string name="empty_board_bookmarks">You have no bookmarked boards</string>
+    <string name="empty_topic_bookmarks">You have no bookmarked topics</string>
 
     <!--FontAwesome-->
     <string name="fa_icon_star">&#xf005;</string>
@@ -100,4 +100,7 @@
     <string name="cancel">Cancel</string>
     <string name="open">Open</string>
     <string name="download">Download</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

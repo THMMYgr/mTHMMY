@@ -98,7 +98,7 @@
                 android:value=".activities.main.MainActivity" />
         </activity>
         <activity
-            android:name=".activities.BookmarkActivity"
+            android:name=".activities.bookmarks.BookmarkActivity"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

@@ -42,7 +42,7 @@ import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
-import gr.thmmy.mthmmy.activities.BookmarkActivity;
+import gr.thmmy.mthmmy.activities.bookmarks.BookmarkActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
