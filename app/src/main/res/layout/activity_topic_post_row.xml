@@ -84,18 +84,27 @@
                         android:maxLines="1"
                         android:text="@string/post_subject" />
                 </RelativeLayout>
-
                 <ImageButton
                     android:id="@+id/toggle_quote_button"
-                    android:layout_width="@dimen/quote_button"
-                    android:layout_height="@dimen/quote_button"
-                    android:layout_marginEnd="9dp"
+                    android:layout_width="@dimen/post_image_button"
+                    android:layout_height="@dimen/post_image_button"
                     android:layout_marginTop="9dp"
                     android:background="@color/card_background"
                     android:clickable="true"
                     android:contentDescription="@string/post_quote_button"
                     android:focusable="true"
                     android:src="@drawable/ic_format_quote_unchecked" />
+                <ImageButton
+                    android:id="@+id/post_share_button"
+                    android:layout_width="@dimen/post_image_button"
+                    android:layout_height="@dimen/post_image_button"
+                    android:layout_marginEnd="9dp"
+                    android:layout_marginTop="9dp"
+                    android:background="@color/card_background"
+                    android:clickable="true"
+                    android:contentDescription="@string/post_share_button"
+                    android:focusable="true"
+                    android:src="@drawable/ic_share" />
             </LinearLayout>
 
             <LinearLayout

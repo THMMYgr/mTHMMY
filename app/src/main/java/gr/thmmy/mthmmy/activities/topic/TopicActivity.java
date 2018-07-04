@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -15,7 +17,6 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.util.SparseArray;
@@ -48,7 +49,8 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
-import gr.thmmy.mthmmy.utils.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
@@ -63,6 +65,7 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
+import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
 
 /**
  * Activity for parsing and rendering topics. When creating an Intent of this activity you need to
@@ -103,11 +106,16 @@ public class TopicActivity extends BaseActivity {
      * bundle one and gets rendered in the toolbar.
      */
     private String parsedTitle;
+    private String topicPageUrl;
     private RecyclerView recyclerView;
     /**
      * Holds the url of this page
      */
     private String loadedPageUrl = "";
+    /**
+     * Holds the topicId of this page
+     */
+    private int loadedPageTopicId = -1;
     /**
      * Becomes true after user has posted in this topic and the page is being reloaded and false
      * when topic's reloading is done
@@ -195,7 +203,7 @@ public class TopicActivity extends BaseActivity {
 
         Bundle extras = getIntent().getExtras();
         topicTitle = extras.getString(BUNDLE_TOPIC_TITLE);
-        String topicPageUrl = extras.getString(BUNDLE_TOPIC_URL);
+        topicPageUrl = extras.getString(BUNDLE_TOPIC_URL);
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(
                 Uri.parse(topicPageUrl));
         if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
@@ -204,7 +212,9 @@ public class TopicActivity extends BaseActivity {
             finish();
         }
 
-        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl));
+        topicPageUrl = ThmmyPage.sanitizeTopicUrl(topicPageUrl);
+
+        thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl), true);
 
         //Initializes graphics
         toolbar = findViewById(R.id.toolbar);
@@ -214,16 +224,11 @@ public class TopicActivity extends BaseActivity {
         toolbarTitle.setMarqueeRepeatLimit(-1);
         toolbarTitle.setText(topicTitle);
         toolbarTitle.setSelected(true);
-        toolbarTitle.setEnabled(false);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-
-        //Makes title scrollable
-        toolbarTitle.setHorizontallyScrolling(true);
-        toolbarTitle.setMovementMethod(new ScrollingMovementMethod());
 
         createDrawer();
 
@@ -280,7 +285,7 @@ public class TopicActivity extends BaseActivity {
 
         //Gets posts
         topicTask = new TopicTask();
-        topicTask.execute(extras.getString(BUNDLE_TOPIC_URL)); //Attempt data parsing
+        topicTask.execute(topicPageUrl); //Attempt data parsing
     }
 
     @Override
@@ -315,6 +320,12 @@ public class TopicActivity extends BaseActivity {
                 AlertDialog dialog = builder.create();
                 dialog.show();
                 return true;
+            case R.id.menu_share:
+                Intent sendIntent  = new Intent(android.content.Intent.ACTION_SEND);
+                sendIntent.setType("text/plain");
+                sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, topicPageUrl);
+                startActivity(Intent.createChooser(sendIntent, "Share via"));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -324,6 +335,17 @@ public class TopicActivity extends BaseActivity {
     public void onBackPressed() {
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
+            return;
+        }
+        else if(postsList!=null && postsList.size()>0 && postsList.get(postsList.size()-1)==null)
+        {
+            postsList.remove(postsList.size() - 1);
+            topicAdapter.notifyItemRemoved(postsList.size());
+            topicAdapter.setBackButtonHidden();
+            replyFAB.setVisibility(View.INVISIBLE);
+            bottomNavBar.setVisibility(View.INVISIBLE);
+            paginationEnabled(true);
+            replyFAB.setEnabled(true);
             return;
         }
         super.onBackPressed();
@@ -401,6 +423,7 @@ public class TopicActivity extends BaseActivity {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initIncrementButton(ImageButton increment, final int step) {
         // Increment once for a click
         increment.setOnClickListener(new View.OnClickListener() {
@@ -449,6 +472,7 @@ public class TopicActivity extends BaseActivity {
         });
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initDecrementButton(ImageButton decrement, final int step) {
         // Decrement once for a click
         decrement.setOnClickListener(new View.OnClickListener() {
@@ -525,19 +549,18 @@ public class TopicActivity extends BaseActivity {
         }
     }
 //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
+    private enum ResultCode {
+        SUCCESS, NETWORK_ERROR, PARSING_ERROR, OTHER_ERROR, SAME_PAGE, UNAUTHORIZED
+    }
+
 
     /**
-     * An {@link AsyncTask} that handles asynchronous fetching of this topic page and parsing of it's
+     * An {@link AsyncTask} that handles asynchronous fetching of this topic page and parsing of its
      * data.
      * <p>TopicTask's {@link AsyncTask#execute execute} method needs a topic's url as String
      * parameter.</p>
      */
-    class TopicTask extends AsyncTask<String, Void, Integer> {
-        private static final int SUCCESS = 0;
-        private static final int NETWORK_ERROR = 1;
-        private static final int OTHER_ERROR = 2;
-        private static final int SAME_PAGE = 3;
-
+    class TopicTask extends AsyncTask<String, Void, ResultCode> {
         ArrayList<Post> localPostsList;
 
         @Override
@@ -547,8 +570,8 @@ public class TopicActivity extends BaseActivity {
             if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(false);
         }
 
-        protected Integer doInBackground(String... strings) {
-            Document document;
+        protected ResultCode doInBackground(String... strings) {
+            Document document = null;
             String newPageUrl = strings[0];
 
             //Finds the index of message focus if present
@@ -566,7 +589,7 @@ public class TopicActivity extends BaseActivity {
             if (!reloadingPage && !Objects.equals(loadedPageUrl, "") && newPageUrl.contains(base_url)) {
                 if (newPageUrl.contains("topicseen#new") || newPageUrl.contains("#new"))
                     if (thisPage == numberOfPages)
-                        return SAME_PAGE;
+                        return ResultCode.SAME_PAGE;
                 if (newPageUrl.contains("msg")) {
                     String tmpUrlSbstr = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
                     if (tmpUrlSbstr.contains("msg"))
@@ -574,12 +597,12 @@ public class TopicActivity extends BaseActivity {
                     int testAgainst = Integer.parseInt(tmpUrlSbstr);
                     for (Post post : postsList) {
                         if (post.getPostIndex() == testAgainst) {
-                            return SAME_PAGE;
+                            return ResultCode.SAME_PAGE;
                         }
                     }
                 } else if ((Objects.equals(newPageUrl, base_url) && thisPage == 1) ||
                         Integer.parseInt(newPageUrl.substring(base_url.length() + 1)) / 15 + 1 == thisPage)
-                    return SAME_PAGE;
+                    return ResultCode.SAME_PAGE;
             } else if (!Objects.equals(loadedPageUrl, "")) topicTitle = null;
             if (reloadingPage) reloadingPage = !reloadingPage;
 
@@ -595,6 +618,8 @@ public class TopicActivity extends BaseActivity {
                 document = Jsoup.parse(response.body().string());
                 localPostsList = parse(document);
 
+                loadedPageTopicId = Integer.parseInt(ThmmyPage.getTopicId(loadedPageUrl));
+
                 //Finds the position of the focused message if present
                 for (int i = 0; i < localPostsList.size(); ++i) {
                     if (localPostsList.get(i).getPostIndex() == postFocus) {
@@ -602,28 +627,33 @@ public class TopicActivity extends BaseActivity {
                         break;
                     }
                 }
-                return SUCCESS;
+                return ResultCode.SUCCESS;
             } catch (IOException e) {
                 Timber.i(e, "IO Exception");
-                return NETWORK_ERROR;
+                return ResultCode.NETWORK_ERROR;
+            } catch (ParseException e) {
+                if(isUnauthorized(document))
+                    return ResultCode.UNAUTHORIZED;
+                Timber.e(e, "Parsing Error");
+                return ResultCode.PARSING_ERROR;
             } catch (Exception e) {
                 Timber.e(e, "Exception");
-                return OTHER_ERROR;
+                return ResultCode.OTHER_ERROR;
             }
         }
 
-        protected void onPostExecute(Integer parseResult) {
+        protected void onPostExecute(ResultCode parseResult) {
             switch (parseResult) {
                 case SUCCESS:
                     if (topicTitle == null || Objects.equals(topicTitle, "")
                             || !Objects.equals(topicTitle, parsedTitle)) {
                         toolbarTitle.setText(parsedTitle);
                         topicTitle = parsedTitle;
-                        thisPageBookmark = new Bookmark(parsedTitle, ThmmyPage.getTopicId(loadedPageUrl));
+                        thisPageBookmark = new Bookmark(parsedTitle, Integer.toString(loadedPageTopicId), true);
                         invalidateOptionsMenu();
                     }
 
-                    if (!(postsList.isEmpty() || postsList.size() == 0)) {
+                    if (!postsList.isEmpty()) {
                         recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
                         postsList.clear();
                         topicAdapter.notifyItemRangeRemoved(0, postsList.size() - 1);
@@ -643,21 +673,25 @@ public class TopicActivity extends BaseActivity {
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
 
+                    if(thisPage==numberOfPages){
+                        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        if(notificationManager!=null)
+                            notificationManager.cancel(NEW_POST_TAG, loadedPageTopicId);
+                    }
+
                     paginationEnabled(true);
                     break;
                 case NETWORK_ERROR:
                     Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
                     break;
                 case SAME_PAGE:
-                    progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    if (replyPageUrl == null) {
-                        replyFAB.hide();
-                        topicAdapter.resetTopic(base_url, new TopicTask(), false);
-                    } else topicAdapter.resetTopic(base_url, new TopicTask(), true);
-                    if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
-                    paginationEnabled(true);
-                    Toast.makeText(TopicActivity.this, "That's the same page.", Toast.LENGTH_SHORT).show();
+                    stopLoading();
+                    Toast.makeText(getBaseContext(), "That's the same page", Toast.LENGTH_SHORT).show();
                     //TODO change focus
+                    break;
+                case UNAUTHORIZED:
+                    stopLoading();
+                    Toast.makeText(getBaseContext(), "This topic is either missing or off limits to you", Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     //Parse failed - should never happen
@@ -668,55 +702,76 @@ public class TopicActivity extends BaseActivity {
             }
         }
 
+        private void stopLoading(){
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            if (replyPageUrl == null) {
+                replyFAB.hide();
+                topicAdapter.resetTopic(base_url, new TopicTask(), false);
+            } else topicAdapter.resetTopic(base_url, new TopicTask(), true);
+            if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
+            paginationEnabled(true);
+        }
+
         /**
          * All the parsing a topic needs.
          *
          * @param topic {@link Document} object containing this topic's source code
          * @see org.jsoup.Jsoup Jsoup
          */
-        private ArrayList<Post> parse(Document topic) {
-            ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
+        private ArrayList<Post> parse(Document topic) throws ParseException{
+            try {
+                ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
-            //Finds topic's tree, mods and users viewing
-            {
-                topicTreeAndMods = getSpannableFromHtml(topic.select("div.nav").first().html());
-                topicViewers = getSpannableFromHtml(TopicParser.parseUsersViewingThisTopic(topic, language));
-            }
-
-            //Finds reply page url
-            {
-                Element replyButton = topic.select("a:has(img[alt=Reply])").first();
-                if (replyButton == null)
-                    replyButton = topic.select("a:has(img[alt=Απάντηση])").first();
-                if (replyButton != null) replyPageUrl = replyButton.attr("href");
-            }
-
-            //Finds topic title if missing
-            {
-                parsedTitle = topic.select("td[id=top_subject]").first().text();
-                if (parsedTitle.contains("Topic:")) {
-                    parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Topic:") + 7
-                            , parsedTitle.indexOf("(Read") - 2);
-                } else {
-                    parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Θέμα:") + 6
-                            , parsedTitle.indexOf("(Αναγνώστηκε") - 2);
-                    Timber.d(parsedTitle);
+                //Finds topic's tree, mods and users viewing
+                {
+                    topicTreeAndMods = getSpannableFromHtml(topic.select("div.nav").first().html());
+                    topicViewers = getSpannableFromHtml(TopicParser.parseUsersViewingThisTopic(topic, language));
                 }
-            }
 
-            { //Finds current page's index
-                thisPage = TopicParser.parseCurrentPageIndex(topic, language);
-            }
-            { //Finds number of pages
-                numberOfPages = TopicParser.parseTopicNumberOfPages(topic, thisPage, language);
-
-                for (int i = 0; i < numberOfPages; i++) {
-                    //Generate each page's url from topic's base url +".15*numberOfPage"
-                    pagesUrls.put(i, base_url + "." + String.valueOf(i * 15));
+                //Finds reply page url
+                {
+                    Element replyButton = topic.select("a:has(img[alt=Reply])").first();
+                    if (replyButton == null)
+                        replyButton = topic.select("a:has(img[alt=Απάντηση])").first();
+                    if (replyButton != null) replyPageUrl = replyButton.attr("href");
                 }
-            }
 
-            return TopicParser.parseTopic(topic, language);
+                //Finds topic title if missing
+                {
+                    parsedTitle = topic.select("td[id=top_subject]").first().text();
+                    if (parsedTitle.contains("Topic:")) {
+                        parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Topic:") + 7
+                                , parsedTitle.indexOf("(Read") - 2);
+                    } else {
+                        parsedTitle = parsedTitle.substring(parsedTitle.indexOf("Θέμα:") + 6
+                                , parsedTitle.indexOf("(Αναγνώστηκε") - 2);
+                        Timber.d("Parsed title: %s", parsedTitle);
+                    }
+                }
+
+                { //Finds current page's index
+                    thisPage = TopicParser.parseCurrentPageIndex(topic, language);
+                }
+                { //Finds number of pages
+                    numberOfPages = TopicParser.parseTopicNumberOfPages(topic, thisPage, language);
+
+                    for (int i = 0; i < numberOfPages; i++) {
+                        //Generate each page's url from topic's base url +".15*numberOfPage"
+                        pagesUrls.put(i, base_url + "." + String.valueOf(i * 15));
+                    }
+                }
+
+                return TopicParser.parseTopic(topic, language);
+            } catch (Exception e) {
+                throw new ParseException("Parsing failed (TopicTask)");
+            }
+        }
+
+        private boolean isUnauthorized(Document document) {
+            return document != null && document.select("body:contains(The topic or board you" +
+                    " are looking for appears to be either missing or off limits to you.)," +
+                    "body:contains(Το θέμα ή πίνακας που ψάχνετε ή δεν υπάρχει ή δεν " +
+                    "είναι προσβάσιμο από εσάς.)").size() > 0;
         }
 
         private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
@@ -843,16 +898,16 @@ public class TopicActivity extends BaseActivity {
 
         @Override
         protected Boolean doInBackground(String... args) {
+            final String sentFrommTHMMY = "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy]mTHMMY[/url][/i][/size][/right]";
             RequestBody postBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("message", args[1])
+                    .addFormDataPart("message", args[1] + sentFrommTHMMY)
                     .addFormDataPart("num_replies", args[2])
                     .addFormDataPart("seqnum", args[3])
                     .addFormDataPart("sc", args[4])
                     .addFormDataPart("subject", args[0])
                     .addFormDataPart("topic", args[5])
                     .build();
-
             Request post = new Request.Builder()
                     .url("https://www.thmmy.gr/smf/index.php?action=post2")
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
@@ -869,7 +924,7 @@ public class TopicActivity extends BaseActivity {
                         //TODO this...
                         return true;
                     default:
-                        Timber.e("Malformed post. Request string:\n" + post.toString());
+                        Timber.e("Malformed post. Request string: %s", post.toString());
                         return true;
                 }
             } catch (IOException e) {

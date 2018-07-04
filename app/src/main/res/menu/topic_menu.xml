@@ -8,6 +8,12 @@
         android:title="@string/bookmark">
     </item>
     <item
+        android:id="@+id/menu_share"
+        android:icon="@drawable/ic_share"
+        app:showAsAction="ifRoom"
+        android:title="@string/share">
+    </item>
+    <item
         android:id="@+id/menu_info"
         android:icon="@drawable/ic_info"
         app:showAsAction="ifRoom"

@@ -20,11 +20,15 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Download;
 import gr.thmmy.mthmmy.model.ThmmyPage;
-import gr.thmmy.mthmmy.utils.ParseTask;
-import gr.thmmy.mthmmy.utils.exceptions.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import timber.log.Timber;
 
 public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.OnLoadMoreListener {
@@ -64,7 +68,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         if (downloadsUrl != null && !Objects.equals(downloadsUrl, "")) {
             ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(downloadsUrl));
             if (!target.is(ThmmyPage.PageCategory.DOWNLOADS)) {
-                Timber.e("Bundle came with a non board url!\nUrl:\n%s" , downloadsUrl);
+                Timber.e("Bundle came with a non downloads url!\nUrl:\n%s" , downloadsUrl);
                 Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -72,9 +76,10 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);
-        if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
+        if (downloadsTitle == null || downloadsTitle.equals(""))
             toolbar.setTitle("Downloads");
-        toolbar.setTitle(downloadsTitle);
+        else
+            toolbar.setTitle(downloadsTitle);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -157,13 +162,16 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
     /**
      * An {@link ParseTask} that handles asynchronous fetching of a downloads page and parsing it's
-     * data. {@link ParseTask#postParsing(ResultCode) postParsing} method calls {@link RecyclerView#swapAdapter}
+     * data. {@link ParseTask#postExecution(ResultCode) postExecution} method calls {@link RecyclerView#swapAdapter}
      * to build graphics.
      * <p>
      * <p>Calling TopicTask's {@link ParseTask#execute execute} method needs to have profile's url
      * as String parameter!</p>
      */
     private class ParseDownloadPageTask extends ParseTask {
+        private Download.DownloadItemType type;
+        private Download download;
+
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -172,71 +180,92 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
         @Override
         protected void parse(Document downloadPage) throws ParseException {
-            if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
-                downloadsTitle = downloadPage.select("div.nav>b>a.nav").last().text();
+            try{
+                if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
+                    downloadsTitle = downloadPage.select("div.nav>b>a.nav").last().text();
 
-            //Removes loading item
-            if (isLoadingMore) {
-                if (parsedDownloads.size() > 0) parsedDownloads.remove(parsedDownloads.size() - 1);
-            }
-
-            Download.DownloadItemType type;
-            if (ThmmyPage.resolvePageCategory(Uri.parse(url)).is(ThmmyPage.
-                    PageCategory.DOWNLOADS_CATEGORY))
-                type = Download.DownloadItemType.DOWNLOADS_CATEGORY;
-            else type = Download.DownloadItemType.DOWNLOADS_FILE;
-
-            Elements pages = downloadPage.select("a.navPages");
-            if (pages != null) {
-                for (Element page : pages) {
-                    int pageNumber = Integer.parseInt(page.text());
-                    if (pageNumber > numberOfPages) numberOfPages = pageNumber;
+                //Removes loading item
+                if (isLoadingMore) {
+                    if (parsedDownloads.size() > 0) parsedDownloads.remove(parsedDownloads.size() - 1);
                 }
-            } else numberOfPages = 1;
 
-            Elements rows = downloadPage.select("table.tborder>tbody>tr");
-            if (type == Download.DownloadItemType.DOWNLOADS_CATEGORY) {
-                Elements navigationLinks = downloadPage.select("div.nav>b");
-                for (Element row : rows) {
-                    if (row.select("td").size() == 1) continue;
+                if (ThmmyPage.resolvePageCategory(Uri.parse(url)).is(ThmmyPage.PageCategory.DOWNLOADS_CATEGORY))
+                    type = Download.DownloadItemType.DOWNLOADS_CATEGORY;
+                else
+                    type = Download.DownloadItemType.DOWNLOADS_FILE;
 
-                    String url = row.select("b>a").first().attr("href"),
-                            title = row.select("b>a").first().text(),
-                            subtitle = row.select("div.smalltext:not(:has(a))").text();
-                    if (!row.select("td").last().hasClass("windowbg2")) {
-                        if (navigationLinks.size() < 4) {
+                Elements pages = downloadPage.select("a.navPages");
+                if (pages != null) {
+                    for (Element page : pages) {
+                        int pageNumber = Integer.parseInt(page.text());
+                        if (pageNumber > numberOfPages) numberOfPages = pageNumber;
+                    }
+                } else numberOfPages = 1;
 
-                            parsedDownloads.add(new Download(type, url, title, subtitle, null,
-                                    true, null));
+                Elements rows = downloadPage.select("table.tborder>tbody>tr");
+                if (type == Download.DownloadItemType.DOWNLOADS_CATEGORY) {
+                    Elements navigationLinks = downloadPage.select("div.nav>b");
+                    for (Element row : rows) {
+                        if (row.select("td").size() == 1) continue;
+
+                        String url = row.select("b>a").first().attr("href"),
+                                title = row.select("b>a").first().text(),
+                                subtitle = row.select("div.smalltext:not(:has(a))").text();
+                        if (!row.select("td").last().hasClass("windowbg2")) {
+                            if (navigationLinks.size() < 4) {
+
+                                parsedDownloads.add(new Download(type, url, title, subtitle, null,
+                                        true, null));
+                            } else {
+                                String stats = row.text();
+                                stats = stats.replace(title, "").replace(subtitle, "").trim();
+                                parsedDownloads.add(new Download(type, url, title, subtitle, stats,
+                                        false, null));
+                            }
                         } else {
                             String stats = row.text();
                             stats = stats.replace(title, "").replace(subtitle, "").trim();
                             parsedDownloads.add(new Download(type, url, title, subtitle, stats,
                                     false, null));
                         }
-                    } else {
-                        String stats = row.text();
-                        stats = stats.replace(title, "").replace(subtitle, "").trim();
-                        parsedDownloads.add(new Download(type, url, title, subtitle, stats,
-                                false, null));
                     }
+                } else {
+                    download = new Download(type,
+                    rows.select("b>a").first().attr("href"),
+                    rows.select("b>a").first().text(),
+                    rows.select("div.smalltext:not(:has(a))").text(),
+                    rows.select("span:not(:has(a))").first().text(),
+                    false,
+                    rows.select("span:has(a)").first().text());
+                    parsedDownloads.add(download);
                 }
-            } else {
-                parsedDownloads.add(new Download(type,
-                        rows.select("b>a").first().attr("href"),
-                        rows.select("b>a").first().text(),
-                        rows.select("div.smalltext:not(:has(a))").text(),
-                        rows.select("span:not(:has(a))").first().text(),
-                        false,
-                        rows.select("span:has(a)").first().text()));
+            }catch(Exception e){
+                throw new ParseException("Parsing failed (DownloadsActivity)");
             }
         }
 
+        @Override
+        protected void postParsing() {
+            if (type == Download.DownloadItemType.DOWNLOADS_FILE) {
+                OkHttpClient client = BaseApplication.getInstance().getClient();
+                String fileName = null;
+                try {
+                    Response response = client.newCall(new Request.Builder().url(download.getUrl()).build()).execute();
+                    String contentDisposition = response.headers("Content-Disposition").toString();   //check if link provides an attachment
+                    if (contentDisposition.contains("attachment"))
+                        fileName = contentDisposition.split("\"")[1];
+                    download.setFileName(fileName);
+                } catch (Exception e) {
+                    Timber.e(e, "Couldn't extract fileName.");
+                }
+            }
+        }
 
         @Override
-        protected void postParsing(ResultCode result) {
-            if (downloadsTitle != null && !Objects.equals(downloadsTitle, "") &&
-                    toolbar.getTitle() != downloadsTitle)
+        protected void postExecution(ResultCode result) {
+            if (downloadsTitle != null && !downloadsTitle.equals("")
+                    && !downloadsTitle.equals("Αρχεία για λήψη")
+                    && toolbar.getTitle() != downloadsTitle)
                 toolbar.setTitle(downloadsTitle);
 
             ++pagesLoaded;

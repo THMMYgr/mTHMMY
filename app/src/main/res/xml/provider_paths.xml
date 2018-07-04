@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-path
-        name="my_downloads"
-        path="Downloads/"/>
-
-    <files-path
-        name="my_downloads"
-        path="Downloads/"/>
+    <external-path name="my_downloads" path="."/>
 </paths>

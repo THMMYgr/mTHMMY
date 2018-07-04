@@ -187,4 +187,13 @@ public class ThmmyPage {
         }
         return null;
     }
+
+    /**
+     * This method gets a VALID topic url and strips it off any unnecessary stuff (e.g. wap2).
+     * @param topicUrl a valid topic url
+     * @return sanitized topic url
+     */
+    public  static String sanitizeTopicUrl(String topicUrl) {
+       return topicUrl.replace("action=printpage;","").replace("wap2","");
+    }
 }

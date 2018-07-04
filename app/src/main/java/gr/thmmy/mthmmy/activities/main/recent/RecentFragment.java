@@ -24,8 +24,8 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
-import gr.thmmy.mthmmy.utils.ParseTask;
-import gr.thmmy.mthmmy.utils.exceptions.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
@@ -140,19 +140,22 @@ public class RecentFragment extends BaseFragment {
 
     //---------------------------------------ASYNC TASK-----------------------------------
     private class RecentTask extends ParseTask {
+        private List<TopicSummary> fetchedRecent;
+
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
+            fetchedRecent = new ArrayList<>();
         }
 
         @Override
         public void parse(Document document) throws ParseException {
             Elements recent = document.select("#block8 :first-child div");
             if (!recent.isEmpty()) {
-                topicSummaries.clear();
                 for (int i = 0; i < recent.size(); i += 3) {
                     String link = recent.get(i).child(0).attr("href");
                     String title = recent.get(i).child(0).attr("title");
+                    title = title.trim();
 
                     String lastUser = recent.get(i + 1).text();
                     Pattern pattern = Pattern.compile("\\b (.*)");
@@ -179,7 +182,7 @@ public class RecentFragment extends BaseFragment {
                     } else
                         throw new ParseException("Parsing failed (dateTime)");
 
-                    topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
+                    fetchedRecent.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
                 return;
             }
@@ -187,9 +190,13 @@ public class RecentFragment extends BaseFragment {
         }
 
         @Override
-        protected void postParsing(ParseTask.ResultCode result) {
+        protected void postExecution(ParseTask.ResultCode result) {
             if (result == ResultCode.SUCCESS)
+            {
+                topicSummaries.clear();
+                topicSummaries.addAll(fetchedRecent);
                 recentAdapter.notifyDataSetChanged();
+            }
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);

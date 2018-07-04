@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import gr.thmmy.mthmmy.utils.exceptions.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -47,6 +47,7 @@ public class SessionManager {
     public static final int CANCELLED = 4;
     public static final int CONNECTION_ERROR = 5;
     public static final int EXCEPTION = 6;
+    public static final int BANNED_USER = 7;
 
     // Client & Cookies
     private final OkHttpClient client;
@@ -56,6 +57,7 @@ public class SessionManager {
     //Shared Preferences & its keys
     private final SharedPreferences sharedPrefs;
     private static final String USERNAME = "Username";
+    private static final String USER_ID = "UserID";
     private static final String AVATAR_LINK = "AvatarLink";
     private static final String HAS_AVATAR = "HasAvatar";
     private static final String LOGOUT_LINK = "LogoutLink";
@@ -108,17 +110,16 @@ public class SessionManager {
             Response response = client.newCall(request).execute();
             Document document = Jsoup.parse(response.body().string());
 
-            Elements unreadRepliesLinks = document.select("a[href=https://www.thmmy.gr/smf/index.php?action=unreadreplies]");
-
-            if (unreadRepliesLinks.size() >= 2) //Normally it's just == 2, but who knows what can be posted by users
+            if (validateRetrievedCookies())
             {
                 Timber.i("Login successful!");
                 setPersistentCookieSession();   //Store cookies
 
                 //Edit SharedPreferences, save session's data
+                setLoginScreenAsDefault(false);
                 sharedPrefs.edit().putBoolean(LOGGED_IN, true).apply();
-                sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
                 sharedPrefs.edit().putString(USERNAME, extractUserName(document)).apply();
+                sharedPrefs.edit().putInt(USER_ID, extractUserId(document)).apply();
                 String avatar = extractAvatarLink(document);
                 if (avatar != null) {
                     sharedPrefs.edit().putBoolean(HAS_AVATAR, true).apply();
@@ -135,15 +136,21 @@ public class SessionManager {
 
                 //Investigate login failure
                 Elements error = document.select("b:contains(That username does not exist.)");
-                if (error.size() == 1) { //Wrong username
+                if (error.size() > 0) { //Wrong username
                     Timber.i("Wrong Username");
                     return WRONG_USER;
                 }
 
                 error = document.select("body:contains(Password incorrect)");
-                if (error.size() == 1) { //Wrong password
+                if (error.size() > 0) { //Wrong password
                     Timber.i("Wrong Password");
                     return WRONG_PASSWORD;
+                }
+
+                error = document.select("body:contains(you are banned from using this forum!),body:contains(έχετε αποκλειστεί από αυτή τη δημόσια συζήτηση!)");
+                if (error.size() > 0) { //User is banned
+                    Timber.i("User is banned");
+                    return BANNED_USER;
                 }
 
                 //Other error e.g. session was reset server-side
@@ -182,7 +189,7 @@ public class SessionManager {
         } else if (isLoginScreenDefault())
             return;
 
-        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, true).apply();
+        setLoginScreenAsDefault(true);
         clearSessionData();
     }
 
@@ -192,7 +199,7 @@ public class SessionManager {
     public void guestLogin() {
         Timber.i("Continuing as a guest, as chosen by the user.");
         clearSessionData();
-        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, false).apply();
+        setLoginScreenAsDefault(false);
     }
 
 
@@ -221,7 +228,7 @@ public class SessionManager {
                 return FAILURE;
             }
         } catch (IOException e) {
-            Timber.w("Logout IOException", e);
+            Timber.w(e, "Logout IOException");
             return CONNECTION_ERROR;
         } catch (Exception e) {
             Timber.e(e, "Logout Exception");
@@ -236,11 +243,25 @@ public class SessionManager {
 
     //---------------------------------------GETTERS------------------------------------------------
     public String getUsername() {
-        return sharedPrefs.getString(USERNAME, "Username");
+        return sharedPrefs.getString(USERNAME, USERNAME);
+    }
+
+    public int getUserId() {
+        return sharedPrefs.getInt(USER_ID, -1);
     }
 
     public String getAvatarLink() {
-        return sharedPrefs.getString(AVATAR_LINK, "AvatarLink");
+        return sharedPrefs.getString(AVATAR_LINK, AVATAR_LINK);
+    }
+
+    public Cookie getThmmyCookie() {
+        List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
+        for(Cookie cookie: cookieList)
+        {
+            if(cookie.name().equals("THMMYgrC00ki3"))
+                return cookie;
+        }
+        return null;
     }
 
     public boolean hasAvatar() {
@@ -255,38 +276,45 @@ public class SessionManager {
         return sharedPrefs.getBoolean(LOGIN_SCREEN_AS_DEFAULT, true);
     }
 
-    public String getCookieHeader() {
-        return cookiePersistor.loadAll().get(0).toString();
-    }
-
     //--------------------------------------GETTERS END---------------------------------------------
 
     //------------------------------------OTHER FUNCTIONS-------------------------------------------
+    private boolean validateRetrievedCookies() {
+        List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
+        for(Cookie cookie: cookieList)
+        {
+            if(cookie.name().equals("THMMYgrC00ki3"))
+                return true;
+        }
+        return false;
+    }
+
+    // Call validateRetrievedCookies() first
     private void setPersistentCookieSession() {
         List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
+        Cookie.Builder builder = new Cookie.Builder();
+        builder.name(cookieList.get(1).name())
+                .value(cookieList.get(1).value())
+                .domain(cookieList.get(1).domain())
+                .expiresAt(cookieList.get(0).expiresAt());
+        cookieList.remove(1);
+        cookieList.add(builder.build());
+        cookiePersistor.clear();
+        cookiePersistor.saveAll(cookieList);
 
-        if (cookieList.size() == 2) {
-            if ((cookieList.get(0).name().equals("THMMYgrC00ki3"))
-                    && (cookieList.get(1).name().equals("PHPSESSID"))) {
-                Cookie.Builder builder = new Cookie.Builder();
-                builder.name(cookieList.get(1).name())
-                        .value(cookieList.get(1).value())
-                        .domain(cookieList.get(1).domain())
-                        .expiresAt(cookieList.get(0).expiresAt());
-                cookieList.remove(1);
-                cookieList.add(builder.build());
-                cookiePersistor.clear();
-                cookiePersistor.saveAll(cookieList);
-            }
-        }
     }
 
     private void clearSessionData() {
         cookieJar.clear();
         sharedPrefs.edit().clear().apply(); //Clear session data
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
+        sharedPrefs.edit().putInt(USER_ID, -1).apply();
         sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
         Timber.i("Session data cleared.");
+    }
+
+    private void setLoginScreenAsDefault(boolean b){
+        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, b).apply();
     }
 
     @NonNull
@@ -320,6 +348,25 @@ public class SessionManager {
 
         Timber.e(new ParseException("Parsing failed(username extraction)"),"ParseException");
         return "User"; //return a default username
+    }
+
+    @NonNull
+    private int extractUserId(@NonNull Document doc) {
+        try{
+            Elements elements = doc.select("a:containsOwn(Εμφάνιση των μηνυμάτων σας), a:containsOwn(Show own posts)");
+            if (elements.size() == 1) {
+                String link = elements.first().attr("href");
+
+                Pattern pattern = Pattern.compile("https://www.thmmy.gr/smf/index.php\\?action=profile;u=(\\d*);sa=showPosts");
+                Matcher matcher = pattern.matcher(link);
+                if (matcher.find())
+                    return Integer.parseInt(matcher.group(1));
+            }
+        } catch (Exception e) {
+            Timber.e(new ParseException("Parsing failed(user id extraction)"),"ParseException");
+        }
+        Timber.e(new ParseException("Parsing failed(user id extraction)"),"ParseException");
+        return -1;
     }
 
 

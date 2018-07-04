@@ -7,18 +7,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -31,20 +37,23 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
-import gr.thmmy.mthmmy.activities.BookmarkActivity;
+import gr.thmmy.mthmmy.activities.bookmarks.BookmarkActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
-import gr.thmmy.mthmmy.services.DownloadService;
+import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.FileUtils;
 import okhttp3.OkHttpClient;
+import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
@@ -52,6 +61,8 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies
@@ -251,7 +262,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withSelectedIcon(aboutIconSelected);
 
         //Profile
-        profileDrawerItem = new ProfileDrawerItem().withName(sessionManager.getUsername());
+        profileDrawerItem = new ProfileDrawerItem().withName(sessionManager.getUsername()).withIdentifier(0);
 
         //AccountHeader
         accountHeader = new AccountHeaderBuilder()
@@ -406,7 +417,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Integer result) {
-            Toast.makeText(getBaseContext(), "Logged out successfully!", Toast.LENGTH_LONG).show();
             updateDrawer();
             if (mainActivity != null)
                 mainActivity.updateTabs();
@@ -455,11 +465,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
             thisPageBookmarkMenuButton.setIcon(notBookmarked);
             toggleTopicToBookmarks(thisPageBookmark);
-            Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
         } else {
             thisPageBookmarkMenuButton.setIcon(bookmarked);
             toggleTopicToBookmarks(thisPageBookmark);
-            Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -474,10 +484,10 @@ public abstract class BaseActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (thisPageBookmark.matchExists(boardsBookmarked)) {
                     thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
-                    Toast.makeText(BaseActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
                 } else {
                     thisPageBookmarkImageButton.setImageDrawable(bookmarked);
-                    Toast.makeText(BaseActivity.this, "Bookmark added", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
                 }
                 toggleBoardToBookmarks(thisPageBookmark);
             }
@@ -515,7 +525,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (boardsBookmarked == null) return;
         if (bookmark.matchExists(boardsBookmarked)) {
             boardsBookmarked.remove(bookmark.findIndex(boardsBookmarked));
-        } else boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId()));
+        } else boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), false));
         updateBoardBookmarks();
     }
 
@@ -523,8 +533,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (topicsBookmarked == null) return;
         if (bookmark.matchExists(topicsBookmarked)) {
             topicsBookmarked.remove(bookmark.findIndex(topicsBookmarked));
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
         } else {
-            topicsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId()));
+            topicsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), true));
+            FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
         }
         updateTopicBookmarks();
     }
@@ -546,6 +558,22 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void removeBookmark(Bookmark bookmark) {
         if (bookmark.matchExists(boardsBookmarked)) toggleBoardToBookmarks(bookmark);
         else if (bookmark.matchExists(topicsBookmarked)) toggleTopicToBookmarks(bookmark);
+    }
+
+    protected boolean toggleNotification(Bookmark bookmark){
+        if (bookmark.matchExists(topicsBookmarked)){
+            topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).toggleNotificationsEnabled();
+            updateTopicBookmarks();
+
+            if (topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled()){
+                FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
+            } else {
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
+            }
+
+            return topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled();
+        }
+        return false;
     }
 //-------------------------------------------BOOKMARKS END------------------------------------------
 
@@ -582,7 +610,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             , @NonNull int[] grantResults) {
         switch (permsRequestCode) {
             case PERMISSIONS_REQUEST_CODE:
-                launchDownloadService();
+                downloadFile();
                 break;
         }
     }
@@ -591,9 +619,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     //----------------------------------DOWNLOAD----------------------
     private ThmmyFile tempThmmyFile;
 
-    public void launchDownloadService(ThmmyFile thmmyFile) {
+    public void downloadFile(ThmmyFile thmmyFile) {
         if (checkPerms())
-            DownloadService.startActionDownload(this, thmmyFile.getFileUrl().toString());
+            prepareDownload(thmmyFile);
         else {
             tempThmmyFile = thmmyFile;
             requestPerms();
@@ -601,15 +629,64 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //Uses temp file - called after permission grant
-    private void launchDownloadService() {
+    private void downloadFile() {
         if (checkPerms())
-            DownloadService.startActionDownload(this, tempThmmyFile.getFileUrl().toString());
+            prepareDownload(tempThmmyFile);
+    }
 
+    private void prepareDownload(ThmmyFile thmmyFile){
+        String fileName = thmmyFile.getFilename();
+        if(FileUtils.fileNameExists(fileName))
+            openDownloadPrompt(thmmyFile);
+        else
+            DownloadHelper.enqueueDownload(thmmyFile);
+    }
+
+    private void openDownloadPrompt(final ThmmyFile thmmyFile) {
+        View view = getLayoutInflater().inflate(R.layout.download_prompt_dialog, null);
+        final BottomSheetDialog dialog = new BottomSheetDialog(this);
+        dialog.setContentView(view);
+        TextView downloadPromptTextView = view.findViewById(R.id.downloadPromptTextView);
+        downloadPromptTextView.setText(getString(R.string.downloadPromptText,thmmyFile.getFilename()));
+        Button cancelButton = view.findViewById(R.id.cancel);
+        Button openButton = view.findViewById(R.id.open);
+        Button downloadButton = view.findViewById(R.id.download);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        openButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                try{
+                    String fileName = thmmyFile.getFilename();
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    Uri fileUri =  FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", new File(SAVE_DIR, fileName));
+                    intent.setDataAndType(fileUri, getMimeType(fileName));
+                    BaseActivity.this.startActivity(intent);
+                }catch (Exception e){
+                    Timber.e(e,"Couldn't open downloaded file...");
+                    Toast.makeText(getBaseContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                DownloadHelper.enqueueDownload(thmmyFile);
+            }
+        });
+        dialog.show();
     }
 
     //----------------------------------MISC----------------------
     protected void setMainActivity(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
-
 }

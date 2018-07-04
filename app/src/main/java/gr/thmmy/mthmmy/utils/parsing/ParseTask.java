@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.utils.parsing;
 
 import android.os.AsyncTask;
 import android.widget.Toast;
@@ -9,7 +9,6 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.utils.exceptions.ParseException;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -27,7 +26,9 @@ public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.Result
     }
 
     protected abstract void parse (Document document) throws ParseException;
-    protected abstract void postParsing (ParseTask.ResultCode result);  //ResultCode.NETWORK_ERROR is handled automatically
+    protected abstract void postExecution(ParseTask.ResultCode result);  //ResultCode.NETWORK_ERROR is handled automatically
+
+    protected void postParsing (){}
 
     protected Request prepareRequest(String... params) {
         url = params[0];
@@ -43,6 +44,7 @@ public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.Result
             Response response = BaseApplication.getInstance().getClient().newCall(request).execute();
             Document document = Jsoup.parse(response.body().string());
             parse(document);
+            postParsing();
             return ResultCode.SUCCESS;
         } catch (ParseException e) {
             Timber.tag(this.getClass().getSimpleName());
@@ -63,7 +65,7 @@ public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.Result
     protected void onPostExecute(ParseTask.ResultCode result) {
         if (result == ResultCode.NETWORK_ERROR)
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
-        postParsing(result);
+        postExecution(result);
     }
 }
 

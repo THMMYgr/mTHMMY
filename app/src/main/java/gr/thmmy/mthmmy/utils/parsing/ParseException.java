@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils.exceptions;
+package gr.thmmy.mthmmy.utils.parsing;
 
 /**
  * ParseException is to be used for errors while parsing.

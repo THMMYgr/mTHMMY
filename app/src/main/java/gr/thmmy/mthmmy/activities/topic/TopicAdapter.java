@@ -192,7 +192,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             //noinspection ConstantConditions
             Picasso.with(context)
-                    .load(currentPost.getThumbnailUrl())
+                    .load(currentPost.getThumbnailURL())
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(context.getResources()
@@ -238,7 +238,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         attached.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                ((BaseActivity) context).launchDownloadService(attachedFile);
+                                ((BaseActivity) context).downloadFile(attachedFile);
                             }
                         });
 
@@ -274,7 +274,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 mNumberOfPosts = currentPost.getNumberOfPosts();
                 mPersonalText = currentPost.getPersonalText();
                 mNumberOfStars = currentPost.getNumberOfStars();
-                mUserColor = currentPost.getUserColor();
             } else {
                 mSpecialRank = null;
                 mRank = null;
@@ -282,8 +281,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 mNumberOfPosts = null;
                 mPersonalText = null;
                 mNumberOfStars = 0;
-                mUserColor = 0;
             }
+            mUserColor = currentPost.getUserColor();
 
             if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
                 holder.specialRank.setText(mSpecialRank);
@@ -370,10 +369,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         Intent intent = new Intent(context, ProfileActivity.class);
                         Bundle extras = new Bundle();
                         extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
-                        if (currentPost.getThumbnailUrl() == null)
+                        if (currentPost.getThumbnailURL() == null)
                             extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                         else
-                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailUrl());
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailURL());
                         extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
                         intent.putExtras(extras);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
@@ -410,6 +409,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.userExtraInfo.setOnClickListener(null);
             }
 
+            holder.sharePostButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent sendIntent  = new Intent(android.content.Intent.ACTION_SEND);
+                    sendIntent.setType("text/plain");
+                    sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, currentPost.getPostURL());
+                    context.startActivity(Intent.createChooser(sendIntent, "Share via"));
+                }
+            });
+
             //noinspection PointlessBooleanExpression,ConstantConditions
             if (!BaseActivity.getSessionManager().isLoggedIn() || !canReply) {
                 holder.quoteToggle.setVisibility(View.GONE);
@@ -427,8 +436,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             if (toQuoteList.contains(postsList.indexOf(currentPost))) {
                                 toQuoteList.remove(toQuoteList.indexOf(postsList.indexOf(currentPost)));
                             } else
-                                Timber.i("An error occurred while trying to exclude post from" +
-                                        "toQuoteList, post wasn't there!");
+                                Timber.i("An error occurred while trying to exclude post fromtoQuoteList, post wasn't there!");
                             holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                         } else {
                             toQuoteList.add(postsList.indexOf(currentPost));
@@ -474,6 +482,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.submitButton.setEnabled(true);
                 }
             });
+            if(backPressHidden)
+            {
+                holder.quickReply.requestFocus();
+                backPressHidden = false;
+            }
         }
     }
 
@@ -501,7 +514,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView postDate, postNum, username, subject;
         final ImageView thumbnail;
         final public WebView post;
-        final ImageButton quoteToggle;
+        final ImageButton quoteToggle, sharePostButton;
         final RelativeLayout header;
         final LinearLayout userExtraInfo;
         final View bodyFooterDivider;
@@ -522,6 +535,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             post = view.findViewById(R.id.post);
             post.setBackgroundColor(Color.argb(1, 255, 255, 255));
             quoteToggle = view.findViewById(R.id.toggle_quote_button);
+            sharePostButton = view.findViewById(R.id.post_share_button);
             bodyFooterDivider = view.findViewById(R.id.body_footer_divider);
             postFooter = view.findViewById(R.id.post_footer);
 
@@ -536,6 +550,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             stars = view.findViewById(R.id.stars);
         }
     }
+
+    private boolean backPressHidden = false;
+
+    void setBackButtonHidden() {
+        this.backPressHidden = true;
+    }
+
 
     /**
      * Custom {@link RecyclerView.ViewHolder} implementation

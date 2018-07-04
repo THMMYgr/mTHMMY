@@ -31,11 +31,13 @@
     <string name="topic_last_post">Last post on: %1$s</string>
 
     <!--Topic Activity-->
+    <string name="share">Share</string>
     <string name="post_author">Post author</string>
     <string name="post_subject">Post subject</string>
     <string name="post">Post</string>
     <string name="post_thumbnail">Thumbnail</string>
     <string name="post_quote_button">Quote button</string>
+    <string name="post_share_button">Share button</string>
     <string name="user_number_of_posts">#%1$d</string>
     <string name="button_first">first</string>
     <string name="button_previous">previous</string>
@@ -65,15 +67,15 @@
     <string name="contact">Contact</string>
     <string name="contact_text">Do not hesitate to contact us for any matter either by email at thmmynolife@gmail.com, or by joining our discord server at https://discord.gg/CVt3yrn.</string>
     <string name="open_source">Open Source</string>
-    <string name="open_source_text">The source code of mTHMMY can be found on GitLab (https://gitlab.com/ThmmyNoLife/mTHMMY) along with further details of how one can contribute.</string>
+    <string name="open_source_text">The source code of mTHMMY can be found on Github (https://github.com/ThmmyNoLife/mTHMMY) along with further details of how one can contribute.</string>
     <string name="trollPic">You should see a funny pic!</string>
 
     <!--Bookmarks-->
     <string name="remove_bookmark">Remove</string>
-    <string name="board_bookmarks_title">Boards</string>
-    <string name="topic_bookmarks_title">Topics</string>
+    <string name="empty_board_bookmarks">You have no bookmarked boards</string>
+    <string name="empty_topic_bookmarks">You have no bookmarked topics</string>
 
-    <!--FontAwesome strings-->
+    <!--FontAwesome-->
     <string name="fa_icon_star">&#xf005;</string>
     <string name="fa_file">&#xf15b;</string>
     <string name="fa_file_image_o">&#xf1c5;</string>
@@ -88,4 +90,14 @@
     <string name="fa_sticky">&#xf249;</string>
     <string name="fa_folder">&#xf07b;</string>
     <string name="fa_circle">&#xf111;</string>
+
+    <!--Notifications-->
+    <string name="toggle_notification">Toggle Notification</string>
+
+    <!--Download Prompt-->
+    <string name="downloadPromptText">File \"%1$s\" already exists. Download again?"</string>
+    <string name="download_symbol">Download Symbol</string>
+    <string name="cancel">Cancel</string>
+    <string name="open">Open</string>
+    <string name="download">Download</string>
 </resources>

@@ -2,7 +2,7 @@ package gr.thmmy.mthmmy.utils;
 
 import android.util.Log;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 
 import timber.log.Timber.DebugTree;
 
@@ -25,14 +25,14 @@ public class CrashReportingTree extends DebugTree {
         else
             level = 'A';
 
-        FirebaseCrash.log(level + "/" + tag + ": " + message);
+        Crashlytics.log(level + "/" + tag + ": " + message);
 
         if(priority == Log.ERROR)
         {
             if (t!=null)
-                FirebaseCrash.report(t);
+                Crashlytics.logException(t);
             else
-                FirebaseCrash.report(new Exception(message));
+                Crashlytics.logException(new Exception(message));
         }
 
     }

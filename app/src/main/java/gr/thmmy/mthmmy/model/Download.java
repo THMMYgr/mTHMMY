@@ -6,6 +6,7 @@ public class Download {
     private final String url, title, subTitle, statNumbers, extraInfo;
     private final boolean hasSubCategory;
     private final DownloadItemType type;
+    private String fileName;
 
     public Download() {
         type = null;
@@ -54,5 +55,13 @@ public class Download {
 
     public boolean hasSubCategory() {
         return hasSubCategory;
+    }
+
+    public String getFileName(){
+        return fileName;
+    }
+
+    public void setFileName(String fileName){
+        this.fileName = fileName;
     }
 }

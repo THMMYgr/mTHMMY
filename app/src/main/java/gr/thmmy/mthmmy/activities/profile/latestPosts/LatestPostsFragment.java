@@ -24,7 +24,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
-import gr.thmmy.mthmmy.utils.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
