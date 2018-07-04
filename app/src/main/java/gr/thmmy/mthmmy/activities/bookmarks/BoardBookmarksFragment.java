@@ -73,7 +73,7 @@ public class BoardBookmarksFragment extends Fragment {
             for (final Bookmark bookmarkedBoard : boardBookmarks) {
                 if (bookmarkedBoard != null && bookmarkedBoard.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
-                            R.layout.activity_bookmark_board_row, bookmarksLinearView, false);
+                            R.layout.fragment_bookmarks_board_row, bookmarksLinearView, false);
                     row.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
