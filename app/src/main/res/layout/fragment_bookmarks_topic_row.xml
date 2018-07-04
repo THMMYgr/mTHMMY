@@ -31,8 +31,7 @@
         android:paddingTop="3dp"
         android:paddingStart="6dp"
         android:paddingEnd="6dp"
-        android:layout_marginEnd="9dp"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="@android:color/transparent"
         android:contentDescription="@string/toggle_notification"
         app:srcCompat="@drawable/ic_notification_on"/>
 
@@ -45,7 +44,7 @@
         android:paddingStart="6dp"
         android:paddingEnd="6dp"
         android:layout_marginEnd="12dp"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="@android:color/transparent"
         android:contentDescription="@string/remove_bookmark"
         android:src="@drawable/ic_delete"/>
 </LinearLayout>
