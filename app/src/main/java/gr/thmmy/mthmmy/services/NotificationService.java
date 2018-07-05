@@ -112,12 +112,9 @@ public class NotificationService extends FirebaseMessagingService {
             notificationBuilder.setPriority(PRIORITY_MAX);
 
         boolean createSummaryNotification = false;
-        if(buildVersion >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            createSummaryNotification = true;
-            if(buildVersion >= Build.VERSION_CODES.M)
-                createSummaryNotification = otherNotificationsExist(topicId);
-        }
+        if(buildVersion >= Build.VERSION_CODES.M)
+            createSummaryNotification = otherNotificationsExist(topicId);
+
 
         NotificationCompat.Builder summaryNotificationBuilder = null;
         if(createSummaryNotification)
