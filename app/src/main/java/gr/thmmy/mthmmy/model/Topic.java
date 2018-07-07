@@ -5,11 +5,11 @@ package gr.thmmy.mthmmy.model;
  * Class has one constructor and getter methods for all variables.
  * <p>A topic is described by its url, subject, username of creator, its date and time of this
  * topic's last post, url of this topic's last post, its view and reply stats, whether it's locked or
- * not and whether it's sticky or not.</b>.
+ * not, whether it's sticky or not and whether it contains an unread post or not.</b>.
  */
 public class Topic extends TopicSummary {
     private final String lastPostUrl, stats;
-    private final boolean locked, sticky;
+    private final boolean locked, sticky, unread;
 
     // Suppresses default constructor
     @SuppressWarnings("unused")
@@ -19,6 +19,7 @@ public class Topic extends TopicSummary {
         this.stats = null;
         this.locked = false;
         this.sticky = false;
+        this.unread = false;
     }
 
     /**
@@ -33,14 +34,16 @@ public class Topic extends TopicSummary {
      * @param stats       this topic's view and reply stats
      * @param locked      whether this topic is locked or not
      * @param sticky      whether this topic is sticky or not
+     * @param unread      whether this topic contains an unread post or not
      */
     public Topic(String topicUrl, String subject, String starter, String lastPost, String lastPostUrl,
-                 String stats, boolean locked, boolean sticky) {
+                 String stats, boolean locked, boolean sticky, boolean unread) {
         super(topicUrl, subject, starter, lastPost);
         this.lastPostUrl = lastPostUrl;
         this.stats = stats;
         this.locked = locked;
         this.sticky = sticky;
+        this.unread = unread;
     }
 
     /**
@@ -113,5 +116,14 @@ public class Topic extends TopicSummary {
      */
     public boolean isSticky() {
         return sticky;
+    }
+
+    /**
+     * Gets this topic's unread status. True if it contains an unread post, false otherwise.
+     *
+     * @return this topic's unread status
+     */
+    public boolean isUnread() {
+        return unread;
     }
 }

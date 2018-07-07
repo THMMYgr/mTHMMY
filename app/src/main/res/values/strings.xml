@@ -89,9 +89,9 @@
     <string name="fa_file_excel_o">&#xf1c3;</string>
     <string name="fa_file_video_o">&#xf1c8;</string>
     <string name="fa_lock">&#xf023;</string>
-    <string name="fa_sticky">&#xf249;</string>
     <string name="fa_folder">&#xf07b;</string>
     <string name="fa_circle">&#xf111;</string>
+    <string name="fa_thumbtack">&#xf08d;</string>
 
     <!--Download Prompt-->
     <string name="downloadPromptText">File \"%1$s\" already exists. Download again?"</string>
