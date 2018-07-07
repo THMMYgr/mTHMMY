@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -232,9 +231,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
             topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()
                     , "fonts/fontawesome-webfont.ttf"));
-            String lockedSticky = topic.isUnread() ?
-                    Html.fromHtml("<font size=\"1\">" + context.getString(R.string.fa_circle) + "</font> ").toString() : "";
-            lockedSticky += topic.getSubject();
+            topicViewHolder.topicUnreadDot.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/fontawesome-webfont.ttf"));
+            if (topic.isUnread())
+                topicViewHolder.topicUnreadDot.setVisibility(View.VISIBLE);
+            String lockedSticky = topic.getSubject();
             if (topic.isLocked())
                 lockedSticky += " " + context.getResources().getString(R.string.fa_lock);
             if (topic.isSticky()) {
@@ -290,7 +290,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static class TopicViewHolder extends RecyclerView.ViewHolder {
         final LinearLayout topicRow, topicExpandable;
-        final TextView topicSubject, topicStartedBy, topicStats, topicLastPost;
+        final TextView topicSubject, topicStartedBy, topicStats, topicLastPost, topicUnreadDot;
         final ImageButton showHideExpandable;
 
         TopicViewHolder(View topic) {
@@ -298,6 +298,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicRow = topic.findViewById(R.id.topic_row_linear);
             topicExpandable = topic.findViewById(R.id.topic_expandable);
             showHideExpandable = topic.findViewById(R.id.topic_expand_collapse_button);
+            topicUnreadDot = topic.findViewById(R.id.topic_unread_dot);
             topicSubject = topic.findViewById(R.id.topic_subject);
             topicStartedBy = topic.findViewById(R.id.topic_started_by);
             topicStats = topic.findViewById(R.id.topic_stats);
