@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.preference.PreferenceManager;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         final Intent intentFilter = getIntent();
         redirectToActivityFromIntent(intentFilter);
         setContentView(R.layout.activity_main);
+
+        PreferenceManager.setDefaultValues(this, R.xml.app_preferences, false);
 
         if (sessionManager.isLoginScreenDefault()) {
             //Go to login

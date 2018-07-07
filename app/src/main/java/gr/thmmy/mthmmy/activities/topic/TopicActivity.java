@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
@@ -44,6 +46,7 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
+import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
@@ -184,6 +187,7 @@ public class TopicActivity extends BaseActivity {
      * navigation bar occurs
      */
     private Integer pageRequestValue;
+
     //Bottom navigation bar graphics related
     private LinearLayout bottomNavBar;
     private ImageButton firstPage;
@@ -191,10 +195,12 @@ public class TopicActivity extends BaseActivity {
     private TextView pageIndicator;
     private ImageButton nextPage;
     private ImageButton lastPage;
+
     //Topic's info related
     private SpannableStringBuilder topicTreeAndMods = new SpannableStringBuilder("Loading..."),
             topicViewers = new SpannableStringBuilder("Loading...");
 
+    boolean includeAppSignaturePreference = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,6 +219,11 @@ public class TopicActivity extends BaseActivity {
         }
 
         topicPageUrl = ThmmyPage.sanitizeTopicUrl(topicPageUrl);
+
+        if (sessionManager.isLoggedIn()) {
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+            includeAppSignaturePreference = sharedPrefs.getBoolean(SettingsActivity.APP_SIGNATURE_ENABLE_KEY, true);
+        }
 
         thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl), true);
 
@@ -321,7 +332,7 @@ public class TopicActivity extends BaseActivity {
                 dialog.show();
                 return true;
             case R.id.menu_share:
-                Intent sendIntent  = new Intent(android.content.Intent.ACTION_SEND);
+                Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sendIntent.setType("text/plain");
                 sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, topicPageUrl);
                 startActivity(Intent.createChooser(sendIntent, "Share via"));
@@ -336,9 +347,7 @@ public class TopicActivity extends BaseActivity {
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
             return;
-        }
-        else if(postsList!=null && postsList.size()>0 && postsList.get(postsList.size()-1)==null)
-        {
+        } else if (postsList != null && postsList.size() > 0 && postsList.get(postsList.size() - 1) == null) {
             postsList.remove(postsList.size() - 1);
             topicAdapter.notifyItemRemoved(postsList.size());
             topicAdapter.setBackButtonHidden();
@@ -356,6 +365,11 @@ public class TopicActivity extends BaseActivity {
         super.onResume();
         refreshTopicBookmark();
         drawer.setSelection(-1);
+
+        if (sessionManager.isLoggedIn()) {
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+            includeAppSignaturePreference = sharedPrefs.getBoolean(SettingsActivity.APP_SIGNATURE_ENABLE_KEY, true);
+        }
     }
 
     @Override
@@ -548,7 +562,8 @@ public class TopicActivity extends BaseActivity {
 
         }
     }
-//------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
+
+    //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
     private enum ResultCode {
         SUCCESS, NETWORK_ERROR, PARSING_ERROR, OTHER_ERROR, SAME_PAGE, UNAUTHORIZED
     }
@@ -632,7 +647,7 @@ public class TopicActivity extends BaseActivity {
                 Timber.i(e, "IO Exception");
                 return ResultCode.NETWORK_ERROR;
             } catch (ParseException e) {
-                if(isUnauthorized(document))
+                if (isUnauthorized(document))
                     return ResultCode.UNAUTHORIZED;
                 Timber.e(e, "Parsing Error");
                 return ResultCode.PARSING_ERROR;
@@ -673,9 +688,9 @@ public class TopicActivity extends BaseActivity {
                     pageIndicator.setText(String.valueOf(thisPage) + "/" + String.valueOf(numberOfPages));
                     pageRequestValue = thisPage;
 
-                    if(thisPage==numberOfPages){
+                    if (thisPage == numberOfPages) {
                         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        if(notificationManager!=null)
+                        if (notificationManager != null)
                             notificationManager.cancel(NEW_POST_TAG, loadedPageTopicId);
                     }
 
@@ -702,7 +717,7 @@ public class TopicActivity extends BaseActivity {
             }
         }
 
-        private void stopLoading(){
+        private void stopLoading() {
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             if (replyPageUrl == null) {
                 replyFAB.hide();
@@ -718,7 +733,7 @@ public class TopicActivity extends BaseActivity {
          * @param topic {@link Document} object containing this topic's source code
          * @see org.jsoup.Jsoup Jsoup
          */
-        private ArrayList<Post> parse(Document topic) throws ParseException{
+        private ArrayList<Post> parse(Document topic) throws ParseException {
             try {
                 ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
@@ -898,7 +913,9 @@ public class TopicActivity extends BaseActivity {
 
         @Override
         protected Boolean doInBackground(String... args) {
-            final String sentFrommTHMMY = "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy]mTHMMY[/url]  [/i][/size][/right]";
+            final String sentFrommTHMMY = includeAppSignaturePreference
+                    ? "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy]mTHMMY  [/url][/i][/size][/right]"
+                    : "";
             RequestBody postBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("message", args[1] + sentFrommTHMMY)
