@@ -233,7 +233,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()
                     , "fonts/fontawesome-webfont.ttf"));
             String lockedSticky = topic.isUnread() ?
-                    Html.fromHtml("<font size=\"1\">" + context.getString(R.string.fa_circle) + "</font> ").toString() : "";
+                    Html.fromHtml("<font size=\"1\" color=\""+ context.getResources().getColor(R.color.accent) + "\">" + context.getString(R.string.fa_circle) + "</font> ").toString() : "";
             lockedSticky += topic.getSubject();
             if (topic.isLocked())
                 lockedSticky += " " + context.getResources().getString(R.string.fa_lock);
