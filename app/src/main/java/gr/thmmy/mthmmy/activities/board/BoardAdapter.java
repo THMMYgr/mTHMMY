@@ -234,6 +234,9 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicViewHolder.topicUnreadDot.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/fontawesome-webfont.ttf"));
             if (topic.isUnread())
                 topicViewHolder.topicUnreadDot.setVisibility(View.VISIBLE);
+            else {
+                topicViewHolder.topicUnreadDot.setVisibility(View.GONE);
+            }
             String lockedSticky = topic.getSubject();
             if (topic.isLocked())
                 lockedSticky += " " + context.getResources().getString(R.string.fa_lock);

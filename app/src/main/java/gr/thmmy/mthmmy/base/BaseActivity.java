@@ -197,7 +197,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .color(primaryColor);
 
         settingsIconSelected = new IconicsDrawable(this)
-                .icon(GoogleMaterial.Icon.gmd_file_download)
+                .icon(GoogleMaterial.Icon.gmd_settings)
                 .color(selectedSecondaryColor);
 
         loginIcon = new IconicsDrawable(this)
