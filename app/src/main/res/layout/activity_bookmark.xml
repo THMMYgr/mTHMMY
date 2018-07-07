@@ -55,5 +55,3 @@
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal"/>
 </android.support.design.widget.CoordinatorLayout>
-
-

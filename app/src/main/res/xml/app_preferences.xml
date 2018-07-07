@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v7.preference.PreferenceCategory android:title="@string/pref_category_notifications">
+
+        <!--<android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="pref_notifications_enable_key"
+            android:summary="@string/pref_summary_notifications_enable"
+            android:title="@string/pref_title_notifications_enable" />-->
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="pref_notification_vibration_enable_key"
+            android:summary="@string/pref_summary_notification_vibration_enable"
+            android:title="@string/pref_title_notification_vibration_enable" />
+
+        <Preference
+            android:key="pref_notifications_select_sound_key"
+            android:summary="@string/pref_summary_notifications_sound"
+            android:title="@string/pref_title_notifications_sound" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory android:title="@string/pref_category_posting">
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="pref_posting_app_signature_enable_key"
+            android:summary="@string/pref_summary_posting_app_signature_enable"
+            android:title="@string/pref_title_posting_app_signature_enable" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
+</android.support.v7.preference.PreferenceScreen>

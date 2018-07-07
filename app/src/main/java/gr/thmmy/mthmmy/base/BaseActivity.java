@@ -47,6 +47,7 @@ import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
+import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
@@ -147,10 +148,11 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected static final int BOOKMARKS_ID = 2;
     protected static final int LOG_ID = 3;
     protected static final int ABOUT_ID = 4;
+    protected static final int SETTINGS_ID = 5;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
-    private PrimaryDrawerItem downloadsItem, loginLogoutItem;
+    private PrimaryDrawerItem downloadsItem, settingsItem, loginLogoutItem;
     private IconicsDrawable loginIcon, logoutIcon;
 
     /**
@@ -162,9 +164,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
         PrimaryDrawerItem homeItem, bookmarksItem, aboutItem;
-        IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected,
-                bookmarksIcon, bookmarksIconSelected, aboutIcon,
-                aboutIconSelected;
+        IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, settingsIcon,
+                settingsIconSelected, bookmarksIcon, bookmarksIconSelected, aboutIcon, aboutIconSelected;
 
         //Drawer Icons
         homeIcon = new IconicsDrawable(this)
@@ -188,6 +189,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .color(primaryColor);
 
         downloadsIconSelected = new IconicsDrawable(this)
+                .icon(GoogleMaterial.Icon.gmd_settings)
+                .color(selectedSecondaryColor);
+
+        settingsIcon = new IconicsDrawable(this)
+                .icon(GoogleMaterial.Icon.gmd_settings)
+                .color(primaryColor);
+
+        settingsIconSelected = new IconicsDrawable(this)
                 .icon(GoogleMaterial.Icon.gmd_file_download)
                 .color(selectedSecondaryColor);
 
@@ -242,6 +251,15 @@ public abstract class BaseActivity extends AppCompatActivity {
                     .withIdentifier(LOG_ID).withName(R.string.login)
                     .withIcon(loginIcon)
                     .withSelectable(false);
+
+        settingsItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(SETTINGS_ID)
+                .withName(R.string.settings)
+                .withIcon(settingsIcon)
+                .withSelectedIcon(settingsIconSelected);
 
         bookmarksItem = new PrimaryDrawerItem()
                 .withTextColor(primaryColor)
@@ -337,7 +355,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                                 Intent i = new Intent(BaseActivity.this, AboutActivity.class);
                                 startActivity(i);
                             }
-
+                        } else if (drawerItem.equals(SETTINGS_ID)) {
+                            if (!(BaseActivity.this instanceof SettingsActivity)) {
+                                Intent intent = new Intent(BaseActivity.this, SettingsActivity.class);
+                                startActivity(intent);
+                            }
                         }
 
                         drawer.closeDrawer();
@@ -346,7 +368,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
         else
             drawerBuilder.addDrawerItems(homeItem, bookmarksItem, loginLogoutItem, aboutItem);
 
@@ -369,13 +391,20 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 drawer.removeItem(DOWNLOADS_ID);
+                drawer.removeItem(SETTINGS_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername());
                 setDefaultAvatar();
             } else {
+                if (!drawer.getDrawerItems().contains(downloadsItem)){
+                    drawer.addItemAtPosition(settingsItem, 2);
+                }
+                if (!drawer.getDrawerItems().contains(settingsItem)){
+                    drawer.addItemAtPosition(settingsItem, 3);
+                }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());
-                if(sessionManager.hasAvatar())
+                if (sessionManager.hasAvatar())
                     profileDrawerItem.withIcon(sessionManager.getAvatarLink());
                 else
                     setDefaultAvatar();
@@ -422,9 +451,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 mainActivity.updateTabs();
             progressDialog.dismiss();
             //if (BaseActivity.this instanceof TopicActivity){
-                Intent intent = new Intent(BaseActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+            Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
             //}
         }
     }
@@ -560,12 +589,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         else if (bookmark.matchExists(topicsBookmarked)) toggleTopicToBookmarks(bookmark);
     }
 
-    protected boolean toggleNotification(Bookmark bookmark){
-        if (bookmark.matchExists(topicsBookmarked)){
+    protected boolean toggleNotification(Bookmark bookmark) {
+        if (bookmark.matchExists(topicsBookmarked)) {
             topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).toggleNotificationsEnabled();
             updateTopicBookmarks();
 
-            if (topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled()){
+            if (topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled()) {
                 FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
             } else {
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
@@ -634,9 +663,9 @@ public abstract class BaseActivity extends AppCompatActivity {
             prepareDownload(tempThmmyFile);
     }
 
-    private void prepareDownload(ThmmyFile thmmyFile){
+    private void prepareDownload(ThmmyFile thmmyFile) {
         String fileName = thmmyFile.getFilename();
-        if(FileUtils.fileNameExists(fileName))
+        if (FileUtils.fileNameExists(fileName))
             openDownloadPrompt(thmmyFile);
         else
             DownloadHelper.enqueueDownload(thmmyFile);
@@ -647,7 +676,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         final BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(view);
         TextView downloadPromptTextView = view.findViewById(R.id.downloadPromptTextView);
-        downloadPromptTextView.setText(getString(R.string.downloadPromptText,thmmyFile.getFilename()));
+        downloadPromptTextView.setText(getString(R.string.downloadPromptText, thmmyFile.getFilename()));
         Button cancelButton = view.findViewById(R.id.cancel);
         Button openButton = view.findViewById(R.id.open);
         Button downloadButton = view.findViewById(R.id.download);
@@ -661,15 +690,15 @@ public abstract class BaseActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                try{
+                try {
                     String fileName = thmmyFile.getFilename();
                     Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    Uri fileUri =  FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", new File(SAVE_DIR, fileName));
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", new File(SAVE_DIR, fileName));
                     intent.setDataAndType(fileUri, getMimeType(fileName));
                     BaseActivity.this.startActivity(intent);
-                }catch (Exception e){
-                    Timber.e(e,"Couldn't open downloaded file...");
+                } catch (Exception e) {
+                    Timber.e(e, "Couldn't open downloaded file...");
                     Toast.makeText(getBaseContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
                 }
 
