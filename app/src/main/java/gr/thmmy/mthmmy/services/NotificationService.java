@@ -76,7 +76,8 @@ public class NotificationService extends FirebaseMessagingService {
         Timber.i("Creating a notification...");
 
         SharedPreferences settingsFile = getSharedPreferences(SETTINGS_SHARED_PREFS, Context.MODE_PRIVATE);
-        Uri notificationSoundUri = Uri.parse(settingsFile.getString(SELECTED_RINGTONE, null));
+        String notificationsSound = settingsFile.getString(SELECTED_RINGTONE, null);
+        Uri notificationSoundUri = notificationsSound != null ? Uri.parse(notificationsSound) : null;
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean notificationsVibrateEnabled = sharedPrefs.getBoolean(NOTIFICATION_VIBRATION_KEY, true);
 

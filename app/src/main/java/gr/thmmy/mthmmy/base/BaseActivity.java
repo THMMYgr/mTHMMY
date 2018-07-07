@@ -152,7 +152,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
-    private PrimaryDrawerItem downloadsItem, settingsItem, loginLogoutItem;
+    private PrimaryDrawerItem downloadsItem, loginLogoutItem;
     private IconicsDrawable loginIcon, logoutIcon;
 
     /**
@@ -163,7 +163,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
-        PrimaryDrawerItem homeItem, bookmarksItem, aboutItem;
+        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem;
         IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, settingsIcon,
                 settingsIconSelected, bookmarksIcon, bookmarksIconSelected, aboutIcon, aboutIconSelected;
 
@@ -396,7 +396,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 setDefaultAvatar();
             } else {
                 if (!drawer.getDrawerItems().contains(downloadsItem)){
-                    drawer.addItemAtPosition(settingsItem, 2);
+                    drawer.addItemAtPosition(downloadsItem, 2);
                 }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());
