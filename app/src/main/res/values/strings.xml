@@ -38,7 +38,9 @@
     <string name="post">Post</string>
     <string name="post_thumbnail">Thumbnail</string>
     <string name="post_quote_button">Quote button</string>
-    <string name="post_share_button">Share button</string>
+    <string name="post_overflow_menu_button">Overflow menu button</string>
+    <string name="post_share_button">Share</string>
+    <string name="post_delete_button">Delete</string>
     <string name="user_number_of_posts">#%1$d</string>
     <string name="button_first">first</string>
     <string name="button_previous">previous</string>
@@ -108,11 +110,10 @@
     <!--<string name="pref_title_notifications_enable">New posts notification</string>
     <string name="pref_summary_notifications_enable">Toggle notifications state</string>-->
     <string name="pref_title_notification_vibration_enable">Vibration</string>
-    <string name="pref_summary_notification_vibration_enable">Summary</string>
     <string name="pref_title_notifications_sound">Notifications sound</string>
     <string name="pref_summary_notifications_sound">Select your preferred notification sound</string>
 
     <string name="pref_category_posting">Posting</string>
     <string name="pref_title_posting_app_signature_enable">App signature</string>
-    <string name="pref_summary_posting_app_signature_enable">If enabled, a \"Posted from mThmmy\" message will be inserted at the end of your posts</string>
+    <string name="pref_summary_posting_app_signature_enable">If enabled, a \"sent from mTHMMY\" message will be inserted at the end of your posts</string>
 </resources>

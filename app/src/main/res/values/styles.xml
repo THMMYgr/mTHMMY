@@ -18,12 +18,20 @@
 
         <item name="colorButtonNormal">@color/primary</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+
+        <item name="popupMenuStyle">@style/PopupMenuStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+    </style>
+
+    <style name="PopupMenuStyle">
+        <item name="android:popupBackground">@color/primary</item>
+        <item name="android:textAppearanceLargePopupMenu">@color/accent</item>
+        <item name="android:textAppearanceSmallPopupMenu">@color/accent</item>
     </style>
 
     <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">

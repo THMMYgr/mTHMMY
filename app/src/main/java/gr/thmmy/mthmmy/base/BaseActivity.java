@@ -42,8 +42,8 @@ import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
-import gr.thmmy.mthmmy.activities.bookmarks.BookmarkActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.bookmarks.BookmarkActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
@@ -370,7 +370,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (sessionManager.isLoggedIn())
             drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
         else
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
 
         drawer = drawerBuilder.build();
 
@@ -391,16 +391,12 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 drawer.removeItem(DOWNLOADS_ID);
-                drawer.removeItem(SETTINGS_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername());
                 setDefaultAvatar();
             } else {
                 if (!drawer.getDrawerItems().contains(downloadsItem)){
                     drawer.addItemAtPosition(settingsItem, 2);
-                }
-                if (!drawer.getDrawerItems().contains(settingsItem)){
-                    drawer.addItemAtPosition(settingsItem, 3);
                 }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());

@@ -156,7 +156,8 @@ class TopicParser {
         for (Element thisRow : postRows) {
             //Variables for Post constructor
             String p_userName, p_thumbnailURL, p_subject, p_post, p_postDate, p_profileURL, p_rank,
-                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate, p_postURL;
+                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate,
+                    p_postURL, p_deletePostURL;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
             ArrayList<ThmmyFile> p_attachedFiles;
@@ -172,6 +173,7 @@ class TopicParser {
             p_userColor = USER_COLOR_YELLOW;
             p_attachedFiles = new ArrayList<>();
             p_postLastEditDate = null;
+            p_deletePostURL = null;
 
             //Language independent parsing
             //Finds thumbnail url
@@ -232,6 +234,12 @@ class TopicParser {
                     p_profileURL = userName.attr("href");
                 }
 
+                //Finds post delete url
+                Element postDelete = thisRow.select("a:has(img[alt='Διαγραφή'])").first();
+                if (postDelete!=null){
+                    p_deletePostURL = postDelete.attr("href");
+                }
+
                 //Finds post's submit date
                 Element postDate = thisRow.select("div.smalltext:matches(στις:)").first();
                 p_postDate = postDate.text();
@@ -290,6 +298,12 @@ class TopicParser {
                 } else {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
+                }
+
+                //Finds post delete url
+                Element postDelete = thisRow.select("a:has(img[alt='Remove message'])").first();
+                if (postDelete!=null){
+                    p_deletePostURL = postDelete.attr("href");
                 }
 
                 //Finds post's submit date
@@ -412,16 +426,18 @@ class TopicParser {
                         p_personalText = p_personalText.replace("\n", "").replace("\r", "").trim();
                     }
                 }
+
                 //Add new post in postsList, extended information needed
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
-                        , p_attachedFiles, p_postLastEditDate, p_postURL));
+                        , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
-                parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
-                        , p_postNum, p_postDate, p_userColor, p_attachedFiles, p_postLastEditDate, p_postURL));
+                parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post
+                        , p_postIndex , p_postNum, p_postDate, p_userColor, p_attachedFiles
+                        , p_postLastEditDate, p_postURL, p_deletePostURL));
             }
         }
         return parsedPostsList;

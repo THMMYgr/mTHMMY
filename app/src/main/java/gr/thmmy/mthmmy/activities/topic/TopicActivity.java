@@ -675,6 +675,7 @@ public class TopicActivity extends BaseActivity {
                     }
                     postsList.addAll(localPostsList);
                     topicAdapter.notifyItemRangeInserted(0, postsList.size());
+                    topicAdapter.prepareForDelete(new DeleteTask());
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
 
                     if (replyPageUrl == null) {
@@ -978,6 +979,59 @@ public class TopicActivity extends BaseActivity {
                     reloadingPage = true;
                     topicTask.execute(loadedPageUrl);
                 }
+            }
+        }
+    }
+
+    class DeleteTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+            paginationEnabled(false);
+            replyFAB.setEnabled(false);
+        }
+
+        @Override
+        protected Boolean doInBackground(String... args) {
+            Request delete = new Request.Builder()
+                    .url(args[0])
+                    .header("User-Agent",
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
+                    .build();
+
+            try {
+                client.newCall(delete).execute();
+                Response response = client.newCall(delete).execute();
+                //Response response = client.newCall(delete).execute();
+                switch (replyStatus(response)) {
+                    case SUCCESSFUL:
+                        return true;
+                    default:
+                        Timber.e("Something went wrong. Request string: %s", delete.toString());
+                        return true;
+                }
+            } catch (IOException e) {
+                Timber.e(e, "Delete failed.");
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            progressBar.setVisibility(ProgressBar.GONE);
+            replyFAB.setVisibility(View.VISIBLE);
+            bottomNavBar.setVisibility(View.VISIBLE);
+
+            if (!result)
+                Toast.makeText(TopicActivity.this, "Post deleted!", Toast.LENGTH_SHORT).show();
+            paginationEnabled(true);
+            replyFAB.setEnabled(true);
+
+            if (result) {
+                topicTask = new TopicTask();
+                reloadingPage = true;
+                topicTask.execute(loadedPageUrl);
             }
         }
     }

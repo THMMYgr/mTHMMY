@@ -11,12 +11,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.AppCompatImageButton;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -87,6 +94,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int isQuoteButtonChecked = 1;
     private TopicActivity.TopicTask topicTask;
     private TopicActivity.ReplyTask replyTask;
+    private TopicActivity.DeleteTask deleteTask;
     private final int VIEW_TYPE_POST = 0;
     private final int VIEW_TYPE_QUICK_REPLY = 1;
 
@@ -113,7 +121,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.topicTask = topicTask;
     }
 
-    ArrayList<Integer> getToQuoteList(){
+    ArrayList<Integer> getToQuoteList() {
         return toQuoteList;
     }
 
@@ -126,6 +134,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.sc = sc;
         this.topic = topic;
         this.buildedQuotes = buildedQuotes;
+    }
+
+    void prepareForDelete(TopicActivity.DeleteTask deleteTask) {
+        this.deleteTask = deleteTask;
     }
 
     @Override
@@ -409,13 +421,44 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.userExtraInfo.setOnClickListener(null);
             }
 
-            holder.sharePostButton.setOnClickListener(new View.OnClickListener() {
+            holder.overflowButton.setOnClickListener(new View.OnClickListener() {
+                @SuppressLint("RestrictedApi")
                 @Override
                 public void onClick(View view) {
-                    Intent sendIntent  = new Intent(android.content.Intent.ACTION_SEND);
-                    sendIntent.setType("text/plain");
-                    sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, currentPost.getPostURL());
-                    context.startActivity(Intent.createChooser(sendIntent, "Share via"));
+                    //Inflates menu
+                    PopupMenu popup = new PopupMenu(holder.overflowButton.getContext(), holder.overflowButton, Gravity.END);
+                    MenuInflater inflater = popup.getMenuInflater();
+                    inflater.inflate(R.menu.post_menu, popup.getMenu());
+
+                    Menu popupMenu = popup.getMenu();
+                    if(currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")){
+                        popupMenu.findItem(R.id.delete_post).setEnabled(false);
+                        popupMenu.findItem(R.id.delete_post).setVisible(false);
+                    }
+
+                    MenuPopupHelper optionsMenu = new MenuPopupHelper(holder.overflowButton.getContext()
+                            , new MenuBuilder(holder.overflowButton.getContext()), holder.overflowButton);
+                    optionsMenu.setForceShowIcon(true);
+
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.post_share_button:
+                                    Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
+                                    sendIntent.setType("text/plain");
+                                    sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, currentPost.getPostURL());
+                                    context.startActivity(Intent.createChooser(sendIntent, "Share via"));
+                                    return true;
+                                case R.id.delete_post:
+                                    deleteTask.execute(currentPost.getPostDeleteURL());
+                                    return true;
+                                default:
+                            }
+                            return false;
+                        }
+                    });
+                    popup.show();
                 }
             });
 
@@ -482,8 +525,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.submitButton.setEnabled(true);
                 }
             });
-            if(backPressHidden)
-            {
+            if (backPressHidden) {
                 holder.quickReply.requestFocus();
                 backPressHidden = false;
             }
@@ -514,7 +556,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView postDate, postNum, username, subject;
         final ImageView thumbnail;
         final public WebView post;
-        final ImageButton quoteToggle, sharePostButton;
+        final ImageButton quoteToggle, overflowButton;
         final RelativeLayout header;
         final LinearLayout userExtraInfo;
         final View bodyFooterDivider;
@@ -535,7 +577,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             post = view.findViewById(R.id.post);
             post.setBackgroundColor(Color.argb(1, 255, 255, 255));
             quoteToggle = view.findViewById(R.id.toggle_quote_button);
-            sharePostButton = view.findViewById(R.id.post_share_button);
+            overflowButton = view.findViewById(R.id.post_overflow_menu);
             bodyFooterDivider = view.findViewById(R.id.body_footer_divider);
             postFooter = view.findViewById(R.id.post_footer);
 

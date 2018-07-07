@@ -11,6 +11,8 @@ public class SettingsActivity extends BaseActivity {
     public static final String NOTIFICATION_VIBRATION_KEY = "pref_notification_vibration_enable_key";
     public static final String APP_SIGNATURE_ENABLE_KEY = "pref_posting_app_signature_enable_key";
 
+    private Fragment preferenceFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +31,7 @@ public class SettingsActivity extends BaseActivity {
         drawer.setSelection(SETTINGS_ID);
 
         if (savedInstanceState == null) {
-            Fragment preferenceFragment = new SettingsFragment();
+            preferenceFragment = SettingsFragment.newInstance(sessionManager.isLoggedIn());
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.pref_container, preferenceFragment);
             fragmentTransaction.commit();
@@ -40,5 +42,6 @@ public class SettingsActivity extends BaseActivity {
     protected void onResume() {
         drawer.setSelection(SETTINGS_ID);
         super.onResume();
+        ((SettingsFragment) preferenceFragment).updateUserLoginState(sessionManager.isLoggedIn());
     }
 }

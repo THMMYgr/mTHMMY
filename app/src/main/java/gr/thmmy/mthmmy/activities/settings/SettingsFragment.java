@@ -8,25 +8,57 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.util.Log;
+import android.view.View;
 
 import gr.thmmy.mthmmy.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
+    public static final String ARG_IS_LOGGED_IN = "selectedRingtoneKey";
+
+    //Preferences xml keys
+    private static final String POSTING_CATEGORY = "pref_category_posting_key";
+    private static final String SELECTED_NOTIFICATIONS_SOUND = "pref_notifications_select_sound_key";
+
+    //SharedPreferences keys
     private static final int REQUEST_CODE_ALERT_RINGTONE = 2;
     public static final String SETTINGS_SHARED_PREFS = "settingsSharedPrefs";
     public static final String SELECTED_RINGTONE = "selectedRingtoneKey";
-    private static final String SELECTED_NOTIFICATIONS_SOUND = "pref_notifications_select_sound_key";
     private static final String SILENT_SELECTED = "STFU";
 
     private SharedPreferences settingsFile;
 
+    private boolean isLoggedIn = false;
+
+    public static SettingsFragment newInstance(boolean isLoggedIn) {
+        SettingsFragment fragment = new SettingsFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_IS_LOGGED_IN, isLoggedIn);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
-    public void onCreatePreferences(Bundle bundle, String s) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        if (args != null){
+            isLoggedIn = args.getBoolean(ARG_IS_LOGGED_IN,false);
+        }
+    }
+
+    @Override
+    public void onCreatePreferences(Bundle bundle, String rootKey) {
         // Load the Preferences from the XML file
         addPreferencesFromResource(R.xml.app_preferences);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
     }
 
     @Override
@@ -72,11 +104,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             if (ringtone != null) {
                 editor.putString(SELECTED_RINGTONE, ringtone.toString()).apply();
             } else {
-                // "Silent" was selected
+                //"Silent" was selected
                 editor.putString(SELECTED_RINGTONE, SILENT_SELECTED).apply();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    public void updateUserLoginState(boolean isLoggedIn) {
+        this.isLoggedIn = isLoggedIn;
     }
 }

@@ -12,7 +12,6 @@
         <android.support.v7.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="pref_notification_vibration_enable_key"
-            android:summary="@string/pref_summary_notification_vibration_enable"
             android:title="@string/pref_title_notification_vibration_enable" />
 
         <Preference
@@ -22,7 +21,9 @@
 
     </android.support.v7.preference.PreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory android:title="@string/pref_category_posting">
+    <android.support.v7.preference.PreferenceCategory
+        android:key="pref_category_posting_key"
+        android:title="@string/pref_category_posting">
 
         <android.support.v7.preference.SwitchPreferenceCompat
             android:defaultValue="true"

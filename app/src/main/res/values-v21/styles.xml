@@ -17,6 +17,7 @@
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
 
         <item name="android:windowContentTransitions">true</item>
+        <item name="popupMenuStyle">@style/PopupMenuStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
