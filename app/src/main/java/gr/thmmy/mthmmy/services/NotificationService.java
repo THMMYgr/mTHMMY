@@ -64,7 +64,6 @@ public class NotificationService extends FirebaseMessagingService {
     private static final String NEW_POSTS_COUNT = "newPostsCount";
     public static final String NEW_POST_TAG = "NEW_POST";
     private static final String SUMMARY_TAG = "SUMMARY";
-    private static final String DELETED_MESSAGES_TAG = "DELETED_MESSAGES";
 
     /**
      * Create and show a new post notification.
@@ -99,7 +98,7 @@ public class NotificationService extends FirebaseMessagingService {
 
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, CHANNEL_ID)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle(postNotification.getTopicTitle())
                         .setContentText(contentText)
                         .setAutoCancel(true)
@@ -121,7 +120,7 @@ public class NotificationService extends FirebaseMessagingService {
         {
             summaryNotificationBuilder =
                     new NotificationCompat.Builder(this, CHANNEL_ID)
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.drawable.ic_notification)
                             .setGroupSummary(true)
                             .setGroup(GROUP_KEY)
                             .setAutoCancel(true)
@@ -177,24 +176,8 @@ public class NotificationService extends FirebaseMessagingService {
     @Override
     public void onDeletedMessages() {
         super.onDeletedMessages();
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, CHANNEL_ID)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("Error fetching notifications!")
-                        .setContentText("Some notifications may not have arrived successfully either due to" +
-                                "the amount of pending messages (>100) or if the device hasn't come online for more than a month.")
-                        .setAutoCancel(true)
-                        .setDefaults(Notification.DEFAULT_ALL);
-
-        if (buildVersion < Build.VERSION_CODES.O)
-            notificationBuilder.setPriority(Notification.PRIORITY_MAX);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // Since Android Oreo notification channel is needed.
-        if (buildVersion >= Build.VERSION_CODES.O)
-            notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
-
-        notificationManager.notify(DELETED_MESSAGES_TAG, 0, notificationBuilder.build());
+        Timber.w("onDeletedMessages");
     }
+
+
 }
