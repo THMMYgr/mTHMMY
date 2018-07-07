@@ -239,7 +239,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 lockedSticky += " " + context.getResources().getString(R.string.fa_lock);
             if (topic.isSticky()) {
                 //topicViewHolder.topicSubject.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_pin, 0);
-                lockedSticky += " " + context.getResources().getString(R.string.fa_sticky);
+                lockedSticky += " " + context.getResources().getString(R.string.fa_thumbtack);
             }
             topicViewHolder.topicSubject.setText(lockedSticky);
             topicViewHolder.topicStartedBy.setText(context.getString(R.string.topic_started_by, topic.getStarter()));
