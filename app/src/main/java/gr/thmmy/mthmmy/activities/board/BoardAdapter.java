@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -231,7 +232,9 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
             topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()
                     , "fonts/fontawesome-webfont.ttf"));
-            String lockedSticky = topic.getSubject();
+            String lockedSticky = topic.isUnread() ?
+                    Html.fromHtml("<font size=\"1\">" + context.getString(R.string.fa_circle) + "</font> ").toString() : "";
+            lockedSticky += topic.getSubject();
             if (topic.isLocked())
                 lockedSticky += " " + context.getResources().getString(R.string.fa_lock);
             if (topic.isSticky()) {

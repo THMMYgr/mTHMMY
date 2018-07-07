@@ -265,7 +265,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     for (Element topicRow : topicRows) {
                         if (!Objects.equals(topicRow.className(), "titlebg")) {
                             String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
-                            boolean pLocked = false, pSticky = false;
+                            boolean pLocked = false, pSticky = false, pUnread = false;
                             Elements topicColumns = topicRow.select(">td");
                             {
                                 Element column = topicColumns.get(2);
@@ -276,6 +276,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                     pSticky = true;
                                 if (column.select("img[id^=lockicon]").first() != null)
                                     pLocked = true;
+                                if (column.select("a[id^=newicon]").first() != null)
+                                    pUnread = true;
                             }
                             pStartedBy = topicColumns.get(3).text();
                             pStats = "Replies " + topicColumns.get(4).text() + ", Views " + topicColumns.get(5).text();
@@ -290,7 +292,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             }
                             pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
                             parsedTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
-                                    pStats, pLocked, pSticky));
+                                    pStats, pLocked, pSticky, pUnread));
                         }
                     }
                 }
