@@ -9,9 +9,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.util.Log;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import gr.thmmy.mthmmy.R;
 
@@ -20,6 +25,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     //Preferences xml keys
     private static final String POSTING_CATEGORY = "pref_category_posting_key";
+    private static final String DEFAULT_HOME_TAB = "pref_app_main_default_tab_key";
+    private static final String POSTING_APP_SIGNATURE_ENABLE = "pref_posting_app_signature_enable_key";
     private static final String SELECTED_NOTIFICATIONS_SOUND = "pref_notifications_select_sound_key";
 
     //SharedPreferences keys
@@ -31,6 +38,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private SharedPreferences settingsFile;
 
     private boolean isLoggedIn = false;
+    private ArrayList<String> defaultHomeTabEntries = new ArrayList<>();
+    private ArrayList<String> defaultHomeTabValues = new ArrayList<>();
 
     public static SettingsFragment newInstance(boolean isLoggedIn) {
         SettingsFragment fragment = new SettingsFragment();
@@ -40,12 +49,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return fragment;
     }
 
+    public SettingsFragment() {
+        defaultHomeTabEntries.add("Recent");
+        defaultHomeTabEntries.add("Forum");
+        defaultHomeTabEntries.add("Unread");
+
+        defaultHomeTabValues.add("0");
+        defaultHomeTabValues.add("1");
+        defaultHomeTabValues.add("2");
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        if (args != null){
-            isLoggedIn = args.getBoolean(ARG_IS_LOGGED_IN,false);
+
+        if (args != null) {
+            isLoggedIn = args.getBoolean(ARG_IS_LOGGED_IN, false);
         }
     }
 
@@ -59,6 +79,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
+        findPreference(POSTING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
+
+        if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
+            defaultHomeTabEntries.remove("Unread");
+            defaultHomeTabValues.remove("2");
+        } else if (isLoggedIn && !defaultHomeTabEntries.contains("Unread")) {
+            defaultHomeTabEntries.add("Unread");
+            defaultHomeTabValues.add("2");
+        }
+
+        CharSequence[] tmpCs = defaultHomeTabEntries.toArray(new CharSequence[defaultHomeTabEntries.size()]);
+        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntries(tmpCs);
+
+        tmpCs = defaultHomeTabValues.toArray(new CharSequence[defaultHomeTabValues.size()]);
+        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntryValues(tmpCs);
     }
 
     @Override
@@ -114,5 +149,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     public void updateUserLoginState(boolean isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
+
+        if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
+            defaultHomeTabEntries.remove("Unread");
+            defaultHomeTabValues.remove("2");
+        } else if (isLoggedIn && !defaultHomeTabEntries.contains("Unread")) {
+            defaultHomeTabEntries.add("Unread");
+            defaultHomeTabValues.add("2");
+        }
+
+        CharSequence[] tmpCs = defaultHomeTabEntries.toArray(new CharSequence[defaultHomeTabEntries.size()]);
+        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntries(tmpCs);
+
+        tmpCs = defaultHomeTabValues.toArray(new CharSequence[defaultHomeTabValues.size()]);
+        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntryValues(tmpCs);
     }
 }

@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <android.support.v7.preference.PreferenceCategory android:title="@string/pref_category_app">
+
+        <android.support.v7.preference.ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/pref_app_main_default_tab_dialog_title"
+            android:entries="@array/pref_app_main_default_tab_entries"
+            android:entryValues="@array/pref_app_main_default_tab_values"
+            android:key="pref_app_main_default_tab_key"
+            android:summary="@string/pref_summary_app_main_default_tab"
+            android:title="@string/pref_title_app_main_default_tab" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
     <android.support.v7.preference.PreferenceCategory android:title="@string/pref_category_notifications">
 
         <!--<android.support.v7.preference.SwitchPreferenceCompat
@@ -13,6 +26,12 @@
             android:defaultValue="true"
             android:key="pref_notification_vibration_enable_key"
             android:title="@string/pref_title_notification_vibration_enable" />
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="pref_notification_led_enable_key"
+            android:summary="@string/pref_summary_notification_led_enable"
+            android:title="@string/pref_title_notification_led_enable" />
 
         <Preference
             android:key="pref_notifications_select_sound_key"

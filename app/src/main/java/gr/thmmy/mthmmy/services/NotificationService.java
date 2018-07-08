@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import gr.thmmy.mthmmy.model.PostNotification;
 import timber.log.Timber;
 
 import static android.support.v4.app.NotificationCompat.PRIORITY_MAX;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.NOTIFICATION_LED_KEY;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.NOTIFICATION_VIBRATION_KEY;
 import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SELECTED_RINGTONE;
 import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SETTINGS_SHARED_PREFS;
@@ -36,6 +38,7 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 public class NotificationService extends FirebaseMessagingService {
     private static final int buildVersion = Build.VERSION.SDK_INT;
+    private static final int disabledNotifiationsLedColor = Color.argb(0, 0, 0, 0);
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -75,20 +78,36 @@ public class NotificationService extends FirebaseMessagingService {
     private void sendNotification(PostNotification postNotification) {
         Timber.i("Creating a notification...");
 
+        //Reads notifications preferences
         SharedPreferences settingsFile = getSharedPreferences(SETTINGS_SHARED_PREFS, Context.MODE_PRIVATE);
         String notificationsSound = settingsFile.getString(SELECTED_RINGTONE, null);
         Uri notificationSoundUri = notificationsSound != null ? Uri.parse(notificationsSound) : null;
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean notificationsVibrateEnabled = sharedPrefs.getBoolean(NOTIFICATION_VIBRATION_KEY, true);
 
-        int notificationDefaultValues = Notification.DEFAULT_LIGHTS;
+        boolean notificationsLedEnabled = sharedPrefs.getBoolean(NOTIFICATION_LED_KEY, true);
+        boolean notificationsVibrateEnabled = sharedPrefs.getBoolean(NOTIFICATION_VIBRATION_KEY, true);
+        int notificationDefaultValues = -1;
+
+        if (notificationsLedEnabled) {
+            notificationDefaultValues = Notification.DEFAULT_LIGHTS;
+        }
         if (notificationsVibrateEnabled) {
-            notificationDefaultValues |= Notification.DEFAULT_VIBRATE;
+            if (notificationDefaultValues != -1) {
+                notificationDefaultValues |= Notification.DEFAULT_VIBRATE;
+            } else {
+                notificationDefaultValues = Notification.DEFAULT_VIBRATE;
+            }
+
         }
         if (notificationSoundUri == null) {
-            notificationDefaultValues |= Notification.DEFAULT_SOUND;
+            if (notificationDefaultValues != -1) {
+                notificationDefaultValues = Notification.DEFAULT_SOUND;
+            } else {
+                notificationDefaultValues |= Notification.DEFAULT_SOUND;
+            }
         }
 
+        //Builds notification
         String topicUrl = "https://www.thmmy.gr/smf/index.php?topic=" + postNotification.getTopicId() + "." + postNotification.getPostId();
         Intent intent = new Intent(this, TopicActivity.class);
         Bundle extras = new Bundle();
@@ -121,15 +140,21 @@ public class NotificationService extends FirebaseMessagingService {
                         .setContentText(contentText)
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent)
-                        .setDefaults(notificationDefaultValues)
                         .setGroup(GROUP_KEY)
                         .addExtras(notificationExtras);
-        //Checks for values other than defaults and applies them
+
+        //Applies user's notifications preferences
+        if (notificationDefaultValues != -1) {
+            notificationBuilder.setDefaults(notificationDefaultValues);
+        }
         if (notificationSoundUri != null) {
             notificationBuilder.setSound(notificationSoundUri);
         }
         if (!notificationsVibrateEnabled) {
             notificationBuilder.setVibrate(new long[]{0L});
+        }
+        if (!notificationsLedEnabled) {
+            notificationBuilder.setLights(disabledNotifiationsLedColor, 0, 1000);
         }
 
         if (buildVersion < Build.VERSION_CODES.O)

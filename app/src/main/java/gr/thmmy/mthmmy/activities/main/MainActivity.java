@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.main;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -36,6 +37,7 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
@@ -74,13 +76,15 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         if (sessionManager.isLoggedIn())
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
 
-
         //Set up the ViewPager with the sections adapter.
         viewPager = findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        tabLayout.getTabAt(Integer.parseInt(sharedPrefs.getString(DEFAULT_HOME_TAB, "0"))).select();
 
         setMainActivity(this);
     }

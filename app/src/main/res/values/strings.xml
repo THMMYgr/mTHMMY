@@ -106,10 +106,17 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="pref_category_app">App</string>
+    <string name="pref_title_app_main_default_tab">Home default tab</string>
+    <string name="pref_summary_app_main_default_tab">Select your preferred, home screen, default tab</string>
+    <string name="pref_app_main_default_tab_dialog_title">Default home tab</string>
+
     <string name="pref_category_notifications">Notifications</string>
     <!--<string name="pref_title_notifications_enable">New posts notification</string>
     <string name="pref_summary_notifications_enable">Toggle notifications state</string>-->
     <string name="pref_title_notification_vibration_enable">Vibration</string>
+    <string name="pref_title_notification_led_enable">Notifications led</string>
+    <string name="pref_summary_notification_led_enable">Enables/disables notifications led, if your device has one</string>
     <string name="pref_title_notifications_sound">Notifications sound</string>
     <string name="pref_summary_notifications_sound">Select your preferred notification sound</string>
 
