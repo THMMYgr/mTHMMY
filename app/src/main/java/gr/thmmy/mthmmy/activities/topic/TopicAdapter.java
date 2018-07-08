@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities.topic;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -11,19 +12,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -34,6 +29,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -422,43 +418,60 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             holder.overflowButton.setOnClickListener(new View.OnClickListener() {
-                @SuppressLint("RestrictedApi")
                 @Override
                 public void onClick(View view) {
-                    //Inflates menu
-                    PopupMenu popup = new PopupMenu(holder.overflowButton.getContext(), holder.overflowButton, Gravity.END);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    inflater.inflate(R.menu.post_menu, popup.getMenu());
-
-                    Menu popupMenu = popup.getMenu();
-                    if(currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")){
-                        popupMenu.findItem(R.id.delete_post).setEnabled(false);
-                        popupMenu.findItem(R.id.delete_post).setVisible(false);
+                    //Inflates the popup menu content
+                    LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    if (layoutInflater == null) {
+                        return;
                     }
+                    View popUpContent = layoutInflater.inflate(R.layout.activity_topic_overflow_menu, null);
 
-                    MenuPopupHelper optionsMenu = new MenuPopupHelper(holder.overflowButton.getContext()
-                            , new MenuBuilder(holder.overflowButton.getContext()), holder.overflowButton);
-                    optionsMenu.setForceShowIcon(true);
+                    //Creates the PopupWindow
+                    final PopupWindow popUp = new PopupWindow(holder.overflowButton.getContext());
+                    popUp.setContentView(popUpContent);
+                    popUp.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
+                    popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
+                    popUp.setFocusable(true);
 
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    popUpContent.findViewById(R.id.post_share_button).setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            switch (item.getItemId()) {
-                                case R.id.post_share_button:
-                                    Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
-                                    sendIntent.setType("text/plain");
-                                    sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, currentPost.getPostURL());
-                                    context.startActivity(Intent.createChooser(sendIntent, "Share via"));
-                                    return true;
-                                case R.id.delete_post:
-                                    deleteTask.execute(currentPost.getPostDeleteURL());
-                                    return true;
-                                default:
-                            }
-                            return false;
+                        public void onClick(View v) {
+                            Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
+                            sendIntent.setType("text/plain");
+                            sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, currentPost.getPostURL());
+                            context.startActivity(Intent.createChooser(sendIntent, "Share via"));
+                            popUp.dismiss();
                         }
                     });
-                    popup.show();
+
+                    TextView deletePostButton = popUpContent.findViewById(R.id.delete_post);
+
+                    if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")) {
+                        deletePostButton.setVisibility(View.GONE);
+                    } else {
+                        popUpContent.findViewById(R.id.delete_post).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                new AlertDialog.Builder(holder.overflowButton.getContext())
+                                        .setTitle("Delete post")
+                                        .setMessage("Do you really want to delete this post?")
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                deleteTask.execute(currentPost.getPostDeleteURL());
+                                            }
+                                        })
+                                        .setNegativeButton(android.R.string.no, null).show();
+                                popUp.dismiss();
+                            }
+                        });
+                    }
+
+                    //Displays the popup
+                    popUp.showAsDropDown(holder.overflowButton);
                 }
             });
 
