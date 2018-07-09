@@ -19,6 +19,9 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
+import net.gotev.uploadservice.UploadService;
+import net.gotev.uploadservice.okhttp.OkHttpStack;
+
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +96,10 @@ public class BaseApplication extends Application {
                 .build();
 
         Picasso.setSingletonInstance(picasso);  //All following Picasso (with Picasso.with(Context context) requests will use this Picasso object
+
+        //Sets up upload service
+        UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
+        UploadService.HTTP_STACK = new OkHttpStack(client);
 
         //Initialize and create the image loader logic
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {

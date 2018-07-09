@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.UploadActivity;
 import gr.thmmy.mthmmy.activities.bookmarks.BookmarkActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
@@ -145,14 +146,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     //------------------------------------------DRAWER STUFF----------------------------------------
     protected static final int HOME_ID = 0;
     protected static final int DOWNLOADS_ID = 1;
-    protected static final int BOOKMARKS_ID = 2;
-    protected static final int LOG_ID = 3;
-    protected static final int ABOUT_ID = 4;
-    protected static final int SETTINGS_ID = 5;
+    protected static final int UPLOAD_ID = 2;
+    protected static final int BOOKMARKS_ID = 3;
+    protected static final int LOG_ID = 4;
+    protected static final int ABOUT_ID = 5;
+    protected static final int SETTINGS_ID = 6;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
-    private PrimaryDrawerItem downloadsItem, loginLogoutItem;
+    private PrimaryDrawerItem downloadsItem, uploadItem, loginLogoutItem;
     private IconicsDrawable loginIcon, logoutIcon;
 
     /**
@@ -164,7 +166,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
         PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem;
-        IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, settingsIcon,
+        IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, uploadIcon, uploadIconSelected, settingsIcon,
                 settingsIconSelected, bookmarksIcon, bookmarksIconSelected, aboutIcon, aboutIconSelected;
 
         //Drawer Icons
@@ -189,7 +191,15 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .color(primaryColor);
 
         downloadsIconSelected = new IconicsDrawable(this)
-                .icon(GoogleMaterial.Icon.gmd_settings)
+                .icon(GoogleMaterial.Icon.gmd_file_download)
+                .color(selectedSecondaryColor);
+
+        uploadIcon = new IconicsDrawable(this)
+                .icon(GoogleMaterial.Icon.gmd_file_upload)
+                .color(primaryColor);
+
+        uploadIconSelected = new IconicsDrawable(this)
+                .icon(GoogleMaterial.Icon.gmd_file_upload)
                 .color(selectedSecondaryColor);
 
         settingsIcon = new IconicsDrawable(this)
@@ -244,6 +254,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                     .withName(R.string.downloads)
                     .withIcon(downloadsIcon)
                     .withSelectedIcon(downloadsIconSelected);
+            uploadItem = new PrimaryDrawerItem()
+                    .withTextColor(primaryColor)
+                    .withSelectedColor(selectedPrimaryColor)
+                    .withSelectedTextColor(selectedSecondaryColor)
+                    .withIdentifier(UPLOAD_ID)
+                    .withName(R.string.upload)
+                    .withIcon(uploadIcon)
+                    .withSelectedIcon(uploadIconSelected);
         } else
             loginLogoutItem = new PrimaryDrawerItem()
                     .withTextColor(primaryColor)
@@ -324,22 +342,27 @@ public abstract class BaseActivity extends AppCompatActivity {
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem.equals(HOME_ID)) {
                             if (!(BaseActivity.this instanceof MainActivity)) {
-                                Intent i = new Intent(BaseActivity.this, MainActivity.class);
-                                startActivity(i);
+                                Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+                                startActivity(intent);
                             }
                         } else if (drawerItem.equals(DOWNLOADS_ID)) {
                             if (!(BaseActivity.this instanceof DownloadsActivity)) {
-                                Intent i = new Intent(BaseActivity.this, DownloadsActivity.class);
+                                Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
                                 Bundle extras = new Bundle();
                                 extras.putString(BUNDLE_DOWNLOADS_URL, "");
                                 extras.putString(BUNDLE_DOWNLOADS_TITLE, null);
-                                i.putExtras(extras);
-                                startActivity(i);
+                                intent.putExtras(extras);
+                                startActivity(intent);
+                            }
+                        } else if (drawerItem.equals(UPLOAD_ID)) {
+                            if (!(BaseActivity.this instanceof UploadActivity)) {
+                                Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
+                                startActivity(intent);
                             }
                         } else if (drawerItem.equals(BOOKMARKS_ID)) {
                             if (!(BaseActivity.this instanceof BookmarkActivity)) {
-                                Intent i = new Intent(BaseActivity.this, BookmarkActivity.class);
-                                startActivity(i);
+                                Intent intent = new Intent(BaseActivity.this, BookmarkActivity.class);
+                                startActivity(intent);
                             }
                         } else if (drawerItem.equals(LOG_ID)) {
                             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
@@ -352,8 +375,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                                 new LogoutTask().execute();
                         } else if (drawerItem.equals(ABOUT_ID)) {
                             if (!(BaseActivity.this instanceof AboutActivity)) {
-                                Intent i = new Intent(BaseActivity.this, AboutActivity.class);
-                                startActivity(i);
+                                Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
+                                startActivity(intent);
                             }
                         } else if (drawerItem.equals(SETTINGS_ID)) {
                             if (!(BaseActivity.this instanceof SettingsActivity)) {
@@ -368,7 +391,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, uploadItem, settingsItem, loginLogoutItem, aboutItem);
         else
             drawerBuilder.addDrawerItems(homeItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
 
@@ -391,12 +414,16 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 drawer.removeItem(DOWNLOADS_ID);
+                drawer.removeItem(UPLOAD_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername());
                 setDefaultAvatar();
             } else {
-                if (!drawer.getDrawerItems().contains(downloadsItem)){
+                if (!drawer.getDrawerItems().contains(downloadsItem)) {
                     drawer.addItemAtPosition(downloadsItem, 2);
+                }
+                if (!drawer.getDrawerItems().contains(uploadItem)) {
+                    drawer.addItemAtPosition(uploadItem, 3);
                 }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());

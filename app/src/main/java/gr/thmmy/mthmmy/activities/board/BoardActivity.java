@@ -103,7 +103,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                 @Override
                 public void onClick(View view) {
                     if (sessionManager.isLoggedIn()) {
-                        //TODO PM
+                        //TODO create topic
                     } else {
                         new AlertDialog.Builder(BoardActivity.this)
                                 .setMessage("You need to be logged in to create a new topic!")

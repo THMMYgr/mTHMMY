@@ -6,6 +6,7 @@
     <string name="login_spinner">Authenticating&#8230;</string>
     <string name="logout">Logout</string>
     <string name="downloads">Downloads</string>
+    <string name="upload">Upload</string>
     <string name="settings">Settings</string>
     <string name="about">About</string>
     <string name="home">Home</string>
@@ -101,6 +102,18 @@
     <string name="cancel">Cancel</string>
     <string name="open">Open</string>
     <string name="download">Download</string>
+
+    <!--Downloads Activity-->
+    <string name="upload_button">Upload</string>
+
+    <!--Upload Activity-->
+    <string name="upload_category_pre_text">Select the correct category for the file</string>
+    <string name="upload_title_description_pre_text">Fill in the title and description\nor</string>
+    <string name="upload_title_description_builder">build them automatically</string>
+    <string name="upload_title_hint">Title</string>
+    <string name="upload_description_hint">Description</string>
+    <string name="upload_select_file">Select file to upload</string>
+    <string name="upload_upload_button">Upload</string>
 
     <!--Settings Activity-->
     <string name="action_settings">Settings</string>
