@@ -114,6 +114,7 @@
     <string name="upload_description_hint">Description</string>
     <string name="upload_select_file">Select file to upload</string>
     <string name="upload_upload_button">Upload</string>
+    <string name="upload_spinners_prompt">Select one</string>
 
     <!--Settings Activity-->
     <string name="action_settings">Settings</string>

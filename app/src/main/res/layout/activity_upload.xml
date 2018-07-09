@@ -58,13 +58,14 @@
                 android:background="@color/background"
                 android:orientation="vertical">
 
-                <android.support.v7.widget.AppCompatSpinner
+                <gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault
                     android:id="@+id/upload_spinner_category_root"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="6dp"
                     android:layout_marginTop="6dp"
-                    android:popupBackground="@color/primary" />
+                    android:popupBackground="@color/primary"
+                    android:prompt="@string/upload_spinners_prompt" />
             </LinearLayout>
 
             <TextView

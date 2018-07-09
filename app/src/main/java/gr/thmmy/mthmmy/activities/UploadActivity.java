@@ -21,12 +21,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.UploadCategory;
+import gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -43,14 +45,14 @@ public class UploadActivity extends BaseActivity {
     private static ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     //private String currentUploadCategory = "";
     private ParseUploadPageTask parseUploadPageTask;
-    private String categorySelected = "0";
+    private String categorySelected = "-1";
     private String uploaderProfileIndex = "1";
     private Uri fileUri;
 
     //UI elements
     private MaterialProgressBar progressBar;
     private LinearLayout categoriesSpinners;
-    private AppCompatSpinner rootCategorySpinner;
+    private AppCompatSpinnerWithoutDefault rootCategorySpinner;
     private EditText uploadTitle;
     private EditText uploadDescription;
     //private static AppCompatButton titleDescriptionBuilderButton;
@@ -118,20 +120,38 @@ public class UploadActivity extends BaseActivity {
         findViewById(R.id.upload_upload_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (fileUri != null) {
-                    try {
-                        String uploadId = new MultipartUploadRequest(v.getContext(), uploadIndexUrl)
-                                .addParameter("tp-dluploadtitle", uploadTitle.getText().toString())
-                                .addParameter("tp-dluploadcat", categorySelected)
-                                .addParameter("tp-dluploadtext", uploadDescription.getText().toString())
-                                .addFileToUpload(fileUri.toString(), "tp-dluploadfile")
-                                .addParameter("tp_dluploadicon", "blank.gif")
-                                .addParameter("tp-uploaduser", uploaderProfileIndex)
-                                .setNotificationConfig(new UploadNotificationConfig())
-                                .setMaxRetries(2).startUpload();
-                    } catch (Exception exception) {
-                        Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
-                    }
+                String uploadTitleText = uploadTitle.getText().toString();
+                String uploadDescriptionText = uploadDescription.getText().toString();
+
+                if (uploadTitleText.equals("")) {
+                    uploadTitle.setError("Required");
+                }
+                if (uploadDescriptionText.equals("")) {
+                    uploadDescription.setError("Required");
+                }
+                /*if (categorySelected.equals("-1")){
+                    //TODO set error
+                    //rootCategorySpinner
+                }*/
+
+                if (categorySelected.equals("-1") || uploadTitleText.equals("") ||
+                        fileUri == null || uploadDescriptionText.equals("")) {
+                    return;
+                }
+
+                try {
+                    String uploadId = new MultipartUploadRequest(v.getContext(), uploadIndexUrl)
+                            .setUtf8Charset()
+                            .addParameter("tp-dluploadtitle", uploadTitleText)
+                            .addParameter("tp-dluploadcat", categorySelected)
+                            .addParameter("tp-dluploadtext", uploadDescriptionText)
+                            .addFileToUpload(fileUri.toString(), "tp-dluploadfile")
+                            .addParameter("tp_dluploadicon", "blank.gif") //TODO auto-select this
+                            .addParameter("tp-uploaduser", uploaderProfileIndex)
+                            .setNotificationConfig(new UploadNotificationConfig())
+                            .setMaxRetries(2).startUpload();
+                } catch (Exception exception) {
+                    Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
                 }
             }
         });
@@ -189,7 +209,6 @@ public class UploadActivity extends BaseActivity {
 
     private class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
         private ArrayList<UploadCategory> parentCategories, childCategories;
-        private boolean initialized = false;
 
         private CustomOnItemSelectedListener() {
             //Disable default constructor
@@ -201,14 +220,8 @@ public class UploadActivity extends BaseActivity {
 
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            //Avoids call on initialization
-            if (!initialized) {
-                initialized = true;
-                return;
-            }
-
             //Removes old, unneeded sub categories spinner(s)
-            int viewIndex = categoriesSpinners.indexOfChild((AppCompatSpinner) view.getParent());
+            int viewIndex = categoriesSpinners.indexOfChild((AppCompatSpinnerWithoutDefault) view.getParent());
 
             if (viewIndex + 1 != categoriesSpinners.getChildCount()) { //Makes sure this is not the last child
                 categoriesSpinners.removeViews(viewIndex + 1, categoriesSpinners.getChildCount() - viewIndex - 1);
@@ -229,7 +242,8 @@ public class UploadActivity extends BaseActivity {
                         android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
                 spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-                AppCompatSpinner subSpinner = new AppCompatSpinner(categoriesSpinners.getContext(), Spinner.MODE_DROPDOWN);
+                AppCompatSpinnerWithoutDefault subSpinner = new AppCompatSpinnerWithoutDefault(categoriesSpinners.getContext());
+                subSpinner.setPromptId(R.string.upload_spinners_prompt);
                 subSpinner.setPopupBackgroundResource(R.color.primary);
                 subSpinner.setAdapter(spinnerArrayAdapter);
                 subSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener(childCategories));
