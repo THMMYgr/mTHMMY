@@ -32,12 +32,10 @@ public class SettingsActivity extends BaseActivity {
         createDrawer();
         drawer.setSelection(SETTINGS_ID);
 
-        if (savedInstanceState == null) {
-            preferenceFragment = SettingsFragment.newInstance(sessionManager.isLoggedIn());
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.pref_container, preferenceFragment);
-            fragmentTransaction.commit();
-        }
+        preferenceFragment = SettingsFragment.newInstance(sessionManager.isLoggedIn());
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.add(R.id.pref_container, preferenceFragment);
+        fragmentTransaction.commit();
     }
 
     @Override

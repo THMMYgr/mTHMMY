@@ -845,6 +845,7 @@ public class TopicActivity extends BaseActivity {
 
         @Override
         protected void onPreExecute() {
+            changePage(numberOfPages - 1);
             progressBar.setVisibility(ProgressBar.VISIBLE);
             paginationEnabled(false);
             replyFAB.setEnabled(false);
