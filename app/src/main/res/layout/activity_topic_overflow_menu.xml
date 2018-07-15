@@ -34,4 +34,19 @@
         android:text="@string/post_delete_button"
         android:textColor="@color/primary_text" />
 
+    <TextView
+        android:id="@+id/edit_post"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:drawablePadding="5dp"
+        android:drawableStart="@drawable/ic_edit_black_24dp"
+        android:gravity="center_vertical"
+        android:paddingBottom="6dp"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:text="@string/post_edit_button"
+        android:textColor="@color/primary_text"/>
+
 </LinearLayout>

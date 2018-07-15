@@ -42,6 +42,7 @@
     <string name="post_overflow_menu_button">Overflow menu button</string>
     <string name="post_share_button">Share</string>
     <string name="post_delete_button">Delete</string>
+    <string name="post_edit_button">Edit</string>
     <string name="user_number_of_posts">#%1$d</string>
     <string name="button_first">first</string>
     <string name="button_previous">previous</string>
