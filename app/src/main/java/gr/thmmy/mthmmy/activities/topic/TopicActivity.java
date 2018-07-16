@@ -222,7 +222,7 @@ public class TopicActivity extends BaseActivity {
 
         if (sessionManager.isLoggedIn()) {
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-            includeAppSignaturePreference = sharedPrefs.getBoolean(SettingsActivity.APP_SIGNATURE_ENABLE_KEY, true);
+            includeAppSignaturePreference = sharedPrefs.getBoolean(SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY, true);
         }
 
         thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl), true);
@@ -316,7 +316,7 @@ public class TopicActivity extends BaseActivity {
                 topicMenuBookmarkClick();
                 return true;
             case R.id.menu_info:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyleAccent);
                 LayoutInflater inflater = this.getLayoutInflater();
                 LinearLayout infoDialog = (LinearLayout) inflater.inflate(R.layout.dialog_topic_info
                         , null);
@@ -368,7 +368,7 @@ public class TopicActivity extends BaseActivity {
 
         if (sessionManager.isLoggedIn()) {
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-            includeAppSignaturePreference = sharedPrefs.getBoolean(SettingsActivity.APP_SIGNATURE_ENABLE_KEY, true);
+            includeAppSignaturePreference = sharedPrefs.getBoolean(SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY, true);
         }
     }
 
@@ -559,7 +559,6 @@ public class TopicActivity extends BaseActivity {
 
             topicTask = new TopicTask();
             topicTask.execute(pagesUrls.get(pageRequested)); //Attempt data parsing
-
         }
     }
 

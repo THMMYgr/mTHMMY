@@ -65,7 +65,7 @@
                     android:layout_marginBottom="6dp"
                     android:layout_marginTop="6dp"
                     android:popupBackground="@color/primary"
-                    android:prompt="@string/upload_spinners_prompt" />
+                    android:prompt="@string/upload_spinners_hint" />
             </LinearLayout>
 
             <TextView
@@ -117,33 +117,26 @@
                     android:maxLines="3" />
             </android.support.design.widget.TextInputLayout>
 
-            <TextView
+            <android.support.v7.widget.AppCompatButton
                 android:id="@+id/upload_select_file_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="6dp"
-                android:layout_marginTop="6dp"
                 android:drawablePadding="5dp"
                 android:drawableStart="@drawable/ic_insert_drive_file"
                 android:gravity="center_vertical"
                 android:text="@string/upload_select_file"
-                android:textAlignment="center"
                 android:textColor="@color/primary_text" />
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_gravity="bottom|end"
-                android:layout_weight="4">
-
-                <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/upload_upload_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:text="@string/upload_upload_button" />
-            </FrameLayout>
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/upload_upload_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center_vertical"
+                android:text="@string/upload_upload_button"
+                android:textAlignment="center"
+                android:textColor="@color/accent" />
 
         </LinearLayout>
     </ScrollView>

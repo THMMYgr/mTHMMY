@@ -16,6 +16,7 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -63,7 +64,9 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -469,6 +472,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Integer result) {
+            if (result == SUCCESS) {
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                if (sharedPrefs.getString(DEFAULT_HOME_TAB, "0").equals("2")) {
+                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                    editor.putString(DEFAULT_HOME_TAB, "0").apply();
+                }
+            }
+
             updateDrawer();
             if (mainActivity != null)
                 mainActivity.updateTabs();
@@ -645,7 +656,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         return true;
     }
 
-    //Display popup gor user to grant permission
+    //Display popup for user to grant permission
     private void requestPerms() { //Runtime permissions request for devices with API >= 23
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {

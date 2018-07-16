@@ -84,7 +84,11 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         tabLayout.setupWithViewPager(viewPager);
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        tabLayout.getTabAt(Integer.parseInt(sharedPrefs.getString(DEFAULT_HOME_TAB, "0"))).select();
+        int preferredTab = Integer.parseInt(sharedPrefs.getString(DEFAULT_HOME_TAB, "0"));
+        if (preferredTab != 3 || sessionManager.isLoggedIn()) {
+            tabLayout.getTabAt(preferredTab).select();
+        }
+
 
         setMainActivity(this);
     }

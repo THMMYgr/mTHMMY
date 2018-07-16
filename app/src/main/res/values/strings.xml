@@ -114,14 +114,22 @@
     <string name="upload_description_hint">Description</string>
     <string name="upload_select_file">Select file to upload</string>
     <string name="upload_upload_button">Upload</string>
-    <string name="upload_spinners_prompt">Select one</string>
+    <string name="upload_spinners_hint">Select a category</string>
+
+    <!--Upload Dialog-->
+    <string name="dialog_upload_radio_buttons_title">Select type of upload</string>
+    <string name="dialog_upload_radio_button_exams">Exam subjects</string>
+    <string name="dialog_upload_radio_button_exam_solutions">Exam solutions</string>
+    <string name="dialog_upload_radio_button_notes">Course notes</string>
+    <string name="dialog_upload_select_lesson_title">Select the course</string>
+    <string name="dialog_upload_select_semester">Select the semester</string>
 
     <!--Settings Activity-->
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
     <string name="pref_category_app">App</string>
-    <string name="pref_title_app_main_default_tab">Home default tab</string>
+    <string name="pref_title_app_main_default_tab">Default home tab</string>
     <string name="pref_summary_app_main_default_tab">Select your preferred, home screen, default tab</string>
     <string name="pref_app_main_default_tab_dialog_title">Default home tab</string>
 
@@ -137,4 +145,8 @@
     <string name="pref_category_posting">Posting</string>
     <string name="pref_title_posting_app_signature_enable">App signature</string>
     <string name="pref_summary_posting_app_signature_enable">If enabled, a \"sent from mTHMMY\" message will be inserted at the end of your posts</string>
+
+    <string name="pref_category_uploading">Uploading</string>
+    <string name="pref_title_uploading_app_signature_enable">App signature</string>
+    <string name="pref_summary_uploading_app_signature_enable">If enabled, an \"uploaded from mTHMMY\" message will be inserted at the end of your uploads descriptions</string>
 </resources>

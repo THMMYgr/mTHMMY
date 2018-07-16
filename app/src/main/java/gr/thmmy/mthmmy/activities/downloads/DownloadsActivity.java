@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,6 +49,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     public static final String BUNDLE_DOWNLOADS_TITLE = "DOWNLOADS_TITLE";
     private static final String downloadsIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl;";
     private String downloadsUrl;
+    private String downloadsNav;
     private String downloadsTitle;
     private final ArrayList<Download> parsedDownloads = new ArrayList<>();
 
@@ -143,8 +145,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             case R.id.menu_upload:
                 Intent intent = new Intent(DownloadsActivity.this, UploadActivity.class);
                 Bundle extras = new Bundle();
-                /*extras.putString(BUNDLE_UPLOAD_CATEGORY, "");
-                intent.putExtras(extras);*/
+                extras.putString(BUNDLE_UPLOAD_CATEGORY, downloadsNav);
+                intent.putExtras(extras);
                 startActivity(intent);
                 return true;
             default:
@@ -211,8 +213,11 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         @Override
         protected void parse(Document downloadPage) throws ParseException {
             try {
+                Element downloadsNavElement = downloadPage.select("div.nav").first();
+                downloadsNav = downloadsNavElement.text();
+
                 if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
-                    downloadsTitle = downloadPage.select("div.nav>b>a.nav").last().text();
+                    downloadsTitle = downloadsNavElement.select("b>a.nav").last().text();
 
                 //Removes loading item
                 if (isLoadingMore) {

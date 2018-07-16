@@ -22,10 +22,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String ARG_IS_LOGGED_IN = "selectedRingtoneKey";
 
     //Preferences xml keys
-    private static final String POSTING_CATEGORY = "pref_category_posting_key";
     private static final String DEFAULT_HOME_TAB = "pref_app_main_default_tab_key";
-    private static final String POSTING_APP_SIGNATURE_ENABLE = "pref_posting_app_signature_enable_key";
     private static final String SELECTED_NOTIFICATIONS_SOUND = "pref_notifications_select_sound_key";
+    private static final String POSTING_CATEGORY = "pref_category_posting_key";
+    private static final String POSTING_APP_SIGNATURE_ENABLE = "pref_posting_app_signature_enable_key";
+    private static final String UPLOADING_CATEGORY = "pref_category_uploading_key";
+    private static final String UPLOADING_APP_SIGNATURE_ENABLE = "pref_uploading_app_signature_enable_key";
 
     //SharedPreferences keys
     private static final int REQUEST_CODE_ALERT_RINGTONE = 2;
@@ -78,6 +80,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onViewCreated(view, savedInstanceState);
         findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
         findPreference(POSTING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
+
+        findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
+        findPreference(UPLOADING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
 
         if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
             defaultHomeTabEntries.remove("Unread");
@@ -147,6 +152,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     public void updateUserLoginState(boolean isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
+
+        findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
+        findPreference(POSTING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
+
+        findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
+        findPreference(UPLOADING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
 
         if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
             defaultHomeTabEntries.remove("Unread");
