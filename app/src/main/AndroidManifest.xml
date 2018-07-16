@@ -98,7 +98,15 @@
                 android:value=".activities.main.MainActivity" />
         </activity>
         <activity
-            android:name=".activities.UploadActivity"
+            android:name=".activities.upload.UploadActivity"
+            android:parentActivityName=".activities.main.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.main.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.upload.UploadFieldsBuilderActivity"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

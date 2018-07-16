@@ -1,5 +1,6 @@
-package gr.thmmy.mthmmy.activities;
+package gr.thmmy.mthmmy.activities.upload;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -42,6 +44,10 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.UPLOADING_APP_SIGNATURE_ENABLE_KEY;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_DESCRIPTION;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_TITLE;
 
 public class UploadActivity extends BaseActivity {
     /**
@@ -52,6 +58,7 @@ public class UploadActivity extends BaseActivity {
     private static final String uploadedFrommThmmyPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
     private static final int REQUEST_CODE_CHOOSE_FILE = 8;
     private static final int REQUEST_CODE_CAMERA = 4;
+    private static final int REQUEST_CODE_FIELDS_BUILDER = 74;
 
     private static ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     private ParseUploadPageTask parseUploadPageTask;
@@ -120,7 +127,35 @@ public class UploadActivity extends BaseActivity {
                     Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                //TODO else
+
+                int numberOfSpinners = categoriesSpinners.getChildCount();
+
+                if (numberOfSpinners < 3) {
+                    Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem(),
+                        maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
+                                categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
+
+                if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) {
+                    Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                //Fixes course and semester
+                maybeCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
+                maybeSemester = maybeSemester.replaceAll("-", "").trim().
+                        substring(0, 1);
+
+                Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE, maybeCourse);
+                extras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER, maybeSemester);
+                intent.putExtras(extras);
+                startActivityForResult(intent, REQUEST_CODE_FIELDS_BUILDER);
             }
         });
         titleDescriptionBuilderButton.setEnabled(false);
@@ -291,7 +326,17 @@ public class UploadActivity extends BaseActivity {
                 }
             }
         } else if (requestCode == REQUEST_CODE_CAMERA && data != null) {
+            if (resultCode == Activity.RESULT_CANCELED) {
+                return;
+            }
             //TODO
+        } else if (requestCode == REQUEST_CODE_FIELDS_BUILDER) {
+            if (resultCode == Activity.RESULT_CANCELED) {
+                return;
+            }
+            //TODO rename file
+            uploadTitle.setText(data.getStringExtra(RESULT_TITLE));
+            uploadDescription.setText(data.getStringExtra(RESULT_DESCRIPTION));
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }

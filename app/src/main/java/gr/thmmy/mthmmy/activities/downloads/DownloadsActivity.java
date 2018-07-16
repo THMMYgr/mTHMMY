@@ -8,7 +8,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.UploadActivity;
+import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Download;
@@ -36,7 +35,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.activities.UploadActivity.BUNDLE_UPLOAD_CATEGORY;
+import static gr.thmmy.mthmmy.activities.upload.UploadActivity.BUNDLE_UPLOAD_CATEGORY;
 
 public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.OnLoadMoreListener {
     /**

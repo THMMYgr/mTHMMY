@@ -116,13 +116,18 @@
     <string name="upload_upload_button">Upload</string>
     <string name="upload_spinners_hint">Select a category</string>
 
-    <!--Upload Dialog-->
-    <string name="dialog_upload_radio_buttons_title">Select type of upload</string>
-    <string name="dialog_upload_radio_button_exams">Exam subjects</string>
-    <string name="dialog_upload_radio_button_exam_solutions">Exam solutions</string>
-    <string name="dialog_upload_radio_button_notes">Course notes</string>
-    <string name="dialog_upload_select_lesson_title">Select the course</string>
-    <string name="dialog_upload_select_semester">Select the semester</string>
+    <!--Upload Fields Builder Activity-->
+    <string name="upload_fields_builder_type_radio_buttons_title">Select type of upload</string>
+    <string name="upload_fields_builder_radio_button_exams">Exam subjects</string>
+    <string name="upload_fields_builder_radio_button_exam_solutions">Exam solutions</string>
+    <string name="upload_fields_builder_radio_button_notes">Course notes</string>
+    <string name="upload_fields_builder_select_semester_title">Select period</string>
+    <string name="upload_fields_builder_radio_button_feb">February</string>
+    <string name="upload_fields_builder_radio_button_exam_jun">June</string>
+    <string name="upload_fields_builder_radio_button_sept">September</string>
+    <string name="upload_fields_builder_select_year_title">Select year</string>
+    <string name="upload_fields_builder_year_hint">Year</string>
+    <string name="upload_fields_builder_submit">Build</string>
 
     <!--Settings Activity-->
     <string name="action_settings">Settings</string>
