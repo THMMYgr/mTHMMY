@@ -38,6 +38,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
@@ -91,8 +92,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private TopicActivity.TopicTask topicTask;
     private TopicActivity.ReplyTask replyTask;
     private TopicActivity.DeleteTask deleteTask;
-    private final int VIEW_TYPE_POST = 0;
-    private final int VIEW_TYPE_QUICK_REPLY = 1;
+    private TopicActivity.PrepareForEdit prepareForEditTask;
 
     private final String[] replyDataHolder = new String[2];
     private final int replySubject = 0, replyText = 1;
@@ -104,7 +104,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param postsList List of {@link Post} objects to use
      */
     TopicAdapter(Context context, List<Post> postsList, String baseUrl,
-                 TopicActivity.TopicTask topicTask) {
+                 TopicActivity.TopicTask topicTask, TopicActivity.PrepareForEdit prepareForEditTask) {
         this.context = context;
         this.postsList = postsList;
         this.baseUrl = baseUrl;
@@ -115,6 +115,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewProperties.add(new boolean[3]);
         }
         this.topicTask = topicTask;
+        this.prepareForEditTask = prepareForEditTask;
     }
 
     ArrayList<Integer> getToQuoteList() {
@@ -138,16 +139,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return postsList.get(position) == null ? VIEW_TYPE_QUICK_REPLY : VIEW_TYPE_POST;
+        return postsList.get(position).getPostType();
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_POST) {
+        if (viewType == Post.TYPE_POST) {
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.activity_topic_post_row, parent, false);
             return new PostViewHolder(itemView);
-        } else if (viewType == VIEW_TYPE_QUICK_REPLY) {
+        } else if (viewType == Post.TYPE_QUICK_REPLY) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_quick_reply_row, parent, false);
             view.findViewById(R.id.quick_reply_submit).setEnabled(true);
@@ -173,6 +174,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             //Build quotes
             if (!Objects.equals(buildedQuotes, ""))
                 replyDataHolder[replyText] = buildedQuotes;
+            return new QuickReplyViewHolder(view, new CustomEditTextListener(replySubject),
+                    new CustomEditTextListener(replyText));
+        } else if (viewType == Post.TYPE_EDIT) {
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.activity_topic_quick_reply_row, parent, false);
+            view.findViewById(R.id.quick_reply_submit).setEnabled(true);
+
             return new QuickReplyViewHolder(view, new CustomEditTextListener(replySubject),
                     new CustomEditTextListener(replyText));
         }
@@ -470,6 +478,20 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         });
                     }
 
+                    final TextView editPostButton = popUpContent.findViewById(R.id.edit_post);
+
+                    if (currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
+                        editPostButton.setVisibility(View.GONE);
+                    } else {
+                        editPostButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                postsList.get(position).setPostType(Post.TYPE_EDIT);
+                                notifyItemChanged(position);
+                            }
+                        });
+                    }
+
                     //Displays the popup
                     popUp.showAsDropDown(holder.overflowButton);
                 }
@@ -518,10 +540,25 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
-            holder.quickReplySubject.setText(replyDataHolder[replySubject]);
 
-            if (replyDataHolder[replyText] != null && !Objects.equals(replyDataHolder[replyText], ""))
+
+            if (postsList.get(position).getPostType() == Post.TYPE_QUICK_REPLY &&
+                    replyDataHolder[replyText] != null && !Objects.equals(replyDataHolder[replyText], "")) {
                 holder.quickReply.setText(replyDataHolder[replyText]);
+                holder.quickReplySubject.setText(replyDataHolder[replySubject]);
+            } else if (postsList.get(position).getPostType() == Post.TYPE_EDIT) {
+                //post in edit mode
+                holder.quickReplySubject.setText(postsList.get(position).getSubject());
+                String postText = "";
+                try {
+                    postText = prepareForEditTask.execute(postsList.get(position).getPostEditURL()).get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                holder.quickReply.setText(postText);
+            }
 
             holder.submitButton.setOnClickListener(new View.OnClickListener() {
                 @Override

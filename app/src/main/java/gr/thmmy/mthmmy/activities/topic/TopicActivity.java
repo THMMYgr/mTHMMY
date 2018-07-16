@@ -262,7 +262,7 @@ public class TopicActivity extends BaseActivity {
         CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(
                 getApplicationContext(), loadedPageUrl);
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, postsList, base_url, topicTask);
+        topicAdapter = new TopicAdapter(this, postsList, base_url, topicTask, new PrepareForEdit());
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = findViewById(R.id.topic_fab);
@@ -895,7 +895,7 @@ public class TopicActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            postsList.add(null);
+            postsList.add(Post.newQuickReply());
             topicAdapter.notifyItemInserted(postsList.size());
             topicAdapter.prepareForReply(new ReplyTask(), topicTitle, numReplies, seqnum, sc,
                     topic, buildedQuotes);
@@ -1034,6 +1034,44 @@ public class TopicActivity extends BaseActivity {
                 reloadingPage = true;
                 topicTask.execute(loadedPageUrl);
             }
+        }
+    }
+
+    class PrepareForEdit extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+            paginationEnabled(false);
+            replyFAB.setEnabled(false);
+            replyFAB.hide();
+            bottomNavBar.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Document document;
+            Request request = new Request.Builder()
+                    .url(strings[0] + ";wap2")
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                document = Jsoup.parse(response.body().string());
+
+                Element message = document.select("textarea").first();
+                Timber.e(message.html());
+
+                return message.html();
+            } catch (IOException | Selector.SelectorParseException e) {
+                Timber.e(e, "Prepare failed.");
+                return "";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            progressBar.setVisibility(ProgressBar.GONE);
         }
     }
 }
