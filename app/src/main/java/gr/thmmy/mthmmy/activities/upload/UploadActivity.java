@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.upload;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
@@ -23,12 +25,21 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
+import net.gotev.uploadservice.ServerResponse;
+import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
+import net.gotev.uploadservice.UploadStatusDelegate;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -46,6 +57,7 @@ import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.UPLOADING_APP
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE;
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER;
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_DESCRIPTION;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_FILENAME;
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_TITLE;
 
 public class UploadActivity extends BaseActivity {
@@ -64,6 +76,7 @@ public class UploadActivity extends BaseActivity {
     private ArrayList<String> bundleCategory;
     private String categorySelected = "-1";
     private String uploaderProfileIndex = "1";
+    private String uploadFilename;
     private Uri fileUri;
     private String fileIcon;
 
@@ -223,17 +236,65 @@ public class UploadActivity extends BaseActivity {
                     tmpDescriptionText += uploadedFrommThmmyPromptHtml;
                 }
 
+                String tempFilePath = null;
+                if (uploadFilename != null) {
+                    tempFilePath = createTempFile(uploadFilename);
+                    if (tempFilePath == null) {
+                        //Something went wrong, abort
+                        return;
+                    }
+                }
+
                 try {
+                    final String finalTempFilePath = tempFilePath;
                     new MultipartUploadRequest(view.getContext(), uploadIndexUrl)
                             .setUtf8Charset()
                             .addParameter("tp-dluploadtitle", uploadTitleText)
                             .addParameter("tp-dluploadcat", categorySelected)
                             .addParameter("tp-dluploadtext", tmpDescriptionText)
-                            .addFileToUpload(fileUri.toString(), "tp-dluploadfile")
+                            .addFileToUpload(tempFilePath == null
+                                            ? fileUri.toString()
+                                            : tempFilePath
+                                    , "tp-dluploadfile")
                             .addParameter("tp_dluploadicon", fileIcon)
                             .addParameter("tp-uploaduser", uploaderProfileIndex)
                             .setNotificationConfig(new UploadNotificationConfig())
-                            .setMaxRetries(2).startUpload();
+                            .setMaxRetries(2)
+                            .setDelegate(new UploadStatusDelegate() {
+                                @Override
+                                public void onProgress(Context context, UploadInfo uploadInfo) {
+                                }
+
+                                @Override
+                                public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
+                                                    Exception exception) {
+                                    Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
+                                    if (finalTempFilePath != null) {
+                                        if (!deleteTempFile(finalTempFilePath)) {
+                                            Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                                    if (finalTempFilePath != null) {
+                                        if (!deleteTempFile(finalTempFilePath)) {
+                                            Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(Context context, UploadInfo uploadInfo) {
+                                    if (finalTempFilePath != null) {
+                                        if (!deleteTempFile(finalTempFilePath)) {
+                                            Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }
+                            })
+                            .startUpload();
                 } catch (Exception exception) {
                     Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
                 }
@@ -298,7 +359,7 @@ public class UploadActivity extends BaseActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_CHOOSE_FILE && data != null) {
+        if (requestCode == REQUEST_CODE_CHOOSE_FILE && resultCode == Activity.RESULT_OK && data != null) {
             fileUri = data.getData();
             if (fileUri != null) {
                 String filename = filenameFromUri(fileUri);
@@ -333,7 +394,8 @@ public class UploadActivity extends BaseActivity {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
             }
-            //TODO rename file
+
+            uploadFilename = data.getStringExtra(RESULT_FILENAME);
             uploadTitle.setText(data.getStringExtra(RESULT_TITLE));
             uploadDescription.setText(data.getStringExtra(RESULT_DESCRIPTION));
         } else {
@@ -360,6 +422,61 @@ public class UploadActivity extends BaseActivity {
         }
 
         return filename;
+    }
+
+    @Nullable
+    private String createTempFile(String newFilename) {
+        String oldFilename = filenameFromUri(fileUri);
+        String fileExtension = oldFilename.substring(oldFilename.indexOf("."));
+        String destinationFilename = android.os.Environment.getExternalStorageDirectory().getPath() +
+                File.separatorChar + "~tmp_mThmmy_uploads" + File.separatorChar + newFilename + fileExtension;
+
+        File tempDirectory = new File(android.os.Environment.getExternalStorageDirectory().getPath() +
+                File.separatorChar + "~tmp_mThmmy_uploads");
+
+        if (!tempDirectory.exists()) {
+            if (!tempDirectory.mkdirs()) {
+                //TODO timber message?
+                Toast.makeText(this, "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
+                return null;
+            }
+        }
+
+        InputStream inputStream;
+        BufferedInputStream bufferedInputStream = null;
+        BufferedOutputStream bufferedOutputStream = null;
+
+        try {
+            inputStream = getContentResolver().openInputStream(fileUri);
+            if (inputStream == null) {
+                //TODO timber message?
+                return null;
+            }
+
+            bufferedInputStream = new BufferedInputStream(inputStream);
+            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(destinationFilename, false));
+            byte[] buf = new byte[1024];
+            bufferedInputStream.read(buf);
+            do {
+                bufferedOutputStream.write(buf);
+            } while (bufferedInputStream.read(buf) != -1);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        } finally {
+            try {
+                if (bufferedInputStream != null) bufferedInputStream.close();
+                if (bufferedOutputStream != null) bufferedOutputStream.close();
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+
+        return destinationFilename;
+    }
+
+    private boolean deleteTempFile(String destinationFilename) {
+        File file = new File(destinationFilename);
+        return file.delete();
     }
 
     private class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
