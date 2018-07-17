@@ -1090,7 +1090,7 @@ public class TopicActivity extends BaseActivity {
         }
     }
 
-    public class EditTask extends AsyncTask<EditTaskDTO, Void, Boolean>{
+    public class EditTask extends AsyncTask<EditTaskDTO, Void, Boolean> {
         EditTaskDTO dto;
 
         @Override
@@ -1156,6 +1156,12 @@ public class TopicActivity extends BaseActivity {
                 Toast.makeText(TopicActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
             paginationEnabled(true);
             replyFAB.setEnabled(true);
+
+            if (result) {
+                topicTask = new TopicTask();
+                reloadingPage = true;
+                topicTask.execute(loadedPageUrl);
+            }
         }
     }
 }
