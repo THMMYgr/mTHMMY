@@ -10,8 +10,8 @@ android {
         applicationId "gr.thmmy.mthmmy"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 12
-        versionName "1.4.0"
+        versionCode 13
+        versionName "1.4.1"
         archivesBaseName = "mTHMMY-v$versionName"
     }
 
