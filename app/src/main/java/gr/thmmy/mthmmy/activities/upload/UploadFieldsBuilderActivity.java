@@ -4,17 +4,22 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import java.util.Calendar;
+
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.base.BaseActivity;
 import timber.log.Timber;
 
-public class UploadFieldsBuilderActivity extends BaseActivity {
+public class UploadFieldsBuilderActivity extends AppCompatActivity {
     static final String BUNDLE_UPLOAD_FIELD_BUILDER_COURSE = "UPLOAD_FIELD_BUILDER_COURSE";
     static final String BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER = "UPLOAD_FIELD_BUILDER_SEMESTER";
 
@@ -24,10 +29,42 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
 
     private String course, semester;
 
-    //UI elements
     private LinearLayout semesterChooserLinear;
     private RadioGroup typeRadio, semesterRadio;
     private EditText year;
+
+    private TextWatcher customYearWatcher = new TextWatcher() {
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            String working = s.toString();
+            boolean isValid = true;
+
+            if (working.length() == 4) {
+                int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+                int inputYear = Integer.parseInt(working);
+
+                isValid = inputYear <= currentYear && inputYear > 2000;
+            } else {
+                isValid = false;
+            }
+
+            if (!isValid) {
+                year.setError("Please enter a valid year");
+            } else {
+                year.setError(null);
+            }
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +86,7 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
         }
 
         //Initialize toolbar
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Upload fields builder");
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -57,12 +94,10 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        createDrawer();
-        drawer.setSelection(UPLOAD_ID);
-
         semesterChooserLinear = findViewById(R.id.upload_fields_builder_choose_semester);
         semesterRadio = findViewById(R.id.upload_fields_builder_semester_radio_group);
         year = findViewById(R.id.upload_fields_builder_year);
+        year.addTextChangedListener(customYearWatcher);
 
         typeRadio = findViewById(R.id.upload_fields_builder_type_radio_group);
         typeRadio.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {

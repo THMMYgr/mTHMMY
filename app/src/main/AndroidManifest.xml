@@ -107,7 +107,7 @@
         </activity>
         <activity
             android:name=".activities.upload.UploadFieldsBuilderActivity"
-            android:parentActivityName=".activities.main.MainActivity"
+            android:parentActivityName=".activities.upload.UploadActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
