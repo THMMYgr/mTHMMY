@@ -1039,7 +1039,7 @@ public class TopicActivity extends BaseActivity {
 
     class PrepareForEdit extends AsyncTask<Integer, Void, Boolean> {
         int position;
-        String numReplies, seqnum, sc, topic, postText = "";
+        String commitEditURL, numReplies, seqnum, sc, topic, postText = "";
 
         @Override
         protected void onPreExecute() {
@@ -1066,6 +1066,7 @@ public class TopicActivity extends BaseActivity {
                 Element message = document.select("textarea").first();
                 postText = message.html();
 
+                commitEditURL = document.select("form").first().attr("action");
                 numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
                 seqnum = document.select("input[name=seqnum]").first().attr("value");
                 sc = document.select("input[name=sc]").first().attr("value");
@@ -1083,7 +1084,7 @@ public class TopicActivity extends BaseActivity {
         protected void onPostExecute(Boolean result) {
             postsList.get(position).setPostType(Post.TYPE_EDIT);
             topicAdapter.notifyItemChanged(position);
-            topicAdapter.prepareForEdit(new EditTask(), numReplies, seqnum, sc, topic, postText);
+            topicAdapter.prepareForEdit(new EditTask(), commitEditURL, numReplies, seqnum, sc, topic, postText);
             recyclerView.scrollToPosition(position);
             progressBar.setVisibility(ProgressBar.GONE);
         }
@@ -1112,7 +1113,7 @@ public class TopicActivity extends BaseActivity {
                     .addFormDataPart("topic", dto.getTopic())
                     .build();
             Request post = new Request.Builder()
-                    .url(postsList.get(dto.getPosition()).getPostEditURL())
+                    .url(dto.getUrl())
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
                     .post(postBody)
                     .build();

@@ -38,7 +38,6 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
@@ -97,7 +96,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final String[] replyDataHolder = new String[2];
     private final int replySubject = 0, replyText = 1;
-    private String numReplies, seqnum, sc, topic, buildedQuotes, postText;
+    private String commitEditURL, numReplies, seqnum, sc, topic, buildedQuotes, postText;
     private boolean canReply = false;
 
     /**
@@ -138,8 +137,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.deleteTask = deleteTask;
     }
 
-    void prepareForEdit(TopicActivity.EditTask editTask, String numReplies, String seqnum, String sc,
+    void prepareForEdit(TopicActivity.EditTask editTask, String commitEditURL, String numReplies, String seqnum, String sc,
                         String topic, String postText) {
+        this.commitEditURL = commitEditURL;
         this.editTask = editTask;
         this.numReplies = numReplies;
         this.seqnum = seqnum;
@@ -583,7 +583,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         if (holder.quickReplySubject.getText().toString().isEmpty()) return;
                         if (holder.quickReply.getText().toString().isEmpty()) return;
                         holder.submitButton.setEnabled(false);
-                        editTask.execute(new EditTaskDTO(position, holder.quickReplySubject.getText().toString(),
+                        editTask.execute(new EditTaskDTO(position, commitEditURL, holder.quickReplySubject.getText().toString(),
                                 holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic));
 
                         holder.quickReplySubject.getText().clear();
