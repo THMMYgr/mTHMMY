@@ -40,7 +40,7 @@
         android:layout_height="35dp"
         android:background="?android:attr/selectableItemBackground"
         android:drawablePadding="5dp"
-        android:drawableStart="@drawable/ic_edit_black_24dp"
+        android:drawableStart="@drawable/ic_edit_white_24dp"
         android:gravity="center_vertical"
         android:paddingBottom="6dp"
         android:paddingEnd="12dp"

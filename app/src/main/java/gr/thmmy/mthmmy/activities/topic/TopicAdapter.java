@@ -93,10 +93,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private TopicActivity.ReplyTask replyTask;
     private TopicActivity.DeleteTask deleteTask;
     private TopicActivity.PrepareForEdit prepareForEditTask;
+    private TopicActivity.EditTask editTask;
 
     private final String[] replyDataHolder = new String[2];
     private final int replySubject = 0, replyText = 1;
-    private String numReplies, seqnum, sc, topic, buildedQuotes;
+    private String numReplies, seqnum, sc, topic, buildedQuotes, postText;
     private boolean canReply = false;
 
     /**
@@ -135,6 +136,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     void prepareForDelete(TopicActivity.DeleteTask deleteTask) {
         this.deleteTask = deleteTask;
+    }
+
+    void prepareForEdit(TopicActivity.EditTask editTask, String numReplies, String seqnum, String sc,
+                        String topic, String postText) {
+        this.editTask = editTask;
+        this.numReplies = numReplies;
+        this.seqnum = seqnum;
+        this.sc = sc;
+        this.topic = topic;
+        this.postText = postText;
     }
 
     @Override
@@ -486,8 +497,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         editPostButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                postsList.get(position).setPostType(Post.TYPE_EDIT);
-                                notifyItemChanged(position);
+                                prepareForEditTask.execute(position);
                             }
                         });
                     }
@@ -546,35 +556,44 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     replyDataHolder[replyText] != null && !Objects.equals(replyDataHolder[replyText], "")) {
                 holder.quickReply.setText(replyDataHolder[replyText]);
                 holder.quickReplySubject.setText(replyDataHolder[replySubject]);
+
+                holder.submitButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (holder.quickReplySubject.getText().toString().isEmpty()) return;
+                        if (holder.quickReply.getText().toString().isEmpty()) return;
+                        holder.submitButton.setEnabled(false);
+                        replyTask.execute(holder.quickReplySubject.getText().toString(),
+                                holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic);
+
+                        holder.quickReplySubject.getText().clear();
+                        holder.quickReplySubject.setText("Re: " + topicTitle);
+                        holder.quickReply.getText().clear();
+                        holder.submitButton.setEnabled(true);
+                    }
+                });
             } else if (postsList.get(position).getPostType() == Post.TYPE_EDIT) {
                 //post in edit mode
                 holder.quickReplySubject.setText(postsList.get(position).getSubject());
-                String postText = "";
-                try {
-                    postText = prepareForEditTask.execute(postsList.get(position).getPostEditURL()).get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
                 holder.quickReply.setText(postText);
+
+                holder.submitButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (holder.quickReplySubject.getText().toString().isEmpty()) return;
+                        if (holder.quickReply.getText().toString().isEmpty()) return;
+                        holder.submitButton.setEnabled(false);
+                        editTask.execute(new EditTaskDTO(position, holder.quickReplySubject.getText().toString(),
+                                holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic));
+
+                        holder.quickReplySubject.getText().clear();
+                        //holder.quickReplySubject.setText("Re: " + topicTitle);
+                        holder.quickReply.getText().clear();
+                        holder.submitButton.setEnabled(true);
+                    }
+                });
             }
 
-            holder.submitButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (holder.quickReplySubject.getText().toString().isEmpty()) return;
-                    if (holder.quickReply.getText().toString().isEmpty()) return;
-                    holder.submitButton.setEnabled(false);
-                    replyTask.execute(holder.quickReplySubject.getText().toString(),
-                            holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic);
-
-                    holder.quickReplySubject.getText().clear();
-                    holder.quickReplySubject.setText("Re: " + topicTitle);
-                    holder.quickReply.getText().clear();
-                    holder.submitButton.setEnabled(true);
-                }
-            });
             if (backPressHidden) {
                 holder.quickReply.requestFocus();
                 backPressHidden = false;
