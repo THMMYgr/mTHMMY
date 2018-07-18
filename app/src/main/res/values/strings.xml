@@ -50,8 +50,9 @@
     <string name="button_next">next</string>
     <string name="button_last">last</string>
     <string name="quick_reply">Quick reply&#8230;</string>
-    <string name="quick_reply_subject">Subject&#8230;</string>
-    <string name="quick_reply_submit">Submit</string>
+    <string name="subject">Subject&#8230;</string>
+    <string name="submit">Submit</string>
+    <string name="post_message">Message&#8230;</string>
 
     <!--Profile Activity-->
     <string name="username">Username</string>
