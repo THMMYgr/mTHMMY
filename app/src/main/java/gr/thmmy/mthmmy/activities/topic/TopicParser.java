@@ -157,7 +157,7 @@ class TopicParser {
             //Variables for Post constructor
             String p_userName, p_thumbnailURL, p_subject, p_post, p_postDate, p_profileURL, p_rank,
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate,
-                    p_postURL, p_deletePostURL;
+                    p_postURL, p_deletePostURL, p_editPostURL;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
             ArrayList<ThmmyFile> p_attachedFiles;
@@ -174,6 +174,7 @@ class TopicParser {
             p_attachedFiles = new ArrayList<>();
             p_postLastEditDate = null;
             p_deletePostURL = null;
+            p_editPostURL = null;
 
             //Language independent parsing
             //Finds thumbnail url
@@ -306,6 +307,12 @@ class TopicParser {
                     p_deletePostURL = postDelete.attr("href");
                 }
 
+                //Finds post modify url
+                Element postEdit = thisRow.select("a:has(img[alt='Modify message'])").first();
+                if (postEdit != null) {
+                    p_editPostURL = postEdit.attr("href");
+                }
+
                 //Finds post's submit date
                 Element postDate = thisRow.select("div.smalltext:matches(on:)").first();
                 p_postDate = postDate.text();
@@ -431,13 +438,13 @@ class TopicParser {
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
-                        , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL));
+                        , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL, Post.TYPE_POST));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post
                         , p_postIndex , p_postNum, p_postDate, p_userColor, p_attachedFiles
-                        , p_postLastEditDate, p_postURL, p_deletePostURL));
+                        , p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL, Post.TYPE_POST));
             }
         }
         return parsedPostsList;

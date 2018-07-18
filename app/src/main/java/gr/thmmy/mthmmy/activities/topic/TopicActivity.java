@@ -675,6 +675,7 @@ public class TopicActivity extends BaseActivity {
                     postsList.addAll(localPostsList);
                     topicAdapter.notifyItemRangeInserted(0, postsList.size());
                     topicAdapter.prepareForDelete(new DeleteTask());
+                    topicAdapter.prepareForPrepareForEdit(new PrepareForEdit());
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
 
                     if (replyPageUrl == null) {
@@ -894,7 +895,7 @@ public class TopicActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            postsList.add(null);
+            postsList.add(Post.newQuickReply());
             topicAdapter.notifyItemInserted(postsList.size());
             topicAdapter.prepareForReply(new ReplyTask(), topicTitle, numReplies, seqnum, sc,
                     topic, buildedQuotes);
@@ -1027,6 +1028,136 @@ public class TopicActivity extends BaseActivity {
                 Toast.makeText(TopicActivity.this, "Post deleted!", Toast.LENGTH_SHORT).show();
             paginationEnabled(true);
             replyFAB.setEnabled(true);
+
+            if (result) {
+                topicTask = new TopicTask();
+                reloadingPage = true;
+                topicTask.execute(loadedPageUrl);
+            }
+        }
+    }
+
+    class PrepareForEdit extends AsyncTask<Integer, Void, Boolean> {
+        int position;
+        String commitEditURL, numReplies, seqnum, sc, topic, postText = "";
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+            paginationEnabled(false);
+            replyFAB.setEnabled(false);
+            replyFAB.hide();
+            bottomNavBar.setVisibility(View.GONE);
+            topicAdapter.disablePostEditing();
+        }
+
+        @Override
+        protected Boolean doInBackground(Integer... positions) {
+            Document document;
+            position = positions[0];
+            String url = postsList.get(position).getPostEditURL();
+            Request request = new Request.Builder()
+                    .url(url + ";wap2")
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                document = Jsoup.parse(response.body().string());
+
+                Element message = document.select("textarea").first();
+                postText = message.text();
+
+                commitEditURL = document.select("form").first().attr("action");
+                numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
+                seqnum = document.select("input[name=seqnum]").first().attr("value");
+                sc = document.select("input[name=sc]").first().attr("value");
+                topic = document.select("input[name=topic]").first().attr("value");
+
+                return true;
+            } catch (IOException | Selector.SelectorParseException e) {
+                Timber.e(e, "Prepare failed.");
+                return false;
+            }
+        }
+
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            postsList.get(position).setPostType(Post.TYPE_EDIT);
+            topicAdapter.notifyItemChanged(position);
+            topicAdapter.prepareForEdit(new EditTask(), commitEditURL, numReplies, seqnum, sc, topic, postText);
+            recyclerView.scrollToPosition(position);
+            progressBar.setVisibility(ProgressBar.GONE);
+        }
+    }
+
+    public class EditTask extends AsyncTask<EditTaskDTO, Void, Boolean> {
+        EditTaskDTO dto;
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+            paginationEnabled(false);
+            replyFAB.setEnabled(false);
+        }
+
+        @Override
+        protected Boolean doInBackground(EditTaskDTO... editTaskDTOS) {
+            dto = editTaskDTOS[0];
+            RequestBody postBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("message", dto.getMessage())
+                    .addFormDataPart("num_replies", dto.getNumReplies())
+                    .addFormDataPart("seqnum", dto.getSeqnum())
+                    .addFormDataPart("sc", dto.getSc())
+                    .addFormDataPart("subject", dto.getSubject())
+                    .addFormDataPart("topic", dto.getTopic())
+                    .build();
+            Request post = new Request.Builder()
+                    .url(dto.getUrl())
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
+                    .post(postBody)
+                    .build();
+
+            try {
+                client.newCall(post).execute();
+                Response response = client.newCall(post).execute();
+                switch (replyStatus(response)) {
+                    case SUCCESSFUL:
+                        return true;
+                    case NEW_REPLY_WHILE_POSTING:
+                        //TODO this...
+                        return true;
+                    default:
+                        Timber.e("Malformed post. Request string: %s", post.toString());
+                        return true;
+                }
+            } catch (IOException e) {
+                Timber.e(e, "Edit failed.");
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            View view = getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+
+            postsList.get(dto.getPosition()).setPostType(Post.TYPE_POST);
+            topicAdapter.notifyItemChanged(dto.getPosition());
+
+            progressBar.setVisibility(ProgressBar.GONE);
+            replyFAB.setVisibility(View.VISIBLE);
+            bottomNavBar.setVisibility(View.VISIBLE);
+
+            if (!result)
+                Toast.makeText(TopicActivity.this, "Edit failed!", Toast.LENGTH_SHORT).show();
+            paginationEnabled(true);
+            replyFAB.setEnabled(true);
+            topicAdapter.enablePostEditing();
 
             if (result) {
                 topicTask = new TopicTask();
