@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:contentDescription="@string/child_board_button"
-                android:src="@drawable/ic_arrow_drop_down"/>
+                android:src="@drawable/ic_arrow_drop_down_accent_24dp"/>
         </LinearLayout>
 
         <LinearLayout

@@ -3,19 +3,19 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_bookmark"
-        android:icon="@drawable/ic_bookmark_false"
+        android:icon="@drawable/ic_bookmark_false_accent_24dp"
         app:showAsAction="ifRoom"
         android:title="@string/bookmark">
     </item>
     <item
         android:id="@+id/menu_share"
-        android:icon="@drawable/ic_share"
+        android:icon="@drawable/ic_share_white_24dp"
         app:showAsAction="ifRoom"
         android:title="@string/share">
     </item>
     <item
         android:id="@+id/menu_info"
-        android:icon="@drawable/ic_info"
+        android:icon="@drawable/ic_info_outline_white_24dp"
         app:showAsAction="ifRoom"
         android:title="@string/info">
     </item>
