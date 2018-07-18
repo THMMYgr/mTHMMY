@@ -217,6 +217,7 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
 
     @Nullable
     private String getGreeklishOrMinifiedCourseName(boolean greeklish) {
+        //TODO fill missing values
         if (course.contains("Συστήματα Υπολογιστών (Υπολογιστικά Συστήματα)")) {
             return greeklish ? "sys_ypologistwn" : "Συσ. Υπολογιστών";
         } else if (course.contains("Τεχνική Μηχανική")) {
@@ -305,6 +306,8 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
             return greeklish ? "SHE_I" : "ΣΗΕ 1";
         } else if (course.contains("Υψηλές Τάσεις Ι")) {
             return greeklish ? "ypshles_I" : "Υψηλές 1";
+        } else if (course.contains("Θεωρία και Τεχνολογία Πυρηνικών Αντιδραστήρων")) {
+            return greeklish ? "texn_antidrasthrwn" : "Τεχνολογία Αντιδραστήρων";
         } else if (course.contains("Τεχνολογία Ηλεκτροτεχνικών Υλικών")) {
             return greeklish ? "Hlektrotexnika_Ylika" : "Ηλεκτροτεχνικά Υλικά";
         } else if (course.contains("Ηλεκτρικές Μηχανές Α'")) {
@@ -315,8 +318,12 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
             return greeklish ? "SHE_II" : "ΣΗΕ 2";
         } else if (course.contains("Υψηλές Τάσεις ΙΙ")) {
             return greeklish ? "ypshles_II" : "Υψηλές 2";
+        } else if (course.contains("Αρχές Οικονομίας")) {
+            return greeklish ? "arx_oikonomias" : "Αρχές Οικονομίας";
+        } else if (course.contains("Διανεμημένη Παραγωγή")) {
+            return greeklish ? "dian_paragwgh" : "Διανεμημένη Παραγωγή";
         } else if (course.contains("Διαχείριση Συστημάτων Ηλεκτρικής Ενέργειας")) {
-            return greeklish ? "ymes" : "ΥΜΕΣ";
+            return greeklish ? "dshe" : "ΔΣΗΕ";
         } else if (course.contains("Υψηλές Τάσεις ΙΙΙ")) {
             return greeklish ? "ypshles_III" : "Υψηλές 3";
         } else if (course.contains("Ανάλυση Συστημάτων Ηλεκτρικής Ενέργειας")) {
@@ -327,10 +334,18 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
             return greeklish ? "isxyos_I" : "Ισχύος 1";
         } else if (course.contains("Συστήματα Ηλεκτρικής Ενέργειας ΙΙΙ")) {
             return greeklish ? "SHE_III" : "ΣΗΕ 3";
+        } else if (course.contains("Σερβοκινητήρια Συστήματα")) {
+            return greeklish ? "servo" : "Σέρβο";
+        } else if (course.contains("Συστήματα Ηλεκτροκίνησης")) {
+            return greeklish ? "hlektrokinhsh" : "Ηλεκτροκίνηση";
         } else if (course.contains("Υπολογιστικές Μέθοδοι στα Ενεργειακά Συστήματα")) {
             return greeklish ? "ymes" : "ΥΜΕΣ";
         } else if (course.contains("Υψηλές Τάσεις 4")) {
             return greeklish ? "ypshles_IV" : "Υψηλές 4";
+        } else if (course.contains("Ηλεκτρικές Μηχανές Γ'")) {
+            return greeklish ? "mhxanes_C" : "Μηχανές Γ";
+        } else if (course.contains("Ηλεκτρική Οικονομία")) {
+            return greeklish ? "hlektr_oikonomia" : "Ηλεκτρική Οικονομία";
         } else if (course.contains("Ηλεκτρονικά Ισχύος ΙΙ")) {
             return greeklish ? "isxyos_II" : "Ισχύος 2";
         } else if (course.contains("Ανάλυση και Σχεδίαση Αλγορίθμων")) {
@@ -435,6 +450,8 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
             return greeklish ? "PSES" : "ΨΕΣ";
         } else if (course.contains("Εισαγωγή στην Πολιτική Οικονομία")) {
             return greeklish ? "polit_oik" : "Πολιτική Οικονομία";
+        } else if (course.contains("Θεωρία Σκέδασης")) {
+            return greeklish ? "skedash" : "Σκέδαση";
         } else if (course.contains("Προηγμένες Τεχνικές Επεξεργασίας Σήματος")) {
             return greeklish ? "ptes" : "ΠΤΕΣ";
         } else if (course.contains("Τηλεοπτικά Συστήματα")) {
@@ -447,6 +464,16 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
             return greeklish ? "theoria_plir" : "Θεωρία Πληρ.";
         } else if (course.contains("Οπτικές Επικοινωνίες")) {
             return greeklish ? "optikes_thlep" : "Οπτικές Τηλεπ.";
+        } else if (course.contains("Ευρυζωνικά Δίκτυα")) {
+            return greeklish ? "eyryzwnika" : "Ευρυζωνικά";
+        } else if (course.contains("Τεχνικές μη Καταστρεπτικών Δοκιμών")) {
+            return greeklish ? "non_destructive_tests" : "Μη Καταστρεπτικές Δοκιμές";
+        } else if (course.contains("Φωτονική Τεχνολογία")) {
+            return greeklish ? "fwtonikh" : "Φωτονική";
+        } else if (course.contains("Μικροκυματική Τηλεπισκόπηση")) {
+            return greeklish ? "thlepiskophsh" : "Τηλεπισκόπηση";
+        } else if (course.contains("Μικροκύματα II")) {
+            return greeklish ? "mikrokymata_II" : "Μικροκύματα 2";
         } else {
             return null;
         }

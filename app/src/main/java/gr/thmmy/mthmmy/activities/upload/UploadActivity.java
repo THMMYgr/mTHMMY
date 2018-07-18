@@ -148,19 +148,22 @@ public class UploadActivity extends BaseActivity {
                 }
 
                 String maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
-                        categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem(),
-                        maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
-                                categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
+                        categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
+                String maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
 
                 if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) {
                     Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (maybeCourse == null) {
+                    Toast.makeText(view.getContext(), "Please choose a course", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 //Fixes course and semester
                 maybeCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
-                maybeSemester = maybeSemester.replaceAll("-", "").trim().
-                        substring(0, 1);
+                maybeSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
 
                 Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
                 Bundle extras = new Bundle();
@@ -359,7 +362,11 @@ public class UploadActivity extends BaseActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_CHOOSE_FILE && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == REQUEST_CODE_CHOOSE_FILE && data != null) {
+            if (resultCode == Activity.RESULT_OK) {
+                return;
+            }
+
             fileUri = data.getData();
             if (fileUri != null) {
                 String filename = filenameFromUri(fileUri);
@@ -436,7 +443,7 @@ public class UploadActivity extends BaseActivity {
 
         if (!tempDirectory.exists()) {
             if (!tempDirectory.mkdirs()) {
-                //TODO timber message?
+                Timber.w("Temporary directory build returned false in %s", UploadActivity.class.getSimpleName());
                 Toast.makeText(this, "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
                 return null;
             }
@@ -449,7 +456,7 @@ public class UploadActivity extends BaseActivity {
         try {
             inputStream = getContentResolver().openInputStream(fileUri);
             if (inputStream == null) {
-                //TODO timber message?
+                Timber.w("Input stream was null, %s", UploadActivity.class.getSimpleName());
                 return null;
             }
 
