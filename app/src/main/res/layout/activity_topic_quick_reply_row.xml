@@ -53,7 +53,7 @@
                         android:contentDescription="@string/post_thumbnail"
                         android:maxHeight="@dimen/thumbnail_size"
                         android:maxWidth="@dimen/thumbnail_size"
-                        android:src="@drawable/ic_default_user_thumbnail" />
+                        app:srcCompat="@drawable/ic_default_user_thumbnail_white_24dp" />
                 </FrameLayout>
 
                 <TextView

@@ -204,9 +204,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
 
@@ -512,9 +512,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());

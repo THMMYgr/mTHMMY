@@ -124,9 +124,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(this.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .placeholder(ResourcesCompat.getDrawable(this.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .transform(new CircleTransform())
                     .into(thumbnailView);
         usernameView = findViewById(R.id.profile_activity_username);
@@ -310,9 +310,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                         .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                         .centerCrop()
                         .error(ResourcesCompat.getDrawable(getResources()
-                                , R.drawable.ic_default_user_thumbnail, null))
+                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                         .placeholder(ResourcesCompat.getDrawable(getResources()
-                                , R.drawable.ic_default_user_thumbnail, null))
+                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                         .transform(new CircleTransform())
                         .into(thumbnailView);
             if (personalText != null) {
