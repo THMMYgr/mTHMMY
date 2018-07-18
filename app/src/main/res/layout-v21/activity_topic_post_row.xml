@@ -95,7 +95,7 @@
                     android:clickable="true"
                     android:contentDescription="@string/post_quote_button"
                     android:focusable="true"
-                    android:src="@drawable/ic_format_quote_unchecked_grey_24dp" />
+                    app:srcCompat="@drawable/ic_format_quote_unchecked_grey_24dp" />
                 <!--<ImageButton
                     android:id="@+id/post_share_button"
                     android:layout_width="@dimen/post_image_button"
