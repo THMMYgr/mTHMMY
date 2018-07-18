@@ -1049,6 +1049,7 @@ public class TopicActivity extends BaseActivity {
             replyFAB.setEnabled(false);
             replyFAB.hide();
             bottomNavBar.setVisibility(View.GONE);
+            topicAdapter.disablePostEditing();
         }
 
         @Override
@@ -1157,6 +1158,7 @@ public class TopicActivity extends BaseActivity {
                 Toast.makeText(TopicActivity.this, "Edit failed!", Toast.LENGTH_SHORT).show();
             paginationEnabled(true);
             replyFAB.setEnabled(true);
+            topicAdapter.enablePostEditing();
 
             if (result) {
                 topicTask = new TopicTask();

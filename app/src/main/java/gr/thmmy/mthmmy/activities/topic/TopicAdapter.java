@@ -98,6 +98,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int replySubject = 0, replyText = 1;
     private String commitEditURL, numReplies, seqnum, sc, topic, buildedQuotes, postText;
     private boolean canReply = false;
+    private boolean postEditingDisabled = false;
 
     /**
      * @param context   the context of the {@link RecyclerView}
@@ -493,7 +494,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     final TextView editPostButton = popUpContent.findViewById(R.id.edit_post);
 
-                    if (currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
+                    if (postEditingDisabled || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
                         editPostButton.setVisibility(View.GONE);
                     } else {
                         editPostButton.setOnClickListener(new View.OnClickListener() {
@@ -864,5 +865,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return context.getResources().getString(R.string.fa_file_video_o);
 
         return context.getResources().getString(R.string.fa_file);
+    }
+
+    public void disablePostEditing() {
+        postEditingDisabled = true;
+    }
+
+    public void enablePostEditing() {
+        postEditingDisabled = false;
     }
 }
