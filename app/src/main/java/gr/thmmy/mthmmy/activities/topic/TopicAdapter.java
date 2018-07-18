@@ -192,11 +192,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     new CustomEditTextListener(replyText));
         } else if (viewType == Post.TYPE_EDIT) {
             View view = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.activity_topic_quick_reply_row, parent, false);
-            view.findViewById(R.id.quick_reply_submit).setEnabled(true);
+                    inflate(R.layout.activity_topic_edit_row, parent, false);
+            view.findViewById(R.id.edit_message_submit).setEnabled(true);
 
-            return new QuickReplyViewHolder(view, new CustomEditTextListener(replySubject),
-                    new CustomEditTextListener(replyText));
+            return new EditMessageViewHolder(view);
         }
         return null;
     }
@@ -555,8 +554,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.username.setText(getSessionManager().getUsername());
 
 
-            if (postsList.get(position).getPostType() == Post.TYPE_QUICK_REPLY &&
-                    replyDataHolder[replyText] != null && !Objects.equals(replyDataHolder[replyText], "")) {
+            if (replyDataHolder[replyText] != null && !Objects.equals(replyDataHolder[replyText], "")) {
                 holder.quickReply.setText(replyDataHolder[replyText]);
                 holder.quickReplySubject.setText(replyDataHolder[replySubject]);
 
@@ -575,30 +573,48 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         holder.submitButton.setEnabled(true);
                     }
                 });
-            } else if (postsList.get(position).getPostType() == Post.TYPE_EDIT) {
-                //post in edit mode
-                holder.quickReplySubject.setText(postsList.get(position).getSubject());
-                holder.quickReply.setText(postText);
-
-                holder.submitButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (holder.quickReplySubject.getText().toString().isEmpty()) return;
-                        if (holder.quickReply.getText().toString().isEmpty()) return;
-                        holder.submitButton.setEnabled(false);
-                        editTask.execute(new EditTaskDTO(position, commitEditURL, holder.quickReplySubject.getText().toString(),
-                                holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic));
-
-                        holder.quickReplySubject.getText().clear();
-                        holder.quickReplySubject.setText(postsList.get(position).getSubject());
-                        holder.quickReply.getText().clear();
-                        holder.submitButton.setEnabled(true);
-                    }
-                });
             }
 
             if (backPressHidden) {
                 holder.quickReply.requestFocus();
+                backPressHidden = false;
+            }
+        } else if (currentHolder instanceof EditMessageViewHolder) {
+            final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
+
+            //noinspection ConstantConditions
+            Picasso.with(context)
+                    .load(getSessionManager().getAvatarLink())
+                    .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                    .centerCrop()
+                    .error(ResourcesCompat.getDrawable(context.getResources()
+                            , R.drawable.ic_default_user_thumbnail, null))
+                    .placeholder(ResourcesCompat.getDrawable(context.getResources()
+                            , R.drawable.ic_default_user_thumbnail, null))
+                    .transform(new CircleTransform())
+                    .into(holder.thumbnail);
+            holder.username.setText(getSessionManager().getUsername());
+
+            holder.editSubject.setText(postsList.get(position).getSubject());
+            holder.editMessage.setText(postText);
+
+            holder.submitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (holder.editSubject.getText().toString().isEmpty()) return;
+                    if (holder.editMessage.getText().toString().isEmpty()) return;
+                    holder.submitButton.setEnabled(false);
+                    editTask.execute(new EditTaskDTO(position, commitEditURL, holder.editSubject.getText().toString(),
+                            holder.editMessage.getText().toString(), numReplies, seqnum, sc, topic));
+
+                    holder.editSubject.getText().clear();
+                    holder.editSubject.setText(postsList.get(position).getSubject());
+                    holder.submitButton.setEnabled(true);
+                }
+            });
+
+            if (backPressHidden) {
+                holder.editMessage.requestFocus();
                 backPressHidden = false;
             }
         }
@@ -691,6 +707,23 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             quickReplySubject = quickReply.findViewById(R.id.quick_reply_subject);
             quickReplySubject.addTextChangedListener(replySubject);
             submitButton = quickReply.findViewById(R.id.quick_reply_submit);
+        }
+    }
+
+    private static class EditMessageViewHolder extends RecyclerView.ViewHolder {
+        final ImageView thumbnail;
+        final TextView username;
+        final EditText editMessage, editSubject;
+        final AppCompatImageButton submitButton;
+
+        public EditMessageViewHolder(View editView) {
+            super(editView);
+
+            thumbnail = editView.findViewById(R.id.thumbnail);
+            username = editView.findViewById(R.id.username);
+            editMessage = editView.findViewById(R.id.edit_message_text);
+            editSubject = editView.findViewById(R.id.edit_message_subject);
+            submitButton = editView.findViewById(R.id.edit_message_submit);
         }
     }
 
