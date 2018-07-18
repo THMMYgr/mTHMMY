@@ -262,7 +262,7 @@ public class TopicActivity extends BaseActivity {
         CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(
                 getApplicationContext(), loadedPageUrl);
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, postsList, base_url, topicTask, new PrepareForEdit());
+        topicAdapter = new TopicAdapter(this, postsList, base_url, topicTask);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = findViewById(R.id.topic_fab);
@@ -676,6 +676,7 @@ public class TopicActivity extends BaseActivity {
                     postsList.addAll(localPostsList);
                     topicAdapter.notifyItemRangeInserted(0, postsList.size());
                     topicAdapter.prepareForDelete(new DeleteTask());
+                    topicAdapter.prepareForPrepareForEdit(new PrepareForEdit());
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
 
                     if (replyPageUrl == null) {
@@ -1064,7 +1065,7 @@ public class TopicActivity extends BaseActivity {
                 document = Jsoup.parse(response.body().string());
 
                 Element message = document.select("textarea").first();
-                postText = message.html();
+                postText = message.text();
 
                 commitEditURL = document.select("form").first().attr("action");
                 numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
@@ -1153,7 +1154,7 @@ public class TopicActivity extends BaseActivity {
             bottomNavBar.setVisibility(View.VISIBLE);
 
             if (!result)
-                Toast.makeText(TopicActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TopicActivity.this, "Edit failed!", Toast.LENGTH_SHORT).show();
             paginationEnabled(true);
             replyFAB.setEnabled(true);
 

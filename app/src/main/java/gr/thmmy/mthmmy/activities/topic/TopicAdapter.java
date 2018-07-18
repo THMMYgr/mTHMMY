@@ -104,7 +104,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param postsList List of {@link Post} objects to use
      */
     TopicAdapter(Context context, List<Post> postsList, String baseUrl,
-                 TopicActivity.TopicTask topicTask, TopicActivity.PrepareForEdit prepareForEditTask) {
+                 TopicActivity.TopicTask topicTask) {
         this.context = context;
         this.postsList = postsList;
         this.baseUrl = baseUrl;
@@ -115,7 +115,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewProperties.add(new boolean[3]);
         }
         this.topicTask = topicTask;
-        this.prepareForEditTask = prepareForEditTask;
     }
 
     ArrayList<Integer> getToQuoteList() {
@@ -135,6 +134,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     void prepareForDelete(TopicActivity.DeleteTask deleteTask) {
         this.deleteTask = deleteTask;
+    }
+
+    void prepareForPrepareForEdit(TopicActivity.PrepareForEdit prepareForEditTask) {
+        this.prepareForEditTask = prepareForEditTask;
     }
 
     void prepareForEdit(TopicActivity.EditTask editTask, String commitEditURL, String numReplies, String seqnum, String sc,
@@ -587,7 +590,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic));
 
                         holder.quickReplySubject.getText().clear();
-                        //holder.quickReplySubject.setText("Re: " + topicTitle);
+                        holder.quickReplySubject.setText(postsList.get(position).getSubject());
                         holder.quickReply.getText().clear();
                         holder.submitButton.setEnabled(true);
                     }
