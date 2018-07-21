@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.base;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -54,6 +55,7 @@ import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
+import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
 import okhttp3.OkHttpClient;
 import timber.log.Timber;
 
@@ -118,6 +120,10 @@ public abstract class BaseActivity extends AppCompatActivity {
             loadSavedBookmarks();
         }
 
+        BaseViewModel baseViewModel = ViewModelProviders.of(this).get(BaseViewModel.class);
+        baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> {
+            setTopicBookmark(thisPageBookmarkMenuButton);
+        });
     }
 
     @Override
