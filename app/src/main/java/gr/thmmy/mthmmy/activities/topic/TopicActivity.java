@@ -169,7 +169,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = findViewById(R.id.topic_fab);
-        replyFAB.setEnabled(false);
+        replyFAB.hide();
         bottomNavBar = findViewById(R.id.bottom_navigation_bar);
         if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
@@ -194,7 +194,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
 
         viewModel.getTopicTaskResult().observe(this, topicTaskResult -> {
             if (topicTaskResult == null) {
-                hideControls();
+                progressBar.setVisibility(ProgressBar.VISIBLE);
             } else {
                 switch (topicTaskResult.getResultCode()) {
                     case SUCCESS:
@@ -202,6 +202,12 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                                 || !Objects.equals(topicTitle, topicTaskResult.getTopicTitle())) {
                             toolbarTitle.setText(topicTaskResult.getTopicTitle());
                         }
+
+                        if (topicTaskResult.getReplyPageUrl() == null) {
+                            replyFAB.hide();
+                            topicAdapter.resetTopic(false);
+                        } else
+                            topicAdapter.resetTopic(true);
 
                         if (!postsList.isEmpty()) {
                             recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
@@ -222,18 +228,18 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                                 notificationManager.cancel(NEW_POST_TAG, topicTaskResult.getLoadedPageTopicId());
                         }
 
-                        showControls();
+                        progressBar.setVisibility(ProgressBar.GONE);
                         break;
                     case NETWORK_ERROR:
                         Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
                         break;
                     case SAME_PAGE:
-                        showControls();
+                        progressBar.setVisibility(ProgressBar.GONE);
                         Toast.makeText(getBaseContext(), "That's the same page", Toast.LENGTH_SHORT).show();
                         //TODO change focus
                         break;
                     case UNAUTHORIZED:
-                        showControls();
+                        progressBar.setVisibility(ProgressBar.GONE);
                         Toast.makeText(getBaseContext(), "This topic is either missing or off limits to you", Toast.LENGTH_SHORT).show();
                         break;
                     default:
@@ -249,12 +255,12 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         viewModel.getPrepareForReplyResult().observe(this, prepareForReplyResult -> {
             if (prepareForReplyResult != null) {
                 //prepare for a reply
-                viewModel.setWritingReply(true);
                 postsList.add(Post.newQuickReply());
                 topicAdapter.notifyItemInserted(postsList.size());
                 recyclerView.scrollToPosition(postsList.size() - 1);
-                showControls();
+                progressBar.setVisibility(ProgressBar.GONE);
                 replyFAB.setVisibility(View.GONE);
+                bottomNavBar.setVisibility(View.GONE);
             }
 
         });
@@ -264,25 +270,12 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 postsList.get(result.getPosition()).setPostType(Post.TYPE_EDIT);
                 topicAdapter.notifyItemChanged(result.getPosition());
                 recyclerView.scrollToPosition(result.getPosition());
-                showControls();
+                progressBar.setVisibility(ProgressBar.GONE);
+                replyFAB.setVisibility(View.GONE);
+                bottomNavBar.setVisibility(View.GONE);
             }
         });
         viewModel.initialLoad(topicPageUrl);
-    }
-
-    public void hideControls() {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
-        if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(false);
-    }
-
-    public void showControls() {
-        progressBar.setVisibility(ProgressBar.GONE);
-        if (viewModel.getTopicTaskResult().getValue().getReplyPageUrl() == null) {
-            replyFAB.hide();
-            topicAdapter.resetTopic(false);
-        } else
-            topicAdapter.resetTopic(true);
-        if (replyFAB.getVisibility() != View.GONE) replyFAB.setEnabled(true);
     }
 
     @Override
@@ -344,13 +337,21 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
             return;
-        } else if (postsList != null && postsList.size() > 0 && postsList.get(postsList.size() - 1) == null) {
+        } else if (viewModel.isWritingReply()) {
             postsList.remove(postsList.size() - 1);
             topicAdapter.notifyItemRemoved(postsList.size());
             topicAdapter.setBackButtonHidden();
-            replyFAB.setVisibility(View.INVISIBLE);
-            paginationEnabled(true);
-            replyFAB.setEnabled(true);
+            viewModel.setWritingReply(false);
+            replyFAB.setVisibility(View.VISIBLE);
+            bottomNavBar.setVisibility(View.VISIBLE);
+            return;
+        } else if (viewModel.isEditingPost()) {
+            postsList.get(viewModel.getPostEditedPosition()).setPostType(Post.TYPE_POST);
+            topicAdapter.notifyItemChanged(viewModel.getPostEditedPosition());
+            topicAdapter.setBackButtonHidden();
+            viewModel.setEditingPost(false);
+            replyFAB.setVisibility(View.VISIBLE);
+            bottomNavBar.setVisibility(View.VISIBLE);
             return;
         }
         super.onBackPressed();
@@ -538,17 +539,17 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
 
     @Override
     public void onTopicTaskStarted() {
-        hideControls();
+        progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
     @Override
     public void onTopicTaskCancelled() {
-        showControls();
+        progressBar.setVisibility(ProgressBar.GONE);
     }
 
     @Override
     public void onReplyTaskStarted() {
-        hideControls();
+        progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
     @Override
@@ -562,8 +563,9 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         postsList.remove(postsList.size() - 1);
         topicAdapter.notifyItemRemoved(postsList.size());
 
-        showControls();
+        progressBar.setVisibility(ProgressBar.GONE);
         replyFAB.setVisibility(View.VISIBLE);
+        bottomNavBar.setVisibility(View.VISIBLE);
         viewModel.setWritingReply(false);
 
         if (success) {
@@ -579,22 +581,22 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
 
     @Override
     public void onPrepareForReplyStarted() {
-        hideControls();
+        progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
     @Override
     public void onPrepareForReplyCancelled() {
-        showControls();
+        progressBar.setVisibility(ProgressBar.GONE);
     }
 
     @Override
     public void onDeleteTaskStarted() {
-        hideControls();
+        progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
     @Override
     public void onDeleteTaskFinished(boolean result) {
-        showControls();
+        progressBar.setVisibility(ProgressBar.GONE);
 
         if (result) {
             viewModel.reloadPage();
@@ -605,17 +607,17 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
 
     @Override
     public void onPrepareEditStarted() {
-        hideControls();
+        progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
     @Override
     public void onPrepareEditCancelled() {
-        showControls();
+        progressBar.setVisibility(ProgressBar.GONE);
     }
 
     @Override
     public void onEditTaskStarted() {
-        hideControls();
+        progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
     @Override
@@ -629,11 +631,11 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         postsList.get(position).setPostType(Post.TYPE_POST);
         topicAdapter.notifyItemChanged(position);
         viewModel.setEditingPost(false);
-
-        showControls();
+        progressBar.setVisibility(ProgressBar.GONE);
+        replyFAB.setVisibility(View.VISIBLE);
+        bottomNavBar.setVisibility(View.VISIBLE);
 
         if (result) {
-            viewModel.setEditingPost(false);
             viewModel.reloadPage();
         } else {
             Toast.makeText(TopicActivity.this, "Edit failed!", Toast.LENGTH_SHORT).show();

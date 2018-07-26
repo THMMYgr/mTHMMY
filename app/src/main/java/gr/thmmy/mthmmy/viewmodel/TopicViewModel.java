@@ -27,6 +27,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     private boolean editingPost = false;
     private boolean writingReply = false;
+    /**
+     * holds the adapter position of the post being edited
+     */
+    private int postEditedPosition;
 
     private TopicTask currentTopicTask;
     private PrepareForEditTask currentPrepareForEditTask;
@@ -85,6 +89,14 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     public boolean isEditingPost() {
         return editingPost;
+    }
+
+    public int getPostEditedPosition() {
+        return postEditedPosition;
+    }
+
+    public boolean isWritingReply() {
+        return writingReply;
     }
 
     public void setWritingReply(boolean writingReply) {
@@ -215,11 +227,14 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     @Override
     public void onPrepareForReplyFinished(PrepareForReplyResult result) {
+        writingReply = true;
         prepareForReplyResult.setValue(result);
     }
 
     @Override
     public void onPrepareEditFinished(PrepareForEditResult result, int position) {
+        editingPost = true;
+        postEditedPosition = position;
         prepareForEditResult.setValue(result);
     }
 }
