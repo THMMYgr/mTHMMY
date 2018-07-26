@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.topic;
+package gr.thmmy.mthmmy.activities.topic.tasks;
 
 public class PrepareForReplyResult {
     private final String numReplies, seqnum, sc, topic, buildedQuotes;

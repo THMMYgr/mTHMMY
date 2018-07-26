@@ -28,7 +28,7 @@ import timber.log.Timber;
  * <li>{@link #parseTopicNumberOfPages(Document, int, ParseHelpers.Language)}</li>
  * <li>{@link #parseTopic(Document, ParseHelpers.Language)}</li>
  */
-class TopicParser {
+public class TopicParser {
     //User colors
     private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
     private static final int USER_COLOR_RED = Color.parseColor("#F44336");
@@ -48,7 +48,7 @@ class TopicParser {
      * @return String containing html with the usernames of users
      * @see org.jsoup.Jsoup Jsoup
      */
-    static String parseUsersViewingThisTopic(Document topic, ParseHelpers.Language language) {
+    public static String parseUsersViewingThisTopic(Document topic, ParseHelpers.Language language) {
         if (language.is(ParseHelpers.Language.GREEK))
             return topic.select("td:containsOwn(διαβάζουν αυτό το θέμα)").first().html();
         return topic.select("td:containsOwn(are viewing this topic)").first().html();
@@ -64,7 +64,7 @@ class TopicParser {
      * @return int containing parsed topic's current page
      * @see org.jsoup.Jsoup Jsoup
      */
-    static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
+    public static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
         int parsedPage = 1;
 
         if (language.is(ParseHelpers.Language.GREEK)) {
@@ -102,7 +102,7 @@ class TopicParser {
      * @return int containing the number of pages
      * @see org.jsoup.Jsoup Jsoup
      */
-    static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
+    public static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
         int returnPages = 1;
 
         if (language.is(ParseHelpers.Language.GREEK)) {
@@ -140,7 +140,7 @@ class TopicParser {
      * @return {@link ArrayList} of {@link Post}s
      * @see org.jsoup.Jsoup Jsoup
      */
-    static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
+    public static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
         //Method's variables
         final int NO_INDEX = -1;
         ArrayList<Post> parsedPostsList = new ArrayList<>();

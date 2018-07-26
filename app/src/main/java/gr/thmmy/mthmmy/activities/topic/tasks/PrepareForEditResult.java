@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.topic;
+package gr.thmmy.mthmmy.activities.topic.tasks;
 
 public class PrepareForEditResult {
     private final String postText, commitEditUrl, numReplies, seqnum, sc, topic;

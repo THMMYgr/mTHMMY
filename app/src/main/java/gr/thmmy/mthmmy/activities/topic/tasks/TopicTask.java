@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.topic;
+package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 import android.util.SparseArray;
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import gr.thmmy.mthmmy.activities.topic.TopicParser;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;

@@ -1,16 +1,15 @@
-package gr.thmmy.mthmmy.activities.topic;
+package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
 import java.io.IOException;
 
+import gr.thmmy.mthmmy.activities.topic.Posting;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
 public class DeleteTask extends AsyncTask<String, Void, Boolean> {
     private DeleteTaskCallbacks listener;
@@ -37,7 +36,7 @@ public class DeleteTask extends AsyncTask<String, Void, Boolean> {
             client.newCall(delete).execute();
             Response response = client.newCall(delete).execute();
             //Response response = client.newCall(delete).execute();
-            switch (replyStatus(response)) {
+            switch (Posting.replyStatus(response)) {
                 case SUCCESSFUL:
                     return true;
                 default:

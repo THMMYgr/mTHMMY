@@ -9,22 +9,24 @@ import android.preference.PreferenceManager;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
-import gr.thmmy.mthmmy.activities.topic.DeleteTask;
-import gr.thmmy.mthmmy.activities.topic.EditTask;
-import gr.thmmy.mthmmy.activities.topic.PrepareForReply;
-import gr.thmmy.mthmmy.activities.topic.PrepareForReplyResult;
-import gr.thmmy.mthmmy.activities.topic.PrepareForEditResult;
-import gr.thmmy.mthmmy.activities.topic.PrepareForEditTask;
-import gr.thmmy.mthmmy.activities.topic.ReplyTask;
-import gr.thmmy.mthmmy.activities.topic.TopicTask;
-import gr.thmmy.mthmmy.activities.topic.TopicTaskResult;
+import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReplyResult;
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditResult;
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.ReplyTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.TopicTaskResult;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.session.SessionManager;
 
 public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTaskCompleted,
         PrepareForReply.OnPrepareForReplyFinished, PrepareForEditTask.OnPrepareEditFinished {
-
+    /**
+     * topic state
+     */
     private boolean editingPost = false;
     private boolean writingReply = false;
     /**
@@ -36,6 +38,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private PrepareForEditTask currentPrepareForEditTask;
     private PrepareForReply currentPrepareForReplyTask;
 
+    //callbacks for topic activity
     private TopicTask.TopicTaskObserver topicTaskObserver;
     private DeleteTask.DeleteTaskCallbacks deleteTaskCallbacks;
     private ReplyTask.ReplyTaskCallbacks replyFinishListener;
@@ -48,6 +51,125 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private MutableLiveData<PrepareForEditResult> prepareForEditResult = new MutableLiveData<>();
 
     private String firstTopicUrl;
+
+    public void initialLoad(String pageUrl) {
+        firstTopicUrl = pageUrl;
+        currentTopicTask = new TopicTask(topicTaskObserver, this);
+        currentTopicTask.execute(pageUrl);
+    }
+
+    public void loadUrl(String pageUrl) {
+        stopLoading();
+        currentTopicTask = new TopicTask(topicTaskObserver, this);
+        currentTopicTask.execute(pageUrl);
+    }
+
+    public void reloadPage() {
+        stopLoading();
+        if (topicTaskResult.getValue() == null)
+            throw new NullPointerException("No topic task has finished yet!");
+        currentTopicTask = new TopicTask(topicTaskObserver, this);
+        currentTopicTask.execute(topicTaskResult.getValue().getLastPageLoadAttemptedUrl());
+    }
+
+    public void changePage(int pageRequested) {
+        if (topicTaskResult.getValue() == null)
+            throw new NullPointerException("No page has been loaded yet!");
+        if (pageRequested != topicTaskResult.getValue().getCurrentPageIndex() - 1) {
+            stopLoading();
+            currentTopicTask = new TopicTask(topicTaskObserver, this);
+            currentTopicTask.execute(topicTaskResult.getValue().getPagesUrls().get(pageRequested));
+        }
+    }
+
+    public void prepareForReply(ArrayList<Post> postsList, ArrayList<Integer> toQuoteList) {
+        if (topicTaskResult.getValue() == null)
+            throw new NullPointerException("Topic task has not finished yet!");
+        stopLoading();
+        changePage(topicTaskResult.getValue().getPageCount() - 1);
+        currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
+                topicTaskResult.getValue().getReplyPageUrl(), postsList);
+        currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
+    }
+
+    public void postReply(Context context, String subject, String reply) {
+        if (prepareForReplyResult.getValue() == null) {
+            throw new NullPointerException("Reply preparation was not found!");
+        }
+        PrepareForReplyResult replyForm = prepareForReplyResult.getValue();
+        boolean includeAppSignature = true;
+        SessionManager sessionManager = BaseActivity.getSessionManager();
+        if (sessionManager.isLoggedIn()) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            includeAppSignature = prefs.getBoolean(SettingsActivity.APP_SIGNATURE_ENABLE_KEY, true);
+        }
+        new ReplyTask(replyFinishListener, includeAppSignature).execute(subject, reply,
+                replyForm.getNumReplies(), replyForm.getSeqnum(), replyForm.getSc(), replyForm.getTopic());
+    }
+
+    public void deletePost(String postDeleteUrl) {
+        new DeleteTask(deleteTaskCallbacks).execute(postDeleteUrl);
+    }
+
+    public void prepareForEdit(int position, String postEditURL) {
+        if (topicTaskResult.getValue() == null)
+            throw new NullPointerException("Topic task has not finished yet!");
+        stopLoading();
+        currentPrepareForEditTask = new PrepareForEditTask(prepareForEditCallbacks, this, position,
+                topicTaskResult.getValue().getReplyPageUrl());
+        currentPrepareForEditTask.execute(postEditURL);
+    }
+
+    public void editPost(int position, String subject, String message) {
+        if (prepareForEditResult.getValue() == null)
+            throw new NullPointerException("Edit preparation was not found!");
+        PrepareForEditResult editResult = prepareForEditResult.getValue();
+        new EditTask(editTaskCallbacks, position).execute(editResult.getCommitEditUrl(), message,
+                editResult.getNumReplies(), editResult.getSeqnum(), editResult.getSc(), subject, editResult.getTopic());
+    }
+
+    /**
+     * cancel tasks that change the ui
+     * topic, prepare for edit, prepare for reply tasks need to cancel all other ui changing tasks
+     * before starting
+     */
+    public void stopLoading() {
+        if (currentTopicTask != null && currentTopicTask.getStatus() == AsyncTask.Status.RUNNING) {
+            currentTopicTask.cancel(true);
+            topicTaskObserver.onTopicTaskCancelled();
+        }
+        if (currentPrepareForEditTask != null && currentPrepareForEditTask.getStatus() == AsyncTask.Status.RUNNING) {
+            currentPrepareForEditTask.cancel(true);
+            prepareForEditCallbacks.onPrepareEditCancelled();
+        }
+        if (currentPrepareForReplyTask != null && currentPrepareForReplyTask.getStatus() == AsyncTask.Status.RUNNING) {
+            currentPrepareForReplyTask.cancel(true);
+            prepareForReplyCallbacks.onPrepareForReplyCancelled();
+        }
+        // no need to cancel reply, edit and delete task, user should not have to wait for the ui
+        // after he is done posting, editing or deleting
+    }
+
+    // callbacks for viewmodel
+    @Override
+    public void onTopicTaskCompleted(TopicTaskResult result) {
+        topicTaskResult.setValue(result);
+    }
+
+    @Override
+    public void onPrepareForReplyFinished(PrepareForReplyResult result) {
+        writingReply = true;
+        prepareForReplyResult.setValue(result);
+    }
+
+    @Override
+    public void onPrepareEditFinished(PrepareForEditResult result, int position) {
+        editingPost = true;
+        postBeingEditedPosition = position;
+        prepareForEditResult.setValue(result);
+    }
+
+    // <-------------Just getters, setters and helper methods below here---------------->
 
     public void setTopicTaskObserver(TopicTask.TopicTaskObserver topicTaskObserver) {
         this.topicTaskObserver = topicTaskObserver;
@@ -157,121 +279,5 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         } else {
             return "";
         }
-    }
-
-    public void initialLoad(String pageUrl) {
-        firstTopicUrl = pageUrl;
-        currentTopicTask = new TopicTask(topicTaskObserver, this);
-        currentTopicTask.execute(pageUrl);
-    }
-
-    public void loadUrl(String pageUrl) {
-        stopLoading();
-        currentTopicTask = new TopicTask(topicTaskObserver, this);
-        currentTopicTask.execute(pageUrl);
-    }
-
-    public void reloadPage() {
-        stopLoading();
-        if (topicTaskResult.getValue() == null)
-            throw new NullPointerException("No topic task has finished yet!");
-        currentTopicTask = new TopicTask(topicTaskObserver, this);
-        currentTopicTask.execute(topicTaskResult.getValue().getLastPageLoadAttemptedUrl());
-    }
-
-    public void changePage(int pageRequested) {
-        if (topicTaskResult.getValue() == null)
-            throw new NullPointerException("No page has been loaded yet!");
-        if (pageRequested != topicTaskResult.getValue().getCurrentPageIndex() - 1) {
-            stopLoading();
-            currentTopicTask = new TopicTask(topicTaskObserver, this);
-            currentTopicTask.execute(topicTaskResult.getValue().getPagesUrls().get(pageRequested));
-        }
-    }
-
-    public void prepareForReply(ArrayList<Post> postsList, ArrayList<Integer> toQuoteList) {
-        if (topicTaskResult.getValue() == null)
-            throw new NullPointerException("Topic task has not finished yet!");
-        stopLoading();
-        changePage(topicTaskResult.getValue().getPageCount() - 1);
-        currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
-                topicTaskResult.getValue().getReplyPageUrl(), postsList);
-        currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
-    }
-
-    public void postReply(Context context, String subject, String reply) {
-        if (prepareForReplyResult.getValue() == null) {
-            throw new NullPointerException("Reply preparation was not found!");
-        }
-        PrepareForReplyResult replyForm = prepareForReplyResult.getValue();
-        boolean includeAppSignature = true;
-        SessionManager sessionManager = BaseActivity.getSessionManager();
-        if (sessionManager.isLoggedIn()) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            includeAppSignature = prefs.getBoolean(SettingsActivity.APP_SIGNATURE_ENABLE_KEY, true);
-        }
-        new ReplyTask(replyFinishListener, includeAppSignature).execute(subject, reply,
-                replyForm.getNumReplies(), replyForm.getSeqnum(), replyForm.getSc(), replyForm.getTopic());
-    }
-
-    public void deletePost(String postDeleteUrl) {
-        new DeleteTask(deleteTaskCallbacks).execute(postDeleteUrl);
-    }
-
-    public void prepareForEdit(int position, String postEditURL) {
-        if (topicTaskResult.getValue() == null)
-            throw new NullPointerException("Topic task has not finished yet!");
-        stopLoading();
-        currentPrepareForEditTask = new PrepareForEditTask(prepareForEditCallbacks, this, position,
-                topicTaskResult.getValue().getReplyPageUrl());
-        currentPrepareForEditTask.execute(postEditURL);
-    }
-
-    public void editPost(int position, String subject, String message) {
-        if (prepareForEditResult.getValue() == null)
-            throw new NullPointerException("Edit preparation was not found!");
-        PrepareForEditResult editResult = prepareForEditResult.getValue();
-        new EditTask(editTaskCallbacks, position).execute(editResult.getCommitEditUrl(), message,
-                editResult.getNumReplies(), editResult.getSeqnum(), editResult.getSc(), subject, editResult.getTopic());
-    }
-
-    /**
-     * cancel tasks that change the ui
-     * topic, prepare for edit, prepare for reply tasks need to cancel all other ui changing tasks
-     * before starting
-     */
-    public void stopLoading() {
-        if (currentTopicTask != null && currentTopicTask.getStatus() == AsyncTask.Status.RUNNING) {
-            currentTopicTask.cancel(true);
-            topicTaskObserver.onTopicTaskCancelled();
-        }
-        if (currentPrepareForEditTask != null && currentPrepareForEditTask.getStatus() == AsyncTask.Status.RUNNING) {
-            currentPrepareForEditTask.cancel(true);
-            prepareForEditCallbacks.onPrepareEditCancelled();
-        }
-        if (currentPrepareForReplyTask != null && currentPrepareForReplyTask.getStatus() == AsyncTask.Status.RUNNING) {
-            currentPrepareForReplyTask.cancel(true);
-            prepareForReplyCallbacks.onPrepareForReplyCancelled();
-        }
-        // no need to cancel reply, edit and delete task, user should not have to wait for the ui
-        // after he is done posting, editing or deleting
-    }
-
-    @Override
-    public void onTopicTaskCompleted(TopicTaskResult result) {
-        topicTaskResult.setValue(result);
-    }
-
-    @Override
-    public void onPrepareForReplyFinished(PrepareForReplyResult result) {
-        writingReply = true;
-        prepareForReplyResult.setValue(result);
-    }
-
-    @Override
-    public void onPrepareEditFinished(PrepareForEditResult result, int position) {
-        editingPost = true;
-        postBeingEditedPosition = position;
-        prepareForEditResult.setValue(result);
     }
 }

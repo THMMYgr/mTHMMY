@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.topic;
+package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
@@ -9,6 +9,7 @@ import org.jsoup.select.Selector;
 
 import java.io.IOException;
 
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditResult;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.topic;
+package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
