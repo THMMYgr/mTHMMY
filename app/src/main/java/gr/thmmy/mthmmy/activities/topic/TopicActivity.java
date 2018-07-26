@@ -169,7 +169,6 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = findViewById(R.id.topic_fab);
-        replyFAB.hide();
         bottomNavBar = findViewById(R.id.bottom_navigation_bar);
         if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
@@ -203,12 +202,6 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                             toolbarTitle.setText(topicTaskResult.getTopicTitle());
                         }
 
-                        if (topicTaskResult.getReplyPageUrl() == null) {
-                            replyFAB.hide();
-                            topicAdapter.resetTopic(false);
-                        } else
-                            topicAdapter.resetTopic(true);
-
                         if (!postsList.isEmpty()) {
                             recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
                             postsList.clear();
@@ -229,6 +222,9 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                         }
 
                         progressBar.setVisibility(ProgressBar.GONE);
+                        if (topicTaskResult.getReplyPageUrl() == null)
+                            replyFAB.hide();
+                        topicAdapter.resetTopic();
                         break;
                     case NETWORK_ERROR:
                         Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();

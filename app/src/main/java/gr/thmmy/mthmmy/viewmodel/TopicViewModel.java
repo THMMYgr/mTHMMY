@@ -95,6 +95,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         return postEditedPosition;
     }
 
+    public boolean canReply() {
+        return topicTaskResult.getValue() != null && topicTaskResult.getValue().getReplyPageUrl() != null;
+    }
+
     public boolean isWritingReply() {
         return writingReply;
     }

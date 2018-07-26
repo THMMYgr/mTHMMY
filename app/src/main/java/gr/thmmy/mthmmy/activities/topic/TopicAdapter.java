@@ -88,8 +88,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int isQuoteButtonChecked = 1;
     private TopicViewModel viewModel;
 
-    private boolean canReply = false;
-
     /**
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
@@ -452,7 +450,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
 
             //noinspection PointlessBooleanExpression,ConstantConditions
-            if (!BaseActivity.getSessionManager().isLoggedIn() || !canReply) {
+            if (!BaseActivity.getSessionManager().isLoggedIn() || !viewModel.canReply()) {
                 holder.quoteToggle.setVisibility(View.GONE);
             } else {
                 if (viewProperties.get(position)[isQuoteButtonChecked])
@@ -559,8 +557,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    void resetTopic(boolean canReply) {
-        this.canReply = canReply;
+    void resetTopic() {
         viewProperties.clear();
         for (int i = 0; i < postsList.size(); ++i) {
             //Initializes properties, array's values will be false by default
