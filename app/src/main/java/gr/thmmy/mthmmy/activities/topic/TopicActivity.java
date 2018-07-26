@@ -169,6 +169,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = findViewById(R.id.topic_fab);
+        replyFAB.hide();
         bottomNavBar = findViewById(R.id.bottom_navigation_bar);
         if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
@@ -190,6 +191,8 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         initDecrementButton(previousPage, SMALL_STEP);
         initIncrementButton(nextPage, SMALL_STEP);
         initIncrementButton(lastPage, LARGE_STEP);
+
+        paginationEnabled(false);
 
         viewModel.getTopicTaskResult().observe(this, topicTaskResult -> {
             if (topicTaskResult == null) {
@@ -214,6 +217,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                         pageIndicator.setText(String.valueOf(topicTaskResult.getCurrentPageIndex()) + "/" +
                                 String.valueOf(topicTaskResult.getPageCount()));
                         pageRequestValue = topicTaskResult.getCurrentPageIndex();
+                        paginationEnabled(true);
 
                         if (topicTaskResult.getCurrentPageIndex() == topicTaskResult.getPageCount()) {
                             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -222,8 +226,11 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                         }
 
                         progressBar.setVisibility(ProgressBar.GONE);
-                        if (topicTaskResult.getReplyPageUrl() == null)
+                        if (topicTaskResult.getReplyPageUrl() == null) {
                             replyFAB.hide();
+                        } else {
+                            replyFAB.show();
+                        }
                         topicAdapter.resetTopic();
                         break;
                     case NETWORK_ERROR:
@@ -255,7 +262,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 topicAdapter.notifyItemInserted(postsList.size());
                 recyclerView.scrollToPosition(postsList.size() - 1);
                 progressBar.setVisibility(ProgressBar.GONE);
-                replyFAB.setVisibility(View.GONE);
+                replyFAB.hide();
                 bottomNavBar.setVisibility(View.GONE);
             }
 
@@ -267,7 +274,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 topicAdapter.notifyItemChanged(result.getPosition());
                 recyclerView.scrollToPosition(result.getPosition());
                 progressBar.setVisibility(ProgressBar.GONE);
-                replyFAB.setVisibility(View.GONE);
+                replyFAB.hide();
                 bottomNavBar.setVisibility(View.GONE);
             }
         });
@@ -338,7 +345,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
             topicAdapter.notifyItemRemoved(postsList.size());
             topicAdapter.setBackButtonHidden();
             viewModel.setWritingReply(false);
-            replyFAB.setVisibility(View.VISIBLE);
+            replyFAB.show();
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
         } else if (viewModel.isEditingPost()) {
@@ -346,7 +353,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
             topicAdapter.notifyItemChanged(viewModel.getPostEditedPosition());
             topicAdapter.setBackButtonHidden();
             viewModel.setEditingPost(false);
-            replyFAB.setVisibility(View.VISIBLE);
+            replyFAB.show();
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
         }
@@ -560,7 +567,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         topicAdapter.notifyItemRemoved(postsList.size());
 
         progressBar.setVisibility(ProgressBar.GONE);
-        replyFAB.setVisibility(View.VISIBLE);
+        replyFAB.show();
         bottomNavBar.setVisibility(View.VISIBLE);
         viewModel.setWritingReply(false);
 
@@ -628,7 +635,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         topicAdapter.notifyItemChanged(position);
         viewModel.setEditingPost(false);
         progressBar.setVisibility(ProgressBar.GONE);
-        replyFAB.setVisibility(View.VISIBLE);
+        replyFAB.show();
         bottomNavBar.setVisibility(View.VISIBLE);
 
         if (result) {

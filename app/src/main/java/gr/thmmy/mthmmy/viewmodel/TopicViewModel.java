@@ -47,6 +47,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private MutableLiveData<PrepareForReplyResult> prepareForReplyResult = new MutableLiveData<>();
     private MutableLiveData<PrepareForEditResult> prepareForEditResult = new MutableLiveData<>();
 
+    private String firstTopicUrl;
+
     public void setTopicTaskObserver(TopicTask.TopicTaskObserver topicTaskObserver) {
         this.topicTaskObserver = topicTaskObserver;
     }
@@ -119,7 +121,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (topicTaskResult.getValue() != null) {
             return topicTaskResult.getValue().getLastPageLoadAttemptedUrl();
         } else {
-            throw new NullPointerException("Topic task has not finished yet!");
+            // topic task has not finished yet (log? disable menu button until load is finished?)
+            return firstTopicUrl;
         }
     }
 
@@ -132,6 +135,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void initialLoad(String pageUrl) {
+        firstTopicUrl = pageUrl;
         currentTopicTask = new TopicTask(topicTaskObserver, this);
         currentTopicTask.execute(pageUrl);
     }
