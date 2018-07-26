@@ -30,7 +30,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     /**
      * holds the adapter position of the post being edited
      */
-    private int postEditedPosition;
+    private int postBeingEditedPosition;
 
     private TopicTask currentTopicTask;
     private PrepareForEditTask currentPrepareForEditTask;
@@ -93,8 +93,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         return editingPost;
     }
 
-    public int getPostEditedPosition() {
-        return postEditedPosition;
+    public int getPostBeingEditedPosition() {
+        return postBeingEditedPosition;
     }
 
     public boolean canReply() {
@@ -127,10 +127,35 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public String getTopicTitle() {
-        if (topicTaskResult.getValue() != null) {
-            return topicTaskResult.getValue().getTopicTitle();
-        } else {
+        if (topicTaskResult.getValue() == null)
             throw new NullPointerException("Topic task has not finished yet!");
+        return topicTaskResult.getValue().getTopicTitle();
+    }
+
+    public int getCurrentPageIndex() {
+        if (topicTaskResult.getValue() == null)
+            throw new NullPointerException("No page has been loaded yet!");
+        return topicTaskResult.getValue().getCurrentPageIndex();
+    }
+
+    public int getPageCount() {
+        if (topicTaskResult.getValue() == null)
+            throw new NullPointerException("No page has been loaded yet!");
+
+        return topicTaskResult.getValue().getPageCount();
+    }
+
+    public String getPostBeingEditedText() {
+        if (prepareForEditResult.getValue() == null)
+            throw new NullPointerException("Edit preparation was not found!");
+        return prepareForEditResult.getValue().getPostText();
+    }
+
+    public String getBuildedQuotes() {
+        if (prepareForReplyResult.getValue() != null) {
+            return prepareForReplyResult.getValue().getBuildedQuotes();
+        } else {
+            return "";
         }
     }
 
@@ -148,11 +173,15 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     public void reloadPage() {
         stopLoading();
+        if (topicTaskResult.getValue() == null)
+            throw new NullPointerException("No topic task has finished yet!");
         currentTopicTask = new TopicTask(topicTaskObserver, this);
         currentTopicTask.execute(topicTaskResult.getValue().getLastPageLoadAttemptedUrl());
     }
 
     public void changePage(int pageRequested) {
+        if (topicTaskResult.getValue() == null)
+            throw new NullPointerException("No page has been loaded yet!");
         if (pageRequested != topicTaskResult.getValue().getCurrentPageIndex() - 1) {
             stopLoading();
             currentTopicTask = new TopicTask(topicTaskObserver, this);
@@ -165,9 +194,9 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             throw new NullPointerException("Topic task has not finished yet!");
         stopLoading();
         changePage(topicTaskResult.getValue().getPageCount() - 1);
-         currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
-                 topicTaskResult.getValue().getReplyPageUrl(), postsList);
-         currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
+        currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
+                topicTaskResult.getValue().getReplyPageUrl(), postsList);
+        currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
     }
 
     public void postReply(Context context, String subject, String reply) {
@@ -242,7 +271,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     @Override
     public void onPrepareEditFinished(PrepareForEditResult result, int position) {
         editingPost = true;
-        postEditedPosition = position;
+        postBeingEditedPosition = position;
         prepareForEditResult.setValue(result);
     }
 }

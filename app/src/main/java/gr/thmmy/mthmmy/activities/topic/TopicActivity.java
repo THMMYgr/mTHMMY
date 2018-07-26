@@ -349,8 +349,8 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
         } else if (viewModel.isEditingPost()) {
-            postsList.get(viewModel.getPostEditedPosition()).setPostType(Post.TYPE_POST);
-            topicAdapter.notifyItemChanged(viewModel.getPostEditedPosition());
+            postsList.get(viewModel.getPostBeingEditedPosition()).setPostType(Post.TYPE_POST);
+            topicAdapter.notifyItemChanged(viewModel.getPostBeingEditedPosition());
             topicAdapter.setBackButtonHidden();
             viewModel.setEditingPost(false);
             replyFAB.show();
@@ -467,7 +467,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
-                        decrementPageRequestValue(pageRequestValue - viewModel.getTopicTaskResult().getValue().getCurrentPageIndex());
+                        decrementPageRequestValue(pageRequestValue - viewModel.getCurrentPageIndex());
                         paginationEnabled(true);
                     }
                 }
@@ -513,7 +513,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                     if (rect != null &&
                             !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
-                        incrementPageRequestValue(viewModel.getTopicTaskResult().getValue().getCurrentPageIndex() - pageRequestValue);
+                        incrementPageRequestValue(viewModel.getCurrentPageIndex() - pageRequestValue);
                         paginationEnabled(true);
                     }
                 }
@@ -523,7 +523,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
     }
 
     private void incrementPageRequestValue(int step) {
-        if (pageRequestValue < viewModel.getTopicTaskResult().getValue().getPageCount() - step) {
+        if (pageRequestValue < viewModel.getPageCount() - step) {
             pageRequestValue = pageRequestValue + step;
         } else
             pageRequestValue = viewModel.getTopicTaskResult().getValue().getPageCount();

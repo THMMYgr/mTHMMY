@@ -494,8 +494,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.username.setText(getSessionManager().getUsername());
             holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
 
-            if (viewModel.getPrepareForReplyResult().getValue() != null)
-                holder.quickReply.setText(viewModel.getPrepareForReplyResult().getValue().getBuildedQuotes());
+            holder.quickReply.setText(viewModel.getBuildedQuotes());
 
 
             holder.submitButton.setOnClickListener(view -> {
@@ -534,9 +533,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.username.setText(getSessionManager().getUsername());
 
             holder.editSubject.setText(postsList.get(position).getSubject());
-            if (viewModel.getPrepareForEditResult().getValue() == null)
-                throw new NullPointerException("Edit preparation was not found!");
-            holder.editMessage.setText(viewModel.getPrepareForEditResult().getValue().getPostText());
+            holder.editMessage.setText(viewModel.getPostBeingEditedText());
 
             holder.submitButton.setOnClickListener(view -> {
                 if (holder.editSubject.getText().toString().isEmpty()) return;
