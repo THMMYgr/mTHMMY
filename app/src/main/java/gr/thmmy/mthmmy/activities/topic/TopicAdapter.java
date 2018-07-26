@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -47,6 +48,7 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -69,7 +71,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     private static int THUMBNAIL_SIZE;
     private final Context context;
-    private String topicTitle;
     private String baseUrl;
     private final ArrayList<Integer> toQuoteList = new ArrayList<>();
     private final List<Post> postsList;
@@ -88,15 +89,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * Index of state indicator in the boolean array. If true quote button for this post is checked.
      */
     private static final int isQuoteButtonChecked = 1;
-    private TopicActivity.TopicTask topicTask;
-    private TopicActivity.ReplyTask replyTask;
-    private TopicActivity.DeleteTask deleteTask;
-    private TopicActivity.PrepareForEdit prepareForEditTask;
-    private TopicActivity.EditTask editTask;
+    private TopicViewModel viewModel;
 
     private final String[] replyDataHolder = new String[2];
     private final int replySubject = 0, replyText = 1;
-    private String commitEditURL, numReplies, seqnum, sc, topic, buildedQuotes, postText;
+    private String commitEditURL, buildedQuotes, postText;
     private boolean canReply = false;
     private boolean postEditingDisabled = false;
 
@@ -104,52 +101,21 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
-    TopicAdapter(Context context, List<Post> postsList, String baseUrl,
-                 TopicActivity.TopicTask topicTask) {
+    TopicAdapter(TopicActivity context, List<Post> postsList) {
         this.context = context;
         this.postsList = postsList;
-        this.baseUrl = baseUrl;
+
+        viewModel = ViewModelProviders.of(context).get(TopicViewModel.class);
 
         THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
         for (int i = 0; i < postsList.size(); ++i) {
             //Initializes properties, array's values will be false by default
             viewProperties.add(new boolean[3]);
         }
-        this.topicTask = topicTask;
     }
 
     ArrayList<Integer> getToQuoteList() {
         return toQuoteList;
-    }
-
-    void prepareForReply(TopicActivity.ReplyTask replyTask, String topicTitle, String numReplies,
-                         String seqnum, String sc, String topic, String buildedQuotes) {
-        this.replyTask = replyTask;
-        this.topicTitle = topicTitle;
-        this.numReplies = numReplies;
-        this.seqnum = seqnum;
-        this.sc = sc;
-        this.topic = topic;
-        this.buildedQuotes = buildedQuotes;
-    }
-
-    void prepareForDelete(TopicActivity.DeleteTask deleteTask) {
-        this.deleteTask = deleteTask;
-    }
-
-    void prepareForPrepareForEdit(TopicActivity.PrepareForEdit prepareForEditTask) {
-        this.prepareForEditTask = prepareForEditTask;
-    }
-
-    void prepareForEdit(TopicActivity.EditTask editTask, String commitEditURL, String numReplies, String seqnum, String sc,
-                        String topic, String postText) {
-        this.commitEditURL = commitEditURL;
-        this.editTask = editTask;
-        this.numReplies = numReplies;
-        this.seqnum = seqnum;
-        this.sc = sc;
-        this.topic = topic;
-        this.postText = postText;
     }
 
     @Override
@@ -170,22 +136,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             final EditText quickReplyText = view.findViewById(R.id.quick_reply_text);
             quickReplyText.setFocusableInTouchMode(true);
-            quickReplyText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    quickReplyText.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.showSoftInput(quickReplyText, InputMethodManager.SHOW_IMPLICIT);
-                        }
-                    });
-                }
-            });
+            quickReplyText.setOnFocusChangeListener((v, hasFocus) -> quickReplyText.post(() -> {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(quickReplyText, InputMethodManager.SHOW_IMPLICIT);
+            }));
             quickReplyText.requestFocus();
 
             //Default post subject
-            replyDataHolder[replySubject] = "Re: " + topicTitle;
+            replyDataHolder[replySubject] = "Re: " + viewModel.getTopicTitle();
             //Build quotes
             if (!Objects.equals(buildedQuotes, ""))
                 replyDataHolder[replyText] = buildedQuotes;
@@ -483,7 +441,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                                             @Override
                                             public void onClick(DialogInterface dialog, int whichButton) {
-                                                deleteTask.execute(currentPost.getPostDeleteURL());
+                                                viewModel.deletePost(currentPost.getPostDeleteURL());
                                             }
                                         })
                                         .setNegativeButton(android.R.string.no, null).show();
@@ -494,15 +452,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     final TextView editPostButton = popUpContent.findViewById(R.id.edit_post);
 
-                    if (postEditingDisabled || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
+                    if (viewModel.isEditingPost() || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
                         editPostButton.setVisibility(View.GONE);
                     } else {
-                        editPostButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                prepareForEditTask.execute(position);
-                            }
-                        });
+                        editPostButton.setOnClickListener(v -> viewModel.prepareForEdit(position,
+                                postsList.get(position).getPostEditURL()));
                     }
 
                     //Displays the popup
@@ -565,11 +519,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         if (holder.quickReplySubject.getText().toString().isEmpty()) return;
                         if (holder.quickReply.getText().toString().isEmpty()) return;
                         holder.submitButton.setEnabled(false);
-                        replyTask.execute(holder.quickReplySubject.getText().toString(),
-                                holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic);
+
+                        viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
+                                holder.quickReply.getText().toString());
 
                         holder.quickReplySubject.getText().clear();
-                        holder.quickReplySubject.setText("Re: " + topicTitle);
+                        holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
                         holder.quickReply.getText().clear();
                         holder.submitButton.setEnabled(true);
                     }
@@ -599,19 +554,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.editSubject.setText(postsList.get(position).getSubject());
             holder.editMessage.setText(postText);
 
-            holder.submitButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (holder.editSubject.getText().toString().isEmpty()) return;
-                    if (holder.editMessage.getText().toString().isEmpty()) return;
-                    holder.submitButton.setEnabled(false);
-                    editTask.execute(new EditTaskDTO(position, commitEditURL, holder.editSubject.getText().toString(),
-                            holder.editMessage.getText().toString(), numReplies, seqnum, sc, topic));
+            holder.submitButton.setOnClickListener(view -> {
+                if (holder.editSubject.getText().toString().isEmpty()) return;
+                if (holder.editMessage.getText().toString().isEmpty()) return;
+                holder.submitButton.setEnabled(false);
 
-                    holder.editSubject.getText().clear();
-                    holder.editSubject.setText(postsList.get(position).getSubject());
-                    holder.submitButton.setEnabled(true);
-                }
+                viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editMessage.getText().toString());
+
+                holder.editSubject.getText().clear();
+                holder.editSubject.setText(postsList.get(position).getSubject());
+                holder.submitButton.setEnabled(true);
             });
 
             if (backPressHidden) {
@@ -621,9 +573,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    void resetTopic(String baseUrl, TopicActivity.TopicTask topicTask, boolean canReply) {
-        this.baseUrl = baseUrl;
-        this.topicTask = topicTask;
+    void resetTopic(boolean canReply) {
         this.canReply = canReply;
         viewProperties.clear();
         for (int i = 0; i < postsList.size(); ++i) {
@@ -753,10 +703,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             final String uriString = uri.toString();
 
             ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(uri);
+            viewModel.stopLoading();
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if this is the current topic
-                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), baseUrl)) {
+                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), viewModel.getBaseUrl())) {
                     //Gets uri's targeted message's index number
                     String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
                     if (msgIndexReq.contains("#"))
@@ -772,7 +723,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         }
                     }
 
-                    topicTask.execute(uri.toString());
+                    viewModel.loadUrl(uri.toString());
                 }
 
                 Intent intent = new Intent(context, TopicActivity.class);
@@ -865,13 +816,5 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return context.getResources().getString(R.string.fa_file_video_o);
 
         return context.getResources().getString(R.string.fa_file);
-    }
-
-    public void disablePostEditing() {
-        postEditingDisabled = true;
-    }
-
-    public void enablePostEditing() {
-        postEditingDisabled = false;
     }
 }

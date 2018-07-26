@@ -16,7 +16,6 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
-import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -28,25 +27,71 @@ import timber.log.Timber;
  * parameter.</p>
  */
 public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
-    //input data
-    private TopicViewModel viewModel;
+    //----------------------------input data-----------------------------
+    private TopicTaskObserver topicTaskObserver;
+    private OnTopicTaskCompleted finishListener;
+    /**
+     * Becomes true when a page is being reloaded
+     */
     private boolean reloadingPage;
     private ArrayList<Post> lastPostsList;
-    //output data
+    //-----------------------------output data----------------------------
     private ResultCode resultCode;
-    private String topicTitle, replyPageUrl, topicTreeAndMods, topicViewers;
+    /**
+     * Holds this topic's title. At first this gets the value of the topic title that came with
+     * bundle and is rendered in the toolbar while parsing this topic. Later, if a different topic
+     * title is parsed from the html source, it gets updated.
+     */
+    private String topicTitle;
+    /**
+     * This topic's reply url
+     */
+    private String replyPageUrl;
+    //Topic's info related
+    private String topicTreeAndMods;
+    private String topicViewers;
+
     private ArrayList<Post> newPostsList;
+    /**
+     * The topicId of the loaded page
+     */
     private int loadedPageTopicId = -1;
+    /**
+     * The index of the post that has focus
+     */
     private int focusedPostIndex = 0;
+    /**
+     * A list of the requested topic's pages urls
+     */
     private SparseArray<String> pagesUrls = new SparseArray<>();
-    //(possibly) update data
-    private int currentPageIndex, pageCount;
-    private String baseUrl, lastPageLoadAttemptedUrl;
+    //-------------------------------------(possibly) update data------------------------------
+    /**
+     * Holds current page's index (starting from 1, not 0)
+     */
+    private int currentPageIndex;
+    /**
+     * Holds the requested topic's number of pages
+     */
+    private int pageCount;
+    /**
+     * Holds this topic's base url. For example a topic with url similar to
+     * "https://www.thmmy.gr/smf/index.php?topic=1.15;topicseen" or
+     * "https://www.thmmy.gr/smf/index.php?topic=1.msg1#msg1"
+     * has the base url "https://www.thmmy.gr/smf/index.php?topic=1"
+     */
+    private String baseUrl;
+    /**
+     * The url of the last page that was attempted to be loaded
+     */
+    private String lastPageLoadAttemptedUrl;
 
     //consecutive load constructor
-    public TopicTask(boolean reloadingPage, String baseUrl, int currentPageIndex, int pageCount,
-                     String lastPageLoadAttemptedUrl, ArrayList<Post> lastPostsList) {
-        this.viewModel = viewModel;
+    public TopicTask(TopicTaskObserver topicTaskObserver, OnTopicTaskCompleted finishListener,
+                     boolean reloadingPage, String baseUrl, int currentPageIndex, int pageCount,
+                     String lastPageLoadAttemptedUrl,
+                     ArrayList<Post> lastPostsList) {
+        this.topicTaskObserver = topicTaskObserver;
+        this.finishListener = finishListener;
         this.reloadingPage = reloadingPage;
         this.baseUrl = baseUrl;
         this.currentPageIndex = currentPageIndex;
@@ -55,15 +100,21 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
         this.lastPostsList = lastPostsList;
     }
 
-    //first load constructor
-    public TopicTask() {
-        this.viewModel = viewModel;
+    // first load or reload constructor
+    public TopicTask(TopicTaskObserver topicTaskObserver, OnTopicTaskCompleted finishListener) {
+        this.topicTaskObserver = topicTaskObserver;
+        this.finishListener = finishListener;
         this.reloadingPage = false;
         this.baseUrl = "";
         this.currentPageIndex = 1;
         this.pageCount = 1;
         this.lastPageLoadAttemptedUrl = "";
         this.lastPostsList = null;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        topicTaskObserver.onTopicTaskStarted();
     }
 
     @Override
@@ -100,8 +151,8 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             } else if ((Objects.equals(newPageUrl, baseUrl) && currentPageIndex == 1) ||
                     Integer.parseInt(newPageUrl.substring(baseUrl.length() + 1)) / 15 + 1 ==currentPageIndex)
                 resultCode = ResultCode.SAME_PAGE;
+
         } else if (!Objects.equals(lastPageLoadAttemptedUrl, "")) topicTitle = null;
-        if (reloadingPage) reloadingPage = !reloadingPage;
 
         lastPageLoadAttemptedUrl = newPageUrl;
         if (strings[0].substring(0, strings[0].lastIndexOf(".")).contains("topic="))
@@ -203,8 +254,18 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                 "είναι προσβάσιμο από εσάς.)").size() > 0;
     }
 
+    @Override
+    protected void onPostExecute(TopicTaskResult topicTaskResult) {
+        finishListener.onTopicTaskCompleted(topicTaskResult);
+    }
+
     public enum ResultCode {
         SUCCESS, NETWORK_ERROR, PARSING_ERROR, OTHER_ERROR, SAME_PAGE, UNAUTHORIZED
+    }
+
+    public interface TopicTaskObserver {
+        void onTopicTaskStarted();
+        void onTopicTaskCancelled();
     }
 
     public interface OnTopicTaskCompleted {
