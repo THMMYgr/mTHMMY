@@ -254,6 +254,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 topicAdapter.notifyItemInserted(postsList.size());
                 recyclerView.scrollToPosition(postsList.size() - 1);
                 showControls();
+                replyFAB.setVisibility(View.GONE);
             }
 
         });
@@ -348,7 +349,6 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
             topicAdapter.notifyItemRemoved(postsList.size());
             topicAdapter.setBackButtonHidden();
             replyFAB.setVisibility(View.INVISIBLE);
-            bottomNavBar.setVisibility(View.INVISIBLE);
             paginationEnabled(true);
             replyFAB.setEnabled(true);
             return;
@@ -563,6 +563,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         topicAdapter.notifyItemRemoved(postsList.size());
 
         showControls();
+        replyFAB.setVisibility(View.VISIBLE);
         viewModel.setWritingReply(false);
 
         if (success) {
@@ -574,7 +575,6 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         } else {
             Toast.makeText(TopicActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override

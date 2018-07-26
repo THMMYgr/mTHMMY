@@ -172,6 +172,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void prepareForEdit(int position, String postEditURL) {
         if (topicTaskResult.getValue() == null)
             throw new NullPointerException("Topic task has not finished yet!");
+        stopLoading();
         currentPrepareForEditTask = new PrepareForEditTask(prepareForEditCallbacks, this, position,
                 topicTaskResult.getValue().getReplyPageUrl());
         currentPrepareForEditTask.execute(postEditURL);
@@ -187,6 +188,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     /**
      * cancel tasks that change the ui
+     * topic, prepare for edit, prepare for reply tasks need to cancel all other ui changing tasks
+     * before starting
      */
     public void stopLoading() {
         if (currentTopicTask != null && currentTopicTask.getStatus() == AsyncTask.Status.RUNNING) {
@@ -201,7 +204,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             currentPrepareForReplyTask.cancel(true);
             prepareForReplyCallbacks.onPrepareForReplyCancelled();
         }
-        // no need to cancel reply, edit and delete task for navigation
+        // no need to cancel reply, edit and delete task, user should not have to wait for the ui
+        // after he is done posting, editing or deleting
     }
 
     @Override
