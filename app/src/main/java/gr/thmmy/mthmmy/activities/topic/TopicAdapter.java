@@ -705,8 +705,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             return true;
                         }
                     }
-
-                    viewModel.loadUrl(uri.toString());
                 }
 
                 Intent intent = new Intent(context, TopicActivity.class);
