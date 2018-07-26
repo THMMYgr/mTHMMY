@@ -41,7 +41,7 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
         String seqnum = null;
         String sc = null;
         String topic = null;
-        StringBuilder buildedQuotes = new StringBuilder();
+        StringBuilder buildedQuotes = new StringBuilder("");
 
         Document document;
         Request request = new Request.Builder()

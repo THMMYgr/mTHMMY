@@ -71,7 +71,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     private static int THUMBNAIL_SIZE;
     private final Context context;
-    private String baseUrl;
     private final ArrayList<Integer> toQuoteList = new ArrayList<>();
     private final List<Post> postsList;
     /**
@@ -91,11 +90,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int isQuoteButtonChecked = 1;
     private TopicViewModel viewModel;
 
-    private final String[] replyDataHolder = new String[2];
-    private final int replySubject = 0, replyText = 1;
-    private String commitEditURL, buildedQuotes, postText;
     private boolean canReply = false;
-    private boolean postEditingDisabled = false;
 
     /**
      * @param context   the context of the {@link RecyclerView}
@@ -142,13 +137,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }));
             quickReplyText.requestFocus();
 
-            //Default post subject
-            replyDataHolder[replySubject] = "Re: " + viewModel.getTopicTitle();
-            //Build quotes
-            if (!Objects.equals(buildedQuotes, ""))
-                replyDataHolder[replyText] = buildedQuotes;
-            return new QuickReplyViewHolder(view, new CustomEditTextListener(replySubject),
-                    new CustomEditTextListener(replyText));
+            return new QuickReplyViewHolder(view);
         } else if (viewType == Post.TYPE_EDIT) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_edit_row, parent, false);
@@ -507,29 +496,26 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
+            holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
+
+            if (viewModel.getPrepareForReplyResult().getValue() != null)
+                holder.quickReply.setText(viewModel.getPrepareForReplyResult().getValue().getBuildedQuotes());
 
 
-            if (replyDataHolder[replyText] != null && !Objects.equals(replyDataHolder[replyText], "")) {
-                holder.quickReply.setText(replyDataHolder[replyText]);
-                holder.quickReplySubject.setText(replyDataHolder[replySubject]);
+            holder.submitButton.setOnClickListener(view -> {
+                if (holder.quickReplySubject.getText().toString().isEmpty()) return;
+                if (holder.quickReply.getText().toString().isEmpty()) return;
+                holder.submitButton.setEnabled(false);
 
-                holder.submitButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (holder.quickReplySubject.getText().toString().isEmpty()) return;
-                        if (holder.quickReply.getText().toString().isEmpty()) return;
-                        holder.submitButton.setEnabled(false);
+                viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
+                        holder.quickReply.getText().toString());
 
-                        viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
-                                holder.quickReply.getText().toString());
+                holder.quickReplySubject.getText().clear();
+                holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
+                holder.quickReply.getText().clear();
+                holder.submitButton.setEnabled(true);
+            });
 
-                        holder.quickReplySubject.getText().clear();
-                        holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
-                        holder.quickReply.getText().clear();
-                        holder.submitButton.setEnabled(true);
-                    }
-                });
-            }
 
             if (backPressHidden) {
                 holder.quickReply.requestFocus();
@@ -552,7 +538,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.username.setText(getSessionManager().getUsername());
 
             holder.editSubject.setText(postsList.get(position).getSubject());
-            holder.editMessage.setText(postText);
+            if (viewModel.getPrepareForEditResult().getValue() == null)
+                throw new NullPointerException("Edit preparation was not found!");
+            holder.editMessage.setText(viewModel.getPrepareForEditResult().getValue().getPostText());
 
             holder.submitButton.setOnClickListener(view -> {
                 if (holder.editSubject.getText().toString().isEmpty()) return;
@@ -648,15 +636,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final EditText quickReply, quickReplySubject;
         final AppCompatImageButton submitButton;
 
-        QuickReplyViewHolder(View quickReply, CustomEditTextListener replySubject
-                , CustomEditTextListener replyText) {
+        QuickReplyViewHolder(View quickReply) {
             super(quickReply);
             thumbnail = quickReply.findViewById(R.id.thumbnail);
             username = quickReply.findViewById(R.id.username);
             this.quickReply = quickReply.findViewById(R.id.quick_reply_text);
-            this.quickReply.addTextChangedListener(replyText);
             quickReplySubject = quickReply.findViewById(R.id.quick_reply_subject);
-            quickReplySubject.addTextChangedListener(replySubject);
             submitButton = quickReply.findViewById(R.id.quick_reply_submit);
         }
     }
@@ -762,27 +747,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return true;
         }
 
-    }
-
-    private class CustomEditTextListener implements TextWatcher {
-        private final int positionInDataHolder;
-
-        CustomEditTextListener(int positionInDataHolder) {
-            this.positionInDataHolder = positionInDataHolder;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-            replyDataHolder[positionInDataHolder] = charSequence.toString();
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-        }
     }
 
     /**

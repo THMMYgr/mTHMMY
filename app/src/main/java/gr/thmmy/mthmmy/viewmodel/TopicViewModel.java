@@ -25,8 +25,6 @@ import gr.thmmy.mthmmy.session.SessionManager;
 public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTaskCompleted,
         PrepareForReply.OnPrepareForReplyFinished, PrepareForEditTask.OnPrepareEditFinished {
 
-    //TODO: make variables for editing and replying state
-
     private boolean editingPost = false;
     private boolean writingReply = false;
 
