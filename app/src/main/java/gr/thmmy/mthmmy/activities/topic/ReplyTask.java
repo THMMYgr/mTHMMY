@@ -15,12 +15,17 @@ import timber.log.Timber;
 import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
 public class ReplyTask extends AsyncTask<String, Void, Boolean> {
-    private OnReplyTaskFinished listener;
+    private ReplyTaskCallbacks listener;
     private boolean includeAppSignature;
 
-    public ReplyTask(OnReplyTaskFinished listener, boolean includeAppSignature) {
+    public ReplyTask(ReplyTaskCallbacks listener, boolean includeAppSignature) {
         this.listener = listener;
         this.includeAppSignature = includeAppSignature;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        listener.onReplyTaskStarted();
     }
 
     @Override
@@ -68,7 +73,8 @@ public class ReplyTask extends AsyncTask<String, Void, Boolean> {
         listener.onReplyTaskFinished(result);
     }
 
-    public interface OnReplyTaskFinished {
+    public interface ReplyTaskCallbacks {
+        void onReplyTaskStarted();
         void onReplyTaskFinished(boolean result);
     }
 }

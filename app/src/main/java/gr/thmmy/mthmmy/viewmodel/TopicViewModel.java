@@ -34,7 +34,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     private TopicTask.TopicTaskObserver topicTaskObserver;
     private DeleteTask.DeleteTaskCallbacks deleteTaskCallbacks;
-    private ReplyTask.OnReplyTaskFinished replyFinishListener;
+    private ReplyTask.ReplyTaskCallbacks replyFinishListener;
     private PrepareForEditTask.PrepareForEditCallbacks prepareForEditCallbacks;
     private EditTask.EditTaskCallbacks editTaskCallbacks;
     private PrepareForReply.PrepareForReplyCallbacks prepareForReplyCallbacks;
@@ -51,7 +51,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         this.deleteTaskCallbacks = deleteTaskCallbacks;
     }
 
-    public void setReplyFinishListener(ReplyTask.OnReplyTaskFinished replyFinishListener) {
+    public void setReplyFinishListener(ReplyTask.ReplyTaskCallbacks replyFinishListener) {
         this.replyFinishListener = replyFinishListener;
     }
 

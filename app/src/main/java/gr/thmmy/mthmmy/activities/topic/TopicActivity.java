@@ -51,7 +51,7 @@ import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
  */
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskObserver,
-        DeleteTask.DeleteTaskCallbacks, ReplyTask.OnReplyTaskFinished, PrepareForEditTask.PrepareForEditCallbacks,
+        DeleteTask.DeleteTaskCallbacks, ReplyTask.ReplyTaskCallbacks, PrepareForEditTask.PrepareForEditCallbacks,
         EditTask.EditTaskCallbacks, PrepareForReply.PrepareForReplyCallbacks {
     //Activity's variables
     /**
@@ -544,6 +544,11 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
     @Override
     public void onTopicTaskCancelled() {
         showControls();
+    }
+
+    @Override
+    public void onReplyTaskStarted() {
+        hideControls();
     }
 
     @Override
