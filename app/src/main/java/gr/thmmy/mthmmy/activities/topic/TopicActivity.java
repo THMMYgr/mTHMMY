@@ -442,7 +442,8 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         // Increment once for a click
         increment.setOnClickListener(v -> {
             if (!autoIncrement && step == LARGE_STEP) {
-                viewModel.changePage(viewModel.getTopicTaskResult().getValue().getPageCount() - 1);
+                incrementPageRequestValue(viewModel.getPageCount());
+                viewModel.changePage(viewModel.getPageCount() - 1);
             } else if (!autoIncrement) {
                 incrementPageRequestValue(step);
                 viewModel.changePage(pageRequestValue - 1);
@@ -487,6 +488,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         // Decrement once for a click
         decrement.setOnClickListener(v -> {
             if (!autoDecrement && step == LARGE_STEP) {
+                decrementPageRequestValue(viewModel.getPageCount());
                 viewModel.changePage(0);
             } else if (!autoDecrement) {
                 decrementPageRequestValue(step);
@@ -532,8 +534,8 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         if (pageRequestValue < viewModel.getPageCount() - step) {
             pageRequestValue = pageRequestValue + step;
         } else
-            pageRequestValue = viewModel.getTopicTaskResult().getValue().getPageCount();
-        pageIndicator.setText(pageRequestValue + "/" + String.valueOf(viewModel.getTopicTaskResult().getValue().getPageCount()));
+            pageRequestValue = viewModel.getPageCount();
+        pageIndicator.setText(pageRequestValue + "/" + String.valueOf(viewModel.getPageCount()));
     }
 
     private void decrementPageRequestValue(int step) {
@@ -541,7 +543,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
             pageRequestValue = pageRequestValue - step;
         else
             pageRequestValue = 1;
-        pageIndicator.setText(pageRequestValue + "/" + String.valueOf(viewModel.getTopicTaskResult().getValue().getPageCount()));
+        pageIndicator.setText(pageRequestValue + "/" + String.valueOf(viewModel.getPageCount()));
     }
 
     //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------

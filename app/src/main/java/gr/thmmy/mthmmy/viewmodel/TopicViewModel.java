@@ -65,21 +65,16 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void reloadPage() {
-        stopLoading();
         if (topicTaskResult.getValue() == null)
             throw new NullPointerException("No topic task has finished yet!");
-        currentTopicTask = new TopicTask(topicTaskObserver, this);
-        currentTopicTask.execute(topicTaskResult.getValue().getLastPageLoadAttemptedUrl());
+        loadUrl(topicTaskResult.getValue().getLastPageLoadAttemptedUrl());
     }
 
     public void changePage(int pageRequested) {
         if (topicTaskResult.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
-        if (pageRequested != topicTaskResult.getValue().getCurrentPageIndex() - 1) {
-            stopLoading();
-            currentTopicTask = new TopicTask(topicTaskObserver, this);
-            currentTopicTask.execute(topicTaskResult.getValue().getPagesUrls().get(pageRequested));
-        }
+        if (pageRequested != topicTaskResult.getValue().getCurrentPageIndex() - 1)
+            loadUrl(topicTaskResult.getValue().getPagesUrls().get(pageRequested));
     }
 
     public void prepareForReply(ArrayList<Post> postsList, ArrayList<Integer> toQuoteList) {
