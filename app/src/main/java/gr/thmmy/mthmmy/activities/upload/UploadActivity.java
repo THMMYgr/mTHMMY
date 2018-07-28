@@ -363,7 +363,7 @@ public class UploadActivity extends BaseActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CHOOSE_FILE && data != null) {
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode == Activity.RESULT_CANCELED) {
                 return;
             }
 
