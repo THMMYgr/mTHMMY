@@ -28,67 +28,12 @@ import timber.log.Timber;
  * parameter.</p>
  */
 public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
-    //----------------------------input data-----------------------------
     private TopicTaskObserver topicTaskObserver;
     private OnTopicTaskCompleted finishListener;
-    //-----------------------------output data----------------------------
-    private ResultCode resultCode;
-    /**
-     * Holds this topic's title. At first this gets the value of the topic title that came with
-     * bundle and is rendered in the toolbar while parsing this topic. Later, if a different topic
-     * title is parsed from the html source, it gets updated.
-     */
-    private String topicTitle;
-    /**
-     * This topic's reply url
-     */
-    private String replyPageUrl;
-    //Topic's info related
-    private String topicTreeAndMods;
-    private String topicViewers;
 
-    private ArrayList<Post> newPostsList;
-    /**
-     * The topicId of the loaded page
-     */
-    private int loadedPageTopicId = -1;
-    /**
-     * The index of the post that has focus
-     */
-    private int focusedPostIndex = 0;
-    /**
-     * A list of the requested topic's pages urls
-     */
-    private SparseArray<String> pagesUrls = new SparseArray<>();
-    //-------------------------------------(possibly) update data------------------------------
-    /**
-     * Holds current page's index (starting from 1, not 0)
-     */
-    private int currentPageIndex;
-    /**
-     * Holds the requested topic's number of pages
-     */
-    private int pageCount;
-    /**
-     * Holds this topic's base url. For example a topic with url similar to
-     * "https://www.thmmy.gr/smf/index.php?topic=1.15;topicseen" or
-     * "https://www.thmmy.gr/smf/index.php?topic=1.msg1#msg1"
-     * has the base url "https://www.thmmy.gr/smf/index.php?topic=1"
-     */
-    private String baseUrl;
-    /**
-     * The url of the last page that was attempted to be loaded
-     */
-    private String lastPageLoadAttemptedUrl;
-
-    // first load or reload constructor
     public TopicTask(TopicTaskObserver topicTaskObserver, OnTopicTaskCompleted finishListener) {
         this.topicTaskObserver = topicTaskObserver;
         this.finishListener = finishListener;
-        this.baseUrl = "";
-        this.currentPageIndex = 1;
-        this.pageCount = 1;
-        this.lastPageLoadAttemptedUrl = "";
     }
 
     @Override
@@ -98,6 +43,18 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
     @Override
     protected TopicTaskResult doInBackground(String... strings) {
+        String topicTitle = null;
+        String topicTreeAndMods = "";
+        String topicViewers = "";
+        ArrayList<Post> newPostsList = null;
+        int loadedPageTopicId = -1;
+        int focusedPostIndex = 0;
+        SparseArray<String> pagesUrls = new SparseArray<>();
+        int currentPageIndex = 1;
+        int pageCount = 1;
+        String baseUrl = "";
+        String lastPageLoadAttemptedUrl = "";
+
         Document topic = null;
         String newPageUrl = strings[0];
 
@@ -112,15 +69,15 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                     postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
             }
         }
-        if (!Objects.equals(lastPageLoadAttemptedUrl, "")) topicTitle = null;
 
         lastPageLoadAttemptedUrl = newPageUrl;
         if (strings[0].substring(0, strings[0].lastIndexOf(".")).contains("topic="))
             baseUrl = strings[0].substring(0, strings[0].lastIndexOf(".")); //New topic's base url
-        replyPageUrl = null;
+        String replyPageUrl = null;
         Request request = new Request.Builder()
                 .url(newPageUrl)
                 .build();
+        ResultCode resultCode;
         try {
             Response response = BaseApplication.getInstance().getClient().newCall(request).execute();
             topic = Jsoup.parse(response.body().string());
@@ -175,10 +132,12 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             Timber.i(e, "IO Exception");
             resultCode = ResultCode.NETWORK_ERROR;
         } catch (Exception e) {
-            if (isUnauthorized(topic))
+            if (isUnauthorized(topic)) {
                 resultCode = ResultCode.UNAUTHORIZED;
-            Timber.e(e, "Parsing Error");
-            resultCode = ResultCode.PARSING_ERROR;
+            } else {
+                Timber.e(e, "Parsing Error");
+                resultCode = ResultCode.PARSING_ERROR;
+            }
         }
         return new TopicTaskResult(resultCode, baseUrl, topicTitle, replyPageUrl, newPostsList,
                 loadedPageTopicId, currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods,
