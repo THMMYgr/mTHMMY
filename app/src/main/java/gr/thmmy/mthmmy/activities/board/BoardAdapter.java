@@ -147,10 +147,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
             if (boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1)) {
                 subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
-                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
             } else {
                 subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
-                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
             subBoardViewHolder.showHideExpandable.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -158,10 +158,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1);
                     if (visible) {
                         subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
-                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                     } else {
                         subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
-                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                     }
                     boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition() - 1, !visible);
                 }
@@ -208,10 +208,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (topicExpandableVisibility.get(topicViewHolder.getAdapterPosition() - parsedSubBoards
                     .size() - 2)) {
                 topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
-                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
             } else {
                 topicViewHolder.topicExpandable.setVisibility(View.GONE);
-                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
             topicViewHolder.showHideExpandable.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -220,10 +220,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             getAdapterPosition() - parsedSubBoards.size() - 2);
                     if (visible) {
                         topicViewHolder.topicExpandable.setVisibility(View.GONE);
-                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                     } else {
                         topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
-                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                     }
                     topicExpandableVisibility.set(topicViewHolder.getAdapterPosition() -
                             parsedSubBoards.size() - 2, !visible);

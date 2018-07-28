@@ -106,15 +106,15 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         if (bookmarked == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true, null);
+                bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true_accent_24dp, null);
             } else //noinspection deprecation
-                bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true);
+                bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true_accent_24dp);
         }
         if (notBookmarked == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false, null);
+                notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false_accent_24dp, null);
             } else //noinspection deprecation
-                notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false);
+                notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false_accent_24dp);
         }
         if (topicsBookmarked == null || boardsBookmarked == null) {
             bookmarksFile = getSharedPreferences(BOOKMARKS_SHARED_PREFS, Context.MODE_PRIVATE);

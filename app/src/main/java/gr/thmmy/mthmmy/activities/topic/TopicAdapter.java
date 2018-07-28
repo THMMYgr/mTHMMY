@@ -204,9 +204,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
 
@@ -480,9 +480,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.quoteToggle.setVisibility(View.GONE);
             } else {
                 if (viewProperties.get(position)[isQuoteButtonChecked])
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
+                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                 else
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
+                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
                 //Sets graphics behavior
                 holder.quoteToggle.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -493,10 +493,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 toQuoteList.remove(toQuoteList.indexOf(postsList.indexOf(currentPost)));
                             } else
                                 Timber.i("An error occurred while trying to exclude post fromtoQuoteList, post wasn't there!");
-                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
+                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
                         } else {
                             toQuoteList.add(postsList.indexOf(currentPost));
-                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
+                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                         }
                         tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
                         viewProperties.set(holder.getAdapterPosition(), tmp);
@@ -512,9 +512,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
