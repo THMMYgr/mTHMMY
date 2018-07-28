@@ -58,7 +58,7 @@ import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskObserver,
         DeleteTask.DeleteTaskCallbacks, ReplyTask.ReplyTaskCallbacks, PrepareForEditTask.PrepareForEditCallbacks,
-        EditTask.EditTaskCallbacks, PrepareForReply.PrepareForReplyCallbacks {
+        EditTask.EditTaskCallbacks, PrepareForReply.PrepareForReplyCallbacks, TopicAdapter.OnPostFocusChangeListener {
     //Activity's variables
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
@@ -238,14 +238,10 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                             replyFAB.show();
                         }
                         topicAdapter.resetTopic();
+                        recyclerView.scrollToPosition(topicTaskResult.getFocusedPostIndex());
                         break;
                     case NETWORK_ERROR:
                         Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
-                        break;
-                    case SAME_PAGE:
-                        progressBar.setVisibility(ProgressBar.GONE);
-                        Toast.makeText(getBaseContext(), "That's the same page", Toast.LENGTH_SHORT).show();
-                        //TODO change focus
                         break;
                     case UNAUTHORIZED:
                         progressBar.setVisibility(ProgressBar.GONE);
@@ -378,6 +374,11 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         super.onDestroy();
         recyclerView.setAdapter(null);
         viewModel.stopLoading();
+    }
+
+    @Override
+    public void onPostFocusChange(int position) {
+        recyclerView.scrollToPosition(position);
     }
 
     //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------

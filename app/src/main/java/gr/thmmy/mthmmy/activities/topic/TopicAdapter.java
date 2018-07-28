@@ -31,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -69,6 +70,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     private static int THUMBNAIL_SIZE;
     private final Context context;
+    private final OnPostFocusChangeListener postFocusListener;
     private final ArrayList<Integer> toQuoteList = new ArrayList<>();
     private final List<Post> postsList;
     /**
@@ -95,6 +97,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     TopicAdapter(TopicActivity context, List<Post> postsList) {
         this.context = context;
         this.postsList = postsList;
+        this.postFocusListener = context;
 
         viewModel = ViewModelProviders.of(context).get(TopicViewModel.class);
 
@@ -683,21 +686,37 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewModel.stopLoading();
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
-                //Checks if this is the current topic
-                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), viewModel.getBaseUrl())) {
-                    //Gets uri's targeted message's index number
-                    String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
-                    if (msgIndexReq.contains("#"))
-                        msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf("#"));
-                    else
-                        msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf(";"));
-
-                    //Checks if this post is in the current topic's page
-                    for (Post post : postsList) {
-                        if (post.getPostIndex() == Integer.parseInt(msgIndexReq)) {
-                            // TODO Don't restart Activity, Just change post focus
+                //Checks if the page to be loaded is the one already shown
+                if (uriString.contains(viewModel.getBaseUrl())) {
+                    Timber.e("reached here!");
+                    if (uriString.contains("topicseen#new") || uriString.contains("#new")) {
+                        if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
+                            //same page
+                            postFocusListener.onPostFocusChange(getItemCount() - 1);
+                            Timber.e("new");
                             return true;
                         }
+                    }
+                    if (uriString.contains("msg")) {
+                        String tmpUrlSbstr = uriString.substring(uriString.indexOf("msg") + 3);
+                        if (tmpUrlSbstr.contains("msg"))
+                            tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
+                        int testAgainst = Integer.parseInt(tmpUrlSbstr);
+                        Timber.e("reached tthere! %s", testAgainst);
+                        for (int i = 0; i < postsList.size(); i++) {
+                            if (postsList.get(i).getPostIndex() == testAgainst) {
+                                //same page
+                                Timber.e(Integer.toString(i));
+                                postFocusListener.onPostFocusChange(i);
+                                return true;
+                            }
+                        }
+                    } else if ((Objects.equals(uriString, viewModel.getBaseUrl()) && viewModel.getCurrentPageIndex() == 1) ||
+                            Integer.parseInt(uriString.substring(viewModel.getBaseUrl().length() + 1)) / 15 + 1 ==
+                                    viewModel.getCurrentPageIndex()) {
+                        //same page
+                        Timber.e("ha");
+                        return true;
                     }
                 }
 
@@ -737,6 +756,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return true;
         }
 
+    }
+
+    //we need to set a callback to topic activity to scroll the recyclerview when post focus is requested
+    public interface OnPostFocusChangeListener {
+        void onPostFocusChange(int position);
     }
 
     /**
