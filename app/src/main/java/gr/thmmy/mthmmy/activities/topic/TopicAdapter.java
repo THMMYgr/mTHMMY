@@ -385,71 +385,59 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.userExtraInfo.setOnClickListener(null);
             }
 
-            holder.overflowButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Inflates the popup menu content
-                    LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    if (layoutInflater == null) {
-                        return;
-                    }
-                    View popUpContent = layoutInflater.inflate(R.layout.activity_topic_overflow_menu, null);
-
-                    //Creates the PopupWindow
-                    final PopupWindow popUp = new PopupWindow(holder.overflowButton.getContext());
-                    popUp.setContentView(popUpContent);
-                    popUp.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
-                    popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
-                    popUp.setFocusable(true);
-
-                    popUpContent.findViewById(R.id.post_share_button).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
-                            sendIntent.setType("text/plain");
-                            sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, currentPost.getPostURL());
-                            context.startActivity(Intent.createChooser(sendIntent, "Share via"));
-                            popUp.dismiss();
-                        }
-                    });
-
-                    TextView deletePostButton = popUpContent.findViewById(R.id.delete_post);
-
-                    if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")) {
-                        deletePostButton.setVisibility(View.GONE);
-                    } else {
-                        popUpContent.findViewById(R.id.delete_post).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                new AlertDialog.Builder(holder.overflowButton.getContext())
-                                        .setTitle("Delete post")
-                                        .setMessage("Do you really want to delete this post?")
-                                        .setIcon(android.R.drawable.ic_dialog_alert)
-                                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int whichButton) {
-                                                viewModel.deletePost(currentPost.getPostDeleteURL());
-                                            }
-                                        })
-                                        .setNegativeButton(android.R.string.no, null).show();
-                                popUp.dismiss();
-                            }
-                        });
-                    }
-
-                    final TextView editPostButton = popUpContent.findViewById(R.id.edit_post);
-
-                    if (viewModel.isEditingPost() || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
-                        editPostButton.setVisibility(View.GONE);
-                    } else {
-                        editPostButton.setOnClickListener(v -> viewModel.prepareForEdit(position,
-                                postsList.get(position).getPostEditURL()));
-                    }
-
-                    //Displays the popup
-                    popUp.showAsDropDown(holder.overflowButton);
+            holder.overflowButton.setOnClickListener(view -> {
+                //Inflates the popup menu content
+                LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                if (layoutInflater == null) {
+                    return;
                 }
+                View popUpContent = layoutInflater.inflate(R.layout.activity_topic_overflow_menu, null);
+
+                //Creates the PopupWindow
+                final PopupWindow popUp = new PopupWindow(holder.overflowButton.getContext());
+                popUp.setContentView(popUpContent);
+                popUp.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
+                popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
+                popUp.setFocusable(true);
+
+                popUpContent.findViewById(R.id.post_share_button).setOnClickListener(v -> {
+                    Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                    sendIntent.setType("text/plain");
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, currentPost.getPostURL());
+                    context.startActivity(Intent.createChooser(sendIntent, "Share via"));
+                    popUp.dismiss();
+                });
+
+                TextView deletePostButton = popUpContent.findViewById(R.id.delete_post);
+
+                if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")) {
+                    deletePostButton.setVisibility(View.GONE);
+                } else {
+                    popUpContent.findViewById(R.id.delete_post).setOnClickListener(v -> {
+                        new AlertDialog.Builder(holder.overflowButton.getContext())
+                                .setTitle("Delete post")
+                                .setMessage("Do you really want to delete this post?")
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setPositiveButton(android.R.string.yes, (dialog, whichButton) ->
+                                        viewModel.deletePost(currentPost.getPostDeleteURL()))
+                                .setNegativeButton(android.R.string.no, null).show();
+                        popUp.dismiss();
+                    });
+                }
+
+                final TextView editPostButton = popUpContent.findViewById(R.id.edit_post);
+
+                if (viewModel.isEditingPost() || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
+                    editPostButton.setVisibility(View.GONE);
+                } else {
+                    editPostButton.setOnClickListener(v -> {
+                        viewModel.prepareForEdit(position, postsList.get(position).getPostEditURL());
+                        popUp.dismiss();
+                    });
+                }
+
+                //Displays the popup
+                popUp.showAsDropDown(holder.overflowButton);
             });
 
             //noinspection PointlessBooleanExpression,ConstantConditions
