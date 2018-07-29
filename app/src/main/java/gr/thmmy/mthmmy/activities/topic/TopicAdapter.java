@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -31,7 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -117,8 +115,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return postsList.get(position).getPostType();
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == Post.TYPE_POST) {
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.activity_topic_post_row, parent, false);
@@ -142,14 +141,23 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     inflate(R.layout.activity_topic_edit_row, parent, false);
             view.findViewById(R.id.edit_message_submit).setEnabled(true);
 
+            final EditText editPostEdittext = view.findViewById(R.id.edit_message_text);
+            editPostEdittext.setFocusableInTouchMode(true);
+            editPostEdittext.setOnFocusChangeListener((v, hasFocus) -> editPostEdittext.post(() -> {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(editPostEdittext, InputMethodManager.SHOW_IMPLICIT);
+            }));
+            editPostEdittext.requestFocus();
+
             return new EditMessageViewHolder(view);
+        } else {
+            throw new IllegalArgumentException("Unknown view type");
         }
-        return null;
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "SetTextI18n"})
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder currentHolder,
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder currentHolder,
                                  final int position) {
         if (currentHolder instanceof PostViewHolder) {
             final Post currentPost = postsList.get(position);
@@ -211,12 +219,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         attached.setTextColor(filesTextColor);
                         attached.setPadding(0, 3, 0, 3);
 
-                        attached.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                ((BaseActivity) context).downloadFile(attachedFile);
-                            }
-                        });
+                        attached.setOnClickListener(view -> ((BaseActivity) context).downloadFile(attachedFile));
 
                         holder.postFooter.addView(attached);
                     }
@@ -295,11 +298,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         , "fonts/fontawesome-webfont.ttf"));
 
                 String aStar = context.getResources().getString(R.string.fa_icon_star);
-                String usersStars = "";
+                StringBuilder usersStars = new StringBuilder();
                 for (int i = 0; i < mNumberOfStars; ++i) {
-                    usersStars += aStar;
+                    usersStars.append(aStar);
                 }
-                holder.stars.setText(usersStars);
+                holder.stars.setText(usersStars.toString());
                 holder.stars.setTextColor(mUserColor);
                 holder.stars.setVisibility(View.VISIBLE);
             } else
@@ -338,47 +341,38 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             if (!currentPost.isDeleted()) {
                 //Sets graphics behavior
-                holder.thumbnail.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //Clicking the thumbnail opens user's profile
-                        Intent intent = new Intent(context, ProfileActivity.class);
-                        Bundle extras = new Bundle();
-                        extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
-                        if (currentPost.getThumbnailURL() == null)
-                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
-                        else
-                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailURL());
-                        extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
-                        intent.putExtras(extras);
-                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
-                    }
+                holder.thumbnail.setOnClickListener(view -> {
+                    //Clicking the thumbnail opens user's profile
+                    Intent intent = new Intent(context, ProfileActivity.class);
+                    Bundle extras = new Bundle();
+                    extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
+                    if (currentPost.getThumbnailURL() == null)
+                        extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                    else
+                        extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailURL());
+                    extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
+                    intent.putExtras(extras);
+                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
                 });
-                holder.header.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Clicking the header makes it expand/collapse
-                        boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                        tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];
-                        viewProperties.set(holder.getAdapterPosition(), tmp);
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
-                                holder.subject, Color.parseColor("#FFFFFF"),
-                                Color.parseColor("#757575"), holder.userExtraInfo);
-                    }
+                holder.header.setOnClickListener(v -> {
+                    //Clicking the header makes it expand/collapse
+                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
+                    tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];
+                    viewProperties.set(holder.getAdapterPosition(), tmp);
+                    TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                            holder.subject, Color.parseColor("#FFFFFF"),
+                            Color.parseColor("#757575"), holder.userExtraInfo);
                 });
                 //Clicking the expanded part of a header (the extra info) makes it collapse
-                holder.userExtraInfo.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                        tmp[isUserExtraInfoVisibile] = false;
-                        viewProperties.set(holder.getAdapterPosition(), tmp);
+                holder.userExtraInfo.setOnClickListener(v -> {
+                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
+                    tmp[isUserExtraInfoVisibile] = false;
+                    viewProperties.set(holder.getAdapterPosition(), tmp);
 
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
-                                holder.subject, Color.parseColor("#FFFFFF"),
-                                Color.parseColor("#757575"), (LinearLayout) v);
-                    }
+                    TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                            holder.subject, Color.parseColor("#FFFFFF"),
+                            Color.parseColor("#757575"), (LinearLayout) v);
                 });
             } else {
                 holder.header.setOnClickListener(null);
@@ -449,23 +443,20 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 else
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                 //Sets graphics behavior
-                holder.quoteToggle.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                        if (tmp[isQuoteButtonChecked]) {
-                            if (toQuoteList.contains(postsList.indexOf(currentPost))) {
-                                toQuoteList.remove(toQuoteList.indexOf(postsList.indexOf(currentPost)));
-                            } else
-                                Timber.i("An error occurred while trying to exclude post fromtoQuoteList, post wasn't there!");
-                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
-                        } else {
-                            toQuoteList.add(postsList.indexOf(currentPost));
-                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
-                        }
-                        tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
-                        viewProperties.set(holder.getAdapterPosition(), tmp);
+                holder.quoteToggle.setOnClickListener(view -> {
+                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
+                    if (tmp[isQuoteButtonChecked]) {
+                        if (toQuoteList.contains(postsList.indexOf(currentPost))) {
+                            toQuoteList.remove(toQuoteList.indexOf(postsList.indexOf(currentPost)));
+                        } else
+                            Timber.i("An error occurred while trying to exclude post fromtoQuoteList, post wasn't there!");
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
+                    } else {
+                        toQuoteList.add(postsList.indexOf(currentPost));
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
                     }
+                    tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
+                    viewProperties.set(holder.getAdapterPosition(), tmp);
                 });
             }
         } else if (currentHolder instanceof QuickReplyViewHolder) {
@@ -635,7 +626,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final EditText editMessage, editSubject;
         final AppCompatImageButton submitButton;
 
-        public EditMessageViewHolder(View editView) {
+        EditMessageViewHolder(View editView) {
             super(editView);
 
             thumbnail = editView.findViewById(R.id.thumbnail);
