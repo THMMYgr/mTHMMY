@@ -11,9 +11,10 @@ public class SettingsActivity extends BaseActivity {
     public static final String DEFAULT_HOME_TAB = "pref_app_main_default_tab_key";
     public static final String NOTIFICATION_LED_KEY = "pref_notification_led_enable_key";
     public static final String NOTIFICATION_VIBRATION_KEY = "pref_notification_vibration_enable_key";
-    public static final String APP_SIGNATURE_ENABLE_KEY = "pref_posting_app_signature_enable_key";
+    public static final String POSTING_APP_SIGNATURE_ENABLE_KEY = "pref_posting_app_signature_enable_key";
+    public static final String UPLOADING_APP_SIGNATURE_ENABLE_KEY = "pref_uploading_app_signature_enable_key";
 
-    private Fragment preferenceFragment;
+    private SettingsFragment preferenceFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,8 @@ public class SettingsActivity extends BaseActivity {
     protected void onResume() {
         drawer.setSelection(SETTINGS_ID);
         super.onResume();
-        ((SettingsFragment) preferenceFragment).updateUserLoginState(sessionManager.isLoggedIn());
+        if (preferenceFragment != null) {
+            preferenceFragment.updateUserLoginState(sessionManager.isLoggedIn());
+        }
     }
 }

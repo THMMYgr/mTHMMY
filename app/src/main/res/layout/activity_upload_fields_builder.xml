@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.upload.UploadFieldsBuilderActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/appbar_padding_top"
+        android:theme="@style/ToolbarTheme">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:gravity="center"
+            app:popupTheme="@style/ToolbarTheme" />
+    </android.support.design.widget.AppBarLayout>
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="top|start"
+        android:background="@color/background"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity">
+
+        <LinearLayout
+            android:id="@+id/upload_fields_builder_content_linear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/upload_fields_builder_type_radio_buttons_title"
+                android:textAlignment="center"
+                android:textColor="@color/accent" />
+
+            <RadioGroup
+                android:id="@+id/upload_fields_builder_type_radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:layout_marginTop="6dp"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/upload_fields_builder_radio_button_exams"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="@string/upload_fields_builder_radio_button_exams"
+                    android:textColor="@color/primary_text" />
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/upload_fields_builder_radio_button_exam_solutions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="@string/upload_fields_builder_radio_button_exam_solutions"
+                    android:textColor="@color/primary_text" />
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/upload_fields_builder_radio_button_notes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text="@string/upload_fields_builder_radio_button_notes"
+                    android:textColor="@color/primary_text" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/upload_fields_builder_choose_semester"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:text="@string/upload_fields_builder_select_semester_title"
+                    android:textAlignment="center"
+                    android:textColor="@color/accent" />
+
+                <RadioGroup
+                    android:id="@+id/upload_fields_builder_semester_radio_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginTop="6dp"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/upload_fields_builder_radio_button_feb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="@string/upload_fields_builder_radio_button_feb"
+                        android:textColor="@color/primary_text" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/upload_fields_builder_radio_button_jun"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="@string/upload_fields_builder_radio_button_exam_jun"
+                        android:textColor="@color/primary_text" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/upload_fields_builder_radio_button_sept"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="@string/upload_fields_builder_radio_button_sept"
+                        android:textColor="@color/primary_text" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/upload_fields_builder_select_year_title"
+                android:textAlignment="center"
+                android:textColor="@color/accent" />
+
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:layout_marginTop="6dp">
+
+                <EditText
+                    android:id="@+id/upload_fields_builder_year"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="4"
+                    android:hint="@string/upload_fields_builder_year_hint"
+                    android:inputType="number" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/upload_fields_builder_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="@string/upload_fields_builder_submit"
+                android:textColor="@color/accent" />
+        </LinearLayout>
+    </ScrollView>
+</android.support.design.widget.CoordinatorLayout>

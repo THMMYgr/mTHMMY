@@ -119,6 +119,8 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Fix for vector drawables on android <21
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         setContentView(R.layout.activity_topic);
 
         viewModel = ViewModelProviders.of(this).get(TopicViewModel.class);
@@ -141,8 +143,6 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         }
 
         topicPageUrl = ThmmyPage.sanitizeTopicUrl(topicPageUrl);
-
-
         thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl), true);
 
         //Initializes graphics
@@ -300,7 +300,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 topicMenuBookmarkClick();
                 return true;
             case R.id.menu_info:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyleAccent);
                 LayoutInflater inflater = this.getLayoutInflater();
                 LinearLayout infoDialog = (LinearLayout) inflater.inflate(R.layout.dialog_topic_info
                         , null);

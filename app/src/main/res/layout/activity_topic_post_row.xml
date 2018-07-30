@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -59,7 +60,7 @@
                             android:contentDescription="@string/post_thumbnail"
                             android:maxHeight="@dimen/thumbnail_size"
                             android:maxWidth="@dimen/thumbnail_size"
-                            android:src="@drawable/ic_default_user_thumbnail" />
+                            app:srcCompat="@drawable/ic_default_user_thumbnail_white_24dp" />
                     </FrameLayout>
 
                     <TextView
@@ -93,7 +94,7 @@
                     android:clickable="true"
                     android:contentDescription="@string/post_quote_button"
                     android:focusable="true"
-                    android:src="@drawable/ic_format_quote_unchecked" />
+                    app:srcCompat="@drawable/ic_format_quote_unchecked_grey_24dp" />
                 <!--<ImageButton
                     android:id="@+id/post_share_button"
                     android:layout_width="@dimen/post_image_button"
@@ -115,7 +116,7 @@
                     android:clickable="true"
                     android:contentDescription="@string/post_overflow_menu_button"
                     android:focusable="true"
-                    android:src="@drawable/ic_more_vert" />
+                    app:srcCompat="@drawable/ic_more_vert_white_24dp" />
             </LinearLayout>
 
             <LinearLayout

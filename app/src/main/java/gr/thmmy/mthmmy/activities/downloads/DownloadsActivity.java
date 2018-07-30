@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.UploadActivity;
+import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Download;
@@ -35,7 +35,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.activities.UploadActivity.BUNDLE_UPLOAD_CATEGORY;
+import static gr.thmmy.mthmmy.activities.upload.UploadActivity.BUNDLE_UPLOAD_CATEGORY;
 
 public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.OnLoadMoreListener {
     /**
@@ -48,6 +48,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     public static final String BUNDLE_DOWNLOADS_TITLE = "DOWNLOADS_TITLE";
     private static final String downloadsIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl;";
     private String downloadsUrl;
+    private String downloadsNav;
     private String downloadsTitle;
     private final ArrayList<Download> parsedDownloads = new ArrayList<>();
 
@@ -143,8 +144,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             case R.id.menu_upload:
                 Intent intent = new Intent(DownloadsActivity.this, UploadActivity.class);
                 Bundle extras = new Bundle();
-                /*extras.putString(BUNDLE_UPLOAD_CATEGORY, "");
-                intent.putExtras(extras);*/
+                extras.putString(BUNDLE_UPLOAD_CATEGORY, downloadsNav);
+                intent.putExtras(extras);
                 startActivity(intent);
                 return true;
             default:
@@ -211,8 +212,11 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         @Override
         protected void parse(Document downloadPage) throws ParseException {
             try {
+                Element downloadsNavElement = downloadPage.select("div.nav").first();
+                downloadsNav = downloadsNavElement.text();
+
                 if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
-                    downloadsTitle = downloadPage.select("div.nav>b>a.nav").last().text();
+                    downloadsTitle = downloadsNavElement.select("b>a.nav").last().text();
 
                 //Removes loading item
                 if (isLoadingMore) {

@@ -91,10 +91,10 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 if (downloadExpandableVisibility.get(downloadViewHolder.getAdapterPosition())) {
                     downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
-                    downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up);
+                    downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                 } else {
                     downloadViewHolder.informationExpandable.setVisibility(View.GONE);
-                    downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down);
+                    downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                 }
                 downloadViewHolder.informationExpandableBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -103,10 +103,10 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 getAdapterPosition());
                         if (visible) {
                             downloadViewHolder.informationExpandable.setVisibility(View.GONE);
-                            downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down);
+                            downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                         } else {
                             downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
-                            downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up);
+                            downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                         }
                         downloadExpandableVisibility.set(downloadViewHolder.getAdapterPosition(), !visible);
                     }
