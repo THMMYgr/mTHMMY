@@ -203,11 +203,16 @@ public class TopicActivity extends BaseActivity {
 
     boolean includeAppSignaturePreference = true;
 
+    //Fix for vector drawables on android <21
+    static {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Fix for vector drawables on android <21
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         setContentView(R.layout.activity_topic);
 
         Bundle extras = getIntent().getExtras();

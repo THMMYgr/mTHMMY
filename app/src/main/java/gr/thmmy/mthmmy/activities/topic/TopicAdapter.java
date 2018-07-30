@@ -7,12 +7,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -434,7 +436,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
                     popUp.setFocusable(true);
 
-                    popUpContent.findViewById(R.id.post_share_button).setOnClickListener(new View.OnClickListener() {
+                    TextView shareButton = popUpContent.findViewById(R.id.post_share_button);
+                    Drawable shareStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_share_white_24dp);
+                    shareButton.setCompoundDrawablesRelativeWithIntrinsicBounds(shareStartDrawable, null, null, null);
+                    shareButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
@@ -450,6 +455,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")) {
                         deletePostButton.setVisibility(View.GONE);
                     } else {
+                        Drawable deleteStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_delete_white_24dp);
+                        deletePostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(deleteStartDrawable, null, null, null);
                         popUpContent.findViewById(R.id.delete_post).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {

@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.activities.main.unread;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,7 +14,6 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 
 class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final Context context;
     private final List<TopicSummary> unreadList;
     private final UnreadFragment.UnreadFragmentInteractionListener mListener;
     private final MarkReadInteractionListener markReadListener;
@@ -24,10 +22,9 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_TYPE_NADA = 1;
     private final int VIEW_TYPE_MARK_READ = 2;
 
-    UnreadAdapter(Context context, @NonNull List<TopicSummary> topicSummaryList,
+    UnreadAdapter(@NonNull List<TopicSummary> topicSummaryList,
                   BaseFragment.FragmentInteractionListener listener,
                   MarkReadInteractionListener markReadInteractionListener) {
-        this.context = context;
         this.unreadList = topicSummaryList;
         mListener = (UnreadFragment.UnreadFragmentInteractionListener) listener;
         markReadListener = markReadInteractionListener;
@@ -39,8 +36,9 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return unreadList.get(position).getTopicUrl() == null ? VIEW_TYPE_NADA : VIEW_TYPE_ITEM;
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.fragment_unread_row, parent, false);
@@ -58,7 +56,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof UnreadAdapter.EmptyViewHolder) {
             final UnreadAdapter.EmptyViewHolder emptyViewHolder = (UnreadAdapter.EmptyViewHolder) holder;
             emptyViewHolder.text.setText(unreadList.get(holder.getAdapterPosition()).getDateTimeModified());
