@@ -117,11 +117,16 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
     private ImageButton lastPage;
     private TopicViewModel viewModel;
 
+    //Fix for vector drawables on android <21
+    static {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Fix for vector drawables on android <21
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         setContentView(R.layout.activity_topic);
 
         viewModel = ViewModelProviders.of(this).get(TopicViewModel.class);
