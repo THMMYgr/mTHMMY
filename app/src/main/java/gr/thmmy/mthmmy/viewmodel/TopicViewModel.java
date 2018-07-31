@@ -104,7 +104,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         SessionManager sessionManager = BaseActivity.getSessionManager();
         if (sessionManager.isLoggedIn()) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            includeAppSignature = prefs.getBoolean(SettingsActivity.APP_SIGNATURE_ENABLE_KEY, true);
+            includeAppSignature = prefs.getBoolean(SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY, true);
         }
         toQuoteList.clear();
         new ReplyTask(replyFinishListener, includeAppSignature).execute(subject, reply,
