@@ -33,7 +33,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,23 +68,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private final OnPostFocusChangeListener postFocusListener;
-    private final ArrayList<Integer> toQuoteList = new ArrayList<>();
     private final List<Post> postsList;
-    /**
-     * Used to hold the state of visibility and other attributes for views that are animated or
-     * otherwise changed. Used in combination with {@link #isUserExtraInfoVisibile} and
-     * {@link #isQuoteButtonChecked}.
-     */
-    private final ArrayList<boolean[]> viewProperties = new ArrayList<>();
-    /**
-     * Index of state indicator in the boolean array. If true user's extra info are expanded and
-     * visible.
-     */
-    private static final int isUserExtraInfoVisibile = 0;
-    /**
-     * Index of state indicator in the boolean array. If true quote button for this post is checked.
-     */
-    private static final int isQuoteButtonChecked = 1;
     private TopicViewModel viewModel;
 
     /**
@@ -100,14 +83,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         viewModel = ViewModelProviders.of(context).get(TopicViewModel.class);
 
         THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
-        for (int i = 0; i < postsList.size(); ++i) {
-            //Initializes properties, array's values will be false by default
-            viewProperties.add(new boolean[3]);
-        }
-    }
-
-    ArrayList<Integer> getToQuoteList() {
-        return toQuoteList;
     }
 
     @Override
@@ -318,7 +293,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else holder.cardChildLinear.setBackground(null);
 
             //Avoid's view's visibility recycling
-            if (!currentPost.isDeleted() && viewProperties.get(position)[isUserExtraInfoVisibile]) {
+            if (!currentPost.isDeleted() && viewModel.isUserExtraInfoVisible(holder.getAdapterPosition())) {
                 holder.userExtraInfo.setVisibility(View.VISIBLE);
                 holder.userExtraInfo.setAlpha(1.0f);
 
@@ -357,19 +332,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 });
                 holder.header.setOnClickListener(v -> {
                     //Clicking the header makes it expand/collapse
-                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                    tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];
-                    viewProperties.set(holder.getAdapterPosition(), tmp);
+                    viewModel.toggleUserInfo(holder.getAdapterPosition());
                     TopicAnimations.animateUserExtraInfoVisibility(holder.username,
                             holder.subject, Color.parseColor("#FFFFFF"),
                             Color.parseColor("#757575"), holder.userExtraInfo);
                 });
                 //Clicking the expanded part of a header (the extra info) makes it collapse
                 holder.userExtraInfo.setOnClickListener(v -> {
-                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                    tmp[isUserExtraInfoVisibile] = false;
-                    viewProperties.set(holder.getAdapterPosition(), tmp);
-
+                    viewModel.hideUserInfo(holder.getAdapterPosition());
                     TopicAnimations.animateUserExtraInfoVisibility(holder.username,
                             holder.subject, Color.parseColor("#FFFFFF"),
                             Color.parseColor("#757575"), (LinearLayout) v);
@@ -438,25 +408,17 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (!BaseActivity.getSessionManager().isLoggedIn() || !viewModel.canReply()) {
                 holder.quoteToggle.setVisibility(View.GONE);
             } else {
-                if (viewProperties.get(position)[isQuoteButtonChecked])
+                if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
                 else
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                 //Sets graphics behavior
                 holder.quoteToggle.setOnClickListener(view -> {
-                    boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                    if (tmp[isQuoteButtonChecked]) {
-                        if (toQuoteList.contains(postsList.indexOf(currentPost))) {
-                            toQuoteList.remove(toQuoteList.indexOf(postsList.indexOf(currentPost)));
-                        } else
-                            Timber.i("An error occurred while trying to exclude post fromtoQuoteList, post wasn't there!");
-                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
-                    } else {
-                        toQuoteList.add(postsList.indexOf(currentPost));
+                    viewModel.postIndexToggle(currentPost.getPostIndex());
+                    if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
                         holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
-                    }
-                    tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
-                    viewProperties.set(holder.getAdapterPosition(), tmp);
+                    else
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
                 });
             }
         } else if (currentHolder instanceof QuickReplyViewHolder) {
@@ -533,14 +495,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.editMessage.requestFocus();
                 backPressHidden = false;
             }
-        }
-    }
-
-    void resetTopic() {
-        viewProperties.clear();
-        for (int i = 0; i < postsList.size(); ++i) {
-            //Initializes properties, array's values will be false by default
-            viewProperties.add(new boolean[3]);
         }
     }
 

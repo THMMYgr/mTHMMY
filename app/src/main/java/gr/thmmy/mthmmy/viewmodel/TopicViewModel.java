@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
-import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
-import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReplyResult;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditResult;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReplyResult;
 import gr.thmmy.mthmmy.activities.topic.tasks.ReplyTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTaskResult;
@@ -29,6 +29,14 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
      */
     private boolean editingPost = false;
     private boolean writingReply = false;
+    /**
+     * A list of {@link Post#getPostIndex()} for building quotes for replying
+     */
+    private ArrayList<Integer> toQuoteList = new ArrayList<>();
+    /**
+     * caches the expand/collapse state of the user extra info in the current page for the recyclerview
+     */
+    private ArrayList<Boolean> isUserExtraInfoVisibile = new ArrayList<>();
     /**
      * holds the adapter position of the post being edited
      */
@@ -77,13 +85,13 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             loadUrl(topicTaskResult.getValue().getPagesUrls().get(pageRequested));
     }
 
-    public void prepareForReply(ArrayList<Post> postsList, ArrayList<Integer> toQuoteList) {
+    public void prepareForReply() {
         if (topicTaskResult.getValue() == null)
             throw new NullPointerException("Topic task has not finished yet!");
         stopLoading();
         changePage(topicTaskResult.getValue().getPageCount() - 1);
         currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
-                topicTaskResult.getValue().getReplyPageUrl(), postsList);
+                topicTaskResult.getValue().getReplyPageUrl());
         currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
     }
 
@@ -98,6 +106,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             includeAppSignature = prefs.getBoolean(SettingsActivity.APP_SIGNATURE_ENABLE_KEY, true);
         }
+        toQuoteList.clear();
         new ReplyTask(replyFinishListener, includeAppSignature).execute(subject, reply,
                 replyForm.getNumReplies(), replyForm.getSeqnum(), replyForm.getSc(), replyForm.getTopic());
     }
@@ -149,6 +158,12 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     @Override
     public void onTopicTaskCompleted(TopicTaskResult result) {
         topicTaskResult.setValue(result);
+        if (result.getResultCode() == TopicTask.ResultCode.SUCCESS) {
+            isUserExtraInfoVisibile.clear();
+            for (int i = 0; i < result.getNewPostsList().size(); i++) {
+                isUserExtraInfoVisibile.add(false);
+            }
+        }
     }
 
     @Override
@@ -165,6 +180,29 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     // <-------------Just getters, setters and helper methods below here---------------->
+
+    public boolean isUserExtraInfoVisible(int position) {
+        return isUserExtraInfoVisibile.get(position);
+    }
+
+    public void hideUserInfo(int position) {
+        isUserExtraInfoVisibile.set(position, false);
+    }
+
+    public void toggleUserInfo(int position) {
+        isUserExtraInfoVisibile.set(position, !isUserExtraInfoVisibile.get(position));
+    }
+
+    public ArrayList<Integer> getToQuoteList() {
+        return toQuoteList;
+    }
+
+    public void postIndexToggle(Integer postIndex) {
+        if (toQuoteList.contains(postIndex))
+            toQuoteList.remove(postIndex);
+        else
+            toQuoteList.add(postIndex);
+    }
 
     public void setTopicTaskObserver(TopicTask.TopicTaskObserver topicTaskObserver) {
         this.topicTaskObserver = topicTaskObserver;

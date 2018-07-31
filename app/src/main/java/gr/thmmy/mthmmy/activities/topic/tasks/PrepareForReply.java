@@ -7,10 +7,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Selector;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.model.Post;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -20,14 +18,12 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
     private PrepareForReplyCallbacks listener;
     private OnPrepareForReplyFinished finishListener;
     private String replyPageUrl;
-    private ArrayList<Post> postsList;
 
     public PrepareForReply(PrepareForReplyCallbacks listener, OnPrepareForReplyFinished finishListener,
-                           String replyPageUrl, ArrayList<Post> postsList) {
+                           String replyPageUrl) {
         this.listener = listener;
         this.finishListener = finishListener;
         this.replyPageUrl = replyPageUrl;
-        this.postsList = postsList;
     }
 
     @Override
@@ -36,7 +32,7 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
     }
 
     @Override
-    protected PrepareForReplyResult doInBackground(Integer... quoteList) {
+    protected PrepareForReplyResult doInBackground(Integer... postIndices) {
         String numReplies = null;
         String seqnum = null;
         String sc = null;
@@ -61,11 +57,10 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
             Timber.e(e, "Prepare failed.");
         }
 
-        for (Integer quotePosition : quoteList) {
+        for (Integer postIndex : postIndices) {
             request = new Request.Builder()
                     .url("https://www.thmmy.gr/smf/index.php?action=quotefast;quote=" +
-                            postsList.get(quotePosition).getPostIndex() +
-                            ";" + "sesc=" + sc + ";xml")
+                           postIndex + ";" + "sesc=" + sc + ";xml")
                     .build();
 
             try {

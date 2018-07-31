@@ -180,9 +180,8 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         if (!sessionManager.isLoggedIn()) replyFAB.hide();
         else {
             replyFAB.setOnClickListener(view -> {
-                if (sessionManager.isLoggedIn()) {
-                    viewModel.prepareForReply(postsList, topicAdapter.getToQuoteList());
-                }
+                if (sessionManager.isLoggedIn())
+                    viewModel.prepareForReply();
             });
         }
 
@@ -232,12 +231,10 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                         }
 
                         progressBar.setVisibility(ProgressBar.GONE);
-                        if (topicTaskResult.getReplyPageUrl() == null) {
+                        if (topicTaskResult.getReplyPageUrl() == null)
                             replyFAB.hide();
-                        } else {
+                        else
                             replyFAB.show();
-                        }
-                        topicAdapter.resetTopic();
                         recyclerView.scrollToPosition(topicTaskResult.getFocusedPostIndex());
                         break;
                     case NETWORK_ERROR:
