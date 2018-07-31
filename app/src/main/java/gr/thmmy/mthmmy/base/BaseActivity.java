@@ -17,6 +17,7 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.UploadActivity;
+import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.activities.bookmarks.BookmarkActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
@@ -65,7 +66,9 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -84,8 +87,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     private SharedPreferences bookmarksFile;
     private ArrayList<Bookmark> topicsBookmarked;
     private ArrayList<Bookmark> boardsBookmarked;
-    private static Drawable bookmarked;
-    private static Drawable notBookmarked;
 
     //Common UI elements
     protected Toolbar toolbar;
@@ -103,18 +104,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (sessionManager == null)
             sessionManager = BaseApplication.getInstance().getSessionManager();
 
-        if (bookmarked == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true, null);
-            } else //noinspection deprecation
-                bookmarked = getResources().getDrawable(R.drawable.ic_bookmark_true);
-        }
-        if (notBookmarked == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false, null);
-            } else //noinspection deprecation
-                notBookmarked = getResources().getDrawable(R.drawable.ic_bookmark_false);
-        }
         if (topicsBookmarked == null || boardsBookmarked == null) {
             bookmarksFile = getSharedPreferences(BOOKMARKS_SHARED_PREFS, Context.MODE_PRIVATE);
             loadSavedBookmarks();
@@ -475,6 +464,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Integer result) {
+            if (result == SUCCESS) {
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                if (sharedPrefs.getString(DEFAULT_HOME_TAB, "0").equals("2")) {
+                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                    editor.putString(DEFAULT_HOME_TAB, "0").apply();
+                }
+            }
+
             updateDrawer();
             if (mainActivity != null)
                 mainActivity.updateTabs();
@@ -501,9 +498,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void setTopicBookmark(MenuItem thisPageBookmarkMenuButton) {
         this.thisPageBookmarkMenuButton = thisPageBookmarkMenuButton;
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
-            thisPageBookmarkMenuButton.setIcon(bookmarked);
+            thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
         } else {
-            thisPageBookmarkMenuButton.setIcon(notBookmarked);
+            thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
         }
     }
 
@@ -513,19 +510,19 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
         loadSavedBookmarks();
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
-            thisPageBookmarkMenuButton.setIcon(bookmarked);
+            thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
         } else {
-            thisPageBookmarkMenuButton.setIcon(notBookmarked);
+            thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
         }
     }
 
     protected void topicMenuBookmarkClick() {
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
-            thisPageBookmarkMenuButton.setIcon(notBookmarked);
+            thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
             toggleTopicToBookmarks(thisPageBookmark);
             Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
         } else {
-            thisPageBookmarkMenuButton.setIcon(bookmarked);
+            thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
             toggleTopicToBookmarks(thisPageBookmark);
             Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
         }
@@ -533,18 +530,18 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void setBoardBookmark(final ImageButton thisPageBookmarkImageButton) {
         if (thisPageBookmark.matchExists(boardsBookmarked)) {
-            thisPageBookmarkImageButton.setImageDrawable(bookmarked);
+            thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
         } else {
-            thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
+            thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
         }
         thisPageBookmarkImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (thisPageBookmark.matchExists(boardsBookmarked)) {
-                    thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
+                    thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
                     Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
                 } else {
-                    thisPageBookmarkImageButton.setImageDrawable(bookmarked);
+                    thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
                     Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
                 }
                 toggleBoardToBookmarks(thisPageBookmark);
@@ -557,9 +554,9 @@ public abstract class BaseActivity extends AppCompatActivity {
             return;
         loadSavedBookmarks();
         if (thisPageBookmark.matchExists(boardsBookmarked)) {
-            thisPageBookmarkImageButton.setImageDrawable(bookmarked);
+            thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
         } else {
-            thisPageBookmarkImageButton.setImageDrawable(notBookmarked);
+            thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
         }
     }
 
@@ -651,7 +648,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         return true;
     }
 
-    //Display popup gor user to grant permission
+    //Display popup for user to grant permission
     private void requestPerms() { //Runtime permissions request for devices with API >= 23
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {

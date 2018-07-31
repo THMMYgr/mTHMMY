@@ -155,9 +155,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
 
@@ -409,16 +409,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.quoteToggle.setVisibility(View.GONE);
             } else {
                 if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
+                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                 else
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
+                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
                 //Sets graphics behavior
                 holder.quoteToggle.setOnClickListener(view -> {
                     viewModel.postIndexToggle(currentPost.getPostIndex());
                     if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
-                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked);
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                     else
-                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked);
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
                 });
             }
         } else if (currentHolder instanceof QuickReplyViewHolder) {
@@ -430,9 +430,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
                     .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail, null))
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
