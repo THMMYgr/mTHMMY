@@ -28,7 +28,7 @@ import timber.log.Timber;
  * <li>{@link #parseTopicNumberOfPages(Document, int, ParseHelpers.Language)}</li>
  * <li>{@link #parseTopic(Document, ParseHelpers.Language)}</li>
  */
-class TopicParser {
+public class TopicParser {
     //User colors
     private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
     private static final int USER_COLOR_RED = Color.parseColor("#F44336");
@@ -48,7 +48,7 @@ class TopicParser {
      * @return String containing html with the usernames of users
      * @see org.jsoup.Jsoup Jsoup
      */
-    static String parseUsersViewingThisTopic(Document topic, ParseHelpers.Language language) {
+    public static String parseUsersViewingThisTopic(Document topic, ParseHelpers.Language language) {
         if (language.is(ParseHelpers.Language.GREEK))
             return topic.select("td:containsOwn(διαβάζουν αυτό το θέμα)").first().html();
         return topic.select("td:containsOwn(are viewing this topic)").first().html();
@@ -64,7 +64,7 @@ class TopicParser {
      * @return int containing parsed topic's current page
      * @see org.jsoup.Jsoup Jsoup
      */
-    static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
+    public static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
         int parsedPage = 1;
 
         if (language.is(ParseHelpers.Language.GREEK)) {
@@ -102,7 +102,7 @@ class TopicParser {
      * @return int containing the number of pages
      * @see org.jsoup.Jsoup Jsoup
      */
-    static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
+    public static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
         int returnPages = 1;
 
         if (language.is(ParseHelpers.Language.GREEK)) {
@@ -140,7 +140,7 @@ class TopicParser {
      * @return {@link ArrayList} of {@link Post}s
      * @see org.jsoup.Jsoup Jsoup
      */
-    static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
+    public static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
         //Method's variables
         final int NO_INDEX = -1;
         ArrayList<Post> parsedPostsList = new ArrayList<>();
@@ -157,7 +157,7 @@ class TopicParser {
             //Variables for Post constructor
             String p_userName, p_thumbnailURL, p_subject, p_post, p_postDate, p_profileURL, p_rank,
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate,
-                    p_postURL, p_deletePostURL;
+                    p_postURL, p_deletePostURL, p_editPostURL;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
             boolean p_isDeleted = false;
             ArrayList<ThmmyFile> p_attachedFiles;
@@ -174,6 +174,7 @@ class TopicParser {
             p_attachedFiles = new ArrayList<>();
             p_postLastEditDate = null;
             p_deletePostURL = null;
+            p_editPostURL = null;
 
             //Language independent parsing
             //Finds thumbnail url
@@ -306,6 +307,12 @@ class TopicParser {
                     p_deletePostURL = postDelete.attr("href");
                 }
 
+                //Finds post modify url
+                Element postEdit = thisRow.select("a:has(img[alt='Modify message'])").first();
+                if (postEdit != null) {
+                    p_editPostURL = postEdit.attr("href");
+                }
+
                 //Finds post's submit date
                 Element postDate = thisRow.select("div.smalltext:matches(on:)").first();
                 p_postDate = postDate.text();
@@ -431,13 +438,13 @@ class TopicParser {
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
-                        , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL));
+                        , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL, Post.TYPE_POST));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post
                         , p_postIndex , p_postNum, p_postDate, p_userColor, p_attachedFiles
-                        , p_postLastEditDate, p_postURL, p_deletePostURL));
+                        , p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL, Post.TYPE_POST));
             }
         }
         return parsedPostsList;

@@ -16,6 +16,10 @@ import java.util.Objects;
  * previous fields</b>.</p>
  */
 public class Post {
+    public static final int TYPE_POST = 0;
+    public static final int TYPE_QUICK_REPLY = 1;
+    public static final int TYPE_EDIT = 2;
+
     //Standard info (exists in every post)
     private final String thumbnailUrl;
     private final String author;
@@ -30,6 +34,8 @@ public class Post {
     private final String lastEdit;
     private final String postURL;
     private final String postDeleteURL;
+    private final String postEditURL;
+    private int postType;
 
     //Extra info
     private final String profileURL;
@@ -63,6 +69,8 @@ public class Post {
         lastEdit = null;
         postURL = null;
         postDeleteURL = null;
+        postEditURL = null;
+        postType = -1;
     }
 
     /**
@@ -87,14 +95,14 @@ public class Post {
      * @param userColor     author's user color
      * @param attachedFiles post's attached files
      * @param lastEdit      post's last edit date
-     * @param postURL      post's URL
+     * @param postURL       post's URL
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, String profileURl, @Nullable String rank
             , @Nullable String special_rank, @Nullable String gender, @Nullable String numberOfPosts
             , @Nullable String personalText, int numberOfStars, int userColor
             , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL
-            , @Nullable String postDeleteURL) {
+            , @Nullable String postDeleteURL, @Nullable String postEditURL, int postType) {
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -116,6 +124,8 @@ public class Post {
         this.numberOfStars = numberOfStars;
         this.postURL = postURL;
         this.postDeleteURL = postDeleteURL;
+        this.postEditURL = postEditURL;
+        this.postType = postType;
     }
 
     /**
@@ -138,7 +148,7 @@ public class Post {
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, int userColor
             , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL
-            , @Nullable String postDeleteURL) {
+            , @Nullable String postDeleteURL, @Nullable String postEditURL, int postType) {
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -160,6 +170,13 @@ public class Post {
         numberOfStars = 0;
         this.postURL = postURL;
         this.postDeleteURL = postDeleteURL;
+        this.postEditURL = postEditURL;
+        this.postType = postType;
+    }
+
+    public static Post newQuickReply() {
+        return new Post(null, null, null, null, 0, 0, null,
+                0, null, null, null, null, null, TYPE_QUICK_REPLY);
     }
 
     //Getters
@@ -357,5 +374,23 @@ public class Post {
     @Nullable
     public String getPostDeleteURL() {
         return postDeleteURL;
+    }
+
+    /**
+     * Gets this post's modify url.
+     *
+     * @return post's edit url
+     */
+    @Nullable
+    public String getPostEditURL() {
+        return postEditURL;
+    }
+
+    public int getPostType() {
+        return postType;
+    }
+
+    public void setPostType(int postType) {
+        this.postType = postType;
     }
 }

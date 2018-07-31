@@ -42,6 +42,7 @@
     <string name="post_overflow_menu_button">Overflow menu button</string>
     <string name="post_share_button">Share</string>
     <string name="post_delete_button">Delete</string>
+    <string name="post_edit_button">Edit</string>
     <string name="user_number_of_posts">#%1$d</string>
     <string name="button_first">first</string>
     <string name="button_previous">previous</string>
@@ -49,8 +50,9 @@
     <string name="button_next">next</string>
     <string name="button_last">last</string>
     <string name="quick_reply">Quick reply&#8230;</string>
-    <string name="quick_reply_subject">Subject&#8230;</string>
-    <string name="quick_reply_submit">Submit</string>
+    <string name="subject">Subject&#8230;</string>
+    <string name="submit">Submit</string>
+    <string name="post_message">Message&#8230;</string>
 
     <!--Profile Activity-->
     <string name="username">Username</string>

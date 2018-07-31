@@ -2,8 +2,8 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -17,9 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +35,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,6 +46,7 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -71,119 +69,72 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     private static int THUMBNAIL_SIZE;
     private final Context context;
-    private String topicTitle;
-    private String baseUrl;
-    private final ArrayList<Integer> toQuoteList = new ArrayList<>();
+    private final OnPostFocusChangeListener postFocusListener;
     private final List<Post> postsList;
-    /**
-     * Used to hold the state of visibility and other attributes for views that are animated or
-     * otherwise changed. Used in combination with {@link #isUserExtraInfoVisibile} and
-     * {@link #isQuoteButtonChecked}.
-     */
-    private final ArrayList<boolean[]> viewProperties = new ArrayList<>();
-    /**
-     * Index of state indicator in the boolean array. If true user's extra info are expanded and
-     * visible.
-     */
-    private static final int isUserExtraInfoVisibile = 0;
-    /**
-     * Index of state indicator in the boolean array. If true quote button for this post is checked.
-     */
-    private static final int isQuoteButtonChecked = 1;
-    private TopicActivity.TopicTask topicTask;
-    private TopicActivity.ReplyTask replyTask;
-    private TopicActivity.DeleteTask deleteTask;
-    private final int VIEW_TYPE_POST = 0;
-    private final int VIEW_TYPE_QUICK_REPLY = 1;
-
-    private final String[] replyDataHolder = new String[2];
-    private final int replySubject = 0, replyText = 1;
-    private String numReplies, seqnum, sc, topic, buildedQuotes;
-    private boolean canReply = false;
+    private TopicViewModel viewModel;
 
     /**
      * @param context   the context of the {@link RecyclerView}
      * @param postsList List of {@link Post} objects to use
      */
-    TopicAdapter(Context context, List<Post> postsList, String baseUrl,
-                 TopicActivity.TopicTask topicTask) {
+    TopicAdapter(TopicActivity context, List<Post> postsList) {
         this.context = context;
         this.postsList = postsList;
-        this.baseUrl = baseUrl;
+        this.postFocusListener = context;
+
+        viewModel = ViewModelProviders.of(context).get(TopicViewModel.class);
 
         THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
-        for (int i = 0; i < postsList.size(); ++i) {
-            //Initializes properties, array's values will be false by default
-            viewProperties.add(new boolean[3]);
-        }
-        this.topicTask = topicTask;
-    }
-
-    ArrayList<Integer> getToQuoteList() {
-        return toQuoteList;
-    }
-
-    void prepareForReply(TopicActivity.ReplyTask replyTask, String topicTitle, String numReplies,
-                         String seqnum, String sc, String topic, String buildedQuotes) {
-        this.replyTask = replyTask;
-        this.topicTitle = topicTitle;
-        this.numReplies = numReplies;
-        this.seqnum = seqnum;
-        this.sc = sc;
-        this.topic = topic;
-        this.buildedQuotes = buildedQuotes;
-    }
-
-    void prepareForDelete(TopicActivity.DeleteTask deleteTask) {
-        this.deleteTask = deleteTask;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return postsList.get(position) == null ? VIEW_TYPE_QUICK_REPLY : VIEW_TYPE_POST;
+        return postsList.get(position).getPostType();
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_POST) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == Post.TYPE_POST) {
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.activity_topic_post_row, parent, false);
             return new PostViewHolder(itemView);
-        } else if (viewType == VIEW_TYPE_QUICK_REPLY) {
+        } else if (viewType == Post.TYPE_QUICK_REPLY) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_quick_reply_row, parent, false);
             view.findViewById(R.id.quick_reply_submit).setEnabled(true);
 
             final EditText quickReplyText = view.findViewById(R.id.quick_reply_text);
             quickReplyText.setFocusableInTouchMode(true);
-            quickReplyText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    quickReplyText.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.showSoftInput(quickReplyText, InputMethodManager.SHOW_IMPLICIT);
-                        }
-                    });
-                }
-            });
+            quickReplyText.setOnFocusChangeListener((v, hasFocus) -> quickReplyText.post(() -> {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(quickReplyText, InputMethodManager.SHOW_IMPLICIT);
+            }));
             quickReplyText.requestFocus();
 
-            //Default post subject
-            replyDataHolder[replySubject] = "Re: " + topicTitle;
-            //Build quotes
-            if (!Objects.equals(buildedQuotes, ""))
-                replyDataHolder[replyText] = buildedQuotes;
-            return new QuickReplyViewHolder(view, new CustomEditTextListener(replySubject),
-                    new CustomEditTextListener(replyText));
+            return new QuickReplyViewHolder(view);
+        } else if (viewType == Post.TYPE_EDIT) {
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.activity_topic_edit_row, parent, false);
+            view.findViewById(R.id.edit_message_submit).setEnabled(true);
+
+            final EditText editPostEdittext = view.findViewById(R.id.edit_message_text);
+            editPostEdittext.setFocusableInTouchMode(true);
+            editPostEdittext.setOnFocusChangeListener((v, hasFocus) -> editPostEdittext.post(() -> {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(editPostEdittext, InputMethodManager.SHOW_IMPLICIT);
+            }));
+            editPostEdittext.requestFocus();
+
+            return new EditMessageViewHolder(view);
+        } else {
+            throw new IllegalArgumentException("Unknown view type");
         }
-        return null;
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "SetTextI18n"})
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder currentHolder,
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder currentHolder,
                                  final int position) {
         if (currentHolder instanceof PostViewHolder) {
             final Post currentPost = postsList.get(position);
@@ -245,12 +196,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         attached.setTextColor(filesTextColor);
                         attached.setPadding(0, 3, 0, 3);
 
-                        attached.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                ((BaseActivity) context).downloadFile(attachedFile);
-                            }
-                        });
+                        attached.setOnClickListener(view -> ((BaseActivity) context).downloadFile(attachedFile));
 
                         holder.postFooter.addView(attached);
                     }
@@ -329,11 +275,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         , "fonts/fontawesome-webfont.ttf"));
 
                 String aStar = context.getResources().getString(R.string.fa_icon_star);
-                String usersStars = "";
+                StringBuilder usersStars = new StringBuilder();
                 for (int i = 0; i < mNumberOfStars; ++i) {
-                    usersStars += aStar;
+                    usersStars.append(aStar);
                 }
-                holder.stars.setText(usersStars);
+                holder.stars.setText(usersStars.toString());
                 holder.stars.setTextColor(mUserColor);
                 holder.stars.setVisibility(View.VISIBLE);
             } else
@@ -349,7 +295,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else holder.cardChildLinear.setBackground(null);
 
             //Avoid's view's visibility recycling
-            if (!currentPost.isDeleted() && viewProperties.get(position)[isUserExtraInfoVisibile]) {
+            if (!currentPost.isDeleted() && viewModel.isUserExtraInfoVisible(holder.getAdapterPosition())) {
                 holder.userExtraInfo.setVisibility(View.VISIBLE);
                 holder.userExtraInfo.setAlpha(1.0f);
 
@@ -372,53 +318,39 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             if (!currentPost.isDeleted()) {
                 //Sets graphics behavior
-                holder.thumbnail.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //Clicking the thumbnail opens user's profile
-                        Intent intent = new Intent(context, ProfileActivity.class);
-                        Bundle extras = new Bundle();
-                        extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
-                        if (currentPost.getThumbnailURL() == null)
-                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
-                        else
-                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailURL());
-                        extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
-                        intent.putExtras(extras);
-                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
-                    }
+                holder.thumbnail.setOnClickListener(view -> {
+                    //Clicking the thumbnail opens user's profile
+                    Intent intent = new Intent(context, ProfileActivity.class);
+                    Bundle extras = new Bundle();
+                    extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
+                    if (currentPost.getThumbnailURL() == null)
+                        extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                    else
+                        extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailURL());
+                    extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
+                    intent.putExtras(extras);
+                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
                 });
-                holder.header.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Clicking the header makes it expand/collapse
-                        boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                        tmp[isUserExtraInfoVisibile] = !tmp[isUserExtraInfoVisibile];
-                        viewProperties.set(holder.getAdapterPosition(), tmp);
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
-                                holder.subject, Color.parseColor("#FFFFFF"),
-                                Color.parseColor("#757575"), holder.userExtraInfo);
-                    }
+                holder.header.setOnClickListener(v -> {
+                    //Clicking the header makes it expand/collapse
+                    viewModel.toggleUserInfo(holder.getAdapterPosition());
+                    TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                            holder.subject, Color.parseColor("#FFFFFF"),
+                            Color.parseColor("#757575"), holder.userExtraInfo);
                 });
                 //Clicking the expanded part of a header (the extra info) makes it collapse
-                holder.userExtraInfo.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                        tmp[isUserExtraInfoVisibile] = false;
-                        viewProperties.set(holder.getAdapterPosition(), tmp);
-
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
-                                holder.subject, Color.parseColor("#FFFFFF"),
-                                Color.parseColor("#757575"), (LinearLayout) v);
-                    }
+                holder.userExtraInfo.setOnClickListener(v -> {
+                    viewModel.hideUserInfo(holder.getAdapterPosition());
+                    TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                            holder.subject, Color.parseColor("#FFFFFF"),
+                            Color.parseColor("#757575"), (LinearLayout) v);
                 });
             } else {
                 holder.header.setOnClickListener(null);
                 holder.userExtraInfo.setOnClickListener(null);
             }
-
+          
             holder.overflowButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -449,8 +381,20 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             popUp.dismiss();
                         }
                     });
+                }
 
-                    TextView deletePostButton = popUpContent.findViewById(R.id.delete_post);
+                final TextView editPostButton = popUpContent.findViewById(R.id.edit_post);
+
+                if (viewModel.isEditingPost() || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
+                    editPostButton.setVisibility(View.GONE);
+                } else {
+                    editPostButton.setOnClickListener(v -> {
+                        viewModel.prepareForEdit(position, postsList.get(position).getPostEditURL());
+                        popUp.dismiss();
+                    });
+                }
+              
+              TextView deletePostButton = popUpContent.findViewById(R.id.delete_post);
 
                     if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")) {
                         deletePostButton.setVisibility(View.GONE);
@@ -477,37 +421,25 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         });
                     }
 
-                    //Displays the popup
-                    popUp.showAsDropDown(holder.overflowButton);
-                }
+                //Displays the popup
+                popUp.showAsDropDown(holder.overflowButton);
             });
 
             //noinspection PointlessBooleanExpression,ConstantConditions
-            if (!BaseActivity.getSessionManager().isLoggedIn() || !canReply) {
+            if (!BaseActivity.getSessionManager().isLoggedIn() || !viewModel.canReply()) {
                 holder.quoteToggle.setVisibility(View.GONE);
             } else {
-                if (viewProperties.get(position)[isQuoteButtonChecked])
+                if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                 else
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
                 //Sets graphics behavior
-                holder.quoteToggle.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        boolean[] tmp = viewProperties.get(holder.getAdapterPosition());
-                        if (tmp[isQuoteButtonChecked]) {
-                            if (toQuoteList.contains(postsList.indexOf(currentPost))) {
-                                toQuoteList.remove(toQuoteList.indexOf(postsList.indexOf(currentPost)));
-                            } else
-                                Timber.i("An error occurred while trying to exclude post fromtoQuoteList, post wasn't there!");
-                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
-                        } else {
-                            toQuoteList.add(postsList.indexOf(currentPost));
-                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
-                        }
-                        tmp[isQuoteButtonChecked] = !tmp[isQuoteButtonChecked];
-                        viewProperties.set(holder.getAdapterPosition(), tmp);
-                    }
+                holder.quoteToggle.setOnClickListener(view -> {
+                    viewModel.postIndexToggle(currentPost.getPostIndex());
+                    if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
+                    else
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
                 });
             }
         } else if (currentHolder instanceof QuickReplyViewHolder) {
@@ -525,41 +457,65 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
-            holder.quickReplySubject.setText(replyDataHolder[replySubject]);
+            holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
 
-            if (replyDataHolder[replyText] != null && !Objects.equals(replyDataHolder[replyText], ""))
-                holder.quickReply.setText(replyDataHolder[replyText]);
+            holder.quickReply.setText(viewModel.getBuildedQuotes());
 
-            holder.submitButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (holder.quickReplySubject.getText().toString().isEmpty()) return;
-                    if (holder.quickReply.getText().toString().isEmpty()) return;
-                    holder.submitButton.setEnabled(false);
-                    replyTask.execute(holder.quickReplySubject.getText().toString(),
-                            holder.quickReply.getText().toString(), numReplies, seqnum, sc, topic);
 
-                    holder.quickReplySubject.getText().clear();
-                    holder.quickReplySubject.setText("Re: " + topicTitle);
-                    holder.quickReply.getText().clear();
-                    holder.submitButton.setEnabled(true);
-                }
+            holder.submitButton.setOnClickListener(view -> {
+                if (holder.quickReplySubject.getText().toString().isEmpty()) return;
+                if (holder.quickReply.getText().toString().isEmpty()) return;
+                holder.submitButton.setEnabled(false);
+
+                viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
+                        holder.quickReply.getText().toString());
+
+                holder.quickReplySubject.getText().clear();
+                holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
+                holder.quickReply.getText().clear();
+                holder.submitButton.setEnabled(true);
             });
+
+
             if (backPressHidden) {
                 holder.quickReply.requestFocus();
                 backPressHidden = false;
             }
-        }
-    }
+        } else if (currentHolder instanceof EditMessageViewHolder) {
+            final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 
-    void resetTopic(String baseUrl, TopicActivity.TopicTask topicTask, boolean canReply) {
-        this.baseUrl = baseUrl;
-        this.topicTask = topicTask;
-        this.canReply = canReply;
-        viewProperties.clear();
-        for (int i = 0; i < postsList.size(); ++i) {
-            //Initializes properties, array's values will be false by default
-            viewProperties.add(new boolean[3]);
+            //noinspection ConstantConditions
+            Picasso.with(context)
+                    .load(getSessionManager().getAvatarLink())
+                    .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                    .centerCrop()
+                    .error(ResourcesCompat.getDrawable(context.getResources()
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                    .placeholder(ResourcesCompat.getDrawable(context.getResources()
+                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                    .transform(new CircleTransform())
+                    .into(holder.thumbnail);
+            holder.username.setText(getSessionManager().getUsername());
+
+            holder.editSubject.setText(postsList.get(position).getSubject());
+            holder.editMessage.setText(viewModel.getPostBeingEditedText());
+
+            holder.submitButton.setOnClickListener(view -> {
+                if (holder.editSubject.getText().toString().isEmpty()) return;
+                if (holder.editMessage.getText().toString().isEmpty()) return;
+                holder.submitButton.setEnabled(false);
+
+                viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editMessage.getText().toString());
+
+                holder.editSubject.getText().clear();
+                holder.editSubject.setText(postsList.get(position).getSubject());
+                holder.submitButton.setEnabled(true);
+            });
+
+            if (backPressHidden) {
+                holder.editMessage.requestFocus();
+                backPressHidden = false;
+            }
         }
     }
 
@@ -629,16 +585,30 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final EditText quickReply, quickReplySubject;
         final AppCompatImageButton submitButton;
 
-        QuickReplyViewHolder(View quickReply, CustomEditTextListener replySubject
-                , CustomEditTextListener replyText) {
+        QuickReplyViewHolder(View quickReply) {
             super(quickReply);
             thumbnail = quickReply.findViewById(R.id.thumbnail);
             username = quickReply.findViewById(R.id.username);
             this.quickReply = quickReply.findViewById(R.id.quick_reply_text);
-            this.quickReply.addTextChangedListener(replyText);
             quickReplySubject = quickReply.findViewById(R.id.quick_reply_subject);
-            quickReplySubject.addTextChangedListener(replySubject);
             submitButton = quickReply.findViewById(R.id.quick_reply_submit);
+        }
+    }
+
+    private static class EditMessageViewHolder extends RecyclerView.ViewHolder {
+        final ImageView thumbnail;
+        final TextView username;
+        final EditText editMessage, editSubject;
+        final AppCompatImageButton submitButton;
+
+        EditMessageViewHolder(View editView) {
+            super(editView);
+
+            thumbnail = editView.findViewById(R.id.thumbnail);
+            username = editView.findViewById(R.id.username);
+            editMessage = editView.findViewById(R.id.edit_message_text);
+            editSubject = editView.findViewById(R.id.edit_message_subject);
+            submitButton = editView.findViewById(R.id.edit_message_submit);
         }
     }
 
@@ -667,26 +637,41 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             final String uriString = uri.toString();
 
             ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(uri);
+            viewModel.stopLoading();
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
-                //Checks if this is the current topic
-                if (Objects.equals(uriString.substring(0, uriString.lastIndexOf(".")), baseUrl)) {
-                    //Gets uri's targeted message's index number
-                    String msgIndexReq = uriString.substring(uriString.indexOf("msg") + 3);
-                    if (msgIndexReq.contains("#"))
-                        msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf("#"));
-                    else
-                        msgIndexReq = msgIndexReq.substring(0, msgIndexReq.indexOf(";"));
-
-                    //Checks if this post is in the current topic's page
-                    for (Post post : postsList) {
-                        if (post.getPostIndex() == Integer.parseInt(msgIndexReq)) {
-                            // TODO Don't restart Activity, Just change post focus
+                //Checks if the page to be loaded is the one already shown
+                if (uriString.contains(viewModel.getBaseUrl())) {
+                    Timber.e("reached here!");
+                    if (uriString.contains("topicseen#new") || uriString.contains("#new")) {
+                        if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
+                            //same page
+                            postFocusListener.onPostFocusChange(getItemCount() - 1);
+                            Timber.e("new");
                             return true;
                         }
                     }
-
-                    topicTask.execute(uri.toString());
+                    if (uriString.contains("msg")) {
+                        String tmpUrlSbstr = uriString.substring(uriString.indexOf("msg") + 3);
+                        if (tmpUrlSbstr.contains("msg"))
+                            tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
+                        int testAgainst = Integer.parseInt(tmpUrlSbstr);
+                        Timber.e("reached tthere! %s", testAgainst);
+                        for (int i = 0; i < postsList.size(); i++) {
+                            if (postsList.get(i).getPostIndex() == testAgainst) {
+                                //same page
+                                Timber.e(Integer.toString(i));
+                                postFocusListener.onPostFocusChange(i);
+                                return true;
+                            }
+                        }
+                    } else if ((Objects.equals(uriString, viewModel.getBaseUrl()) && viewModel.getCurrentPageIndex() == 1) ||
+                            Integer.parseInt(uriString.substring(viewModel.getBaseUrl().length() + 1)) / 15 + 1 ==
+                                    viewModel.getCurrentPageIndex()) {
+                        //same page
+                        Timber.e("ha");
+                        return true;
+                    }
                 }
 
                 Intent intent = new Intent(context, TopicActivity.class);
@@ -727,25 +712,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     }
 
-    private class CustomEditTextListener implements TextWatcher {
-        private final int positionInDataHolder;
-
-        CustomEditTextListener(int positionInDataHolder) {
-            this.positionInDataHolder = positionInDataHolder;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-            replyDataHolder[positionInDataHolder] = charSequence.toString();
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-        }
+    //we need to set a callback to topic activity to scroll the recyclerview when post focus is requested
+    public interface OnPostFocusChangeListener {
+        void onPostFocusChange(int position);
     }
 
     /**
