@@ -210,14 +210,10 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                             toolbarTitle.setText(topicTaskResult.getTopicTitle());
                         }
 
-                        if (!postsList.isEmpty()) {
-                            recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
-                            postsList.clear();
-                            if (topicTitle != null) toolbarTitle.setText(topicTitle);
-                            topicAdapter.notifyItemRangeRemoved(0, postsList.size() - 1);
-                        }
+                        recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
+                        postsList.clear();
                         postsList.addAll(topicTaskResult.getNewPostsList());
-                        topicAdapter.notifyItemRangeInserted(0, postsList.size());
+                        topicAdapter.notifyDataSetChanged();
 
                         pageIndicator.setText(String.valueOf(topicTaskResult.getCurrentPageIndex()) + "/" +
                                 String.valueOf(topicTaskResult.getPageCount()));
