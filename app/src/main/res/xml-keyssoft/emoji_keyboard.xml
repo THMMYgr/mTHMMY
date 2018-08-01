@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Keyboard
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:keyWidth="20%"
+    android:keyHeight="10%">
+
+    <Row>
+        <Key android:codes="10" android:keyIcon="@drawable/ic_arrow_drop_up_accent_24dp"/>
+    </Row>
+
+</Keyboard>
