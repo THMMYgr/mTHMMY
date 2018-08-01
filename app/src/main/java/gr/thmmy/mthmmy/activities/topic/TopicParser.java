@@ -1,7 +1,9 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
+import android.util.Log;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
@@ -29,6 +33,10 @@ import timber.log.Timber;
  * <li>{@link #parseTopic(Document, ParseHelpers.Language)}</li>
  */
 public class TopicParser {
+    private static Pattern mentionsPattern = Pattern.
+            compile("<div class=\"quoteheader\">\\n\\s+?<a href=.+?>Quote from: "
+                    + BaseActivity.getSessionManager().getUsername());
+
     //User colors
     private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
     private static final int USER_COLOR_RED = Color.parseColor("#F44336");
@@ -159,7 +167,7 @@ public class TopicParser {
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate,
                     p_postURL, p_deletePostURL, p_editPostURL;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
-            boolean p_isDeleted = false;
+            boolean p_isDeleted = false, p_isUserMentionedInPost = false;
             ArrayList<ThmmyFile> p_attachedFiles;
 
             //Initialize variables
@@ -188,7 +196,7 @@ public class TopicParser {
             p_subject = thisRow.select("div[id^=subject_]").first().select("a").first().text();
 
             //Finds post's link
-            p_postURL = thisRow.select("div[id^=subject_]").first().select("a").first() .attr("href");
+            p_postURL = thisRow.select("div[id^=subject_]").first().select("a").first().attr("href");
 
             //Finds post's text
             p_post = ParseHelpers.youtubeEmbeddedFix(thisRow.select("div").select(".post").first());
@@ -204,11 +212,11 @@ public class TopicParser {
             if (postIndex != null) {
                 String tmp = postIndex.attr("name");
                 p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
-            } else{
+            } else {
                 postIndex = thisRow.select("div[id^=subject]").first();
                 if (postIndex == null)
                     p_postIndex = NO_INDEX;
-                else{
+                else {
                     String tmp = postIndex.attr("id");
                     p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("subject") + 8));
                 }
@@ -237,7 +245,7 @@ public class TopicParser {
 
                 //Finds post delete url
                 Element postDelete = thisRow.select("a:has(img[alt='Διαγραφή'])").first();
-                if (postDelete!=null){
+                if (postDelete != null) {
                     p_deletePostURL = postDelete.attr("href");
                 }
 
@@ -303,7 +311,7 @@ public class TopicParser {
 
                 //Finds post delete url
                 Element postDelete = thisRow.select("a:has(img[alt='Remove message'])").first();
-                if (postDelete!=null){
+                if (postDelete != null) {
                     p_deletePostURL = postDelete.attr("href");
                 }
 
@@ -434,17 +442,25 @@ public class TopicParser {
                     }
                 }
 
+                //Checks post for mentions of this user (if the user is logged in)
+                if (BaseActivity.getSessionManager().isLoggedIn() &&
+                        mentionsPattern.matcher(p_post).find()) {
+                    p_isUserMentionedInPost = true;
+                }
+
                 //Add new post in postsList, extended information needed
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
-                        , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL, Post.TYPE_POST));
+                        , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL
+                        , p_isUserMentionedInPost, Post.TYPE_POST));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post
-                        , p_postIndex , p_postNum, p_postDate, p_userColor, p_attachedFiles
-                        , p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL, Post.TYPE_POST));
+                        , p_postIndex, p_postNum, p_postDate, p_userColor, p_attachedFiles
+                        , p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL
+                        , p_isUserMentionedInPost, Post.TYPE_POST));
             }
         }
         return parsedPostsList;
