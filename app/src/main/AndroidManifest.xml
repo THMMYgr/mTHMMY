@@ -40,15 +40,12 @@
                 <data
                     android:host="www.thmmy.gr"
                     android:scheme="http" />
-
                 <data
                     android:host="www.thmmy.gr"
                     android:scheme="https" />
-
                 <data
                     android:host="thmmy.gr"
                     android:scheme="https" />
-
                 <data android:host="thmmy.gr" />
             </intent-filter>
         </activity>
@@ -147,6 +144,8 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name=".activities.TestEditView"></activity>
     </application>
 
 </manifest>
