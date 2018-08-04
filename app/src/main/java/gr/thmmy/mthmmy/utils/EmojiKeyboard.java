@@ -1,6 +1,8 @@
 package gr.thmmy.mthmmy.utils;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageButton;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -35,7 +37,7 @@ public class EmojiKeyboard extends LinearLayout {
 
         // add space before emoji
         emojis.append(R.drawable.heart, "<3");
-        // this was copied twice in the original page for some reason
+        // this was twice in the original page for some reason, with another alias "locked"
         emojis.append(R.drawable.locked, "^lock^");
         emojis.append(R.drawable.roll_over, "^rollover^");
         emojis.append(R.drawable.redface, "^redface^");
@@ -48,7 +50,6 @@ public class EmojiKeyboard extends LinearLayout {
         emojis.append(R.drawable.mad, "^mad^");
         emojis.append(R.drawable.wav, "^wav^");
         emojis.append(R.drawable.binkybaby, "^binkybaby^");
-        // maybe renamed
         emojis.append(R.drawable.police, "^police^");
         emojis.append(R.drawable.dontknow, "^dontknow^");
         // the next two are the same thing?
@@ -56,7 +57,6 @@ public class EmojiKeyboard extends LinearLayout {
         emojis.append(R.drawable.angry_hot, "^angryhot^");
         emojis.append(R.drawable.angry, "^angry^");
         emojis.append(R.drawable.foyska, "^fouska^");
-        // changed icon name to become valid drawable name
         emojis.append(R.drawable.e10_7_3e, "^sfinaki^");
         emojis.append(R.drawable.bang_head, "^banghead^");
         emojis.append(R.drawable.crybaby, "^crybaby^");
@@ -64,7 +64,6 @@ public class EmojiKeyboard extends LinearLayout {
         emojis.append(R.drawable.jerk, "^jerk^");
         emojis.append(R.drawable.nono, "^nono^");
         emojis.append(R.drawable.notworthy, "^notworthy^");
-        // changed icon name to become valid drawable name
         emojis.append(R.drawable.off_topic, "^off-topic^");
         emojis.append(R.drawable.puke, "^puke^");
         emojis.append(R.drawable.shout, "^shout^");
@@ -108,7 +107,6 @@ public class EmojiKeyboard extends LinearLayout {
         emojis.append(R.drawable.seestars, "^seestars^");
         emojis.append(R.drawable.sfyri, "^sfyri^");
         emojis.append(R.drawable.spam2, "^spam^");
-        // changed icon name to become valid drawable name
         emojis.append(R.drawable.esuper, "^super^");
         emojis.append(R.drawable.tafos, "^tafos^");
         emojis.append(R.drawable.tomatomourh, "^tomato^");
@@ -139,12 +137,19 @@ public class EmojiKeyboard extends LinearLayout {
         emojis.append(R.drawable.smurf, "^smurf^");
 
         GridView emojiGridView = (GridView) findViewById(R.id.emoji_gridview);
-        Timber.e("size of array = " + getEmojiArray().length);
         emojiGridView.setAdapter(new ImageKeyboardAdapter(context, getEmojiArray()));
         emojiGridView.setOnItemClickListener((parent, view, position, id) -> {
             if (inputConnection == null) return;
             String value = emojis.valueAt(position);
             inputConnection.commitText(value, 1);
+        });
+        AppCompatImageButton backspaceButton = (AppCompatImageButton) findViewById(R.id.backspace_button);
+        backspaceButton.setOnClickListener(view -> {
+            CharSequence selectedText = inputConnection.getSelectedText(0);
+            if (TextUtils.isEmpty(selectedText))
+                inputConnection.deleteSurroundingText(1, 0);
+            else
+                inputConnection.commitText("", 1);
         });
     }
 
@@ -158,5 +163,9 @@ public class EmojiKeyboard extends LinearLayout {
             emojiArray[i] = emojis.keyAt(i);
         }
         return emojiArray;
+    }
+
+    public interface EmojiKeyboardOwner {
+        void setEmojiKeyboardVisible(boolean visible);
     }
 }
