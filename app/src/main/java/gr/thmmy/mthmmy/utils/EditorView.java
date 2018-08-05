@@ -41,14 +41,17 @@ public class EditorView extends LinearLayout {
         setOrientation(VERTICAL);
         LayoutInflater.from(context).inflate(R.layout.editor_view, this, true);
 
-        editText = (EditText) findViewById(R.id.editor_edittext);
-        emojiButton = (AppCompatImageButton) findViewById(R.id.emoji_keyboard_button);
+        editText = findViewById(R.id.editor_edittext);
+        emojiButton = findViewById(R.id.emoji_keyboard_button);
+
         editText.setOnTouchListener((v, event) -> {
             if (emojiKeyboardVisible) return true;
             return false;
         });
+
         emojiButton.setOnClickListener(view -> {
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            assert imm != null;
             if (emojiKeyboardVisible) {
                 editText.requestFocus();
                 imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
@@ -61,7 +64,8 @@ public class EditorView extends LinearLayout {
             emojiKeyboardVisible = !emojiKeyboardVisible;
             emojiKeyboardOwner.setEmojiKeyboardVisible(emojiKeyboardVisible);
         });
-        submitButton = (AppCompatImageButton) findViewById(R.id.submit_button);
+
+        submitButton = findViewById(R.id.submit_button);
     }
 
     public Editable getText() {

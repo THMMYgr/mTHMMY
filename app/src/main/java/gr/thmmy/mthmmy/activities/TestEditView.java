@@ -10,7 +10,6 @@ import gr.thmmy.mthmmy.utils.EditorView;
 import gr.thmmy.mthmmy.utils.EmojiKeyboard;
 
 public class TestEditView extends AppCompatActivity implements EmojiKeyboard.EmojiKeyboardOwner {
-
     EmojiKeyboard emojiKeyboard;
     EditorView editorView;
 
@@ -19,8 +18,8 @@ public class TestEditView extends AppCompatActivity implements EmojiKeyboard.Emo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_edit_view);
 
-        editorView = (EditorView) findViewById(R.id.editor_view);
-        emojiKeyboard = (EmojiKeyboard) findViewById(R.id.emoji_keyboard);
+        editorView = findViewById(R.id.editor_view);
+        emojiKeyboard = findViewById(R.id.emoji_keyboard);
 
         InputConnection ic = editorView.getInputConnection();
         emojiKeyboard.setInputConnection(ic);
