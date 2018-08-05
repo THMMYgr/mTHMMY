@@ -1,17 +1,18 @@
 package gr.thmmy.mthmmy.utils;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.v7.widget.AppCompatImageButton;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.inputmethod.InputConnection;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 
 import gr.thmmy.mthmmy.R;
-import timber.log.Timber;
 
 public class EmojiKeyboard extends LinearLayout {
 
@@ -144,12 +145,30 @@ public class EmojiKeyboard extends LinearLayout {
             inputConnection.commitText(value, 1);
         });
         AppCompatImageButton backspaceButton = (AppCompatImageButton) findViewById(R.id.backspace_button);
-        backspaceButton.setOnClickListener(view -> {
-            CharSequence selectedText = inputConnection.getSelectedText(0);
-            if (TextUtils.isEmpty(selectedText))
+        // backspace behavior
+        final Handler handler = new Handler();
+        Runnable longPressed = new Runnable() {
+            @Override
+            public void run() {
                 inputConnection.deleteSurroundingText(1, 0);
-            else
-                inputConnection.commitText("", 1);
+                handler.postDelayed(this, 50);
+            }
+        };
+        backspaceButton.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    CharSequence selectedText = inputConnection.getSelectedText(0);
+                    if (TextUtils.isEmpty(selectedText))
+                        inputConnection.deleteSurroundingText(1, 0);
+                    else
+                        inputConnection.commitText("", 1);
+                    handler.postDelayed(longPressed, 400);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    handler.removeCallbacks(longPressed);
+                    break;
+            }
+            return true;
         });
     }
 
