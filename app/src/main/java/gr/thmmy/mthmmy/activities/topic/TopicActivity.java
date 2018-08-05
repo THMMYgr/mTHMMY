@@ -103,11 +103,6 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
      * long click is held in either first or last buttons
      */
     private static final int LARGE_STEP = 10;
-    /**
-     * Holds the value (index) of the page to be requested when a user interaction with bottom
-     * navigation bar occurs
-     */
-    private Integer pageRequestValue;
 
     //Bottom navigation bar graphics related
     private LinearLayout bottomNavBar;
@@ -206,6 +201,11 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
 
         paginationEnabled(false);
 
+        viewModel.getPageIndicatorIndex().observe(this, pageIndicatorIndex -> {
+            if (pageIndicatorIndex == null) return;
+            pageIndicator.setText(String.valueOf(pageIndicatorIndex) + "/" +
+                    String.valueOf(viewModel.getPageCount()));
+        });
         viewModel.getTopicTaskResult().observe(this, topicTaskResult -> {
             if (topicTaskResult == null) {
                 progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -222,9 +222,6 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                         postsList.addAll(topicTaskResult.getNewPostsList());
                         topicAdapter.notifyDataSetChanged();
 
-                        pageIndicator.setText(String.valueOf(topicTaskResult.getCurrentPageIndex()) + "/" +
-                                String.valueOf(topicTaskResult.getPageCount()));
-                        pageRequestValue = topicTaskResult.getCurrentPageIndex();
                         paginationEnabled(true);
 
                         if (topicTaskResult.getCurrentPageIndex() == topicTaskResult.getPageCount()) {
@@ -400,10 +397,10 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         public void run() {
             long REPEAT_DELAY = 250;
             if (autoIncrement) {
-                incrementPageRequestValue(step);
+                viewModel.incrementPageRequestValue(step);
                 repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
             } else if (autoDecrement) {
-                decrementPageRequestValue(step);
+                viewModel.decrementPageRequestValue(step);
                 repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
             }
         }
@@ -443,11 +440,11 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         // Increment once for a click
         increment.setOnClickListener(v -> {
             if (!autoIncrement && step == LARGE_STEP) {
-                incrementPageRequestValue(viewModel.getPageCount());
+                viewModel.incrementPageRequestValue(viewModel.getPageCount());
                 viewModel.changePage(viewModel.getPageCount() - 1);
             } else if (!autoIncrement) {
-                incrementPageRequestValue(step);
-                viewModel.changePage(pageRequestValue - 1);
+                viewModel.incrementPageRequestValue(step);
+                viewModel.changePage(viewModel.getPageIndicatorIndex().getValue() - 1);
             }
         });
 
@@ -471,11 +468,12 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
                     autoIncrement = false;
                     paginationEnabled(true);
-                    viewModel.changePage(pageRequestValue - 1);
+                    viewModel.changePage(viewModel.getPageIndicatorIndex().getValue() - 1);
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
-                        decrementPageRequestValue(pageRequestValue - viewModel.getCurrentPageIndex());
+                        viewModel.decrementPageRequestValue(viewModel.getPageIndicatorIndex().getValue()
+                                - viewModel.getCurrentPageIndex());
                         paginationEnabled(true);
                     }
                 }
@@ -489,11 +487,11 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         // Decrement once for a click
         decrement.setOnClickListener(v -> {
             if (!autoDecrement && step == LARGE_STEP) {
-                decrementPageRequestValue(viewModel.getPageCount());
+                viewModel.decrementPageRequestValue(viewModel.getPageCount());
                 viewModel.changePage(0);
             } else if (!autoDecrement) {
-                decrementPageRequestValue(step);
-                viewModel.changePage(pageRequestValue - 1);
+                viewModel.decrementPageRequestValue(step);
+                viewModel.changePage(viewModel.getPageIndicatorIndex().getValue() - 1);
             }
         });
 
@@ -517,34 +515,19 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 } else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
                     autoDecrement = false;
                     paginationEnabled(true);
-                    viewModel.changePage(pageRequestValue - 1);
+                    viewModel.changePage(viewModel.getPageIndicatorIndex().getValue() - 1);
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (rect != null &&
                             !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
-                        incrementPageRequestValue(viewModel.getCurrentPageIndex() - pageRequestValue);
+                        viewModel.incrementPageRequestValue(viewModel.getCurrentPageIndex()
+                                - viewModel.getPageIndicatorIndex().getValue());
                         paginationEnabled(true);
                     }
                 }
                 return false;
             }
         });
-    }
-
-    private void incrementPageRequestValue(int step) {
-        if (pageRequestValue < viewModel.getPageCount() - step) {
-            pageRequestValue = pageRequestValue + step;
-        } else
-            pageRequestValue = viewModel.getPageCount();
-        pageIndicator.setText(pageRequestValue + "/" + String.valueOf(viewModel.getPageCount()));
-    }
-
-    private void decrementPageRequestValue(int step) {
-        if (pageRequestValue > step)
-            pageRequestValue = pageRequestValue - step;
-        else
-            pageRequestValue = 1;
-        pageIndicator.setText(pageRequestValue + "/" + String.valueOf(viewModel.getPageCount()));
     }
 
     //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
