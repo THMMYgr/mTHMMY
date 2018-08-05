@@ -36,7 +36,24 @@ public class EmojiKeyboard extends LinearLayout {
     public void init(Context context, AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.emoji_keyboard, this, true);
 
-        // add space before emoji
+        emojis.append(R.drawable.smiley, ":)");
+        emojis.append(R.drawable.wink, ";)");
+        emojis.append(R.drawable.cheesy, ":D");
+        emojis.append(R.drawable.grin, ";D");
+        // second alias: ^angry^
+        emojis.append(R.drawable.angry, ">:(");
+        emojis.append(R.drawable.sad, ":(");
+        emojis.append(R.drawable.shocked, ":o");
+        emojis.append(R.drawable.cool, "8))");
+        emojis.append(R.drawable.huh, ":???:");
+        emojis.append(R.drawable.rolleyes, "::)");
+        emojis.append(R.drawable.tongue, ":P");
+        emojis.append(R.drawable.embarrassed, ":-[");
+        emojis.append(R.drawable.lipsrsealed, ":-X");
+        emojis.append(R.drawable.undecided, ":-\\\\");
+        emojis.append(R.drawable.kiss, ":-*");
+        emojis.append(R.drawable.cry, ":'(");
+
         emojis.append(R.drawable.heart, "<3");
         // this was twice in the original page for some reason, with another alias "locked"
         emojis.append(R.drawable.locked, "^lock^");
@@ -56,7 +73,6 @@ public class EmojiKeyboard extends LinearLayout {
         // the next two are the same thing?
         emojis.append(R.drawable.angry4, ":angry4:");
         emojis.append(R.drawable.angry_hot, "^angryhot^");
-        emojis.append(R.drawable.angry, "^angry^");
         emojis.append(R.drawable.foyska, "^fouska^");
         emojis.append(R.drawable.e10_7_3e, "^sfinaki^");
         emojis.append(R.drawable.bang_head, "^banghead^");
@@ -176,8 +192,8 @@ public class EmojiKeyboard extends LinearLayout {
         this.inputConnection = inputConnection;
     }
 
-    public int[] getEmojiArray() {
-        int[] emojiArray = new int[emojis.size()];
+    public Integer[] getEmojiArray() {
+        Integer[] emojiArray = new Integer[emojis.size()];
         for (int i = 0; i < emojiArray.length; i++) {
             emojiArray[i] = emojis.keyAt(i);
         }

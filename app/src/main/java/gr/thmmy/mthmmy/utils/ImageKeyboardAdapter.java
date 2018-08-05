@@ -1,19 +1,27 @@
 package gr.thmmy.mthmmy.utils;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
+
+import java.util.Arrays;
 
 public class ImageKeyboardAdapter extends BaseAdapter {
 
     private Context context;
-    private int[] emojiIds;
+    private Integer[] emojiIds;
 
-    public ImageKeyboardAdapter(Context context, int[] emojiIds) {
+    public ImageKeyboardAdapter(Context context, Integer[] emojiIds) {
         this.context = context;
         this.emojiIds = emojiIds;
+        // sort images by width
+        Arrays.sort(this.emojiIds, (img1, img2) ->
+                context.getResources().getDrawable(img1).getIntrinsicWidth() -
+                        context.getResources().getDrawable(img2).getIntrinsicWidth());
     }
 
     @Override
@@ -38,6 +46,7 @@ public class ImageKeyboardAdapter extends BaseAdapter {
             emoji = new ImageView(context);
             emoji.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             emoji.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
             emoji.setPadding(8, 8, 8, 8);
         } else {
             emoji = (ImageView) convertView;
