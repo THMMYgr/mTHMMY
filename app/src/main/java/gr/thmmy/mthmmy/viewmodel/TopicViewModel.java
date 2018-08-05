@@ -209,10 +209,6 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         return pageIndicatorIndex;
     }
 
-    public void setPageIndicatorIndex(Integer pageIndicatorIndex) {
-        this.pageIndicatorIndex.setValue(pageIndicatorIndex);
-    }
-
     public boolean isUserExtraInfoVisible(int position) {
         return isUserExtraInfoVisibile.get(position);
     }
