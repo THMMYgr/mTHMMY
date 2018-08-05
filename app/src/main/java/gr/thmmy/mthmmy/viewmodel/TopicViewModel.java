@@ -54,6 +54,11 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private EditTask.EditTaskCallbacks editTaskCallbacks;
     private PrepareForReply.PrepareForReplyCallbacks prepareForReplyCallbacks;
 
+    /**
+     * Holds the value (index) of the page to be requested when a user interaction with bottom
+     * navigation bar occurs, aka the value that the page indicator shows
+     */
+    private MutableLiveData<Integer> pageIndicatorIndex = new MutableLiveData<>();
     private MutableLiveData<TopicTaskResult> topicTaskResult = new MutableLiveData<>();
     private MutableLiveData<PrepareForReplyResult> prepareForReplyResult = new MutableLiveData<>();
     private MutableLiveData<PrepareForEditResult> prepareForEditResult = new MutableLiveData<>();
@@ -81,8 +86,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void changePage(int pageRequested) {
         if (topicTaskResult.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
-        if (pageRequested != topicTaskResult.getValue().getCurrentPageIndex() - 1)
+        if (pageRequested != topicTaskResult.getValue().getCurrentPageIndex() - 1) {
             loadUrl(topicTaskResult.getValue().getPagesUrls().get(pageRequested));
+            pageIndicatorIndex.setValue(pageRequested + 1);
+        }
     }
 
     public void prepareForReply() {
@@ -140,6 +147,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void stopLoading() {
         if (currentTopicTask != null && currentTopicTask.getStatus() == AsyncTask.Status.RUNNING) {
             currentTopicTask.cancel(true);
+            pageIndicatorIndex.setValue(getCurrentPageIndex());
             topicTaskObserver.onTopicTaskCancelled();
         }
         if (currentPrepareForEditTask != null && currentPrepareForEditTask.getStatus() == AsyncTask.Status.RUNNING) {
@@ -159,6 +167,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void onTopicTaskCompleted(TopicTaskResult result) {
         topicTaskResult.setValue(result);
         if (result.getResultCode() == TopicTask.ResultCode.SUCCESS) {
+            pageIndicatorIndex.setValue(result.getCurrentPageIndex());
             isUserExtraInfoVisibile.clear();
             for (int i = 0; i < result.getNewPostsList().size(); i++) {
                 isUserExtraInfoVisibile.add(false);
@@ -179,7 +188,30 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         prepareForEditResult.setValue(result);
     }
 
+    public void incrementPageRequestValue(int step) {
+        if (pageIndicatorIndex.getValue() < getPageCount() - step)
+            pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() - step);
+        else
+            pageIndicatorIndex.setValue(getPageCount());
+    }
+
+    public void decrementPageRequestValue(int step) {
+        if (pageIndicatorIndex.getValue() > step)
+            pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() - step);
+        else
+            pageIndicatorIndex.setValue(1);
+    }
+
     // <-------------Just getters, setters and helper methods below here---------------->
+
+
+    public MutableLiveData<Integer> getPageIndicatorIndex() {
+        return pageIndicatorIndex;
+    }
+
+    public void setPageIndicatorIndex(Integer pageIndicatorIndex) {
+        this.pageIndicatorIndex.setValue(pageIndicatorIndex);
+    }
 
     public boolean isUserExtraInfoVisible(int position) {
         return isUserExtraInfoVisibile.get(position);
