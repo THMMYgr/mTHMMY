@@ -397,10 +397,10 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         public void run() {
             long REPEAT_DELAY = 250;
             if (autoIncrement) {
-                viewModel.incrementPageRequestValue(step);
+                viewModel.incrementPageRequestValue(step, false);
                 repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
             } else if (autoDecrement) {
-                viewModel.decrementPageRequestValue(step);
+                viewModel.decrementPageRequestValue(step, false);
                 repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
             }
         }
@@ -440,11 +440,9 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         // Increment once for a click
         increment.setOnClickListener(v -> {
             if (!autoIncrement && step == LARGE_STEP) {
-                viewModel.incrementPageRequestValue(viewModel.getPageCount());
-                viewModel.changePage(viewModel.getPageCount() - 1);
+                viewModel.setPageIndicatorIndex(viewModel.getPageCount(), true);
             } else if (!autoIncrement) {
-                viewModel.incrementPageRequestValue(step);
-                viewModel.changePage(viewModel.getPageIndicatorIndex().getValue() - 1);
+                viewModel.incrementPageRequestValue(step, true);
             }
         });
 
@@ -468,12 +466,11 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
                     autoIncrement = false;
                     paginationEnabled(true);
-                    viewModel.changePage(viewModel.getPageIndicatorIndex().getValue() - 1);
+                    viewModel.performPageChange();
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
-                        viewModel.decrementPageRequestValue(viewModel.getPageIndicatorIndex().getValue()
-                                - viewModel.getCurrentPageIndex());
+                        viewModel.setPageIndicatorIndex(viewModel.getCurrentPageIndex(), false);
                         paginationEnabled(true);
                     }
                 }
@@ -487,11 +484,9 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
         // Decrement once for a click
         decrement.setOnClickListener(v -> {
             if (!autoDecrement && step == LARGE_STEP) {
-                viewModel.decrementPageRequestValue(viewModel.getPageCount());
-                viewModel.changePage(0);
+                viewModel.setPageIndicatorIndex(1, true);
             } else if (!autoDecrement) {
-                viewModel.decrementPageRequestValue(step);
-                viewModel.changePage(viewModel.getPageIndicatorIndex().getValue() - 1);
+                viewModel.decrementPageRequestValue(step, true);
             }
         });
 
@@ -515,13 +510,12 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 } else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
                     autoDecrement = false;
                     paginationEnabled(true);
-                    viewModel.changePage(viewModel.getPageIndicatorIndex().getValue() - 1);
+                    viewModel.performPageChange();
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (rect != null &&
                             !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
-                        viewModel.incrementPageRequestValue(viewModel.getCurrentPageIndex()
-                                - viewModel.getPageIndicatorIndex().getValue());
+                        viewModel.setPageIndicatorIndex(viewModel.getCurrentPageIndex(), false);
                         paginationEnabled(true);
                     }
                 }
