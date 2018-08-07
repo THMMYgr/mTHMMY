@@ -46,6 +46,7 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
 
@@ -628,8 +629,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if the page to be loaded is the one already shown
-                if (uriString.contains(viewModel.getBaseUrl())) {
-                    Timber.e("reached here!");
+                if (uriString.contains(ParseHelpers.getBaseURL(viewModel.getTopicUrl()))) {
                     if (uriString.contains("topicseen#new") || uriString.contains("#new")) {
                         if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
                             //same page
@@ -643,7 +643,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         if (tmpUrlSbstr.contains("msg"))
                             tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
                         int testAgainst = Integer.parseInt(tmpUrlSbstr);
-                        Timber.e("reached tthere! %s", testAgainst);
                         for (int i = 0; i < postsList.size(); i++) {
                             if (postsList.get(i).getPostIndex() == testAgainst) {
                                 //same page
@@ -652,11 +651,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 return true;
                             }
                         }
-                    } else if ((Objects.equals(uriString, viewModel.getBaseUrl()) && viewModel.getCurrentPageIndex() == 1) ||
-                            Integer.parseInt(uriString.substring(viewModel.getBaseUrl().length() + 1)) / 15 + 1 ==
+                    } else if ((Objects.equals(uriString, ParseHelpers.getBaseURL(viewModel.getTopicUrl())) &&
+                            viewModel.getCurrentPageIndex() == 1) ||
+                            Integer.parseInt(uriString.substring(ParseHelpers.getBaseURL(viewModel.getTopicUrl()).length() + 1)) / 15 + 1 ==
                                     viewModel.getCurrentPageIndex()) {
                         //same page
-                        Timber.e("ha");
                         return true;
                     }
                 }

@@ -43,18 +43,6 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
     @Override
     protected TopicTaskResult doInBackground(String... strings) {
-        String topicTitle = null;
-        String topicTreeAndMods = "";
-        String topicViewers = "";
-        ArrayList<Post> newPostsList = null;
-        int loadedPageTopicId = -1;
-        int focusedPostIndex = 0;
-        SparseArray<String> pagesUrls = new SparseArray<>();
-        int currentPageIndex = 1;
-        int pageCount = 1;
-        String baseUrl = "";
-        String lastPageLoadAttemptedUrl = "";
-
         Document topic = null;
         String newPageUrl = strings[0];
 
@@ -70,14 +58,9 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             }
         }
 
-        lastPageLoadAttemptedUrl = newPageUrl;
-        if (strings[0].substring(0, strings[0].lastIndexOf(".")).contains("topic="))
-            baseUrl = strings[0].substring(0, strings[0].lastIndexOf(".")); //New topic's base url
-        String replyPageUrl = null;
         Request request = new Request.Builder()
                 .url(newPageUrl)
                 .build();
-        ResultCode resultCode;
         try {
             Response response = BaseApplication.getInstance().getClient().newCall(request).execute();
             topic = Jsoup.parse(response.body().string());
@@ -85,17 +68,18 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
             //Finds topic's tree, mods and users viewing
-            topicTreeAndMods = topic.select("div.nav").first().html();
-            topicViewers = TopicParser.parseUsersViewingThisTopic(topic, language);
+            String topicTreeAndMods = topic.select("div.nav").first().html();
+            String topicViewers = TopicParser.parseUsersViewingThisTopic(topic, language);
 
             //Finds reply page url
+            String replyPageUrl = null;
             Element replyButton = topic.select("a:has(img[alt=Reply])").first();
             if (replyButton == null)
                 replyButton = topic.select("a:has(img[alt=Απάντηση])").first();
             if (replyButton != null) replyPageUrl = replyButton.attr("href");
 
             //Finds topic title if missing
-            topicTitle = topic.select("td[id=top_subject]").first().text();
+            String topicTitle = topic.select("td[id=top_subject]").first().text();
             if (topicTitle.contains("Topic:")) {
                 topicTitle = topicTitle.substring(topicTitle.indexOf("Topic:") + 7
                         , topicTitle.indexOf("(Read") - 2);
@@ -106,42 +90,39 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             }
 
             //Finds current page's index
-            currentPageIndex = TopicParser.parseCurrentPageIndex(topic, language);
+            int currentPageIndex = TopicParser.parseCurrentPageIndex(topic, language);
 
             //Finds number of pages
-            pageCount = TopicParser.parseTopicNumberOfPages(topic, currentPageIndex, language);
+            int pageCount = TopicParser.parseTopicNumberOfPages(topic, currentPageIndex, language);
 
-            for (int i = 0; i < pageCount; i++) {
-                //Generate each page's url from topic's base url +".15*numberOfPage"
-                pagesUrls.put(i, baseUrl + "." + String.valueOf(i * 15));
-            }
+            ArrayList<Post> newPostsList = TopicParser.parseTopic(topic, language);
 
-            newPostsList = TopicParser.parseTopic(topic, language);
-
-            loadedPageTopicId = Integer.parseInt(ThmmyPage.getTopicId(lastPageLoadAttemptedUrl));
+            int loadedPageTopicId = Integer.parseInt(ThmmyPage.getTopicId(newPageUrl));
 
             //Finds the position of the focused message if present
+            int focusedPostIndex = 0;
             for (int i = 0; i < newPostsList.size(); ++i) {
                 if (newPostsList.get(i).getPostIndex() == postFocus) {
                     focusedPostIndex = i;
                     break;
                 }
             }
-            resultCode = ResultCode.SUCCESS;
+            return new TopicTaskResult(ResultCode.SUCCESS, topicTitle, replyPageUrl, newPostsList, loadedPageTopicId,
+                    currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods, topicViewers);
         } catch (IOException e) {
             Timber.i(e, "IO Exception");
-            resultCode = ResultCode.NETWORK_ERROR;
+            return new TopicTaskResult(ResultCode.NETWORK_ERROR, null, null, null,
+                    0, 0, 0, 0, null, null);
         } catch (Exception e) {
             if (isUnauthorized(topic)) {
-                resultCode = ResultCode.UNAUTHORIZED;
+                return new TopicTaskResult(ResultCode.UNAUTHORIZED, null, null, null,
+                        0, 0, 0, 0, null, null);
             } else {
                 Timber.e(e, "Parsing Error");
-                resultCode = ResultCode.PARSING_ERROR;
+                return new TopicTaskResult(ResultCode.PARSING_ERROR, null, null, null,
+                        0, 0, 0, 0, null, null);
             }
         }
-        return new TopicTaskResult(resultCode, baseUrl, topicTitle, replyPageUrl, newPostsList,
-                loadedPageTopicId, currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods,
-                topicViewers, lastPageLoadAttemptedUrl, pagesUrls);
     }
 
     private boolean isUnauthorized(Document document) {

@@ -45,6 +45,7 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
@@ -206,53 +207,56 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
             pageIndicator.setText(String.valueOf(pageIndicatorIndex) + "/" +
                     String.valueOf(viewModel.getPageCount()));
         });
-        viewModel.getTopicTaskResult().observe(this, topicTaskResult -> {
-            if (topicTaskResult == null) {
-                progressBar.setVisibility(ProgressBar.VISIBLE);
-            } else {
-                switch (topicTaskResult.getResultCode()) {
-                    case SUCCESS:
-                        if (topicTitle == null || Objects.equals(topicTitle, "")
-                                || !Objects.equals(topicTitle, topicTaskResult.getTopicTitle())) {
-                            toolbarTitle.setText(topicTaskResult.getTopicTitle());
-                        }
-
-                        recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
-                        postsList.clear();
-                        postsList.addAll(topicTaskResult.getNewPostsList());
-                        topicAdapter.notifyDataSetChanged();
-
-                        paginationEnabled(true);
-
-                        if (topicTaskResult.getCurrentPageIndex() == topicTaskResult.getPageCount()) {
-                            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                            if (notificationManager != null)
-                                notificationManager.cancel(NEW_POST_TAG, topicTaskResult.getLoadedPageTopicId());
-                        }
-
-                        progressBar.setVisibility(ProgressBar.GONE);
-                        if (topicTaskResult.getReplyPageUrl() == null)
-                            replyFAB.hide();
-                        else
-                            replyFAB.show();
-                        recyclerView.scrollToPosition(topicTaskResult.getFocusedPostIndex());
-                        break;
-                    case NETWORK_ERROR:
-                        Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
-                        break;
-                    case UNAUTHORIZED:
-                        progressBar.setVisibility(ProgressBar.GONE);
-                        Toast.makeText(getBaseContext(), "This topic is either missing or off limits to you", Toast.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        //Parse failed - should never happen
-                        Timber.d("Parse failed!");  //TODO report ParseException!!!
-                        Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
-                        finish();
-                        break;
-                }
+        viewModel.getTopicTitle().observe(this, newTopicTitle -> {
+            if (newTopicTitle == null) return;
+            toolbarTitle.setText(newTopicTitle);
+        });
+        viewModel.getPageTopicId().observe(this, pageTopicId -> {
+            if (pageTopicId == null) return;
+            if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (notificationManager != null)
+                    notificationManager.cancel(NEW_POST_TAG, pageTopicId);
             }
-
+        });
+        viewModel.getReplyPageUrl().observe(this, replyPageUrl -> {
+            if (replyPageUrl == null)
+                replyFAB.hide();
+            else
+                replyFAB.show();
+        });
+        viewModel.getPostsList().observe(this, postList -> {
+            if (postList == null) onTopicTaskStarted();
+            recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
+            postsList.clear();
+            postsList.addAll(postList);
+            topicAdapter.notifyDataSetChanged();
+        });
+        viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
+            if (focusedPostIndex == null) return;
+            recyclerView.scrollToPosition(focusedPostIndex);
+        });
+        viewModel.getTopicTaskResultCode().observe(this, resultCode -> {
+            if (resultCode == null) return;
+            switch (resultCode) {
+                case SUCCESS:
+                    paginationEnabled(true);
+                    progressBar.setVisibility(ProgressBar.GONE);
+                    break;
+                case NETWORK_ERROR:
+                    Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
+                    break;
+                case UNAUTHORIZED:
+                    progressBar.setVisibility(ProgressBar.GONE);
+                    Toast.makeText(getBaseContext(), "This topic is either missing or off limits to you", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    //Parse failed - should never happen
+                    Timber.d("Parse failed!");  //TODO report ParseException!!!
+                    Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
+                    finish();
+                    break;
+            }
         });
         viewModel.getPrepareForReplyResult().observe(this, prepareForReplyResult -> {
             if (prepareForReplyResult != null) {
@@ -277,7 +281,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 bottomNavBar.setVisibility(View.GONE);
             }
         });
-        viewModel.initialLoad(topicPageUrl);
+        viewModel.loadUrl(topicPageUrl);
     }
 
     @Override
@@ -307,18 +311,14 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
                 TextView usersViewing = infoDialog.findViewById(R.id.users_viewing);
                 usersViewing.setText(new SpannableStringBuilder("Loading..."));
                 usersViewing.setMovementMethod(LinkMovementMethod.getInstance());
-                viewModel.getTopicTaskResult().observe(this, topicTaskResult -> {
-                    if (topicTaskResult == null) {
-                        usersViewing.setText(new SpannableStringBuilder("Loading..."));
-                        treeAndMods.setText(new SpannableStringBuilder("Loading..."));
-                    } else {
-                        String treeAndModsString = topicTaskResult.getTopicTreeAndMods();
-                        treeAndMods.setText(HTMLUtils.getSpannableFromHtml(this, treeAndModsString));
-                        String topicViewersString = topicTaskResult.getTopicViewers();
-                        usersViewing.setText(HTMLUtils.getSpannableFromHtml(this, topicViewersString));
-                    }
+                viewModel.getTopicTreeAndMods().observe(this, topicTreeAndMods -> {
+                    if (topicTreeAndMods == null) return;
+                    treeAndMods.setText(HTMLUtils.getSpannableFromHtml(this, topicTreeAndMods));
                 });
-
+                viewModel.getTopicViewers().observe(this, topicViewers -> {
+                    if (topicViewers == null) return;
+                    usersViewing.setText(HTMLUtils.getSpannableFromHtml(this, topicViewers));
+                });
                 builder.setView(infoDialog);
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -559,7 +559,7 @@ public class TopicActivity extends BaseActivity implements TopicTask.TopicTaskOb
 
         if (success) {
             if ((postsList.get(postsList.size() - 1).getPostNumber() + 1) % 15 == 0) {
-                viewModel.loadUrl(viewModel.getBaseUrl() + "." + 2147483647);
+                viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
             } else {
                 viewModel.reloadPage();
             }
