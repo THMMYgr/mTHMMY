@@ -445,7 +445,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
-            holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
+            holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
 
             holder.quickReply.setText(viewModel.getBuildedQuotes());
 
@@ -459,7 +459,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         holder.quickReply.getText().toString());
 
                 holder.quickReplySubject.getText().clear();
-                holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
+                holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
                 holder.quickReply.getText().clear();
                 holder.submitButton.setEnabled(true);
             });
