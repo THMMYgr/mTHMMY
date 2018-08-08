@@ -104,7 +104,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (replyPageUrl.getValue() == null)
             throw new NullPointerException("Topic task has not finished yet!");
         stopLoading();
-        setPageIndicatorIndex(getPageCount(), true);
+        setPageIndicatorIndex(pageCount, true);
         currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
                 replyPageUrl.getValue());
         currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
@@ -155,7 +155,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void stopLoading() {
         if (currentTopicTask != null && currentTopicTask.getStatus() == AsyncTask.Status.RUNNING) {
             currentTopicTask.cancel(true);
-            pageIndicatorIndex.setValue(getCurrentPageIndex());
+            pageIndicatorIndex.setValue(currentPageIndex);
             topicTaskObserver.onTopicTaskCancelled();
         }
         if (currentPrepareForEditTask != null && currentPrepareForEditTask.getStatus() == AsyncTask.Status.RUNNING) {
@@ -208,10 +208,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void incrementPageRequestValue(int step, boolean changePage) {
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
-        if (pageIndicatorIndex.getValue() <= getPageCount() - step) {
+        if (pageIndicatorIndex.getValue() <= pageCount - step) {
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() + step);
         } else
-            pageIndicatorIndex.setValue(getPageCount());
+            pageIndicatorIndex.setValue(pageCount);
         if (changePage) performPageChange();
     }
 
@@ -368,10 +368,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public String getBuildedQuotes() {
-        if (prepareForReplyResult.getValue() != null) {
-            return prepareForReplyResult.getValue().getBuildedQuotes();
-        } else {
-            return "";
-        }
+        if (prepareForReplyResult.getValue() == null)
+            throw new NullPointerException("Reply preparation was not found");
+        return prepareForReplyResult.getValue().getBuildedQuotes();
     }
 }
