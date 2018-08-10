@@ -47,6 +47,16 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
     </android.support.v7.widget.RecyclerView>
 
+    <TextView
+        android:id="@+id/error_textview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/network_error_retry_prompt"
+        android:textSize="32sp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/bottom_navigation_bar"
         android:layout_width="match_parent"

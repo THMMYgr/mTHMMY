@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +31,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
@@ -110,6 +110,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     private TextView pageIndicator;
     private ImageButton nextPage;
     private ImageButton lastPage;
+    private Snackbar snackbar;
     private TopicViewModel viewModel;
 
     //Fix for vector drawables on android <21
@@ -449,6 +450,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             @Override
             public void onTopicTaskStarted() {
                 progressBar.setVisibility(ProgressBar.VISIBLE);
+                if (snackbar != null) snackbar.dismiss();
             }
 
             @Override
@@ -469,7 +471,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 if (result)
                     viewModel.reloadPage();
                 else
-                    Toast.makeText(TopicActivity.this, "Post deleted!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Delete failed!", Toast.LENGTH_SHORT).show();
             }
         });
         viewModel.setReplyFinishListener(new ReplyTask.ReplyTaskCallbacks() {
@@ -498,7 +500,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         viewModel.reloadPage();
                     }
                 } else {
-                    Toast.makeText(TopicActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
                     recyclerView.getChildAt(postsList.size() - 1).setAlpha(1);
                     recyclerView.getChildAt(postsList.size() - 1).setEnabled(true);
                 }
@@ -539,7 +541,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     viewModel.setEditingPost(false);
                     viewModel.reloadPage();
                 } else {
-                    Toast.makeText(TopicActivity.this, "Edit failed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Edit failed!", Toast.LENGTH_SHORT).show();
                     recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setAlpha(1);
                     recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setEnabled(true);
                 }
@@ -594,17 +596,37 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         });
         viewModel.getTopicTaskResultCode().observe(this, resultCode -> {
             if (resultCode == null) return;
+            progressBar.setVisibility(ProgressBar.GONE);
             switch (resultCode) {
                 case SUCCESS:
                     paginationEnabled(true);
-                    progressBar.setVisibility(ProgressBar.GONE);
                     break;
                 case NETWORK_ERROR:
-                    Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_SHORT).show();
+                    if (viewModel.getPostsList().getValue() == null) {
+                        // no page has been loaded yet. Give user the ability to refresh
+                        recyclerView.setVisibility(View.GONE);
+                        TextView errorTextview = findViewById(R.id.error_textview);
+                        errorTextview.setText(getString(R.string.network_error_retry_prompt));
+                        errorTextview.setVisibility(View.VISIBLE);
+                        errorTextview.setOnClickListener(view -> {
+                            viewModel.reloadPage();
+                            errorTextview.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        });
+                    } else {
+                        // a page has already been loaded
+                        viewModel.setPageIndicatorIndex(viewModel.getCurrentPageIndex(), false);
+                        snackbar = Snackbar.make(findViewById(R.id.main_content),
+                                R.string.generic_network_error, Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.retry, view -> viewModel.reloadPage());
+                        snackbar.show();
+                    }
                     break;
                 case UNAUTHORIZED:
-                    progressBar.setVisibility(ProgressBar.GONE);
-                    Toast.makeText(getBaseContext(), "This topic is either missing or off limits to you", Toast.LENGTH_SHORT).show();
+                    recyclerView.setVisibility(View.GONE);
+                    TextView errorTextview = findViewById(R.id.error_textview);
+                    errorTextview.setText(getString(R.string.unauthorized_topic_error));
+                    errorTextview.setVisibility(View.VISIBLE);
                     break;
                 default:
                     //Parse failed - should never happen
@@ -615,26 +637,30 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
         });
         viewModel.getPrepareForReplyResult().observe(this, prepareForReplyResult -> {
-            if (prepareForReplyResult != null) {
+            progressBar.setVisibility(ProgressBar.GONE);
+            if (prepareForReplyResult != null && prepareForReplyResult.isSuccessful()) {
                 //prepare for a reply
+                viewModel.setWritingReply(true);
                 postsList.add(Post.newQuickReply());
                 topicAdapter.notifyItemInserted(postsList.size());
                 recyclerView.scrollToPosition(postsList.size() - 1);
-                progressBar.setVisibility(ProgressBar.GONE);
                 replyFAB.hide();
                 bottomNavBar.setVisibility(View.GONE);
+            } else {
+                Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
             }
-
         });
         viewModel.getPrepareForEditResult().observe(this, result -> {
+            progressBar.setVisibility(ProgressBar.GONE);
             if (result != null && result.isSuccessful()) {
                 viewModel.setEditingPost(true);
                 postsList.get(result.getPosition()).setPostType(Post.TYPE_EDIT);
                 topicAdapter.notifyItemChanged(result.getPosition());
                 recyclerView.scrollToPosition(result.getPosition());
-                progressBar.setVisibility(ProgressBar.GONE);
                 replyFAB.hide();
                 bottomNavBar.setVisibility(View.GONE);
+            } else {
+                Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
             }
         });
     }

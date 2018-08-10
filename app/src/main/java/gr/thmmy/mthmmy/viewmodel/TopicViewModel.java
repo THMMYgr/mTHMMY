@@ -84,7 +84,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void reloadPage() {
-        if (topicUrl == null) throw new NullPointerException("No topic task has finished yet!");
+        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
         loadUrl(topicUrl);
     }
 
@@ -194,7 +194,6 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     @Override
     public void onPrepareForReplyFinished(PrepareForReplyResult result) {
-        writingReply = true;
         prepareForReplyResult.setValue(result);
     }
 
@@ -207,26 +206,31 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void incrementPageRequestValue(int step, boolean changePage) {
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
-        if (pageIndicatorIndex.getValue() <= pageCount - step) {
+        int oldIndicatorIndex = pageIndicatorIndex.getValue();
+        if (oldIndicatorIndex <= pageCount - step) {
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() + step);
         } else
             pageIndicatorIndex.setValue(pageCount);
-        if (changePage) performPageChange();
+        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) performPageChange();
     }
 
     public void decrementPageRequestValue(int step, boolean changePage) {
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
-        if (pageIndicatorIndex.getValue() >= step) {
+        int oldIndicatorIndex = pageIndicatorIndex.getValue();
+        if (oldIndicatorIndex > step) {
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() - step);
         } else
             pageIndicatorIndex.setValue(1);
-        if (changePage) performPageChange();
+        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) performPageChange();
     }
 
     public void setPageIndicatorIndex(int pageIndicatorIndex, boolean changePage) {
+        if (this.pageIndicatorIndex.getValue() == null)
+            throw new NullPointerException("No page has been loaded yet!");
+        int oldIndicatorIndex = this.pageIndicatorIndex.getValue();
         this.pageIndicatorIndex.setValue(pageIndicatorIndex);
-        if (changePage) performPageChange();
+        if (changePage && oldIndicatorIndex != this.pageIndicatorIndex.getValue()) performPageChange();
     }
 
     // <-------------Just getters, setters and helper methods below here---------------->
