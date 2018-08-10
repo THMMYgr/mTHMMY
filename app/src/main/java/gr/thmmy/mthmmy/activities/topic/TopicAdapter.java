@@ -453,15 +453,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.submitButton.setOnClickListener(view -> {
                 if (holder.quickReplySubject.getText().toString().isEmpty()) return;
                 if (holder.quickReply.getText().toString().isEmpty()) return;
-                holder.submitButton.setEnabled(false);
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                holder.itemView.setAlpha(0.5f);
+                holder.itemView.setEnabled(false);
 
                 viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
                         holder.quickReply.getText().toString());
-
-                holder.quickReplySubject.getText().clear();
-                holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
-                holder.quickReply.getText().clear();
-                holder.submitButton.setEnabled(true);
             });
 
 
@@ -491,13 +489,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.submitButton.setOnClickListener(view -> {
                 if (holder.editSubject.getText().toString().isEmpty()) return;
                 if (holder.editMessage.getText().toString().isEmpty()) return;
-                holder.submitButton.setEnabled(false);
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                holder.itemView.setAlpha(0.5f);
+                holder.itemView.setEnabled(false);
 
                 viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editMessage.getText().toString());
-
-                holder.editSubject.getText().clear();
-                holder.editSubject.setText(postsList.get(position).getSubject());
-                holder.submitButton.setEnabled(true);
             });
 
             if (backPressHidden) {

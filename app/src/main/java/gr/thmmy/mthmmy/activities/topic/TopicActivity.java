@@ -486,15 +486,12 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
 
-                postsList.remove(postsList.size() - 1);
-                topicAdapter.notifyItemRemoved(postsList.size());
-
                 progressBar.setVisibility(ProgressBar.GONE);
-                replyFAB.show();
-                bottomNavBar.setVisibility(View.VISIBLE);
-                viewModel.setWritingReply(false);
 
                 if (success) {
+                    replyFAB.show();
+                    bottomNavBar.setVisibility(View.VISIBLE);
+                    viewModel.setWritingReply(false);
                     if ((postsList.get(postsList.size() - 1).getPostNumber() + 1) % 15 == 0) {
                         viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
                     } else {
@@ -502,6 +499,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     }
                 } else {
                     Toast.makeText(TopicActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
+                    recyclerView.getChildAt(postsList.size() - 1).setAlpha(1);
+                    recyclerView.getChildAt(postsList.size() - 1).setEnabled(true);
                 }
             }
         });
@@ -530,17 +529,19 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
 
-                postsList.get(position).setPostType(Post.TYPE_POST);
-                topicAdapter.notifyItemChanged(position);
-                viewModel.setEditingPost(false);
                 progressBar.setVisibility(ProgressBar.GONE);
-                replyFAB.show();
-                bottomNavBar.setVisibility(View.VISIBLE);
 
                 if (result) {
+                    postsList.get(position).setPostType(Post.TYPE_POST);
+                    topicAdapter.notifyItemChanged(position);
+                    replyFAB.show();
+                    bottomNavBar.setVisibility(View.VISIBLE);
+                    viewModel.setEditingPost(false);
                     viewModel.reloadPage();
                 } else {
                     Toast.makeText(TopicActivity.this, "Edit failed!", Toast.LENGTH_SHORT).show();
+                    recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setAlpha(1);
+                    recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setEnabled(true);
                 }
             }
         });

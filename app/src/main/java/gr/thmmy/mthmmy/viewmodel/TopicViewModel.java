@@ -200,7 +200,6 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     @Override
     public void onPrepareEditFinished(PrepareForEditResult result, int position) {
-        editingPost = true;
         postBeingEditedPosition = position;
         prepareForEditResult.setValue(result);
     }
