@@ -16,7 +16,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -285,15 +284,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.stars.setVisibility(View.VISIBLE);
             } else
                 holder.stars.setVisibility(View.GONE);
-            //Special card for special member of the month!
-            if (mUserColor == TopicParser.USER_COLOR_PINK) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.member_of_the_month_card, null));
-                } else //noinspection deprecation
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.member_of_the_month_card));
-            } else holder.cardChildLinear.setBackground(null);
 
             if (currentPost.isUserMentionedInPost()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -302,6 +292,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 } else //noinspection deprecation
                     holder.cardChildLinear.setBackground(context.getResources().
                             getDrawable(R.drawable.mention_card));
+            } else if (mUserColor == TopicParser.USER_COLOR_PINK) {
+                //Special card for special member of the month!
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    holder.cardChildLinear.setBackground(context.getResources().
+                            getDrawable(R.drawable.member_of_the_month_card, null));
+                } else //noinspection deprecation
+                    holder.cardChildLinear.setBackground(context.getResources().
+                            getDrawable(R.drawable.member_of_the_month_card));
             } else holder.cardChildLinear.setBackground(null);
 
             //Avoid's view's visibility recycling
