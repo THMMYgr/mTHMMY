@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.upload;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -18,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -134,46 +134,62 @@ public class UploadActivity extends BaseActivity {
         rootCategorySpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener(uploadRootCategories));
 
         titleDescriptionBuilderButton = findViewById(R.id.upload_title_description_builder);
-        titleDescriptionBuilderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (categorySelected.equals("-1")) {
-                    Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                int numberOfSpinners = categoriesSpinners.getChildCount();
-
-                if (numberOfSpinners < 3) {
-                    Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
-                        categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
-                String maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
-                        categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
-
-                if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) {
-                    Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (maybeCourse == null) {
-                    Toast.makeText(view.getContext(), "Please choose a course", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                //Fixes course and semester
-                maybeCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
-                maybeSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
-
-                Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
-                Bundle extras = new Bundle();
-                extras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE, maybeCourse);
-                extras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER, maybeSemester);
-                intent.putExtras(extras);
-                startActivityForResult(intent, REQUEST_CODE_FIELDS_BUILDER);
+        titleDescriptionBuilderButton.setOnClickListener(view -> {
+            if (categorySelected.equals("-1")) {
+                Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            int numberOfSpinners = categoriesSpinners.getChildCount();
+
+            if (numberOfSpinners < 3) {
+                Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String maybeSemester = "", maybeCourse = "";
+
+            if (numberOfSpinners == 5) {
+                if (((AppCompatSpinnerWithoutDefault) categoriesSpinners.getChildAt(numberOfSpinners - 1)).
+                        getSelectedItemPosition() == -1) {
+                    maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
+                            categoriesSpinners.getChildAt(numberOfSpinners - 4)).getSelectedItem();
+                    maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
+                            categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
+                } else {
+                    Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
+                }
+            } else if (numberOfSpinners == 4) {
+                maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 3)).getSelectedItem();
+                maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
+            } else {
+                maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
+                maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
+            }
+
+            if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) {
+                Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (maybeCourse == null) {
+                Toast.makeText(view.getContext(), "Please choose a course", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            //Fixes course and semester
+            maybeCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
+            maybeSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
+
+            Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
+            Bundle builderExtras = new Bundle();
+            builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE, maybeCourse);
+            builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER, maybeSemester);
+            intent.putExtras(builderExtras);
+            startActivityForResult(intent, REQUEST_CODE_FIELDS_BUILDER);
         });
         titleDescriptionBuilderButton.setEnabled(false);
 
@@ -183,128 +199,119 @@ public class UploadActivity extends BaseActivity {
         selectFileButton = findViewById(R.id.upload_select_file_button);
         Drawable selectStartDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_insert_drive_file_white_24dp);
         selectFileButton.setCompoundDrawablesRelativeWithIntrinsicBounds(selectStartDrawable, null, null, null);
-        selectFileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final CharSequence[] options = {"Take photo", "Choose file",
-                        "Cancel"};
-                AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
-                builder.setTitle("Upload file");
-                builder.setItems(options, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int item) {
-                        if (options[item].equals("Take photo")) {
-                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            startActivityForResult(intent, REQUEST_CODE_CAMERA);
-                        } else if (options[item].equals("Choose file")) {
-                            String[] mimeTypes = {"image/jpeg", "text/html", "image/png", "image/jpg", "image/gif",
-                                    "application/pdf", "application/rar", "application/x-tar", "application/zip",
-                                    "application/msword", "image/vnd.djvu", "application/gz", "application/tar.gz"};
+        selectFileButton.setOnClickListener(v -> {
+            final CharSequence[] options = {"Take photo", "Choose file",
+                    "Cancel"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
+            builder.setTitle("Upload file");
+            builder.setItems(options, (dialog, item) -> {
+                if (options[item].equals("Take photo")) {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent, REQUEST_CODE_CAMERA);
+                } else if (options[item].equals("Choose file")) {
+                    String[] mimeTypes = {"image/jpeg", "text/html", "image/png", "image/jpg", "image/gif",
+                            "application/pdf", "application/rar", "application/x-tar", "application/zip",
+                            "application/msword", "image/vnd.djvu", "application/gz", "application/tar.gz"};
 
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
-                                    //.setType("*/*")
-                                    .setType("image/jpeg")
-                                    .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
+                            //.setType("*/*")
+                            .setType("image/jpeg")
+                            .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-                            startActivityForResult(intent, REQUEST_CODE_CHOOSE_FILE);
-                        } else if (options[item].equals("Cancel")) {
-                            dialog.dismiss();
-                        }
-                    }
-                });
-                builder.show();
-            }
+                    startActivityForResult(intent, REQUEST_CODE_CHOOSE_FILE);
+                } else if (options[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+            });
+            builder.show();
         });
 
-        findViewById(R.id.upload_upload_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String uploadTitleText = uploadTitle.getText().toString();
-                String uploadDescriptionText = uploadDescription.getText().toString();
+        findViewById(R.id.upload_upload_button).setOnClickListener(view -> {
+            String uploadTitleText = uploadTitle.getText().toString();
+            String uploadDescriptionText = uploadDescription.getText().toString();
 
-                if (uploadTitleText.equals("")) {
-                    uploadTitle.setError("Required");
-                }
-                if (fileUri == null) {
-                    selectFileButton.setError("Required");
-                }
-                if (categorySelected.equals("-1")) {
-                    Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
-                }
+            if (uploadTitleText.equals("")) {
+                uploadTitle.setError("Required");
+            }
+            if (fileUri == null) {
+                selectFileButton.setError("Required");
+            }
+            if (categorySelected.equals("-1")) {
+                Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
+            }
 
-                if (categorySelected.equals("-1") || uploadTitleText.equals("") || fileUri == null) {
+            if (categorySelected.equals("-1") || uploadTitleText.equals("") || fileUri == null) {
+                return;
+            }
+
+            String tmpDescriptionText = uploadDescriptionText;
+
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(view.getContext());
+            if (sharedPrefs.getBoolean(UPLOADING_APP_SIGNATURE_ENABLE_KEY, true)) {
+                tmpDescriptionText += uploadedFrommThmmyPromptHtml;
+            }
+
+            String tempFilePath = null;
+            if (uploadFilename != null) {
+                tempFilePath = createTempFile(uploadFilename);
+                if (tempFilePath == null) {
+                    //Something went wrong, abort
                     return;
                 }
+            }
 
-                String tmpDescriptionText = uploadDescriptionText;
+            try {
+                final String finalTempFilePath = tempFilePath;
+                new MultipartUploadRequest(view.getContext(), uploadIndexUrl)
+                        .setUtf8Charset()
+                        .addParameter("tp-dluploadtitle", uploadTitleText)
+                        .addParameter("tp-dluploadcat", categorySelected)
+                        .addParameter("tp-dluploadtext", tmpDescriptionText)
+                        .addFileToUpload(tempFilePath == null
+                                        ? fileUri.toString()
+                                        : tempFilePath
+                                , "tp-dluploadfile")
+                        .addParameter("tp_dluploadicon", fileIcon)
+                        .addParameter("tp-uploaduser", uploaderProfileIndex)
+                        .setNotificationConfig(new UploadNotificationConfig())
+                        .setMaxRetries(2)
+                        .setDelegate(new UploadStatusDelegate() {
+                            @Override
+                            public void onProgress(Context context, UploadInfo uploadInfo) {
+                            }
 
-                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(view.getContext());
-                if (sharedPrefs.getBoolean(UPLOADING_APP_SIGNATURE_ENABLE_KEY, true)) {
-                    tmpDescriptionText += uploadedFrommThmmyPromptHtml;
-                }
-
-                String tempFilePath = null;
-                if (uploadFilename != null) {
-                    tempFilePath = createTempFile(uploadFilename);
-                    if (tempFilePath == null) {
-                        //Something went wrong, abort
-                        return;
-                    }
-                }
-
-                try {
-                    final String finalTempFilePath = tempFilePath;
-                    new MultipartUploadRequest(view.getContext(), uploadIndexUrl)
-                            .setUtf8Charset()
-                            .addParameter("tp-dluploadtitle", uploadTitleText)
-                            .addParameter("tp-dluploadcat", categorySelected)
-                            .addParameter("tp-dluploadtext", tmpDescriptionText)
-                            .addFileToUpload(tempFilePath == null
-                                            ? fileUri.toString()
-                                            : tempFilePath
-                                    , "tp-dluploadfile")
-                            .addParameter("tp_dluploadicon", fileIcon)
-                            .addParameter("tp-uploaduser", uploaderProfileIndex)
-                            .setNotificationConfig(new UploadNotificationConfig())
-                            .setMaxRetries(2)
-                            .setDelegate(new UploadStatusDelegate() {
-                                @Override
-                                public void onProgress(Context context, UploadInfo uploadInfo) {
-                                }
-
-                                @Override
-                                public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
-                                                    Exception exception) {
-                                    Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
-                                    if (finalTempFilePath != null) {
-                                        if (!deleteTempFile(finalTempFilePath)) {
-                                            Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
-                                        }
+                            @Override
+                            public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
+                                                Exception exception) {
+                                Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
+                                if (finalTempFilePath != null) {
+                                    if (!deleteTempFile(finalTempFilePath)) {
+                                        Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
                                     }
                                 }
+                            }
 
-                                @Override
-                                public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                                    if (finalTempFilePath != null) {
-                                        if (!deleteTempFile(finalTempFilePath)) {
-                                            Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
-                                        }
+                            @Override
+                            public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                                if (finalTempFilePath != null) {
+                                    if (!deleteTempFile(finalTempFilePath)) {
+                                        Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
                                     }
                                 }
+                            }
 
-                                @Override
-                                public void onCancelled(Context context, UploadInfo uploadInfo) {
-                                    if (finalTempFilePath != null) {
-                                        if (!deleteTempFile(finalTempFilePath)) {
-                                            Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
-                                        }
+                            @Override
+                            public void onCancelled(Context context, UploadInfo uploadInfo) {
+                                if (finalTempFilePath != null) {
+                                    if (!deleteTempFile(finalTempFilePath)) {
+                                        Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
                                     }
                                 }
-                            })
-                            .startUpload();
-                } catch (Exception exception) {
-                    Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
-                }
+                            }
+                        })
+                        .startUpload();
+            } catch (Exception exception) {
+                Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
             }
         });
 
@@ -326,7 +333,7 @@ public class UploadActivity extends BaseActivity {
             if (bundleCategory != null) {
                 int bundleSelectionIndex = -1, currentIndex = 0;
                 for (UploadCategory category : uploadRootCategories) {
-                    if (category.getCategoryTitle().contains(bundleCategory.get(0))) { //TODO fix .contains, always false
+                    if (bundleCategory.get(0).contains(category.getCategoryTitle())) {
                         bundleSelectionIndex = currentIndex;
                         break;
                     }
@@ -335,6 +342,7 @@ public class UploadActivity extends BaseActivity {
 
                 if (bundleSelectionIndex != -1) {
                     rootCategorySpinner.setSelection(bundleSelectionIndex, true);
+                    bundleCategory.remove(0);
                 }
             }
 
@@ -435,6 +443,7 @@ public class UploadActivity extends BaseActivity {
         return filename;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Nullable
     private String createTempFile(String newFilename) {
         String oldFilename = filenameFromUri(fileUri);
@@ -534,10 +543,12 @@ public class UploadActivity extends BaseActivity {
                 categoriesSpinners.addView(subSpinner);
 
                 //Sets bundle selection
-                if (bundleCategory != null && viewIndex < bundleCategory.size()) {
+                if (bundleCategory != null && !bundleCategory.isEmpty()) {
                     int bundleSelectionIndex = -1, currentIndex = 0;
-                    for (UploadCategory category : parentCategories) {
-                        if (category.getCategoryTitle().contains(bundleCategory.get(viewIndex))) {
+
+                    for (UploadCategory category : childCategories) {
+                        if (bundleCategory.get(0).contains(category.getCategoryTitle()
+                                .replace("-", "").trim())) {
                             bundleSelectionIndex = currentIndex;
                             break;
                         }
@@ -546,6 +557,7 @@ public class UploadActivity extends BaseActivity {
 
                     if (bundleSelectionIndex != -1) {
                         subSpinner.setSelection(bundleSelectionIndex, true);
+                        bundleCategory.remove(0);
                     }
                 }
             }
@@ -627,8 +639,9 @@ public class UploadActivity extends BaseActivity {
             //Sets bundle selection
             if (bundleCategory != null) {
                 int bundleSelectionIndex = -1, currentIndex = 0;
+
                 for (UploadCategory category : uploadRootCategories) {
-                    if (category.getCategoryTitle().contains(bundleCategory.get(0))) { //TODO fix .contains, always false
+                    if (bundleCategory.get(0).contains(category.getCategoryTitle())) {
                         bundleSelectionIndex = currentIndex;
                         break;
                     }
@@ -637,6 +650,7 @@ public class UploadActivity extends BaseActivity {
 
                 if (bundleSelectionIndex != -1) {
                     rootCategorySpinner.setSelection(bundleSelectionIndex, true);
+                    bundleCategory.remove(0);
                 }
             }
 
