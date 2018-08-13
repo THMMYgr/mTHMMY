@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -17,7 +19,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -42,8 +43,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -206,8 +211,21 @@ public class UploadActivity extends BaseActivity {
             builder.setTitle("Upload file");
             builder.setItems(options, (dialog, item) -> {
                 if (options[item].equals("Take photo")) {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(intent, REQUEST_CODE_CAMERA);
+                    /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent, REQUEST_CODE_CAMERA);*/
+
+                    Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    takePhotoIntent.putExtra("return-data", true);
+                    takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getTempFile(this)));
+
+                    Intent targetedIntent = new Intent(takePhotoIntent);
+                    List<ResolveInfo> resInfo = this.getPackageManager().queryIntentActivities(takePhotoIntent, 0);
+                    for (ResolveInfo resolveInfo : resInfo) {
+                        String packageName = resolveInfo.activityInfo.packageName;
+                        targetedIntent.setPackage(packageName);
+                    }
+                    startActivityForResult(takePhotoIntent, REQUEST_CODE_CAMERA);
+
                 } else if (options[item].equals("Choose file")) {
                     String[] mimeTypes = {"image/jpeg", "text/html", "image/png", "image/jpg", "image/gif",
                             "application/pdf", "application/rar", "application/x-tar", "application/zip",
@@ -253,7 +271,7 @@ public class UploadActivity extends BaseActivity {
 
             String tempFilePath = null;
             if (uploadFilename != null) {
-                tempFilePath = createTempFile(uploadFilename);
+                tempFilePath = UploadsHelper.createTempFile(this, fileUri, uploadFilename);
                 if (tempFilePath == null) {
                     //Something went wrong, abort
                     return;
@@ -285,8 +303,8 @@ public class UploadActivity extends BaseActivity {
                                                 Exception exception) {
                                 Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
                                 if (finalTempFilePath != null) {
-                                    if (!deleteTempFile(finalTempFilePath)) {
-                                        Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
+                                    if (!UploadsHelper.deleteTempFile(finalTempFilePath)) {
+                                        Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             }
@@ -294,8 +312,8 @@ public class UploadActivity extends BaseActivity {
                             @Override
                             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
                                 if (finalTempFilePath != null) {
-                                    if (!deleteTempFile(finalTempFilePath)) {
-                                        Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
+                                    if (!UploadsHelper.deleteTempFile(finalTempFilePath)) {
+                                        Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             }
@@ -303,8 +321,8 @@ public class UploadActivity extends BaseActivity {
                             @Override
                             public void onCancelled(Context context, UploadInfo uploadInfo) {
                                 if (finalTempFilePath != null) {
-                                    if (!deleteTempFile(finalTempFilePath)) {
-                                        Toast.makeText(context, "Failed to delete temp file", Toast.LENGTH_SHORT).show();
+                                    if (!UploadsHelper.deleteTempFile(finalTempFilePath)) {
+                                        Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             }
@@ -381,7 +399,7 @@ public class UploadActivity extends BaseActivity {
 
             fileUri = data.getData();
             if (fileUri != null) {
-                String filename = filenameFromUri(fileUri);
+                String filename = UploadsHelper.filenameFromUri(this, fileUri);
                 selectFileButton.setText(filename);
 
                 filename = filename.toLowerCase();
@@ -404,11 +422,37 @@ public class UploadActivity extends BaseActivity {
                     fileIcon = "blank.gif";
                 }
             }
-        } else if (requestCode == REQUEST_CODE_CAMERA && data != null) {
+        } else if (requestCode == REQUEST_CODE_CAMERA) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
             }
-            //TODO
+
+            Bitmap bitmap;
+            File cacheImageFile = UploadsHelper.getTempFile(this);
+            if (resultCode == Activity.RESULT_OK) {
+                fileUri = Uri.fromFile(cacheImageFile);
+                fileIcon = "jpg_image.gif";
+
+                bitmap = UploadsHelper.getImageResized(this, fileUri);
+                int rotation = UploadsHelper.getRotation(this, fileUri);
+                bitmap = UploadsHelper.rotate(bitmap, rotation);
+
+                try {
+                    FileOutputStream out = new FileOutputStream(cacheImageFile);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                String newFilename = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).
+                        format(new Date());
+                fileUri = Uri.parse(UploadsHelper.createTempFile(this, fileUri, newFilename));
+
+                newFilename += ".jpg";
+                selectFileButton.setText(newFilename);
+            }
         } else if (requestCode == REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
@@ -420,83 +464,6 @@ public class UploadActivity extends BaseActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    @NonNull
-    private String filenameFromUri(Uri uri) {
-        String filename = null;
-        if (uri.getScheme().equals("content")) {
-            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            }
-        }
-        if (filename == null) {
-            filename = uri.getPath();
-            int cut = filename.lastIndexOf('/');
-            if (cut != -1) {
-                filename = filename.substring(cut + 1);
-            }
-        }
-
-        return filename;
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    @Nullable
-    private String createTempFile(String newFilename) {
-        String oldFilename = filenameFromUri(fileUri);
-        String fileExtension = oldFilename.substring(oldFilename.indexOf("."));
-        String destinationFilename = android.os.Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + "~tmp_mThmmy_uploads" + File.separatorChar + newFilename + fileExtension;
-
-        File tempDirectory = new File(android.os.Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + "~tmp_mThmmy_uploads");
-
-        if (!tempDirectory.exists()) {
-            if (!tempDirectory.mkdirs()) {
-                Timber.w("Temporary directory build returned false in %s", UploadActivity.class.getSimpleName());
-                Toast.makeText(this, "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
-                return null;
-            }
-        }
-
-        InputStream inputStream;
-        BufferedInputStream bufferedInputStream = null;
-        BufferedOutputStream bufferedOutputStream = null;
-
-        try {
-            inputStream = getContentResolver().openInputStream(fileUri);
-            if (inputStream == null) {
-                Timber.w("Input stream was null, %s", UploadActivity.class.getSimpleName());
-                return null;
-            }
-
-            bufferedInputStream = new BufferedInputStream(inputStream);
-            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(destinationFilename, false));
-            byte[] buf = new byte[1024];
-            bufferedInputStream.read(buf);
-            do {
-                bufferedOutputStream.write(buf);
-            } while (bufferedInputStream.read(buf) != -1);
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        } finally {
-            try {
-                if (bufferedInputStream != null) bufferedInputStream.close();
-                if (bufferedOutputStream != null) bufferedOutputStream.close();
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
-
-        return destinationFilename;
-    }
-
-    private boolean deleteTempFile(String destinationFilename) {
-        File file = new File(destinationFilename);
-        return file.delete();
     }
 
     private class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
