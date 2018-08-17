@@ -129,7 +129,7 @@
     <string name="upload_fields_builder_radio_button_sept">September</string>
     <string name="upload_fields_builder_select_year_title">Select year</string>
     <string name="upload_fields_builder_year_hint">Year</string>
-    <string name="upload_fields_builder_submit">Build</string>
+    <string name="upload_fields_builder_submit">Generate</string>
 
     <!--Settings Activity-->
     <string name="action_settings">Settings</string>
@@ -156,4 +156,5 @@
     <string name="pref_category_uploading">Uploading</string>
     <string name="pref_title_uploading_app_signature_enable">App signature</string>
     <string name="pref_summary_uploading_app_signature_enable">If enabled, an \"uploaded from mTHMMY\" message will be inserted at the end of your uploads descriptions</string>
+    <string name="upload_fields_builder_toolbar_title">Upload fields generator</string>
 </resources>
