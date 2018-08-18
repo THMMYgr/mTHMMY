@@ -3,13 +3,14 @@ package gr.thmmy.mthmmy.utils;
 import android.content.Context;
 import android.os.Handler;
 import android.support.v7.widget.AppCompatImageButton;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.inputmethod.InputConnection;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 
 import gr.thmmy.mthmmy.R;
@@ -151,13 +152,10 @@ public class EmojiKeyboard extends LinearLayout {
         emojis.append(R.drawable.emoji_extremely_shocked, "^ex_shocked^");
         emojis.append(R.drawable.emoji_smurf, "^smurf^");
 
-        GridView emojiGridView = findViewById(R.id.emoji_gridview);
-        emojiGridView.setAdapter(new ImageKeyboardAdapter(context, getEmojiArray()));
-        emojiGridView.setOnItemClickListener((parent, view, position, id) -> {
-            if (inputConnection == null) return;
-            String value = emojis.valueAt(position);
-            inputConnection.commitText(value, 1);
-        });
+        RecyclerView emojiRecyclerview = findViewById(R.id.emoji_recyclerview);
+        emojiRecyclerview.setHasFixedSize(true);
+        emojiRecyclerview.setLayoutManager(new GridLayoutManager(context, 6));
+        emojiRecyclerview.setAdapter(new EmojiKeyboardAdapter(getEmojiArray()));
         AppCompatImageButton backspaceButton = findViewById(R.id.backspace_button);
         // backspace behavior
         final Handler handler = new Handler();
@@ -190,8 +188,8 @@ public class EmojiKeyboard extends LinearLayout {
         this.inputConnection = inputConnection;
     }
 
-    public Integer[] getEmojiArray() {
-        Integer[] emojiArray = new Integer[emojis.size()];
+    public int[] getEmojiArray() {
+        int[] emojiArray = new int[emojis.size()];
         for (int i = 0; i < emojiArray.length; i++) {
             emojiArray[i] = emojis.keyAt(i);
         }
