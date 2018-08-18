@@ -37,7 +37,7 @@ public class EmojiKeyboard extends LinearLayout {
         LayoutInflater.from(context).inflate(R.layout.emoji_keyboard, this, true);
 
         emojis.append(R.drawable.emoji_smiley, ":)");
-        emojis.append(R.drawable.emojI_wink, ";)");
+        emojis.append(R.drawable.emoji_wink, ";)");
         emojis.append(R.drawable.emoji_cheesy, ":D");
         emojis.append(R.drawable.emoji_grin, ";D");
         // removed repeated angry emoji

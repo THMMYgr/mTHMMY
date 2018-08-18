@@ -38,7 +38,6 @@ public class EditorView extends LinearLayout {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        setOrientation(VERTICAL);
         LayoutInflater.from(context).inflate(R.layout.editor_view, this, true);
 
         editText = findViewById(R.id.editor_edittext);

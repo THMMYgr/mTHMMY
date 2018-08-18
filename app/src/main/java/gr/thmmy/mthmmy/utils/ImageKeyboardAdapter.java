@@ -18,10 +18,6 @@ public class ImageKeyboardAdapter extends BaseAdapter {
     public ImageKeyboardAdapter(Context context, Integer[] emojiIds) {
         this.context = context;
         this.emojiIds = emojiIds;
-        // sort images by width
-        Arrays.sort(this.emojiIds, (img1, img2) ->
-                context.getResources().getDrawable(img1).getIntrinsicWidth() -
-                        context.getResources().getDrawable(img2).getIntrinsicWidth());
     }
 
     @Override
