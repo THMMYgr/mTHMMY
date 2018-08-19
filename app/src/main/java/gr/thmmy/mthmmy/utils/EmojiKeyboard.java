@@ -7,7 +7,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.inputmethod.InputConnection;
@@ -17,7 +16,122 @@ import gr.thmmy.mthmmy.R;
 
 public class EmojiKeyboard extends LinearLayout {
 
-    private SparseArray<String> emojis = new SparseArray<>();
+    // TODO: Sort emojis in a way that makes sense
+    private final Emoji[] emojis = {new Emoji(R.drawable.emoji_smiley, ":)"),
+            new Emoji(R.drawable.emoji_wink, ";)"),
+            new Emoji(R.drawable.emoji_cheesy, ":D"),
+            new Emoji(R.drawable.emoji_grin, ";D"),
+            // removed repeated angry emoji
+            new Emoji(R.drawable.emoji_angry, ">:("),
+            new Emoji(R.drawable.emoji_sad, ":("),
+            new Emoji(R.drawable.emoji_shocked, ":o"),
+            new Emoji(R.drawable.emoji_cool, "8))"),
+            new Emoji(R.drawable.emoji_huh, ":???:"),
+            new Emoji(R.drawable.emoji_rolleyes, "::)"),
+            new Emoji(R.drawable.emoji_tongue, ":P"),
+            new Emoji(R.drawable.emoji_embarrassed, ":-["),
+            new Emoji(R.drawable.emoji_lipsrsealed, ":-X"),
+            new Emoji(R.drawable.emoji_undecided, ":-\\\\"),
+            new Emoji(R.drawable.emoji_kiss, ":-*"),
+            new Emoji(R.drawable.emoji_cry, ":'("),
+            new Emoji(R.drawable.emoji_heart, "<3"),
+            // removed repeated lock emoji
+            new Emoji(R.drawable.emoji_locked, "^lock^"),
+            new Emoji(R.drawable.emoji_roll_over, "^rollover^"),
+            new Emoji(R.drawable.emoji_redface, "^redface^"),
+            new Emoji(R.drawable.emoji_confused, "^confused^"),
+            new Emoji(R.drawable.emoji_innocent, "^innocent^"),
+            new Emoji(R.drawable.emoji_sleep, "^sleep^"),
+            new Emoji(R.drawable.emoji_lips_sealed, "^sealed^"),
+            new Emoji(R.drawable.emoji_cool2, "^cool^"),
+            new Emoji(R.drawable.emoji_crazy, "^crazy^"),
+            new Emoji(R.drawable.emoji_mad, "^mad^"),
+            new Emoji(R.drawable.emoji_wav, "^wav^"),
+            new Emoji(R.drawable.emoji_binkybaby, "^binkybaby^"),
+            new Emoji(R.drawable.emoji_police, "^police^"),
+            new Emoji(R.drawable.emoji_dontknow, "^dontknow^"),
+            //removed repeated angry hot emoji
+            new Emoji(R.drawable.emoji_angry_hot, "^angryhot^"),
+            new Emoji(R.drawable.emoji_foyska, "^fouska^"),
+            new Emoji(R.drawable.emoji_e10_7_3e, "^sfinaki^"),
+            new Emoji(R.drawable.emoji_bang_head, "^banghead^"),
+            new Emoji(R.drawable.emoji_crybaby, "^crybaby^"),
+            new Emoji(R.drawable.emoji_hello, "^hello^"),
+            new Emoji(R.drawable.emoji_jerk, "^jerk^"),
+            new Emoji(R.drawable.emoji_nono, "^nono^"),
+            new Emoji(R.drawable.emoji_notworthy, "^notworthy^"),
+            new Emoji(R.drawable.emoji_off_topic, "^off-topic^"),
+            new Emoji(R.drawable.emoji_puke, "^puke^"),
+            new Emoji(R.drawable.emoji_shout, "^shout^"),
+            new Emoji(R.drawable.emoji_slurp, "^slurp^"),
+            new Emoji(R.drawable.emoji_superconfused, "^superconfused^"),
+            new Emoji(R.drawable.emoji_superinnocent, "^superinnocent^"),
+            new Emoji(R.drawable.emoji_cell_phone, "^cellPhone^"),
+            new Emoji(R.drawable.emoji_idiot, "^idiot^"),
+            new Emoji(R.drawable.emoji_knuppel, "^knuppel^"),
+            new Emoji(R.drawable.emoji_tickedoff, "^tickedOff^"),
+            new Emoji(R.drawable.emoji_peace, "^peace^"),
+            new Emoji(R.drawable.emoji_suspicious, "^suspicious^"),
+            new Emoji(R.drawable.emoji_caffine, "^caffine^"),
+            new Emoji(R.drawable.emoji_argue, "^argue^"),
+            new Emoji(R.drawable.emoji_banned2, "^banned2^"),
+            new Emoji(R.drawable.emoji_banned, "^banned^"),
+            new Emoji(R.drawable.emoji_bath, "^bath^"),
+            new Emoji(R.drawable.emoji_beg, "^beg^"),
+            new Emoji(R.drawable.emoji_bluescreen, "^bluescreen^"),
+            new Emoji(R.drawable.emoji_boil, "^boil^"),
+            new Emoji(R.drawable.emoji_bye, "^bye^"),
+            new Emoji(R.drawable.emoji_callmerip, "^callmerip^"),
+            new Emoji(R.drawable.emoji_carnaval, "^carnaval^"),
+            new Emoji(R.drawable.emoji_clap, "^clap^"),
+            new Emoji(R.drawable.emoji_coffeepot, "^coffepot^"),
+            new Emoji(R.drawable.emoji_crap, "^crap^"),
+            new Emoji(R.drawable.emoji_curses, "^curses^"),
+            new Emoji(R.drawable.emoji_funny, "^funny^"),
+            new Emoji(R.drawable.emoji_guitar1, "^guitar^"),
+            new Emoji(R.drawable.emoji_icon_kissy, "^kissy^"),
+            new Emoji(R.drawable.emoji_band, "^band^"),
+            new Emoji(R.drawable.emoji_ivres, "^ivres^"),
+            new Emoji(R.drawable.emoji_kaloe, "^kaloe^"),
+            new Emoji(R.drawable.emoji_kremala, "^kremala^"),
+            new Emoji(R.drawable.emoji_moon, "^moon^"),
+            new Emoji(R.drawable.emoji_mopping, "^mopping^"),
+            new Emoji(R.drawable.emoji_mountza, "^mountza^"),
+            new Emoji(R.drawable.emoji_pcsleep, "^pcsleep^"),
+            new Emoji(R.drawable.emoji_pinokio, "^pinokio^"),
+            new Emoji(R.drawable.emoji_poke, "^poke^"),
+            new Emoji(R.drawable.emoji_seestars, "^seestars^"),
+            new Emoji(R.drawable.emoji_sfyri, "^sfyri^"),
+            new Emoji(R.drawable.emoji_spam2, "^spam^"),
+            new Emoji(R.drawable.emoji_esuper, "^super^"),
+            new Emoji(R.drawable.emoji_tafos, "^tafos^"),
+            new Emoji(R.drawable.emoji_tomatomourh, "^tomato^"),
+            new Emoji(R.drawable.emoji_ytold, "^ytold^"),
+            new Emoji(R.drawable.emoji_beer2, "^beer^"),
+            new Emoji(R.drawable.emoji_yu, "^yue^"),
+            new Emoji(R.drawable.emoji_a_eatpaper, "^eatpaper^"),
+            new Emoji(R.drawable.emoji_fritz, "^fritz^"),
+            new Emoji(R.drawable.emoji_wade, "^wade^"),
+            new Emoji(R.drawable.emoji_lypi, "^lypi^"),
+            new Emoji(R.drawable.emoji_megashok1wq, "^aytoxeir^"),
+            new Emoji(R.drawable.emoji_victory, "^victory^"),
+            new Emoji(R.drawable.emoji_filarakia, "^filarakia^"),
+            new Emoji(R.drawable.emoji_bonjour_97213, "^hat^"),
+            new Emoji(R.drawable.emoji_curtseyqi9, "^miss^"),
+            new Emoji(R.drawable.emoji_rofl, "^rolfmao^"),
+            new Emoji(R.drawable.emoji_question, "^que^"),
+            new Emoji(R.drawable.emoji_shifty, "^shifty^"),
+            new Emoji(R.drawable.emoji_shy, "^shy^"),
+            new Emoji(R.drawable.emoji_music, "^music_listen^"),
+            new Emoji(R.drawable.emoji_shamed_bag, "^bagface^"),
+            new Emoji(R.drawable.emoji_rotfl, "^rotate^"),
+            new Emoji(R.drawable.emoji_love, "^love^"),
+            new Emoji(R.drawable.emoji_speech, "^speech^"),
+            new Emoji(R.drawable.emoji_facepalm, "^facepalm^"),
+            new Emoji(R.drawable.emoji_shocked2, "^shocked^"),
+            new Emoji(R.drawable.emoji_extremely_shocked, "^ex_shocked^"),
+            new Emoji(R.drawable.emoji_smurf, "^smurf^")
+    };
 
     InputConnection inputConnection;
 
@@ -37,125 +151,17 @@ public class EmojiKeyboard extends LinearLayout {
     public void init(Context context, AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.emoji_keyboard, this, true);
 
-        emojis.append(R.drawable.emoji_smiley, ":)");
-        emojis.append(R.drawable.emoji_wink, ";)");
-        emojis.append(R.drawable.emoji_cheesy, ":D");
-        emojis.append(R.drawable.emoji_grin, ";D");
-        // removed repeated angry emoji
-        emojis.append(R.drawable.emoji_angry, ">:(");
-        emojis.append(R.drawable.emoji_sad, ":(");
-        emojis.append(R.drawable.emoji_shocked, ":o");
-        emojis.append(R.drawable.emoji_cool, "8))");
-        emojis.append(R.drawable.emoji_huh, ":???:");
-        emojis.append(R.drawable.emoji_rolleyes, "::)");
-        emojis.append(R.drawable.emoji_tongue, ":P");
-        emojis.append(R.drawable.emoji_embarrassed, ":-[");
-        emojis.append(R.drawable.emoji_lipsrsealed, ":-X");
-        emojis.append(R.drawable.emoji_undecided, ":-\\\\");
-        emojis.append(R.drawable.emoji_kiss, ":-*");
-        emojis.append(R.drawable.emoji_cry, ":'(");
-        emojis.append(R.drawable.emoji_heart, "<3");
-        // removed repeated lock emoji
-        emojis.append(R.drawable.emoji_locked, "^lock^");
-        emojis.append(R.drawable.emoji_roll_over, "^rollover^");
-        emojis.append(R.drawable.emoji_redface, "^redface^");
-        emojis.append(R.drawable.emoji_confused, "^confused^");
-        emojis.append(R.drawable.emoji_innocent, "^innocent^");
-        emojis.append(R.drawable.emoji_sleep, "^sleep^");
-        emojis.append(R.drawable.emoji_lips_sealed, "^sealed^");
-        emojis.append(R.drawable.emoji_cool2, "^cool^");
-        emojis.append(R.drawable.emoji_crazy, "^crazy^");
-        emojis.append(R.drawable.emoji_mad, "^mad^");
-        emojis.append(R.drawable.emoji_wav, "^wav^");
-        emojis.append(R.drawable.emoji_binkybaby, "^binkybaby^");
-        emojis.append(R.drawable.emoji_police, "^police^");
-        emojis.append(R.drawable.emoji_dontknow, "^dontknow^");
-        //removed repeated angry hot emoji
-        emojis.append(R.drawable.emoji_angry_hot, "^angryhot^");
-        emojis.append(R.drawable.emoji_foyska, "^fouska^");
-        emojis.append(R.drawable.emoji_e10_7_3e, "^sfinaki^");
-        emojis.append(R.drawable.emoji_bang_head, "^banghead^");
-        emojis.append(R.drawable.emoji_crybaby, "^crybaby^");
-        emojis.append(R.drawable.emoji_hello, "^hello^");
-        emojis.append(R.drawable.emoji_jerk, "^jerk^");
-        emojis.append(R.drawable.emoji_nono, "^nono^");
-        emojis.append(R.drawable.emoji_notworthy, "^notworthy^");
-        emojis.append(R.drawable.emoji_off_topic, "^off-topic^");
-        emojis.append(R.drawable.emoji_puke, "^puke^");
-        emojis.append(R.drawable.emoji_shout, "^shout^");
-        emojis.append(R.drawable.emoji_slurp, "^slurp^");
-        emojis.append(R.drawable.emoji_superconfused, "^superconfused^");
-        emojis.append(R.drawable.emoji_superinnocent, "^superinnocent^");
-        emojis.append(R.drawable.emoji_cell_phone, "^cellPhone^");
-        emojis.append(R.drawable.emoji_idiot, "^idiot^");
-        emojis.append(R.drawable.emoji_knuppel, "^knuppel^");
-        emojis.append(R.drawable.emoji_tickedoff, "^tickedOff^");
-        emojis.append(R.drawable.emoji_peace, "^peace^");
-        emojis.append(R.drawable.emoji_suspicious, "^suspicious^");
-        emojis.append(R.drawable.emoji_caffine, "^caffine^");
-        emojis.append(R.drawable.emoji_argue, "^argue^");
-        emojis.append(R.drawable.emoji_banned2, "^banned2^");
-        emojis.append(R.drawable.emoji_banned, "^banned^");
-        emojis.append(R.drawable.emoji_bath, "^bath^");
-        emojis.append(R.drawable.emoji_beg, "^beg^");
-        emojis.append(R.drawable.emoji_bluescreen, "^bluescreen^");
-        emojis.append(R.drawable.emoji_boil, "^boil^");
-        emojis.append(R.drawable.emoji_bye, "^bye^");
-        emojis.append(R.drawable.emoji_callmerip, "^callmerip^");
-        emojis.append(R.drawable.emoji_carnaval, "^carnaval^");
-        emojis.append(R.drawable.emoji_clap, "^clap^");
-        emojis.append(R.drawable.emoji_coffeepot, "^coffepot^");
-        emojis.append(R.drawable.emoji_crap, "^crap^");
-        emojis.append(R.drawable.emoji_curses, "^curses^");
-        emojis.append(R.drawable.emoji_funny, "^funny^");
-        emojis.append(R.drawable.emoji_guitar1, "^guitar^");
-        emojis.append(R.drawable.emoji_icon_kissy, "^kissy^");
-        emojis.append(R.drawable.emoji_band, "^band^");
-        emojis.append(R.drawable.emoji_ivres, "^ivres^");
-        emojis.append(R.drawable.emoji_kaloe, "^kaloe^");
-        emojis.append(R.drawable.emoji_kremala, "^kremala^");
-        emojis.append(R.drawable.emoji_moon, "^moon^");
-        emojis.append(R.drawable.emoji_mopping, "^mopping^");
-        emojis.append(R.drawable.emoji_mountza, "^mountza^");
-        emojis.append(R.drawable.emoji_pcsleep, "^pcsleep^");
-        emojis.append(R.drawable.emoji_pinokio, "^pinokio^");
-        emojis.append(R.drawable.emoji_poke, "^poke^");
-        emojis.append(R.drawable.emoji_seestars, "^seestars^");
-        emojis.append(R.drawable.emoji_sfyri, "^sfyri^");
-        emojis.append(R.drawable.emoji_spam2, "^spam^");
-        emojis.append(R.drawable.emoji_esuper, "^super^");
-        emojis.append(R.drawable.emoji_tafos, "^tafos^");
-        emojis.append(R.drawable.emoji_tomatomourh, "^tomato^");
-        emojis.append(R.drawable.emoji_ytold, "^ytold^");
-        emojis.append(R.drawable.emoji_beer2, "^beer^");
-        emojis.append(R.drawable.emoji_yu, "^yue^");
-        emojis.append(R.drawable.emoji_a_eatpaper, "^eatpaper^");
-        emojis.append(R.drawable.emoji_fritz, "^fritz^");
-        emojis.append(R.drawable.emoji_wade, "^wade^");
-        emojis.append(R.drawable.emoji_lypi, "^lypi^");
-        emojis.append(R.drawable.emoji_megashok1wq, "^aytoxeir^");
-        emojis.append(R.drawable.emoji_victory, "^victory^");
-        emojis.append(R.drawable.emoji_filarakia, "^filarakia^");
-        emojis.append(R.drawable.emoji_bonjour_97213, "^hat^");
-        emojis.append(R.drawable.emoji_curtseyqi9, "^miss^");
-        emojis.append(R.drawable.emoji_rofl, "^rolfmao^");
-        emojis.append(R.drawable.emoji_question, "^que^");
-        emojis.append(R.drawable.emoji_shifty, "^shifty^");
-        emojis.append(R.drawable.emoji_shy, "^shy^");
-        emojis.append(R.drawable.emoji_music, "^music_listen^");
-        emojis.append(R.drawable.emoji_shamed_bag, "^bagface^");
-        emojis.append(R.drawable.emoji_rotfl, "^rotate^");
-        emojis.append(R.drawable.emoji_love, "^love^");
-        emojis.append(R.drawable.emoji_speech, "^speech^");
-        emojis.append(R.drawable.emoji_facepalm, "^facepalm^");
-        emojis.append(R.drawable.emoji_shocked2, "^shocked^");
-        emojis.append(R.drawable.emoji_extremely_shocked, "^ex_shocked^");
-        emojis.append(R.drawable.emoji_smurf, "^smurf^");
-
         RecyclerView emojiRecyclerview = findViewById(R.id.emoji_recyclerview);
         emojiRecyclerview.setHasFixedSize(true);
         emojiRecyclerview.setLayoutManager(new GridLayoutManager(context, 6));
-        emojiRecyclerview.setAdapter(new EmojiKeyboardAdapter(getEmojiArray()));
+
+        EmojiKeyboardAdapter emojiKeyboardAdapter = new EmojiKeyboardAdapter(emojis);
+        emojiKeyboardAdapter.setOnEmojiClickListener(((view, position) -> {
+            if (inputConnection == null) return;
+            String bbcode = emojis[position].getBbcode();
+            inputConnection.commitText(bbcode, 1);
+        }));
+        emojiRecyclerview.setAdapter(emojiKeyboardAdapter);
         AppCompatImageButton backspaceButton = findViewById(R.id.backspace_button);
         // backspace behavior
         final Handler handler = new Handler();
@@ -188,15 +194,25 @@ public class EmojiKeyboard extends LinearLayout {
         this.inputConnection = inputConnection;
     }
 
-    public int[] getEmojiArray() {
-        int[] emojiArray = new int[emojis.size()];
-        for (int i = 0; i < emojiArray.length; i++) {
-            emojiArray[i] = emojis.keyAt(i);
-        }
-        return emojiArray;
-    }
-
     public interface EmojiKeyboardOwner {
         void setEmojiKeyboardVisible(boolean visible);
+    }
+
+    class Emoji {
+        final int src;
+        final String bbcode;
+
+        public Emoji(int src, String bbcode) {
+            this.src = src;
+            this.bbcode = bbcode;
+        }
+
+        public int getSrc() {
+            return src;
+        }
+
+        public String getBbcode() {
+            return bbcode;
+        }
     }
 }
