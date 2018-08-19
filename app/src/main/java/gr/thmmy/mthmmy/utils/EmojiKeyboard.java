@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.utils;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.GridLayoutManager;
@@ -153,7 +154,10 @@ public class EmojiKeyboard extends LinearLayout {
 
         RecyclerView emojiRecyclerview = findViewById(R.id.emoji_recyclerview);
         emojiRecyclerview.setHasFixedSize(true);
-        emojiRecyclerview.setLayoutManager(new GridLayoutManager(context, 6));
+        // TODO: More meaningful span count for grid
+        GridLayoutManager emojiLayoutManager = new GridLayoutManager(context, 6);
+        emojiLayoutManager.setSpanSizeLookup(new EmojiColumnSpanLookup());
+        emojiRecyclerview.setLayoutManager(emojiLayoutManager);
 
         EmojiKeyboardAdapter emojiKeyboardAdapter = new EmojiKeyboardAdapter(emojis);
         emojiKeyboardAdapter.setOnEmojiClickListener(((view, position) -> {
@@ -213,6 +217,18 @@ public class EmojiKeyboard extends LinearLayout {
 
         public String getBbcode() {
             return bbcode;
+        }
+    }
+
+    class EmojiColumnSpanLookup extends GridLayoutManager.SpanSizeLookup {
+
+        @Override
+        public int getSpanSize(int position) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeResource(getResources(), emojis[position].getSrc(), options);
+            // TODO: piexel density sensitive column span lookup
+            return options.outWidth / 70 + 1;
         }
     }
 }
