@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="200dp">
+    android:layout_height="240dp">
 
     <!--black border line-->
     <View
@@ -16,12 +16,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginEnd="8dp"
-        android:padding="2dp"
+        android:padding="6dp"
         app:srcCompat="@drawable/ic_backspace_black_24dp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/emoji_recyclerview"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
-        android:layout_height="200dp"/>
+        android:layout_height="240dp"/>
 </merge>
