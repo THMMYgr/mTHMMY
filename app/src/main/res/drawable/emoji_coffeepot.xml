@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_coffeepot_f0"
+android:duration="220" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f1"
+android:duration="130" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f2"
+android:duration="130" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f3"
+android:duration="130" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f4"
+android:duration="130" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f5"
+android:duration="130" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f6"
+android:duration="30" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f7"
+android:duration="130" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f8"
+android:duration="130" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f9"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f10"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f11"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f12"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f13"
+android:duration="90" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f14"
+android:duration="90" />
+<item
+android:drawable="@drawable/emoji_coffeepot_f15"
+android:duration="130" />
+
+</animation-list>

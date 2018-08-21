@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_wav_f0"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f1"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f2"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f3"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f4"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f5"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f6"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f7"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f8"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f9"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f10"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_wav_f11"
+android:duration="100" />
+
+</animation-list>

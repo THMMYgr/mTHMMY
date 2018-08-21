@@ -2,7 +2,10 @@ package gr.thmmy.mthmmy.utils;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,6 +48,7 @@ public class EmojiKeyboard extends LinearLayout {
             new Emoji(R.drawable.emoji_sleep, "^sleep^"),
             new Emoji(R.drawable.emoji_lips_sealed, "^sealed^"),
             new Emoji(R.drawable.emoji_cool2, "^cool^"),
+            new Emoji(R.drawable.emoji_monster, "^monster^"),
             new Emoji(R.drawable.emoji_crazy, "^crazy^"),
             new Emoji(R.drawable.emoji_mad, "^mad^"),
             new Emoji(R.drawable.emoji_wav, "^wav^"),
@@ -224,9 +228,16 @@ public class EmojiKeyboard extends LinearLayout {
 
         @Override
         public int getSpanSize(int position) {
+            int idToCheck;
+            if (getContext().getResources().getDrawable(emojis[position].getSrc()) instanceof AnimationDrawable) {
+                String frameResourceName = getResources().getResourceEntryName(emojis[position].getSrc()) + "_f0";
+                idToCheck = getResources().getIdentifier(frameResourceName, "drawable", getContext().getPackageName());
+            } else {
+                idToCheck = emojis[position].getSrc();
+            }
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
-            BitmapFactory.decodeResource(getResources(), emojis[position].getSrc(), options);
+            BitmapFactory.decodeResource(getResources(), idToCheck, options);
             // TODO: piexel density sensitive column span lookup
             return options.outWidth / 70 + 1;
         }

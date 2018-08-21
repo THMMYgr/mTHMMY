@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_tafos_f0"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_tafos_f1"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f2"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f3"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f4"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f5"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_tafos_f6"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f7"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f8"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f9"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f10"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_tafos_f11"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_tafos_f12"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f13"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_tafos_f14"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f15"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f16"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f17"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f18"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f19"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f20"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f21"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f22"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f23"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f24"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f25"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f26"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f27"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f28"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f29"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f30"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_tafos_f31"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_tafos_f32"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f33"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_tafos_f34"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_tafos_f35"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_tafos_f36"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_tafos_f37"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_tafos_f38"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_tafos_f39"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_tafos_f40"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_tafos_f41"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_tafos_f42"
+android:duration="4000" />
+
+</animation-list>

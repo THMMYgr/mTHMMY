@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_sad_f0"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_sad_f1"
+android:duration="2000" />
+<item
+android:drawable="@drawable/emoji_sad_f2"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_sad_f3"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_sad_f4"
+android:duration="0" />
+
+</animation-list>

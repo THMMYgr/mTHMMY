@@ -1,13 +1,14 @@
 package gr.thmmy.mthmmy.utils;
 
+import android.graphics.drawable.AnimationDrawable;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import gr.thmmy.mthmmy.R;
-import pl.droidsonroids.gif.GifImageButton;
 
 public class EmojiKeyboardAdapter extends RecyclerView.Adapter<EmojiKeyboardAdapter.EmojiViewHolder> {
     private EmojiKeyboard.Emoji[] emojiIds;
@@ -24,7 +25,7 @@ public class EmojiKeyboardAdapter extends RecyclerView.Adapter<EmojiKeyboardAdap
     @NonNull
     @Override
     public EmojiViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        GifImageButton emojiButton = (GifImageButton) LayoutInflater.from(parent.getContext())
+        AppCompatImageButton emojiButton = (AppCompatImageButton) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.emoji_keyboard_grid_cell, parent, false);
         return new EmojiViewHolder(emojiButton);
     }
@@ -32,6 +33,11 @@ public class EmojiKeyboardAdapter extends RecyclerView.Adapter<EmojiKeyboardAdap
     @Override
     public void onBindViewHolder(@NonNull EmojiViewHolder holder, int position) {
         holder.emojiButton.setImageResource(emojiIds[position].getSrc());
+        if (holder.emojiButton.getDrawable() instanceof AnimationDrawable) {
+            AnimationDrawable emojiAnimation = (AnimationDrawable) holder.emojiButton.getDrawable();
+            if (!emojiAnimation.isRunning())
+                emojiAnimation.start();
+        }
         holder.emojiButton.setOnClickListener(view -> listener.onEmojiClick(view, position));
     }
 
@@ -41,8 +47,9 @@ public class EmojiKeyboardAdapter extends RecyclerView.Adapter<EmojiKeyboardAdap
     }
 
     static class EmojiViewHolder extends RecyclerView.ViewHolder {
-        GifImageButton emojiButton;
-        EmojiViewHolder(GifImageButton emojiButton) {
+        AppCompatImageButton emojiButton;
+
+        EmojiViewHolder(AppCompatImageButton emojiButton) {
             super(emojiButton);
             this.emojiButton = emojiButton;
         }

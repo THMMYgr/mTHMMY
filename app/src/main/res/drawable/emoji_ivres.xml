@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_ivres_f0"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_ivres_f1"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_ivres_f2"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_ivres_f3"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f4"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f5"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f6"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_ivres_f7"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f8"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f9"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_ivres_f10"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f11"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_ivres_f12"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_ivres_f13"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f14"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_ivres_f15"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_ivres_f16"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f17"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f18"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f19"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f20"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f21"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f22"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f23"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f24"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f25"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f26"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f27"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f28"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_ivres_f29"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_ivres_f30"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_ivres_f31"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_ivres_f32"
+android:duration="2000" />
+<item
+android:drawable="@drawable/emoji_ivres_f33"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_ivres_f34"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f35"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f36"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f37"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f38"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f39"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f40"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_ivres_f41"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f42"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f43"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f44"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_ivres_f45"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f46"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_ivres_f47"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_ivres_f48"
+android:duration="1000" />
+
+</animation-list>

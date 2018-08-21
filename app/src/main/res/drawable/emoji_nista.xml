@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_nista_f0"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_nista_f1"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f2"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_nista_f3"
+android:duration="2500" />
+<item
+android:drawable="@drawable/emoji_nista_f4"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_nista_f5"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f6"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f7"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_nista_f8"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f9"
+android:duration="1500" />
+<item
+android:drawable="@drawable/emoji_nista_f10"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_nista_f11"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f12"
+android:duration="700" />
+<item
+android:drawable="@drawable/emoji_nista_f13"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f14"
+android:duration="1500" />
+<item
+android:drawable="@drawable/emoji_nista_f15"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f16"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_nista_f17"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_nista_f18"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_nista_f19"
+android:duration="400" />
+<item
+android:drawable="@drawable/emoji_nista_f20"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f21"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_nista_f22"
+android:duration="170" />
+<item
+android:drawable="@drawable/emoji_nista_f23"
+android:duration="170" />
+<item
+android:drawable="@drawable/emoji_nista_f24"
+android:duration="170" />
+<item
+android:drawable="@drawable/emoji_nista_f25"
+android:duration="170" />
+<item
+android:drawable="@drawable/emoji_nista_f26"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f27"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f28"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f29"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f30"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f31"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f32"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f33"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f34"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f35"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_nista_f36"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f37"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_nista_f38"
+android:duration="80" />
+<item
+android:drawable="@drawable/emoji_nista_f39"
+android:duration="80" />
+<item
+android:drawable="@drawable/emoji_nista_f40"
+android:duration="80" />
+<item
+android:drawable="@drawable/emoji_nista_f41"
+android:duration="80" />
+<item
+android:drawable="@drawable/emoji_nista_f42"
+android:duration="1000" />
+
+</animation-list>
