@@ -32,13 +32,16 @@ public class EmojiKeyboardAdapter extends RecyclerView.Adapter<EmojiKeyboardAdap
 
     @Override
     public void onBindViewHolder(@NonNull EmojiViewHolder holder, int position) {
-        holder.emojiButton.setImageResource(emojiIds[position].getSrc());
+        holder.emojiButton.setOnClickListener(view -> listener.onEmojiClick(view, position));
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull EmojiViewHolder holder) {
+        holder.emojiButton.setImageResource(emojiIds[holder.getAdapterPosition()].getSrc());
         if (holder.emojiButton.getDrawable() instanceof AnimationDrawable) {
             AnimationDrawable emojiAnimation = (AnimationDrawable) holder.emojiButton.getDrawable();
-            if (!emojiAnimation.isRunning())
-                emojiAnimation.start();
+            emojiAnimation.start();
         }
-        holder.emojiButton.setOnClickListener(view -> listener.onEmojiClick(view, position));
     }
 
     @Override

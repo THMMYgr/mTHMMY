@@ -158,7 +158,6 @@ public class EmojiKeyboard extends LinearLayout {
 
         RecyclerView emojiRecyclerview = findViewById(R.id.emoji_recyclerview);
         emojiRecyclerview.setHasFixedSize(true);
-        // TODO: More meaningful span count for grid
         GridLayoutManager emojiLayoutManager = new GridLayoutManager(context, 6);
         emojiLayoutManager.setSpanSizeLookup(new EmojiColumnSpanLookup());
         emojiRecyclerview.setLayoutManager(emojiLayoutManager);
@@ -224,6 +223,7 @@ public class EmojiKeyboard extends LinearLayout {
         }
     }
 
+    // TODO: add span size to Emoji class so it takes constant time to find span size
     class EmojiColumnSpanLookup extends GridLayoutManager.SpanSizeLookup {
 
         @Override
@@ -238,7 +238,6 @@ public class EmojiKeyboard extends LinearLayout {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeResource(getResources(), idToCheck, options);
-            // TODO: piexel density sensitive column span lookup
             return options.outWidth / 70 + 1;
         }
     }
