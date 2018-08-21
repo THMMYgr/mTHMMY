@@ -223,22 +223,20 @@ public class EmojiKeyboard extends LinearLayout {
         }
     }
 
-    // TODO: add span size to Emoji class so it takes constant time to find span size
     class EmojiColumnSpanLookup extends GridLayoutManager.SpanSizeLookup {
 
         @Override
         public int getSpanSize(int position) {
-            int idToCheck;
-            if (getContext().getResources().getDrawable(emojis[position].getSrc()) instanceof AnimationDrawable) {
-                String frameResourceName = getResources().getResourceEntryName(emojis[position].getSrc()) + "_f0";
-                idToCheck = getResources().getIdentifier(frameResourceName, "drawable", getContext().getPackageName());
-            } else {
-                idToCheck = emojis[position].getSrc();
+            switch (emojis[position].getSrc()) {
+                case R.drawable.emoji_wav:
+                    return 4;
+                case R.drawable.emoji_band:
+                    return 3;
+                case R.drawable.emoji_pcsleep:
+                    return 2;
+                default:
+                    return 1;
             }
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeResource(getResources(), idToCheck, options);
-            return options.outWidth / 70 + 1;
         }
     }
 }
