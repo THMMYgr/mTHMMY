@@ -17,7 +17,7 @@ import gr.thmmy.mthmmy.R;
 public class EditorView extends LinearLayout {
 
     private EditText editText;
-    AppCompatImageButton emojiButton;
+    private AppCompatImageButton emojiButton;
     private AppCompatImageButton submitButton;
     private EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner;
     private boolean emojiKeyboardVisible = false;
@@ -39,6 +39,7 @@ public class EditorView extends LinearLayout {
 
     private void init(Context context, AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.editor_view, this, true);
+        setOrientation(VERTICAL);
 
         editText = findViewById(R.id.editor_edittext);
         emojiButton = findViewById(R.id.emoji_keyboard_button);
@@ -65,6 +66,54 @@ public class EditorView extends LinearLayout {
         });
 
         submitButton = findViewById(R.id.submit_button);
+        findViewById(R.id.bold_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[b][/b]");
+            editText.setSelection(editText.getSelectionStart() - 4);
+        });
+        findViewById(R.id.italic_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[i][/i]");
+            editText.setSelection(editText.getSelectionStart() - 4);
+        });
+        findViewById(R.id.underline_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[u][/u]");
+            editText.setSelection(editText.getSelectionStart() - 4);
+        });
+        findViewById(R.id.strikethrough_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[s][/s]");
+            editText.setSelection(editText.getSelectionStart() - 4);
+        });
+        findViewById(R.id.unordered_list_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[list]\n[li][/li]\n[li][/li]\n[li][/li]\n[/list]");
+            editText.setSelection(editText.getSelectionStart() - 33);
+        });
+        findViewById(R.id.align_left_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[left][/left]");
+            editText.setSelection(editText.getSelectionStart() - 7);
+        });
+        findViewById(R.id.align_center_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[center][/center]");
+            editText.setSelection(editText.getSelectionStart() - 9);
+        });
+        findViewById(R.id.align_right_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[right][/right]");
+            editText.setSelection(editText.getSelectionStart() - 8);
+        });
     }
 
     public Editable getText() {

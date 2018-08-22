@@ -5,10 +5,65 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <!--bold, italic, etc buttons-->
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/bold_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_format_bold_grey_36dp"
+            android:padding="4dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/italic_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_format_italic_grey_36dp"
+            android:padding="4dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/underline_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_format_underlined_grey_36dp"
+            android:padding="4dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/strikethrough_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_strikethrough_s_grey_36dp"
+            android:padding="4dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/unordered_list_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_format_list_bulleted_black_36dp"
+            android:padding="4dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/align_left_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_format_align_left_grey_36dp"
+            android:padding="4dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/align_center_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_format_align_center_grey_36dp"
+            android:padding="4dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/align_right_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_format_align_right_grey_36dp"
+            android:padding="4dp"/>
     </LinearLayout>
 
     <LinearLayout
