@@ -2,14 +2,17 @@ package gr.thmmy.mthmmy.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.LinearLayout;
 
 import gr.thmmy.mthmmy.R;
@@ -90,11 +93,18 @@ public class EditorView extends LinearLayout {
             getText().insert(editText.getSelectionStart(), "[s][/s]");
             editText.setSelection(editText.getSelectionStart() - 4);
         });
-        findViewById(R.id.unordered_list_button).setOnClickListener(view -> {
+        // TODO: popup menu for colors
+        findViewById(R.id.text_color_button).setOnClickListener(view -> {
             if (editText.hasSelection())
                 editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
-            getText().insert(editText.getSelectionStart(), "[list]\n[li][/li]\n[li][/li]\n[li][/li]\n[/list]");
-            editText.setSelection(editText.getSelectionStart() - 33);
+            getText().insert(editText.getSelectionStart(), "[color=][/color]");
+            editText.setSelection(editText.getSelectionStart() - 8);
+        });
+        findViewById(R.id.text_size_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[size=10pt][/size]");
+            editText.setSelection(editText.getSelectionStart() - 7);
         });
         findViewById(R.id.align_left_button).setOnClickListener(view -> {
             if (editText.hasSelection())
@@ -113,6 +123,12 @@ public class EditorView extends LinearLayout {
                 editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
             getText().insert(editText.getSelectionStart(), "[right][/right]");
             editText.setSelection(editText.getSelectionStart() - 8);
+        });
+        findViewById(R.id.math_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[tex][/tex]");
+            editText.setSelection(editText.getSelectionStart() - 6);
         });
     }
 
