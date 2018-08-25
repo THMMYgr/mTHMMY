@@ -156,4 +156,20 @@
     <string name="pref_category_uploading">Uploading</string>
     <string name="pref_title_uploading_app_signature_enable">App signature</string>
     <string name="pref_summary_uploading_app_signature_enable">If enabled, an \"uploaded from mTHMMY\" message will be inserted at the end of your uploads descriptions</string>
+
+    <!-- EditorView -->
+    <string name="black">Black</string>
+    <string name="red">Red</string>
+    <string name="yellow">Yellow</string>
+    <string name="pink">Pink</string>
+    <string name="green">Green</string>
+    <string name="purple">Purple</string>
+    <string name="orange">Orange</string>
+    <string name="blue">Blue</string>
+    <string name="beige">Beige</string>
+    <string name="brown">Brown</string>
+    <string name="teal">Teal</string>
+    <string name="navy">Navy</string>
+    <string name="maroon">Maroon</string>
+    <string name="lime_green">Lime Green</string>
 </resources>

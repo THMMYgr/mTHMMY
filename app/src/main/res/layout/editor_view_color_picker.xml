@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" 
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+    <TextView android:id="@+id/black" android:text="@string/black" style="@style/PopupMenuItem.TopItem"/>
+    <TextView android:id="@+id/red" android:text="@string/red" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/yellow" android:text="@string/yellow" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/pink" android:text="@string/pink" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/green" android:text="@string/green" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/orange" android:text="@string/orange" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/purple" android:text="@string/purple" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/blue" android:text="@string/blue" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/beige" android:text="@string/beige" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/brown" android:text="@string/brown" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/teal" android:text="@string/teal" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/navy" android:text="@string/navy" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/maroon" android:text="@string/maroon" style="@style/PopupMenuItem"/>
+    <TextView android:id="@+id/lime_green" android:text="@string/lime_green" style="@style/PopupMenuItem.BottomItem"/>
+</LinearLayout>
