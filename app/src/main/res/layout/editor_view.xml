@@ -47,6 +47,12 @@
             app:srcCompat="@drawable/ic_format_size_black_36dp"/>
 
         <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/font_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_text_format_grey_36dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/unordered_list_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,6 +75,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_format_align_right_grey_36dp" />
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/link_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_insert_link_gre_36dp" />
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/quote_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_format_quote_unchecked_grey_24dp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/code_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_code_grey_36dp"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/math_button"

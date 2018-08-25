@@ -12,6 +12,8 @@
     <string name="home">Home</string>
     <string name="bookmark">Bookmarks</string>
     <string name="info">Info</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 
     <!--Login Activity-->
     <string name="thmmy_img_description">thmmy.gr</string>
@@ -101,7 +103,6 @@
     <!--Download Prompt-->
     <string name="downloadPromptText">File \"%1$s\" already exists. Download again?"</string>
     <string name="download_symbol">Download Symbol</string>
-    <string name="cancel">Cancel</string>
     <string name="open">Open</string>
     <string name="download">Download</string>
 
@@ -172,4 +173,8 @@
     <string name="navy">Navy</string>
     <string name="maroon">Maroon</string>
     <string name="lime_green">Lime Green</string>
+    <string name="dialog_create_link_title">Create link</string>
+    <string name="dialog_link_url_hint">Link URL</string>
+    <string name="dialog_link_text_hint">Link text</string>
+    <string name="input_field_required">Required</string>
 </resources>

@@ -1,9 +1,12 @@
 package gr.thmmy.mthmmy.utils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -13,6 +16,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+
+import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 
@@ -135,6 +140,12 @@ public class EditorView extends LinearLayout {
             getText().insert(editText.getSelectionStart(), "[size=10pt][/size]");
             editText.setSelection(editText.getSelectionStart() - 7);
         });
+        findViewById(R.id.font_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[font=Verdana][/font]");
+            editText.setSelection(editText.getSelectionStart() - 7);
+        });
         findViewById(R.id.unordered_list_button).setOnClickListener(view -> {
             if (editText.hasSelection())
                 editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
@@ -158,6 +169,47 @@ public class EditorView extends LinearLayout {
                 editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
             getText().insert(editText.getSelectionStart(), "[right][/right]");
             editText.setSelection(editText.getSelectionStart() - 8);
+        });
+        findViewById(R.id.link_button).setOnClickListener(view -> {
+            LinearLayout dialogBody = (LinearLayout) LayoutInflater.from(context)
+                    .inflate(R.layout.dialog_create_link, null);
+            TextInputLayout linkUrl = dialogBody.findViewById(R.id.link_url_input);
+            linkUrl.setOnClickListener(view1 -> linkUrl.setError(null));
+            TextInputLayout linkText = dialogBody.findViewById(R.id.link_text_input);
+            linkText.setOnClickListener(view2 -> linkText.setError(null));
+            new AlertDialog.Builder(context, R.style.AppTheme_Dark_Dialog)
+                    .setTitle(R.string.dialog_create_link_title)
+                    .setView(dialogBody)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> {
+                        if (TextUtils.isEmpty(Objects.requireNonNull(linkUrl.getEditText()).getText().toString())) {
+                            linkUrl.setError(context.getString(R.string.input_field_required));
+                            return;
+                        }
+                        if (TextUtils.isEmpty(Objects.requireNonNull(linkText.getEditText()).getText().toString())) {
+                            linkUrl.setError(context.getString(R.string.input_field_required));
+                            return;
+                        }
+
+                        if (editText.hasSelection())
+                            editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+                        getText().insert(editText.getSelectionStart(), "[url=" +
+                                Objects.requireNonNull(linkUrl.getEditText()).getText().toString() + "]" +
+                                Objects.requireNonNull(linkText.getEditText()).getText().toString() + "[/url]");
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
+        findViewById(R.id.quote_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[quote][/quote]");
+            editText.setSelection(editText.getSelectionStart() - 8);
+        });
+        findViewById(R.id.code_button).setOnClickListener(view -> {
+            if (editText.hasSelection())
+                editText.getText().delete(editText.getSelectionStart(), editText.getSelectionEnd());
+            getText().insert(editText.getSelectionStart(), "[code][/code]");
+            editText.setSelection(editText.getSelectionStart() - 7);
         });
         findViewById(R.id.math_button).setOnClickListener(view -> {
             if (editText.hasSelection())
