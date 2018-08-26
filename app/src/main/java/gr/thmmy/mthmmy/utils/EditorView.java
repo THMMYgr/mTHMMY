@@ -3,6 +3,8 @@ package gr.thmmy.mthmmy.utils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
@@ -13,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
@@ -24,9 +25,8 @@ import gr.thmmy.mthmmy.R;
 public class EditorView extends LinearLayout {
 
     private SparseArray<String> colors = new SparseArray<>();
-    private SparseArray<String> fonts = new SparseArray<>();
 
-    private EditText editText;
+    private TextInputEditText editText;
     private AppCompatImageButton emojiButton;
     private AppCompatImageButton submitButton;
     private EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner;
@@ -52,6 +52,14 @@ public class EditorView extends LinearLayout {
         setOrientation(VERTICAL);
 
         editText = findViewById(R.id.editor_edittext);
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.EditorView, 0, 0);
+        try {
+            ((TextInputLayout) findViewById(R.id.editor_edittext_wrapper)).setHint(a.getString(R.styleable.EditorView_hint));
+        } finally {
+            a.recycle();
+        }
+
         emojiButton = findViewById(R.id.emoji_keyboard_button);
 
         editText.setOnTouchListener((v, event) -> {
