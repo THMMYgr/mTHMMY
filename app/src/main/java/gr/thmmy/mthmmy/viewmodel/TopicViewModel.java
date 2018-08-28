@@ -375,4 +375,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             throw new NullPointerException("Reply preparation was not found");
         return prepareForReplyResult.getValue().getBuildedQuotes();
     }
+
+    public int postCount() {
+        if (postsList.getValue() == null)
+            throw  new NullPointerException("No page has been loaded yet!");
+        return postsList.getValue().size();
+    }
 }

@@ -3,9 +3,11 @@ package gr.thmmy.mthmmy.utils;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
+import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -155,6 +157,7 @@ public class EmojiKeyboard extends LinearLayout {
 
     public void init(Context context, AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.emoji_keyboard, this, true);
+        setOrientation(VERTICAL);
 
         RecyclerView emojiRecyclerview = findViewById(R.id.emoji_recyclerview);
         emojiRecyclerview.setHasFixedSize(true);
@@ -163,11 +166,11 @@ public class EmojiKeyboard extends LinearLayout {
         emojiRecyclerview.setLayoutManager(emojiLayoutManager);
 
         EmojiKeyboardAdapter emojiKeyboardAdapter = new EmojiKeyboardAdapter(emojis);
-        emojiKeyboardAdapter.setOnEmojiClickListener(((view, position) -> {
+        emojiKeyboardAdapter.setOnEmojiClickListener((view, position) -> {
             if (inputConnection == null) return;
             String bbcode = emojis[position].getBbcode();
             inputConnection.commitText(bbcode, 1);
-        }));
+        });
         emojiRecyclerview.setAdapter(emojiKeyboardAdapter);
         AppCompatImageButton backspaceButton = findViewById(R.id.backspace_button);
         // backspace behavior
@@ -203,6 +206,8 @@ public class EmojiKeyboard extends LinearLayout {
 
     public interface EmojiKeyboardOwner {
         void setEmojiKeyboardVisible(boolean visible);
+        boolean isEmojiKeyboardVisible();
+        void setEmojiKeyboardInputConnection(InputConnection ic);
     }
 
     class Emoji {

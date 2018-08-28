@@ -22,7 +22,7 @@ public class TestEditView extends AppCompatActivity implements EmojiKeyboard.Emo
         emojiKeyboard = findViewById(R.id.emoji_keyboard);
 
         InputConnection ic = editorView.getInputConnection();
-        emojiKeyboard.setInputConnection(ic);
+        setEmojiKeyboardInputConnection(ic);
         editorView.setEmojiKeyboardOwner(this);
     }
 
@@ -32,10 +32,20 @@ public class TestEditView extends AppCompatActivity implements EmojiKeyboard.Emo
     }
 
     @Override
+    public boolean isEmojiKeyboardVisible() {
+        return emojiKeyboard.getVisibility() == View.VISIBLE;
+    }
+
+    @Override
+    public void setEmojiKeyboardInputConnection(InputConnection ic) {
+        emojiKeyboard.setInputConnection(ic);
+    }
+
+    @Override
     public void onBackPressed() {
         if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
-            editorView.notifyKeyboardVisibility(false);
+            editorView.setEmojiKeyboardVisible(false);
         } else {
             super.onBackPressed();
         }

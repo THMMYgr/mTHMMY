@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -230,8 +231,16 @@ public class EditorView extends LinearLayout {
         });
     }
 
+    public TextInputEditText getEditText() {
+        return editText;
+    }
+
     public Editable getText() {
         return editText.getText();
+    }
+
+    public void setText(Editable text) {
+        editText.setText(text);
     }
 
     public void setText(CharSequence text) {
@@ -254,13 +263,11 @@ public class EditorView extends LinearLayout {
         return editText.onCreateInputConnection(new EditorInfo());
     }
 
-    public void notifyKeyboardVisibility(boolean visible) {
-        if (visible) {
+    public void setEmojiKeyboardVisible(boolean visible) {
+        if (visible)
             emojiButton.setImageResource(R.drawable.ic_keyboard_grey_24dp);
-            emojiKeyboardVisible = true;
-        } else {
+        else
             emojiButton.setImageResource(R.drawable.ic_tag_faces_grey_24dp);
-            emojiKeyboardVisible = false;
-        }
+        emojiKeyboardVisible = visible;
     }
 }

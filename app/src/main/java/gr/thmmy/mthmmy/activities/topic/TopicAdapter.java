@@ -21,6 +21,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -46,6 +47,8 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.EditorView;
+import gr.thmmy.mthmmy.utils.EmojiKeyboard;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
@@ -71,6 +74,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private final OnPostFocusChangeListener postFocusListener;
+    private final EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner;
     private final List<Post> postsList;
     private TopicViewModel viewModel;
 
@@ -82,6 +86,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.context = context;
         this.postsList = postsList;
         this.postFocusListener = context;
+        this.emojiKeyboardOwner = context;
 
         viewModel = ViewModelProviders.of(context).get(TopicViewModel.class);
 
@@ -103,9 +108,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (viewType == Post.TYPE_QUICK_REPLY) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_quick_reply_row, parent, false);
-            view.findViewById(R.id.quick_reply_submit).setEnabled(true);
 
-            final EditText quickReplyText = view.findViewById(R.id.quick_reply_text);
+            final EditText quickReplyText = ((EditorView) view.findViewById(R.id.reply_editorview)).getEditText();
             quickReplyText.setFocusableInTouchMode(true);
             quickReplyText.setOnFocusChangeListener((v, hasFocus) -> quickReplyText.post(() -> {
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -455,24 +459,31 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.username.setText(getSessionManager().getUsername());
             holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
 
-            holder.quickReply.setText(viewModel.getBuildedQuotes());
+            holder.replyEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
+            InputConnection ic = holder.replyEditor.getInputConnection();
+            emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
+            holder.replyEditor.setEmojiKeyboardVisible(emojiKeyboardOwner.isEmojiKeyboardVisible());
 
-
-            holder.submitButton.setOnClickListener(view -> {
+            holder.replyEditor.setText(viewModel.getBuildedQuotes());
+            holder.replyEditor.setOnSubmitListener(view -> {
                 if (holder.quickReplySubject.getText().toString().isEmpty()) return;
-                if (holder.quickReply.getText().toString().isEmpty()) return;
+                if (holder.replyEditor.getText().toString().isEmpty()) {
+                    holder.replyEditor.setError("Required");
+                    return;
+                }
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 holder.itemView.setAlpha(0.5f);
                 holder.itemView.setEnabled(false);
 
                 viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
-                        holder.quickReply.getText().toString());
+                        holder.replyEditor.getText().toString());
             });
+            holder.replyEditor.setOnClickListener(view -> holder.replyEditor.setError(null));
 
 
             if (backPressHidden) {
-                holder.quickReply.requestFocus();
+                holder.replyEditor.requestFocus();
                 backPressHidden = false;
             }
         } else if (currentHolder instanceof EditMessageViewHolder) {
@@ -575,16 +586,15 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static class QuickReplyViewHolder extends RecyclerView.ViewHolder {
         final ImageView thumbnail;
         final TextView username;
-        final EditText quickReply, quickReplySubject;
-        final AppCompatImageButton submitButton;
+        final EditText quickReplySubject;
+        final EditorView replyEditor;
 
         QuickReplyViewHolder(View quickReply) {
             super(quickReply);
             thumbnail = quickReply.findViewById(R.id.thumbnail);
             username = quickReply.findViewById(R.id.username);
-            this.quickReply = quickReply.findViewById(R.id.quick_reply_text);
             quickReplySubject = quickReply.findViewById(R.id.quick_reply_subject);
-            submitButton = quickReply.findViewById(R.id.quick_reply_submit);
+            replyEditor = quickReply.findViewById(R.id.reply_editorview);
         }
     }
 
