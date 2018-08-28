@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.AppCompatImageButton;
@@ -26,6 +27,7 @@ public class EditorView extends LinearLayout {
 
     private SparseArray<String> colors = new SparseArray<>();
 
+    private TextInputLayout edittextWrapper;
     private TextInputEditText editText;
     private AppCompatImageButton emojiButton;
     private AppCompatImageButton submitButton;
@@ -51,11 +53,12 @@ public class EditorView extends LinearLayout {
         LayoutInflater.from(context).inflate(R.layout.editor_view, this, true);
         setOrientation(VERTICAL);
 
+        edittextWrapper = findViewById(R.id.editor_edittext_wrapper);
         editText = findViewById(R.id.editor_edittext);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.EditorView, 0, 0);
         try {
-            ((TextInputLayout) findViewById(R.id.editor_edittext_wrapper)).setHint(a.getString(R.styleable.EditorView_hint));
+            edittextWrapper.setHint(a.getString(R.styleable.EditorView_hint));
         } finally {
             a.recycle();
         }
@@ -233,6 +236,10 @@ public class EditorView extends LinearLayout {
 
     public void setText(CharSequence text) {
         editText.setText(text);
+    }
+
+    public void setError(@Nullable CharSequence text) {
+        edittextWrapper.setError(text);
     }
 
     public void setOnSubmitListener(OnClickListener onSubmitListener) {
