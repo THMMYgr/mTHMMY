@@ -15,97 +15,113 @@
             android:id="@+id/bold_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_bold_grey_36dp"/>
+            app:srcCompat="@drawable/ic_format_bold_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/italic_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_italic_grey_36dp" />
+            app:srcCompat="@drawable/ic_format_italic_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/underline_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_underlined_grey_36dp" />
+            app:srcCompat="@drawable/ic_format_underlined_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/strikethrough_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_strikethrough_s_grey_36dp" />
+            app:srcCompat="@drawable/ic_strikethrough_s_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/text_color_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_color_text_36dp"/>
+            app:srcCompat="@drawable/ic_format_color_text_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/text_size_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_size_black_36dp"/>
+            app:srcCompat="@drawable/ic_format_size_black_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/font_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_text_format_grey_36dp"/>
+            app:srcCompat="@drawable/ic_text_format_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/unordered_list_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_list_bulleted_black_36dp" />
+            app:srcCompat="@drawable/ic_format_list_bulleted_black_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/align_left_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_align_left_grey_36dp" />
+            app:srcCompat="@drawable/ic_format_align_left_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/align_center_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_align_center_grey_36dp" />
+            app:srcCompat="@drawable/ic_format_align_center_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/align_right_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_align_right_grey_36dp" />
+            app:srcCompat="@drawable/ic_format_align_right_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/link_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_insert_link_gre_36dp" />
+            app:srcCompat="@drawable/ic_insert_link_gre_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/quote_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_quote_unchecked_grey_24dp"/>
+            app:srcCompat="@drawable/ic_format_quote_unchecked_grey_24dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/code_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_code_grey_36dp"/>
+            app:srcCompat="@drawable/ic_code_grey_36dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/math_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_functions_black_36dp"/>
+            app:srcCompat="@drawable/ic_functions_black_36dp"
+            android:background="?android:selectableItemBackground"/>
     </gr.thmmy.mthmmy.utils.AutoFitGridLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="@color/card_background"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
@@ -129,7 +145,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:padding="4dp"
-            app:srcCompat="@drawable/ic_tag_faces_grey_24dp" />
+            app:srcCompat="@drawable/ic_tag_faces_grey_24dp"
+            android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/submit_button"
@@ -138,6 +155,7 @@
             android:layout_gravity="bottom"
             android:contentDescription="@string/submit"
             android:padding="4dp"
-            app:srcCompat="@drawable/ic_send_accent_24dp" />
+            app:srcCompat="@drawable/ic_send_accent_24dp"
+            android:background="?android:selectableItemBackground"/>
     </LinearLayout>
 </merge>
