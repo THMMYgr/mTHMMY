@@ -6,6 +6,8 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner
  * classes). It can be used to resolve a page's language and state or fix embedded videos html code.
@@ -165,5 +167,23 @@ public class ParseHelpers {
             ++tmp_counter;
         }
         return fixed;
+    }
+
+    /**
+     * Method that extracts the base URL from a topic's page URL. For example a topic with url similar to
+     * "https://www.thmmy.gr/smf/index.php?topic=1.15;topicseen" or
+     * "https://www.thmmy.gr/smf/index.php?topic=1.msg1#msg1"
+     * has the base url "https://www.thmmy.gr/smf/index.php?topic=1"
+     *
+     * @param topicURL a topic's page URL
+     * @return the base URL of the given topic
+     */
+    public static String getBaseURL(String topicURL) {
+        if (topicURL.substring(0, topicURL.lastIndexOf(".")).contains("topic="))
+            return topicURL.substring(0, topicURL.lastIndexOf("."));
+        else {
+            Timber.wtf(new ParseException("Could not parse base URL of topic"));
+            return "";
+        }
     }
 }

@@ -21,6 +21,7 @@ import gr.thmmy.mthmmy.activities.topic.tasks.TopicTaskResult;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 
 public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTaskCompleted,
         PrepareForReply.OnPrepareForReplyFinished, PrepareForEditTask.OnPrepareEditFinished {
@@ -54,44 +55,58 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private EditTask.EditTaskCallbacks editTaskCallbacks;
     private PrepareForReply.PrepareForReplyCallbacks prepareForReplyCallbacks;
 
-    private MutableLiveData<TopicTaskResult> topicTaskResult = new MutableLiveData<>();
+    /**
+     * Holds the value (index) of the page to be requested when a user interaction with bottom
+     * navigation bar occurs, aka the value that the page indicator shows
+     */
+    private MutableLiveData<Integer> pageIndicatorIndex = new MutableLiveData<>();
+
+    private MutableLiveData<String> replyPageUrl = new MutableLiveData<>();
+    private MutableLiveData<Integer> pageTopicId = new MutableLiveData<>();
+    private MutableLiveData<String> topicTitle = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<Post>> postsList = new MutableLiveData<>();
+    private MutableLiveData<Integer> focusedPostIndex = new MutableLiveData<>();
+    private MutableLiveData<TopicTask.ResultCode> topicTaskResultCode = new MutableLiveData<>();
+    private MutableLiveData<String> topicTreeAndMods = new MutableLiveData<>();
+    private MutableLiveData<String> topicViewers = new MutableLiveData<>();
+    private String topicUrl;
+    private int currentPageIndex;
+    private int pageCount;
+
     private MutableLiveData<PrepareForReplyResult> prepareForReplyResult = new MutableLiveData<>();
     private MutableLiveData<PrepareForEditResult> prepareForEditResult = new MutableLiveData<>();
 
-    private String firstTopicUrl;
-
-    public void initialLoad(String pageUrl) {
-        firstTopicUrl = pageUrl;
-        currentTopicTask = new TopicTask(topicTaskObserver, this);
-        currentTopicTask.execute(pageUrl);
-    }
-
     public void loadUrl(String pageUrl) {
         stopLoading();
+        topicUrl = pageUrl;
         currentTopicTask = new TopicTask(topicTaskObserver, this);
         currentTopicTask.execute(pageUrl);
     }
 
     public void reloadPage() {
-        if (topicTaskResult.getValue() == null)
-            throw new NullPointerException("No topic task has finished yet!");
-        loadUrl(topicTaskResult.getValue().getLastPageLoadAttemptedUrl());
+        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        loadUrl(topicUrl);
     }
 
-    public void changePage(int pageRequested) {
-        if (topicTaskResult.getValue() == null)
+    public void performPageChange() {
+        if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
-        if (pageRequested != topicTaskResult.getValue().getCurrentPageIndex() - 1)
-            loadUrl(topicTaskResult.getValue().getPagesUrls().get(pageRequested));
+        int pageRequested = pageIndicatorIndex.getValue() - 1;
+        if (pageRequested != currentPageIndex - 1) {
+            loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(pageRequested * 15));
+            pageIndicatorIndex.setValue(pageRequested + 1);
+        } else {
+            stopLoading();
+        }
     }
 
     public void prepareForReply() {
-        if (topicTaskResult.getValue() == null)
+        if (replyPageUrl.getValue() == null)
             throw new NullPointerException("Topic task has not finished yet!");
         stopLoading();
-        changePage(topicTaskResult.getValue().getPageCount() - 1);
+        setPageIndicatorIndex(pageCount, true);
         currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
-                topicTaskResult.getValue().getReplyPageUrl());
+                replyPageUrl.getValue());
         currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
     }
 
@@ -116,11 +131,11 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void prepareForEdit(int position, String postEditURL) {
-        if (topicTaskResult.getValue() == null)
+        if (replyPageUrl.getValue() == null)
             throw new NullPointerException("Topic task has not finished yet!");
         stopLoading();
         currentPrepareForEditTask = new PrepareForEditTask(prepareForEditCallbacks, this, position,
-                topicTaskResult.getValue().getReplyPageUrl());
+                replyPageUrl.getValue());
         currentPrepareForEditTask.execute(postEditURL);
     }
 
@@ -140,6 +155,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void stopLoading() {
         if (currentTopicTask != null && currentTopicTask.getStatus() == AsyncTask.Status.RUNNING) {
             currentTopicTask.cancel(true);
+            pageIndicatorIndex.setValue(currentPageIndex);
             topicTaskObserver.onTopicTaskCancelled();
         }
         if (currentPrepareForEditTask != null && currentPrepareForEditTask.getStatus() == AsyncTask.Status.RUNNING) {
@@ -157,29 +173,107 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     // callbacks for viewmodel
     @Override
     public void onTopicTaskCompleted(TopicTaskResult result) {
-        topicTaskResult.setValue(result);
         if (result.getResultCode() == TopicTask.ResultCode.SUCCESS) {
+            currentPageIndex = result.getCurrentPageIndex();
+            pageCount = result.getPageCount();
+            topicTreeAndMods.setValue(result.getTopicTreeAndMods());
+            topicViewers.setValue(result.getTopicViewers());
+            pageTopicId.setValue(result.getLoadedPageTopicId());
+            replyPageUrl.setValue(result.getReplyPageUrl());
+            topicTitle.setValue(result.getTopicTitle());
+            pageIndicatorIndex.setValue(result.getCurrentPageIndex());
+            postsList.setValue(result.getNewPostsList());
+            focusedPostIndex.setValue(result.getFocusedPostIndex());
             isUserExtraInfoVisibile.clear();
             for (int i = 0; i < result.getNewPostsList().size(); i++) {
                 isUserExtraInfoVisibile.add(false);
             }
         }
+        topicTaskResultCode.setValue(result.getResultCode());
     }
 
     @Override
     public void onPrepareForReplyFinished(PrepareForReplyResult result) {
-        writingReply = true;
         prepareForReplyResult.setValue(result);
     }
 
     @Override
     public void onPrepareEditFinished(PrepareForEditResult result, int position) {
-        editingPost = true;
         postBeingEditedPosition = position;
         prepareForEditResult.setValue(result);
     }
 
+    public void incrementPageRequestValue(int step, boolean changePage) {
+        if (pageIndicatorIndex.getValue() == null)
+            throw new NullPointerException("No page has been loaded yet!");
+        int oldIndicatorIndex = pageIndicatorIndex.getValue();
+        if (oldIndicatorIndex <= pageCount - step) {
+            pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() + step);
+        } else
+            pageIndicatorIndex.setValue(pageCount);
+        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) performPageChange();
+    }
+
+    public void decrementPageRequestValue(int step, boolean changePage) {
+        if (pageIndicatorIndex.getValue() == null)
+            throw new NullPointerException("No page has been loaded yet!");
+        int oldIndicatorIndex = pageIndicatorIndex.getValue();
+        if (oldIndicatorIndex > step) {
+            pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() - step);
+        } else
+            pageIndicatorIndex.setValue(1);
+        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) performPageChange();
+    }
+
+    public void setPageIndicatorIndex(int pageIndicatorIndex, boolean changePage) {
+        if (this.pageIndicatorIndex.getValue() == null)
+            throw new NullPointerException("No page has been loaded yet!");
+        int oldIndicatorIndex = this.pageIndicatorIndex.getValue();
+        this.pageIndicatorIndex.setValue(pageIndicatorIndex);
+        if (changePage && oldIndicatorIndex != this.pageIndicatorIndex.getValue()) performPageChange();
+    }
+
     // <-------------Just getters, setters and helper methods below here---------------->
+
+    public MutableLiveData<String> getTopicViewers() {
+        return topicViewers;
+    }
+
+    public MutableLiveData<String> getTopicTreeAndMods() {
+        return topicTreeAndMods;
+    }
+
+    public MutableLiveData<TopicTask.ResultCode> getTopicTaskResultCode() {
+        return topicTaskResultCode;
+    }
+
+    public MutableLiveData<Integer> getFocusedPostIndex() {
+        return focusedPostIndex;
+    }
+
+    public MutableLiveData<ArrayList<Post>> getPostsList() {
+        return postsList;
+    }
+
+    public MutableLiveData<String> getReplyPageUrl() {
+        return replyPageUrl;
+    }
+
+    public MutableLiveData<Integer> getPageTopicId() {
+        return pageTopicId;
+    }
+
+    public MutableLiveData<String> getTopicTitle() {
+        return topicTitle;
+    }
+
+    public String getTopicUrl() {
+        return topicUrl;
+    }
+
+    public MutableLiveData<Integer> getPageIndicatorIndex() {
+        return pageIndicatorIndex;
+    }
 
     public boolean isUserExtraInfoVisible(int position) {
         return isUserExtraInfoVisibile.get(position);
@@ -228,10 +322,6 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         this.prepareForReplyCallbacks = prepareForReplyCallbacks;
     }
 
-    public MutableLiveData<TopicTaskResult> getTopicTaskResult() {
-        return topicTaskResult;
-    }
-
     public MutableLiveData<PrepareForReplyResult> getPrepareForReplyResult() {
         return prepareForReplyResult;
     }
@@ -253,7 +343,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public boolean canReply() {
-        return topicTaskResult.getValue() != null && topicTaskResult.getValue().getReplyPageUrl() != null;
+        return replyPageUrl.getValue() != null;
     }
 
     public boolean isWritingReply() {
@@ -264,40 +354,14 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         this.writingReply = writingReply;
     }
 
-    public String getBaseUrl() {
-        if (topicTaskResult.getValue() != null) {
-            return topicTaskResult.getValue().getBaseUrl();
-        } else {
-            return "";
-        }
-    }
-
-    public String getTopicUrl() {
-        if (topicTaskResult.getValue() != null) {
-            return topicTaskResult.getValue().getLastPageLoadAttemptedUrl();
-        } else {
-            // topic task has not finished yet (log? disable menu button until load is finished?)
-            return firstTopicUrl;
-        }
-    }
-
-    public String getTopicTitle() {
-        if (topicTaskResult.getValue() == null)
-            throw new NullPointerException("Topic task has not finished yet!");
-        return topicTaskResult.getValue().getTopicTitle();
-    }
-
     public int getCurrentPageIndex() {
-        if (topicTaskResult.getValue() == null)
-            throw new NullPointerException("No page has been loaded yet!");
-        return topicTaskResult.getValue().getCurrentPageIndex();
+        if (currentPageIndex == 0) throw  new NullPointerException("No page has been loaded yet!");
+        return currentPageIndex;
     }
 
     public int getPageCount() {
-        if (topicTaskResult.getValue() == null)
-            throw new NullPointerException("No page has been loaded yet!");
-
-        return topicTaskResult.getValue().getPageCount();
+        if (pageCount == 0) throw  new NullPointerException("No page has been loaded yet!");
+        return pageCount;
     }
 
     public String getPostBeingEditedText() {
@@ -307,10 +371,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public String getBuildedQuotes() {
-        if (prepareForReplyResult.getValue() != null) {
-            return prepareForReplyResult.getValue().getBuildedQuotes();
-        } else {
-            return "";
-        }
+        if (prepareForReplyResult.getValue() == null)
+            throw new NullPointerException("Reply preparation was not found");
+        return prepareForReplyResult.getValue().getBuildedQuotes();
     }
 }

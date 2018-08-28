@@ -96,44 +96,42 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
 
         semesterChooserLinear = findViewById(R.id.upload_fields_builder_choose_semester);
         semesterRadio = findViewById(R.id.upload_fields_builder_semester_radio_group);
+        semesterRadio.check(Integer.parseInt(semester) % 2 == 0
+                ? R.id.upload_fields_builder_radio_button_jun
+                : R.id.upload_fields_builder_radio_button_feb);
+
         year = findViewById(R.id.upload_fields_builder_year);
         year.addTextChangedListener(customYearWatcher);
 
         typeRadio = findViewById(R.id.upload_fields_builder_type_radio_group);
-        typeRadio.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.upload_fields_builder_radio_button_notes) {
-                    semesterChooserLinear.setVisibility(View.GONE);
-                } else {
-                    semesterChooserLinear.setVisibility(View.VISIBLE);
-                }
+        typeRadio.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.upload_fields_builder_radio_button_notes) {
+                semesterChooserLinear.setVisibility(View.GONE);
+            } else {
+                semesterChooserLinear.setVisibility(View.VISIBLE);
             }
         });
 
-        findViewById(R.id.upload_fields_builder_submit).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int typeId = typeRadio.getCheckedRadioButtonId(),
-                        semesterId = semesterRadio.getCheckedRadioButtonId();
-                if (typeId == -1) {
-                    Toast.makeText(view.getContext(), "Please choose a type for the upload", Toast.LENGTH_SHORT).show();
-                    return;
-                } else if (semesterChooserLinear.getVisibility() == View.VISIBLE && semesterId == -1) {
-                    Toast.makeText(view.getContext(), "Please choose a semester for the upload", Toast.LENGTH_SHORT).show();
-                    return;
-                } else if (year.getText().toString().isEmpty()) {
-                    Toast.makeText(view.getContext(), "Please choose a year for the upload", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(RESULT_FILENAME, buildFilename());
-                returnIntent.putExtra(RESULT_TITLE, buildTitle());
-                returnIntent.putExtra(RESULT_DESCRIPTION, buildDescription());
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
+        findViewById(R.id.upload_fields_builder_submit).setOnClickListener(view -> {
+            int typeId = typeRadio.getCheckedRadioButtonId(),
+                    semesterId = semesterRadio.getCheckedRadioButtonId();
+            if (typeId == -1) {
+                Toast.makeText(view.getContext(), "Please choose a type for the upload", Toast.LENGTH_SHORT).show();
+                return;
+            } else if (semesterChooserLinear.getVisibility() == View.VISIBLE && semesterId == -1) {
+                Toast.makeText(view.getContext(), "Please choose a semester for the upload", Toast.LENGTH_SHORT).show();
+                return;
+            } else if (year.getText().toString().isEmpty()) {
+                Toast.makeText(view.getContext(), "Please choose a year for the upload", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(RESULT_FILENAME, buildFilename());
+            returnIntent.putExtra(RESULT_TITLE, buildTitle());
+            returnIntent.putExtra(RESULT_DESCRIPTION, buildDescription());
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
         });
     }
 

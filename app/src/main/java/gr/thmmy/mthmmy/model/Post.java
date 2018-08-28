@@ -45,6 +45,7 @@ public class Post {
     private final String numberOfPosts;
     private final String personalText;
     private final int numberOfStars;
+    private final boolean isUserMentionedInPost;
 
     // Suppresses default constructor
     @SuppressWarnings("unused")
@@ -70,6 +71,7 @@ public class Post {
         postURL = null;
         postDeleteURL = null;
         postEditURL = null;
+        isUserMentionedInPost = false;
         postType = -1;
     }
 
@@ -102,7 +104,8 @@ public class Post {
             , @Nullable String special_rank, @Nullable String gender, @Nullable String numberOfPosts
             , @Nullable String personalText, int numberOfStars, int userColor
             , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL
-            , @Nullable String postDeleteURL, @Nullable String postEditURL, int postType) {
+            , @Nullable String postDeleteURL, @Nullable String postEditURL, boolean isUserMentionedInPost
+            , int postType) {
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -125,6 +128,7 @@ public class Post {
         this.postURL = postURL;
         this.postDeleteURL = postDeleteURL;
         this.postEditURL = postEditURL;
+        this.isUserMentionedInPost = isUserMentionedInPost;
         this.postType = postType;
     }
 
@@ -143,12 +147,13 @@ public class Post {
      * @param userColor     author's user color
      * @param attachedFiles post's attached files
      * @param lastEdit      post's last edit date
-     * @param postURL      post's URL
+     * @param postURL       post's URL
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
             , int postIndex, int postNumber, String postDate, int userColor
             , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL
-            , @Nullable String postDeleteURL, @Nullable String postEditURL, int postType) {
+            , @Nullable String postDeleteURL, @Nullable String postEditURL, boolean isUserMentionedInPost
+            , int postType) {
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -171,12 +176,13 @@ public class Post {
         this.postURL = postURL;
         this.postDeleteURL = postDeleteURL;
         this.postEditURL = postEditURL;
+        this.isUserMentionedInPost = isUserMentionedInPost;
         this.postType = postType;
     }
 
     public static Post newQuickReply() {
         return new Post(null, null, null, null, 0, 0, null,
-                0, null, null, null, null, null, TYPE_QUICK_REPLY);
+                0, null, null, null, null, null, false, TYPE_QUICK_REPLY);
     }
 
     //Getters
@@ -388,6 +394,10 @@ public class Post {
 
     public int getPostType() {
         return postType;
+    }
+
+    public boolean isUserMentionedInPost() {
+        return isUserMentionedInPost;
     }
 
     public void setPostType(int postType) {

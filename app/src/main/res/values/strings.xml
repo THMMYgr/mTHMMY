@@ -55,6 +55,10 @@
     <string name="subject">Subject&#8230;</string>
     <string name="submit">Submit</string>
     <string name="post_message">Message&#8230;</string>
+    <string name="network_error_retry_prompt">Could not connect to thmmy.gr \n\n Tap to retry</string>
+    <string name="generic_network_error">Network error</string>
+    <string name="retry">retry</string>
+    <string name="unauthorized_topic_error">This topic is either missing or off limits to you</string>
 
     <!--Profile Activity-->
     <string name="username">Username</string>
