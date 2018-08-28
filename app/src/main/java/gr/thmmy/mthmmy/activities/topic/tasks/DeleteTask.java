@@ -41,7 +41,7 @@ public class DeleteTask extends AsyncTask<String, Void, Boolean> {
                     return true;
                 default:
                     Timber.e("Something went wrong. Request string: %s", delete.toString());
-                    return true;
+                    return false;
             }
         } catch (IOException e) {
             Timber.e(e, "Delete failed.");

@@ -2,9 +2,11 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 public class PrepareForReplyResult {
     private final String numReplies, seqnum, sc, topic, buildedQuotes;
+    private boolean successful;
 
 
-    public PrepareForReplyResult(String numReplies, String seqnum, String sc, String topic, String buildedQuotes) {
+    public PrepareForReplyResult(boolean successful, String numReplies, String seqnum, String sc, String topic, String buildedQuotes) {
+        this.successful = successful;
         this.numReplies = numReplies;
         this.seqnum = seqnum;
         this.sc = sc;
@@ -30,5 +32,9 @@ public class PrepareForReplyResult {
 
     public String getBuildedQuotes() {
         return buildedQuotes;
+    }
+
+    public boolean isSuccessful() {
+        return successful;
     }
 }

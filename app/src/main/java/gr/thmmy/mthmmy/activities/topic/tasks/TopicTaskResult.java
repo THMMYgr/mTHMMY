@@ -10,13 +10,6 @@ import gr.thmmy.mthmmy.model.Post;
 public class TopicTaskResult {
     private final TopicTask.ResultCode resultCode;
     /**
-     * Holds this topic's base url. For example a topic with url similar to
-     * "https://www.thmmy.gr/smf/index.php?topic=1.15;topicseen" or
-     * "https://www.thmmy.gr/smf/index.php?topic=1.msg1#msg1"
-     * has the base url "https://www.thmmy.gr/smf/index.php?topic=1"
-     */
-    private final String baseUrl;
-    /**
      * Holds this topic's title. At first this gets the value of the topic title that came with
      * bundle and is rendered in the toolbar while parsing this topic. Later, if a different topic
      * title is parsed from the html source, it gets updated.
@@ -46,18 +39,12 @@ public class TopicTaskResult {
     //Topic's info related
     private final String topicTreeAndMods;
     private final String topicViewers;
-    /**
-     * The url of the last page that was attempted to be loaded
-     */
-    private final String lastPageLoadAttemptedUrl;
-    private final SparseArray<String> pagesUrls;
 
-    public TopicTaskResult(TopicTask.ResultCode resultCode, String baseUrl, String topicTitle,
+    public TopicTaskResult(TopicTask.ResultCode resultCode, String topicTitle,
                            String replyPageUrl, ArrayList<Post> newPostsList, int loadedPageTopicId,
                            int currentPageIndex, int pageCount, int focusedPostIndex, String topicTreeAndMods,
-                           String topicViewers, String lastPageLoadAttemptedUrl, SparseArray<String> pagesUrls) {
+                           String topicViewers) {
         this.resultCode = resultCode;
-        this.baseUrl = baseUrl;
         this.topicTitle = topicTitle;
         this.replyPageUrl = replyPageUrl;
         this.newPostsList = newPostsList;
@@ -67,16 +54,10 @@ public class TopicTaskResult {
         this.focusedPostIndex = focusedPostIndex;
         this.topicTreeAndMods = topicTreeAndMods;
         this.topicViewers = topicViewers;
-        this.lastPageLoadAttemptedUrl = lastPageLoadAttemptedUrl;
-        this.pagesUrls = pagesUrls;
     }
 
     public TopicTask.ResultCode getResultCode() {
         return resultCode;
-    }
-
-    public String getBaseUrl() {
-        return baseUrl;
     }
 
     public String getTopicTitle() {
@@ -113,13 +94,5 @@ public class TopicTaskResult {
 
     public String getTopicViewers() {
         return topicViewers;
-    }
-
-    public String getLastPageLoadAttemptedUrl() {
-        return lastPageLoadAttemptedUrl;
-    }
-
-    public SparseArray<String> getPagesUrls() {
-        return pagesUrls;
     }
 }

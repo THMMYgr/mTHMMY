@@ -33,18 +33,13 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
 
     @Override
     protected PrepareForReplyResult doInBackground(Integer... postIndices) {
-        String numReplies = null;
-        String seqnum = null;
-        String sc = null;
-        String topic = null;
-        StringBuilder buildedQuotes = new StringBuilder("");
-
         Document document;
         Request request = new Request.Builder()
                 .url(replyPageUrl + ";wap2")
                 .build();
 
         OkHttpClient client = BaseApplication.getInstance().getClient();
+        String numReplies, seqnum, sc, topic;
         try {
             Response response = client.newCall(request).execute();
             document = Jsoup.parse(response.body().string());
@@ -55,14 +50,15 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
             topic = document.select("input[name=topic]").first().attr("value");
         } catch (IOException | Selector.SelectorParseException e) {
             Timber.e(e, "Prepare failed.");
+            return new PrepareForReplyResult(false, null, null, null, null, null);
         }
 
+        StringBuilder buildedQuotes = new StringBuilder("");
         for (Integer postIndex : postIndices) {
             request = new Request.Builder()
                     .url("https://www.thmmy.gr/smf/index.php?action=quotefast;quote=" +
                            postIndex + ";" + "sesc=" + sc + ";xml")
                     .build();
-
             try {
                 Response response = client.newCall(request).execute();
                 String body = response.body().string();
@@ -70,9 +66,10 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
                 buildedQuotes.append("\n\n");
             } catch (IOException | Selector.SelectorParseException e) {
                 Timber.e(e, "Quote building failed.");
+                return new PrepareForReplyResult(false, null, null, null, null, null);
             }
         }
-        return new PrepareForReplyResult(numReplies, seqnum, sc, topic, buildedQuotes.toString());
+        return new PrepareForReplyResult(true, numReplies, seqnum, sc, topic, buildedQuotes.toString());
     }
 
     @Override

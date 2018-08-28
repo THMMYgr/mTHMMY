@@ -46,6 +46,7 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
 
@@ -452,7 +453,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
-            holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
+            holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
 
             holder.quickReply.setText(viewModel.getBuildedQuotes());
 
@@ -460,15 +461,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.submitButton.setOnClickListener(view -> {
                 if (holder.quickReplySubject.getText().toString().isEmpty()) return;
                 if (holder.quickReply.getText().toString().isEmpty()) return;
-                holder.submitButton.setEnabled(false);
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                holder.itemView.setAlpha(0.5f);
+                holder.itemView.setEnabled(false);
 
                 viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
                         holder.quickReply.getText().toString());
-
-                holder.quickReplySubject.getText().clear();
-                holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle());
-                holder.quickReply.getText().clear();
-                holder.submitButton.setEnabled(true);
             });
 
 
@@ -498,13 +497,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.submitButton.setOnClickListener(view -> {
                 if (holder.editSubject.getText().toString().isEmpty()) return;
                 if (holder.editMessage.getText().toString().isEmpty()) return;
-                holder.submitButton.setEnabled(false);
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                holder.itemView.setAlpha(0.5f);
+                holder.itemView.setEnabled(false);
 
                 viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editMessage.getText().toString());
-
-                holder.editSubject.getText().clear();
-                holder.editSubject.setText(postsList.get(position).getSubject());
-                holder.submitButton.setEnabled(true);
             });
 
             if (backPressHidden) {
@@ -636,8 +634,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if the page to be loaded is the one already shown
-                if (uriString.contains(viewModel.getBaseUrl())) {
-                    Timber.e("reached here!");
+                if (uriString.contains(ParseHelpers.getBaseURL(viewModel.getTopicUrl()))) {
                     if (uriString.contains("topicseen#new") || uriString.contains("#new")) {
                         if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
                             //same page
@@ -651,7 +648,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         if (tmpUrlSbstr.contains("msg"))
                             tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
                         int testAgainst = Integer.parseInt(tmpUrlSbstr);
-                        Timber.e("reached tthere! %s", testAgainst);
                         for (int i = 0; i < postsList.size(); i++) {
                             if (postsList.get(i).getPostIndex() == testAgainst) {
                                 //same page
@@ -660,11 +656,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 return true;
                             }
                         }
-                    } else if ((Objects.equals(uriString, viewModel.getBaseUrl()) && viewModel.getCurrentPageIndex() == 1) ||
-                            Integer.parseInt(uriString.substring(viewModel.getBaseUrl().length() + 1)) / 15 + 1 ==
+                    } else if ((Objects.equals(uriString, ParseHelpers.getBaseURL(viewModel.getTopicUrl())) &&
+                            viewModel.getCurrentPageIndex() == 1) ||
+                            Integer.parseInt(uriString.substring(ParseHelpers.getBaseURL(viewModel.getTopicUrl()).length() + 1)) / 15 + 1 ==
                                     viewModel.getCurrentPageIndex()) {
                         //same page
-                        Timber.e("ha");
                         return true;
                     }
                 }
