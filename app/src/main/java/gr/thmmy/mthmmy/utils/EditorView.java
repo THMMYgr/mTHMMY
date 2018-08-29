@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -63,6 +63,12 @@ public class EditorView extends LinearLayout {
             edittextWrapper.setHint(a.getString(R.styleable.EditorView_hint));
         } finally {
             a.recycle();
+        }
+
+        // without this, the editor gets default window background
+        Drawable background = getBackground();
+        for (int i = 0; i < getChildCount(); i++) {
+            getChildAt(i).setBackground(background);
         }
 
         emojiButton = findViewById(R.id.emoji_keyboard_button);

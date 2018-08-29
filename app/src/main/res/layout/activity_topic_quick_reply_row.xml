@@ -84,7 +84,8 @@
                 android:id="@+id/reply_editorview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                card_view:hint="Post message"/>
+                android:background="@color/card_background"
+                card_view:hint="Post message" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
 </FrameLayout>

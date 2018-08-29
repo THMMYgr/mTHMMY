@@ -8,8 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:columnWidth="36dp"
-        android:background="@color/card_background">
+        app:columnWidth="36dp">
         <!--bold, italic, etc buttons-->
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/bold_button"
@@ -121,7 +120,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/card_background"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
