@@ -45,7 +45,7 @@ public class TestEditView extends AppCompatActivity implements EmojiKeyboard.Emo
     public void onBackPressed() {
         if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
-            editorView.setEmojiKeyboardVisible(false);
+            editorView.updateEmojiKeyboardVisibility();
         } else {
             super.onBackPressed();
         }

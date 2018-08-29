@@ -462,7 +462,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.replyEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
             InputConnection ic = holder.replyEditor.getInputConnection();
             emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
-            holder.replyEditor.setEmojiKeyboardVisible(emojiKeyboardOwner.isEmojiKeyboardVisible());
+            holder.replyEditor.updateEmojiKeyboardVisibility();
 
             holder.replyEditor.setText(viewModel.getBuildedQuotes());
             holder.replyEditor.setOnSubmitListener(view -> {

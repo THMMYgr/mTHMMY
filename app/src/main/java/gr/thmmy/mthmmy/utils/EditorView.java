@@ -34,7 +34,6 @@ public class EditorView extends LinearLayout {
     private AppCompatImageButton emojiButton;
     private AppCompatImageButton submitButton;
     private EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner;
-    private boolean emojiKeyboardVisible = false;
 
     public EditorView(Context context) {
         super(context);
@@ -74,14 +73,14 @@ public class EditorView extends LinearLayout {
         emojiButton = findViewById(R.id.emoji_keyboard_button);
 
         editText.setOnTouchListener((v, event) -> {
-            if (emojiKeyboardVisible) return true;
+            if (emojiKeyboardOwner.isEmojiKeyboardVisible()) return true;
             return false;
         });
 
         emojiButton.setOnClickListener(view -> {
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
             assert imm != null;
-            if (emojiKeyboardVisible) {
+            if (emojiKeyboardOwner.isEmojiKeyboardVisible()) {
                 editText.requestFocus();
                 imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
                 emojiButton.setImageResource(R.drawable.ic_tag_faces_grey_24dp);
@@ -90,8 +89,7 @@ public class EditorView extends LinearLayout {
                 view.clearFocus();
                 emojiButton.setImageResource(R.drawable.ic_keyboard_grey_24dp);
             }
-            emojiKeyboardVisible = !emojiKeyboardVisible;
-            emojiKeyboardOwner.setEmojiKeyboardVisible(emojiKeyboardVisible);
+            emojiKeyboardOwner.setEmojiKeyboardVisible(!emojiKeyboardOwner.isEmojiKeyboardVisible());
         });
 
         submitButton = findViewById(R.id.submit_button);
@@ -271,11 +269,10 @@ public class EditorView extends LinearLayout {
         return editText.onCreateInputConnection(new EditorInfo());
     }
 
-    public void setEmojiKeyboardVisible(boolean visible) {
-        if (visible)
+    public void updateEmojiKeyboardVisibility() {
+        if (emojiKeyboardOwner.isEmojiKeyboardVisible())
             emojiButton.setImageResource(R.drawable.ic_keyboard_grey_24dp);
         else
             emojiButton.setImageResource(R.drawable.ic_tag_faces_grey_24dp);
-        emojiKeyboardVisible = visible;
     }
 }
