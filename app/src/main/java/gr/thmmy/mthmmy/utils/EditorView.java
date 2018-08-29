@@ -19,6 +19,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ScrollView;
 
 import java.util.Objects;
 
@@ -133,8 +134,9 @@ public class EditorView extends LinearLayout {
             popupWindow.setHeight(LayoutParams.WRAP_CONTENT);
             popupWindow.setWidth(LayoutParams.WRAP_CONTENT);
             popupWindow.setFocusable(true);
-            LinearLayout colorPicker = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.editor_view_color_picker, null);
-            popupWindow.setContentView(colorPicker);
+            ScrollView colorPickerScrollview = (ScrollView) LayoutInflater.from(context).inflate(R.layout.editor_view_color_picker, null);
+            LinearLayout colorPicker = (LinearLayout) colorPickerScrollview.getChildAt(0);
+            popupWindow.setContentView(colorPickerScrollview);
             for (int i = 0; i < colorPicker.getChildCount(); i++) {
                 colorPicker.getChildAt(i).setOnClickListener(v -> {
                     if (editText.hasSelection())

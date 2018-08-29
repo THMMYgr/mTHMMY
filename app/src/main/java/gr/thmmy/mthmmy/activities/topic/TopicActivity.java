@@ -264,7 +264,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             if (viewModel.isEditingPost())
                 topicAdapter.notifyItemChanged(viewModel.getPostBeingEditedPosition());
             if (viewModel.isWritingReply())
-                topicAdapter.notifyItemChanged(viewModel.postCount() - 1);
+                topicAdapter.notifyItemChanged(viewModel.postCount());
             return;
         } else if (viewModel.isWritingReply()) {
             postsList.remove(postsList.size() - 1);
