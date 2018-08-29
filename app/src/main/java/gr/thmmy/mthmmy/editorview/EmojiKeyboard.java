@@ -1,13 +1,7 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.editorview;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.AnimationDrawable;
-import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;

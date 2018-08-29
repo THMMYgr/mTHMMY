@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <gr.thmmy.mthmmy.utils.AutoFitGridLayout
+    <gr.thmmy.mthmmy.editorview.AutoFitGridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -114,7 +114,7 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_functions_black_36dp"
             android:background="?android:selectableItemBackground"/>
-    </gr.thmmy.mthmmy.utils.AutoFitGridLayout>
+    </gr.thmmy.mthmmy.editorview.AutoFitGridLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

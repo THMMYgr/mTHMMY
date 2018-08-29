@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.editorview;
 
 import android.app.Activity;
 import android.app.AlertDialog;

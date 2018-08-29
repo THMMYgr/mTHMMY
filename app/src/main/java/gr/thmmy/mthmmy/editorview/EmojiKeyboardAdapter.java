@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.editorview;
 
 import android.graphics.drawable.AnimationDrawable;
 import android.support.annotation.NonNull;

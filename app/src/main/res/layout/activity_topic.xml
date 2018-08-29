@@ -50,7 +50,7 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity" />
 
-        <gr.thmmy.mthmmy.utils.EmojiKeyboard
+        <gr.thmmy.mthmmy.editorview.EmojiKeyboard
             android:id="@+id/emoji_keyboard"
             android:layout_width="match_parent"
             android:layout_height="240dp"
