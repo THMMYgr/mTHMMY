@@ -17,7 +17,6 @@ import java.util.List;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.TestEditView;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
@@ -120,7 +119,6 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             Toast.makeText(getBaseContext(), "Press back again to exit!"
                     , Toast.LENGTH_SHORT).show();
         }
-        startActivity(new Intent(this, TestEditView.class));
         mBackPressed = System.currentTimeMillis();
     }
 
