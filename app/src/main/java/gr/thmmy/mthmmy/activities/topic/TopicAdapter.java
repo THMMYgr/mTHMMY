@@ -121,9 +121,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (viewType == Post.TYPE_EDIT) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_edit_row, parent, false);
-            view.findViewById(R.id.edit_message_submit).setEnabled(true);
 
-            final EditText editPostEdittext = view.findViewById(R.id.edit_message_text);
+            final EditText editPostEdittext = ((EditorView) view.findViewById(R.id.edit_editorview)).getEditText();
             editPostEdittext.setFocusableInTouchMode(true);
             editPostEdittext.setOnFocusChangeListener((v, hasFocus) -> editPostEdittext.post(() -> {
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -463,6 +462,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             InputConnection ic = holder.replyEditor.getInputConnection();
             emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
             holder.replyEditor.updateEmojiKeyboardVisibility();
+            holder.replyEditor.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
+                InputConnection ic12 = holder.replyEditor.getInputConnection();
+                emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic12);
+                holder.replyEditor.updateEmojiKeyboardVisibility();
+            });
 
             holder.replyEditor.setText(viewModel.getBuildedQuotes());
             holder.replyEditor.setOnSubmitListener(view -> {
@@ -475,6 +479,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 holder.itemView.setAlpha(0.5f);
                 holder.itemView.setEnabled(false);
+                emojiKeyboardOwner.setEmojiKeyboardVisible(false);
 
                 viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
                         holder.replyEditor.getText().toString());
@@ -501,23 +506,37 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
-
             holder.editSubject.setText(postsList.get(position).getSubject());
-            holder.editMessage.setText(viewModel.getPostBeingEditedText());
 
-            holder.submitButton.setOnClickListener(view -> {
+            holder.editEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
+            InputConnection ic = holder.editEditor.getInputConnection();
+            emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
+            holder.editEditor.updateEmojiKeyboardVisibility();
+            holder.editEditor.setText(viewModel.getPostBeingEditedText());
+            holder.editEditor.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) {
+                    InputConnection ic1 = holder.editEditor.getInputConnection();
+                    emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic1);
+                    holder.editEditor.updateEmojiKeyboardVisibility();
+                }
+            });
+            holder.editEditor.setOnSubmitListener(view -> {
                 if (holder.editSubject.getText().toString().isEmpty()) return;
-                if (holder.editMessage.getText().toString().isEmpty()) return;
+                if (holder.editEditor.getText().toString().isEmpty()) {
+                    holder.editEditor.setError("Required");
+                    return;
+                }
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 holder.itemView.setAlpha(0.5f);
                 holder.itemView.setEnabled(false);
+                emojiKeyboardOwner.setEmojiKeyboardVisible(false);
 
-                viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editMessage.getText().toString());
+                viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editEditor.getText().toString());
             });
 
             if (backPressHidden) {
-                holder.editMessage.requestFocus();
+                holder.editEditor.requestFocus();
                 backPressHidden = false;
             }
         }
@@ -601,17 +620,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static class EditMessageViewHolder extends RecyclerView.ViewHolder {
         final ImageView thumbnail;
         final TextView username;
-        final EditText editMessage, editSubject;
-        final AppCompatImageButton submitButton;
+        final EditText editSubject;
+        final EditorView editEditor;
 
         EditMessageViewHolder(View editView) {
             super(editView);
 
             thumbnail = editView.findViewById(R.id.thumbnail);
             username = editView.findViewById(R.id.username);
-            editMessage = editView.findViewById(R.id.edit_message_text);
             editSubject = editView.findViewById(R.id.edit_message_subject);
-            submitButton = editView.findViewById(R.id.edit_message_submit);
+            editEditor = editView.findViewById(R.id.edit_editorview);
         }
     }
 

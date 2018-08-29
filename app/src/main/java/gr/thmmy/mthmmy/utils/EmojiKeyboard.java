@@ -169,7 +169,7 @@ public class EmojiKeyboard extends LinearLayout {
         emojiKeyboardAdapter.setOnEmojiClickListener((view, position) -> {
             if (inputConnection == null) return;
             String bbcode = emojis[position].getBbcode();
-            inputConnection.commitText(bbcode, 1);
+            inputConnection.commitText(" " + bbcode, 1);
         });
         emojiRecyclerview.setAdapter(emojiKeyboardAdapter);
         AppCompatImageButton backspaceButton = findViewById(R.id.backspace_button);
