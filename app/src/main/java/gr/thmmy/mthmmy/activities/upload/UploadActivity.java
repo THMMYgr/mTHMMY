@@ -4,17 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
@@ -37,17 +32,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import gr.thmmy.mthmmy.R;
@@ -73,12 +63,15 @@ public class UploadActivity extends BaseActivity {
      */
     public static final String BUNDLE_UPLOAD_CATEGORY = "UPLOAD_CATEGORY";
     private static final String uploadIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl=upload";
-    private static final String uploadedFrommThmmyPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
-    private static final int REQUEST_CODE_CHOOSE_FILE = 8;
-    private static final int REQUEST_CODE_CAMERA = 4;
-    private static final int REQUEST_CODE_FIELDS_BUILDER = 74;
+    private static final String uploadedFromThmmyPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
+    /**
+     * Request codes used in activities for result (AFR) calls
+     */
+    private static final int AFR_REQUEST_CODE_CHOOSE_FILE = 8;
+    private static final int AFR_REQUEST_CODE_CAMERA = 4;
+    private static final int AFR_REQUEST_CODE_FIELDS_BUILDER = 74;
 
-    private static ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
+    private ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     private ParseUploadPageTask parseUploadPageTask;
     private ArrayList<String> bundleCategory;
     private String categorySelected = "-1";
@@ -95,7 +88,6 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadDescription;
     private AppCompatButton titleDescriptionBuilderButton;
     private AppCompatButton selectFileButton;
-    //private static AppCompatButton titleDescriptionBuilderButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +133,7 @@ public class UploadActivity extends BaseActivity {
         titleDescriptionBuilderButton = findViewById(R.id.upload_title_description_builder);
         titleDescriptionBuilderButton.setOnClickListener(view -> {
             if (categorySelected.equals("-1")) {
-                Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(), "Please choose a category first", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -186,15 +178,15 @@ public class UploadActivity extends BaseActivity {
             }
 
             //Fixes course and semester
-            maybeCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
-            maybeSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
+            String course = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
+            String semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
 
             Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
             Bundle builderExtras = new Bundle();
-            builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE, maybeCourse);
-            builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER, maybeSemester);
+            builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE, course);
+            builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER, semester);
             intent.putExtras(builderExtras);
-            startActivityForResult(intent, REQUEST_CODE_FIELDS_BUILDER);
+            startActivityForResult(intent, AFR_REQUEST_CODE_FIELDS_BUILDER);
         });
         titleDescriptionBuilderButton.setEnabled(false);
 
@@ -211,21 +203,11 @@ public class UploadActivity extends BaseActivity {
             builder.setTitle("Upload file");
             builder.setItems(options, (dialog, item) -> {
                 if (options[item].equals("Take photo")) {
-                    /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(intent, REQUEST_CODE_CAMERA);*/
-
                     Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     takePhotoIntent.putExtra("return-data", true);
-                    takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getTempFile(this)));
+                    takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getCacheFile(this)));
 
-                    Intent targetedIntent = new Intent(takePhotoIntent);
-                    List<ResolveInfo> resInfo = this.getPackageManager().queryIntentActivities(takePhotoIntent, 0);
-                    for (ResolveInfo resolveInfo : resInfo) {
-                        String packageName = resolveInfo.activityInfo.packageName;
-                        targetedIntent.setPackage(packageName);
-                    }
-                    startActivityForResult(takePhotoIntent, REQUEST_CODE_CAMERA);
-
+                    startActivityForResult(takePhotoIntent, AFR_REQUEST_CODE_CAMERA);
                 } else if (options[item].equals("Choose file")) {
                     String[] mimeTypes = {"image/jpeg", "text/html", "image/png", "image/jpg", "image/gif",
                             "application/pdf", "application/rar", "application/x-tar", "application/zip",
@@ -236,7 +218,7 @@ public class UploadActivity extends BaseActivity {
                             .setType("image/jpeg")
                             .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-                    startActivityForResult(intent, REQUEST_CODE_CHOOSE_FILE);
+                    startActivityForResult(intent, AFR_REQUEST_CODE_CHOOSE_FILE);
                 } else if (options[item].equals("Cancel")) {
                     dialog.dismiss();
                 }
@@ -245,6 +227,8 @@ public class UploadActivity extends BaseActivity {
         });
 
         findViewById(R.id.upload_upload_button).setOnClickListener(view -> {
+            progressBar.setVisibility(View.VISIBLE);
+
             String uploadTitleText = uploadTitle.getText().toString();
             String uploadDescriptionText = uploadDescription.getText().toString();
 
@@ -262,15 +246,14 @@ public class UploadActivity extends BaseActivity {
                 return;
             }
 
-            String tmpDescriptionText = uploadDescriptionText;
-
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(view.getContext());
             if (sharedPrefs.getBoolean(UPLOADING_APP_SIGNATURE_ENABLE_KEY, true)) {
-                tmpDescriptionText += uploadedFrommThmmyPromptHtml;
+                uploadDescriptionText += uploadedFromThmmyPromptHtml;
             }
 
             String tempFilePath = null;
             if (uploadFilename != null) {
+                //File should be uploaded with a certain name. Temporarily copies the file and renames it
                 tempFilePath = UploadsHelper.createTempFile(this, fileUri, uploadFilename);
                 if (tempFilePath == null) {
                     //Something went wrong, abort
@@ -279,12 +262,11 @@ public class UploadActivity extends BaseActivity {
             }
 
             try {
-                final String finalTempFilePath = tempFilePath;
                 new MultipartUploadRequest(view.getContext(), uploadIndexUrl)
                         .setUtf8Charset()
                         .addParameter("tp-dluploadtitle", uploadTitleText)
                         .addParameter("tp-dluploadcat", categorySelected)
-                        .addParameter("tp-dluploadtext", tmpDescriptionText)
+                        .addParameter("tp-dluploadtext", uploadDescriptionText)
                         .addFileToUpload(tempFilePath == null
                                         ? fileUri.toString()
                                         : tempFilePath
@@ -302,29 +284,21 @@ public class UploadActivity extends BaseActivity {
                             public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
                                                 Exception exception) {
                                 Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
-                                if (finalTempFilePath != null) {
-                                    if (!UploadsHelper.deleteTempFile(finalTempFilePath)) {
-                                        Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
+                                UploadsHelper.deleteTempFiles();
+                                progressBar.setVisibility(View.GONE);
                             }
 
                             @Override
                             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                                if (finalTempFilePath != null) {
-                                    if (!UploadsHelper.deleteTempFile(finalTempFilePath)) {
-                                        Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
+                                Toast.makeText(context, "Upload completed successfully", Toast.LENGTH_SHORT).show();
+                                UploadsHelper.deleteTempFiles();
+                                progressBar.setVisibility(View.GONE);
                             }
 
                             @Override
                             public void onCancelled(Context context, UploadInfo uploadInfo) {
-                                if (finalTempFilePath != null) {
-                                    if (!UploadsHelper.deleteTempFile(finalTempFilePath)) {
-                                        Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
+                                UploadsHelper.deleteTempFiles();
+                                progressBar.setVisibility(View.GONE);
                             }
                         })
                         .startUpload();
@@ -334,36 +308,12 @@ public class UploadActivity extends BaseActivity {
         });
 
         if (uploadRootCategories.isEmpty()) {
+            //Parses the uploads page
             parseUploadPageTask = new ParseUploadPageTask();
             parseUploadPageTask.execute(uploadIndexUrl);
         } else {
-            String[] tmpSpinnerArray = new String[uploadRootCategories.size()];
-            for (int i = 0; i < uploadRootCategories.size(); ++i) {
-                tmpSpinnerArray[i] = uploadRootCategories.get(i).getCategoryTitle();
-            }
-
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
-                    android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
-            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            rootCategorySpinner.setAdapter(spinnerArrayAdapter);
-
-            //Sets bundle selection
-            if (bundleCategory != null) {
-                int bundleSelectionIndex = -1, currentIndex = 0;
-                for (UploadCategory category : uploadRootCategories) {
-                    if (bundleCategory.get(0).contains(category.getCategoryTitle())) {
-                        bundleSelectionIndex = currentIndex;
-                        break;
-                    }
-                    ++currentIndex;
-                }
-
-                if (bundleSelectionIndex != -1) {
-                    rootCategorySpinner.setSelection(bundleSelectionIndex, true);
-                    bundleCategory.remove(0);
-                }
-            }
-
+            //Renders the already parsed data
+            updateUIElements();
             titleDescriptionBuilderButton.setEnabled(true);
         }
     }
@@ -392,8 +342,8 @@ public class UploadActivity extends BaseActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_CHOOSE_FILE && data != null) {
-            if (resultCode == Activity.RESULT_CANCELED) {
+        if (requestCode == AFR_REQUEST_CODE_CHOOSE_FILE) {
+            if (resultCode == Activity.RESULT_CANCELED || data == null) {
                 return;
             }
 
@@ -422,38 +372,39 @@ public class UploadActivity extends BaseActivity {
                     fileIcon = "blank.gif";
                 }
             }
-        } else if (requestCode == REQUEST_CODE_CAMERA) {
+        } else if (requestCode == AFR_REQUEST_CODE_CAMERA) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
             }
 
             Bitmap bitmap;
-            File cacheImageFile = UploadsHelper.getTempFile(this);
-            if (resultCode == Activity.RESULT_OK) {
-                fileUri = Uri.fromFile(cacheImageFile);
-                fileIcon = "jpg_image.gif";
+            File cacheImageFile = UploadsHelper.getCacheFile(this);
 
-                bitmap = UploadsHelper.getImageResized(this, fileUri);
-                int rotation = UploadsHelper.getRotation(this, fileUri);
-                bitmap = UploadsHelper.rotate(bitmap, rotation);
+            Uri cacheFileUri = Uri.fromFile(cacheImageFile);
+            fileIcon = "jpg_image.gif";
 
-                try {
-                    FileOutputStream out = new FileOutputStream(cacheImageFile);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    out.flush();
-                    out.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            bitmap = UploadsHelper.getImageResized(this, cacheFileUri);
+            int rotation = UploadsHelper.getRotation(this, cacheFileUri);
+            bitmap = UploadsHelper.rotate(bitmap, rotation);
 
-                String newFilename = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).
-                        format(new Date());
-                fileUri = Uri.parse(UploadsHelper.createTempFile(this, fileUri, newFilename));
-
-                newFilename += ".jpg";
-                selectFileButton.setText(newFilename);
+            try {
+                FileOutputStream out = new FileOutputStream(cacheImageFile);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } else if (requestCode == REQUEST_CODE_FIELDS_BUILDER) {
+
+            String newFilename = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).
+                    format(new Date());
+            fileUri = Uri.parse(UploadsHelper.createTempFile(this, cacheFileUri, newFilename));
+
+            newFilename += ".jpg";
+            selectFileButton.setText(newFilename);
+
+            UploadsHelper.deleteCacheFiles(this);
+        } else if (requestCode == AFR_REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
             }
@@ -578,7 +529,7 @@ public class UploadActivity extends BaseActivity {
                     UploadCategory secondLevelCategory = firstLevelCategory.getSubCategories().get(firstLevelCategory.getSubCategories().size() - 1);
                     secondLevelCategory.addSubCategory(categoryValue, categoryText);
                 } else if (categoryText.startsWith("---- ")) {
-                    //This is a level three subcategory
+                    //This is a level four subcategory
                     UploadCategory rootLevelCategory = uploadRootCategories.get(uploadRootCategories.size() - 1);
                     UploadCategory firstLevelCategory = rootLevelCategory.getSubCategories().get(rootLevelCategory.getSubCategories().size() - 1);
                     UploadCategory secondLevelCategory = firstLevelCategory.getSubCategories().get(firstLevelCategory.getSubCategories().size() - 1);
@@ -593,36 +544,39 @@ public class UploadActivity extends BaseActivity {
 
         @Override
         protected void postExecution(ResultCode result) {
-            String[] tmpSpinnerArray = new String[uploadRootCategories.size()];
-            for (int i = 0; i < uploadRootCategories.size(); ++i) {
-                tmpSpinnerArray[i] = uploadRootCategories.get(i).getCategoryTitle();
-            }
-
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
-                    android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
-            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            rootCategorySpinner.setAdapter(spinnerArrayAdapter);
-
-            //Sets bundle selection
-            if (bundleCategory != null) {
-                int bundleSelectionIndex = -1, currentIndex = 0;
-
-                for (UploadCategory category : uploadRootCategories) {
-                    if (bundleCategory.get(0).contains(category.getCategoryTitle())) {
-                        bundleSelectionIndex = currentIndex;
-                        break;
-                    }
-                    ++currentIndex;
-                }
-
-                if (bundleSelectionIndex != -1) {
-                    rootCategorySpinner.setSelection(bundleSelectionIndex, true);
-                    bundleCategory.remove(0);
-                }
-            }
-
+            updateUIElements();
             titleDescriptionBuilderButton.setEnabled(true);
             progressBar.setVisibility(ProgressBar.GONE);
+        }
+    }
+
+    private void updateUIElements() {
+        String[] tmpSpinnerArray = new String[uploadRootCategories.size()];
+        for (int i = 0; i < uploadRootCategories.size(); ++i) {
+            tmpSpinnerArray[i] = uploadRootCategories.get(i).getCategoryTitle();
+        }
+
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
+                android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        rootCategorySpinner.setAdapter(spinnerArrayAdapter);
+
+        //Sets bundle selection
+        if (bundleCategory != null) {
+            int bundleSelectionIndex = -1, currentIndex = 0;
+
+            for (UploadCategory category : uploadRootCategories) {
+                if (bundleCategory.get(0).contains(category.getCategoryTitle())) {
+                    bundleSelectionIndex = currentIndex;
+                    break;
+                }
+                ++currentIndex;
+            }
+
+            if (bundleSelectionIndex != -1) {
+                rootCategorySpinner.setSelection(bundleSelectionIndex, true);
+                bundleCategory.remove(0);
+            }
         }
     }
 }

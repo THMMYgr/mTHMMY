@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,7 +26,7 @@ import timber.log.Timber;
 
 class UploadsHelper {
     private static final int DEFAULT_MIN_WIDTH_QUALITY = 400;
-    private static final String TEMP_IMAGE_NAME = "tempUploadFile.jpg";
+    private static final String CACHE_IMAGE_NAME = "tempUploadFile.jpg";
 
     @NonNull
     static String filenameFromUri(Context context, Uri uri) {
@@ -53,7 +54,7 @@ class UploadsHelper {
     static String createTempFile(Context context, Uri fileUri, String newFilename) {
         String oldFilename = filenameFromUri(context, fileUri);
         String fileExtension = oldFilename.substring(oldFilename.indexOf("."));
-        String destinationFilename = android.os.Environment.getExternalStorageDirectory().getPath() +
+        String destinationFilename = Environment.getExternalStorageDirectory().getPath() +
                 File.separatorChar + "~tmp_mThmmy_uploads" + File.separatorChar + newFilename + fileExtension;
 
         File tempDirectory = new File(android.os.Environment.getExternalStorageDirectory().getPath() +
@@ -99,16 +100,35 @@ class UploadsHelper {
         return destinationFilename;
     }
 
-    static File getTempFile(Context context) {
-        File imageFile = new File(context.getExternalCacheDir(), TEMP_IMAGE_NAME);
+    static File getCacheFile(Context context) {
+        File imageFile = new File(context.getExternalCacheDir(), CACHE_IMAGE_NAME);
         //noinspection ResultOfMethodCallIgnored
         imageFile.getParentFile().mkdirs();
         return imageFile;
     }
 
-    static boolean deleteTempFile(String destinationFilename) {
-        File file = new File(destinationFilename);
-        return file.delete();
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    static void deleteTempFiles() {
+        File tempFilesDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
+                File.separatorChar + "~tmp_mThmmy_uploads");
+
+        if (tempFilesDirectory.isDirectory()) {
+            String[] tempFilesArray = tempFilesDirectory.list();
+            for (String tempFile : tempFilesArray) {
+                new File(tempFilesDirectory, tempFile).delete();
+            }
+            tempFilesDirectory.delete();
+        }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    static void deleteCacheFiles(Context context) {
+        File cacheFilesDirectory = context.getExternalCacheDir();
+        assert cacheFilesDirectory != null;
+        String[] tempFilesArray = cacheFilesDirectory.list();
+        for (String tempFile : tempFilesArray) {
+            new File(cacheFilesDirectory, tempFile).delete();
+        }
     }
 
     /**
