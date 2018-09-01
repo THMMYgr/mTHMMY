@@ -38,6 +38,7 @@ public class DeleteTask extends AsyncTask<String, Void, Boolean> {
             //Response response = client.newCall(delete).execute();
             switch (Posting.replyStatus(response)) {
                 case SUCCESSFUL:
+                    BaseApplication.getInstance().logFirebaseAnalyticsEvent("post_deletion", null);
                     return true;
                 default:
                     Timber.e("Something went wrong. Request string: %s", delete.toString());

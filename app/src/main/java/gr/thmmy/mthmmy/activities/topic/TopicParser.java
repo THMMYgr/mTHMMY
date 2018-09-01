@@ -1,9 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
-import android.util.Log;
 
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

@@ -295,6 +295,7 @@ public class UploadActivity extends BaseActivity {
                             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
                                 Toast.makeText(context, "Upload completed successfully", Toast.LENGTH_SHORT).show();
                                 UploadsHelper.deleteTempFiles();
+                                BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
                                 progressBar.setVisibility(View.GONE);
                             }
 
