@@ -430,14 +430,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
                     holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                 else
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
+                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_24dp);
                 //Sets graphics behavior
                 holder.quoteToggle.setOnClickListener(view -> {
                     viewModel.postIndexToggle(currentPost.getPostIndex());
                     if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
                         holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                     else
-                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_grey_24dp);
+                        holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_24dp);
                 });
             }
         } else if (currentHolder instanceof QuickReplyViewHolder) {

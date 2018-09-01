@@ -1,4 +1,4 @@
-<vector android:height="@dimen/editor_format_button_size" android:tint="#4B4B4B"
+<vector android:height="@dimen/editor_format_button_size" android:tint="@color/topic_post_icon"
     android:viewportHeight="24.0" android:viewportWidth="24.0"
     android:width="@dimen/editor_format_button_size" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="#FF000000" android:pathData="M18,4H6v2l6.5,6L6,18v2h12v-3h-7l5,-5 -5,-5h7z"/>

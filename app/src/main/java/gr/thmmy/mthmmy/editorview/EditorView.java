@@ -83,11 +83,11 @@ public class EditorView extends LinearLayout {
             if (emojiKeyboardOwner.isEmojiKeyboardVisible()) {
                 editText.requestFocus();
                 imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-                emojiButton.setImageResource(R.drawable.ic_tag_faces_grey_24dp);
+                emojiButton.setImageResource(R.drawable.ic_tag_faces_24dp);
             } else {
                 imm.hideSoftInputFromWindow(getWindowToken(), 0);
                 view.clearFocus();
-                emojiButton.setImageResource(R.drawable.ic_keyboard_grey_24dp);
+                emojiButton.setImageResource(R.drawable.ic_keyboard_24dp);
             }
             emojiKeyboardOwner.setEmojiKeyboardVisible(!emojiKeyboardOwner.isEmojiKeyboardVisible());
         });
@@ -276,8 +276,8 @@ public class EditorView extends LinearLayout {
 
     public void updateEmojiKeyboardVisibility() {
         if (emojiKeyboardOwner.isEmojiKeyboardVisible())
-            emojiButton.setImageResource(R.drawable.ic_keyboard_grey_24dp);
+            emojiButton.setImageResource(R.drawable.ic_keyboard_24dp);
         else
-            emojiButton.setImageResource(R.drawable.ic_tag_faces_grey_24dp);
+            emojiButton.setImageResource(R.drawable.ic_tag_faces_24dp);
     }
 }
