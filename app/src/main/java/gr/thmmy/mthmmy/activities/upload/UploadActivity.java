@@ -88,7 +88,6 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadDescription;
     private AppCompatButton titleDescriptionBuilderButton;
     private AppCompatTextView filenameHolder;
-    private FloatingActionButton uploadFAB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,7 +230,7 @@ public class UploadActivity extends BaseActivity {
             startActivityForResult(takePhotoIntent, REQUEST_CODE_CAMERA);
         });
 
-        uploadFAB = findViewById(R.id.upload_fab);
+        FloatingActionButton uploadFAB = findViewById(R.id.upload_fab);
         uploadFAB.setOnClickListener(view -> {
             String uploadTitleText = uploadTitle.getText().toString();
             String uploadDescriptionText = uploadDescription.getText().toString();
@@ -240,7 +239,7 @@ public class UploadActivity extends BaseActivity {
                 uploadTitle.setError("Required");
             }
             if (fileUri == null) {
-                filenameHolder.setError("Required");
+                Toast.makeText(view.getContext(), "Please choose a file to upload or take a photo", Toast.LENGTH_LONG).show();
             }
             if (categorySelected.equals("-1")) {
                 Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
@@ -299,6 +298,8 @@ public class UploadActivity extends BaseActivity {
 
                             @Override
                             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                                Toast.makeText(context, "Upload completed successfully", Toast.LENGTH_SHORT).show();
+
                                 if (finalTempFilePath != null) {
                                     if (!UploadsHelper.deleteTempFile(finalTempFilePath)) {
                                         Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
@@ -307,11 +308,15 @@ public class UploadActivity extends BaseActivity {
 
                                 uploadTitle.setText(null);
                                 uploadDescription.setText(null);
+                                fileUri = null;
                                 filenameHolder.setText(null);
+                                filenameHolder.setVisibility(View.GONE);
                             }
 
                             @Override
                             public void onCancelled(Context context, UploadInfo uploadInfo) {
+                                Toast.makeText(context, "Upload canceled", Toast.LENGTH_SHORT).show();
+
                                 if (finalTempFilePath != null) {
                                     if (!UploadsHelper.deleteTempFile(finalTempFilePath)) {
                                         Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
@@ -393,6 +398,7 @@ public class UploadActivity extends BaseActivity {
             if (fileUri != null) {
                 String filename = UploadsHelper.filenameFromUri(this, fileUri);
                 filenameHolder.setText(filename);
+                filenameHolder.setVisibility(View.VISIBLE);
 
                 filename = filename.toLowerCase();
                 if (filename.endsWith(".jpg")) {
@@ -444,6 +450,7 @@ public class UploadActivity extends BaseActivity {
 
                 newFilename += ".jpg";
                 filenameHolder.setText(newFilename);
+                filenameHolder.setVisibility(View.VISIBLE);
             }
         } else if (requestCode == REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {

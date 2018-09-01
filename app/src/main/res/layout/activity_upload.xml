@@ -106,7 +106,8 @@
                 android:drawablePadding="5dp"
                 android:ellipsize="marquee"
                 android:singleLine="true"
-                android:textColor="@color/primary_text" />
+                android:textColor="@color/primary_text"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
