@@ -249,6 +249,10 @@ public class TopicParser {
                     p_deletePostURL = postDelete.attr("href");
                 }
 
+                Element postEdit = thisRow.select("a:has(img[alt='Αλλαγή'])").first();
+                if (postEdit != null)
+                    p_editPostURL = postEdit.attr("href");
+
                 //Finds post's submit date
                 Element postDate = thisRow.select("div.smalltext:matches(στις:)").first();
                 p_postDate = postDate.text();
