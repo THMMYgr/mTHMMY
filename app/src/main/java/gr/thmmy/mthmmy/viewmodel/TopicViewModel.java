@@ -22,6 +22,7 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import timber.log.Timber;
 
 public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTaskCompleted,
         PrepareForReply.OnPrepareForReplyFinished, PrepareForEditTask.OnPrepareEditFinished {
@@ -85,6 +86,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     public void reloadPage() {
         if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        Timber.i("Reloading page");
         loadUrl(topicUrl);
     }
 
@@ -93,6 +95,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             throw new NullPointerException("No page has been loaded yet!");
         int pageRequested = pageIndicatorIndex.getValue() - 1;
         if (pageRequested != currentPageIndex - 1) {
+            Timber.i("Changing to page " + pageRequested + 1);
             loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(pageRequested * 15));
             pageIndicatorIndex.setValue(pageRequested + 1);
         } else {
@@ -105,6 +108,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             throw new NullPointerException("Topic task has not finished yet!");
         stopLoading();
         setPageIndicatorIndex(pageCount, true);
+        Timber.i("Preparing for reply");
         currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
                 replyPageUrl.getValue());
         currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
@@ -122,11 +126,13 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             includeAppSignature = prefs.getBoolean(SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY, true);
         }
         toQuoteList.clear();
+        Timber.i("Posting reply");
         new ReplyTask(replyFinishListener, includeAppSignature).execute(subject, reply,
                 replyForm.getNumReplies(), replyForm.getSeqnum(), replyForm.getSc(), replyForm.getTopic());
     }
 
     public void deletePost(String postDeleteUrl) {
+        Timber.i("Deleting post");
         new DeleteTask(deleteTaskCallbacks).execute(postDeleteUrl);
     }
 
@@ -134,6 +140,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (replyPageUrl.getValue() == null)
             throw new NullPointerException("Topic task has not finished yet!");
         stopLoading();
+        Timber.i("Preparing for edit");
         currentPrepareForEditTask = new PrepareForEditTask(prepareForEditCallbacks, this, position,
                 replyPageUrl.getValue());
         currentPrepareForEditTask.execute(postEditURL);
@@ -143,6 +150,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (prepareForEditResult.getValue() == null)
             throw new NullPointerException("Edit preparation was not found!");
         PrepareForEditResult editResult = prepareForEditResult.getValue();
+        Timber.i("Editing post");
         new EditTask(editTaskCallbacks, position).execute(editResult.getCommitEditUrl(), message,
                 editResult.getNumReplies(), editResult.getSeqnum(), editResult.getSc(), subject, editResult.getTopic());
     }
@@ -154,15 +162,18 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
      */
     public void stopLoading() {
         if (currentTopicTask != null && currentTopicTask.getStatus() == AsyncTask.Status.RUNNING) {
+            Timber.i("Canceling topic task");
             currentTopicTask.cancel(true);
             pageIndicatorIndex.setValue(currentPageIndex);
             topicTaskObserver.onTopicTaskCancelled();
         }
         if (currentPrepareForEditTask != null && currentPrepareForEditTask.getStatus() == AsyncTask.Status.RUNNING) {
+            Timber.i("Canceling prepare for edit task");
             currentPrepareForEditTask.cancel(true);
             prepareForEditCallbacks.onPrepareEditCancelled();
         }
         if (currentPrepareForReplyTask != null && currentPrepareForReplyTask.getStatus() == AsyncTask.Status.RUNNING) {
+            Timber.i("Canceling prepare for reply task");
             currentPrepareForReplyTask.cancel(true);
             prepareForReplyCallbacks.onPrepareForReplyCancelled();
         }
