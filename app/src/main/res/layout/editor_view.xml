@@ -8,96 +8,109 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:columnWidth="36dp">
+        app:columnWidth="28dp">
         <!--bold, italic, etc buttons-->
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/bold_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_bold_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_bold_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/italic_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_italic_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_italic_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/underline_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_underlined_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_underlined_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/strikethrough_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_strikethrough_s_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_strikethrough_s_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/text_color_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_color_text_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_color_text"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/text_size_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_size_black_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_size_black"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/font_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_text_format_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_text_format_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/unordered_list_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_list_bulleted_black_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_list_bulleted_black"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/align_left_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_align_left_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_align_left_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/align_center_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_align_center_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_align_center_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/align_right_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_format_align_right_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_format_align_right_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/link_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_insert_link_gre_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_insert_link_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/quote_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
             app:srcCompat="@drawable/ic_format_quote_unchecked_grey_24dp"
             android:background="?android:selectableItemBackground"/>
 
@@ -105,23 +118,23 @@
             android:id="@+id/code_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_code_grey_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_code_grey"
             android:background="?android:selectableItemBackground"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/math_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_functions_black_36dp"
+            android:layout_marginEnd="@dimen/editor_format_button_margin_between"
+            app:srcCompat="@drawable/ic_functions_black"
             android:background="?android:selectableItemBackground"/>
     </gr.thmmy.mthmmy.editorview.AutoFitGridLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:orientation="horizontal">
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/editor_edittext_wrapper"
