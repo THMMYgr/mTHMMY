@@ -222,7 +222,7 @@ public class UploadActivity extends BaseActivity {
         takePhotoButton.setOnClickListener(v -> {
             Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             takePhotoIntent.putExtra("return-data", true);
-            takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getTempFile(this)));
+            takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getCacheFile(this)));
 
             Intent targetedIntent = new Intent(takePhotoIntent);
             List<ResolveInfo> resInfo = this.getPackageManager().queryIntentActivities(takePhotoIntent, 0);
