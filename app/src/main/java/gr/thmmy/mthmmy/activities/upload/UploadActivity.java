@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -244,6 +243,7 @@ public class UploadActivity extends BaseActivity {
             }
 
             if (categorySelected.equals("-1") || uploadTitleText.equals("") || fileUri == null) {
+                progressBar.setVisibility(View.GONE);
                 return;
             }
 
@@ -258,6 +258,8 @@ public class UploadActivity extends BaseActivity {
                 tempFilePath = UploadsHelper.createTempFile(this, fileUri, uploadFilename);
                 if (tempFilePath == null) {
                     //Something went wrong, abort
+                    Toast.makeText(this, "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
                     return;
                 }
             }
@@ -305,6 +307,7 @@ public class UploadActivity extends BaseActivity {
                         .startUpload();
             } catch (Exception exception) {
                 Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
+                progressBar.setVisibility(View.GONE);
             }
         });
 
