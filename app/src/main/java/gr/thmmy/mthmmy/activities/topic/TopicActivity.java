@@ -261,10 +261,16 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             return;
         } else if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
-            if (viewModel.isEditingPost())
-                topicAdapter.notifyItemChanged(viewModel.getPostBeingEditedPosition());
-            if (viewModel.isWritingReply())
-                topicAdapter.notifyItemChanged(viewModel.postCount());
+            if (viewModel.isEditingPost()) {
+                TopicAdapter.EditMessageViewHolder vh = (TopicAdapter.EditMessageViewHolder)
+                        recyclerView.findViewHolderForAdapterPosition(viewModel.getPostBeingEditedPosition());
+                vh.editEditor.updateEmojiKeyboardVisibility();
+            }
+            if (viewModel.isWritingReply()) {
+                TopicAdapter.QuickReplyViewHolder vh = (TopicAdapter.QuickReplyViewHolder)
+                        recyclerView.findViewHolderForAdapterPosition(viewModel.postCount());
+                vh.replyEditor.updateEmojiKeyboardVisibility();
+            }
             return;
         } else if (viewModel.isWritingReply()) {
             postsList.remove(postsList.size() - 1);

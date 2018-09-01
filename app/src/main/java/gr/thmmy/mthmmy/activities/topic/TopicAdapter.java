@@ -485,7 +485,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
             holder.replyEditor.setOnClickListener(view -> holder.replyEditor.setError(null));
 
-
             if (backPressHidden) {
                 holder.replyEditor.requestFocus();
                 backPressHidden = false;
@@ -601,7 +600,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Custom {@link RecyclerView.ViewHolder} implementation
      */
-    private static class QuickReplyViewHolder extends RecyclerView.ViewHolder {
+    static class QuickReplyViewHolder extends RecyclerView.ViewHolder {
         final ImageView thumbnail;
         final TextView username;
         final EditText quickReplySubject;
@@ -616,7 +615,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private static class EditMessageViewHolder extends RecyclerView.ViewHolder {
+    static class EditMessageViewHolder extends RecyclerView.ViewHolder {
         final ImageView thumbnail;
         final TextView username;
         final EditText editSubject;
