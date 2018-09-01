@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
@@ -21,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
@@ -86,8 +86,7 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadTitle;
     private EditText uploadDescription;
     private AppCompatButton titleDescriptionBuilderButton;
-    private AppCompatButton selectFileButton;
-    //private static AppCompatButton titleDescriptionBuilderButton;
+    private TextView filenameHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,47 +192,39 @@ public class UploadActivity extends BaseActivity {
         uploadTitle = findViewById(R.id.upload_title);
         uploadDescription = findViewById(R.id.upload_description);
 
-        selectFileButton = findViewById(R.id.upload_select_file_button);
+        filenameHolder = findViewById(R.id.upload_filename);
+
+        AppCompatButton selectFileButton = findViewById(R.id.upload_select_file_button);
         Drawable selectStartDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_insert_drive_file_white_24dp);
         selectFileButton.setCompoundDrawablesRelativeWithIntrinsicBounds(selectStartDrawable, null, null, null);
         selectFileButton.setOnClickListener(v -> {
-            final CharSequence[] options = {"Take photo", "Choose file",
-                    "Cancel"};
-            AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
-            builder.setTitle("Upload file");
-            builder.setItems(options, (dialog, item) -> {
-                if (options[item].equals("Take photo")) {
-                    /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(intent, REQUEST_CODE_CAMERA);*/
+            String[] mimeTypes = {"image/jpeg", "text/html", "image/png", "image/jpg", "image/gif",
+                    "application/pdf", "application/rar", "application/x-tar", "application/zip",
+                    "application/msword", "image/vnd.djvu", "application/gz", "application/tar.gz"};
 
-                    Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    takePhotoIntent.putExtra("return-data", true);
-                    takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getTempFile(this)));
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
+                    //.setType("*/*")
+                    .setType("image/jpeg")
+                    .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-                    Intent targetedIntent = new Intent(takePhotoIntent);
-                    List<ResolveInfo> resInfo = this.getPackageManager().queryIntentActivities(takePhotoIntent, 0);
-                    for (ResolveInfo resolveInfo : resInfo) {
-                        String packageName = resolveInfo.activityInfo.packageName;
-                        targetedIntent.setPackage(packageName);
-                    }
-                    startActivityForResult(takePhotoIntent, REQUEST_CODE_CAMERA);
+            startActivityForResult(intent, REQUEST_CODE_CHOOSE_FILE);
+        });
 
-                } else if (options[item].equals("Choose file")) {
-                    String[] mimeTypes = {"image/jpeg", "text/html", "image/png", "image/jpg", "image/gif",
-                            "application/pdf", "application/rar", "application/x-tar", "application/zip",
-                            "application/msword", "image/vnd.djvu", "application/gz", "application/tar.gz"};
+        AppCompatButton takePhotoButton = findViewById(R.id.upload_take_photo_button);
+        Drawable takePhotoDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_photo_camera_white_24dp);
+        takePhotoButton.setCompoundDrawablesRelativeWithIntrinsicBounds(takePhotoDrawable, null, null, null);
+        takePhotoButton.setOnClickListener(v -> {
+            Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            takePhotoIntent.putExtra("return-data", true);
+            takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getTempFile(this)));
 
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
-                            //.setType("*/*")
-                            .setType("image/jpeg")
-                            .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-
-                    startActivityForResult(intent, REQUEST_CODE_CHOOSE_FILE);
-                } else if (options[item].equals("Cancel")) {
-                    dialog.dismiss();
-                }
-            });
-            builder.show();
+            Intent targetedIntent = new Intent(takePhotoIntent);
+            List<ResolveInfo> resInfo = this.getPackageManager().queryIntentActivities(takePhotoIntent, 0);
+            for (ResolveInfo resolveInfo : resInfo) {
+                String packageName = resolveInfo.activityInfo.packageName;
+                targetedIntent.setPackage(packageName);
+            }
+            startActivityForResult(takePhotoIntent, REQUEST_CODE_CAMERA);
         });
 
         findViewById(R.id.upload_upload_button).setOnClickListener(view -> {
@@ -244,7 +235,7 @@ public class UploadActivity extends BaseActivity {
                 uploadTitle.setError("Required");
             }
             if (fileUri == null) {
-                selectFileButton.setError("Required");
+                filenameHolder.setError("Required");
             }
             if (categorySelected.equals("-1")) {
                 Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
@@ -308,6 +299,10 @@ public class UploadActivity extends BaseActivity {
                                         Toast.makeText(context, "Failed to delete temporary file", Toast.LENGTH_SHORT).show();
                                     }
                                 }
+
+                                uploadTitle.setText(null);
+                                uploadDescription.setText(null);
+                                filenameHolder.setText(R.string.upload_filename);
                             }
 
                             @Override
@@ -392,7 +387,7 @@ public class UploadActivity extends BaseActivity {
             fileUri = data.getData();
             if (fileUri != null) {
                 String filename = UploadsHelper.filenameFromUri(this, fileUri);
-                selectFileButton.setText(filename);
+                filenameHolder.setText(filename);
 
                 filename = filename.toLowerCase();
                 if (filename.endsWith(".jpg")) {
@@ -443,7 +438,7 @@ public class UploadActivity extends BaseActivity {
                 fileUri = Uri.parse(UploadsHelper.createTempFile(this, fileUri, newFilename));
 
                 newFilename += ".jpg";
-                selectFileButton.setText(newFilename);
+                filenameHolder.setText(newFilename);
             }
         } else if (requestCode == REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {
