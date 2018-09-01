@@ -87,7 +87,7 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
 
         //Initialize toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Upload fields builder");
+        toolbar.setTitle(R.string.upload_fields_builder_toolbar_title);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
