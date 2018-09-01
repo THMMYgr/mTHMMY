@@ -23,7 +23,7 @@
             app:popupTheme="@style/ToolbarTheme" />
     </android.support.design.widget.AppBarLayout>
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:id="@+id/upload_outer_scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -41,16 +41,6 @@
             android:focusableInTouchMode="true"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
-                android:text="@string/upload_category_pre_text"
-                android:textAlignment="center"
-                android:textColor="@color/accent" />
-
             <LinearLayout
                 android:id="@+id/upload_spinners"
                 android:layout_width="match_parent"
@@ -67,25 +57,6 @@
                     android:popupBackground="@color/primary"
                     android:prompt="@string/upload_spinners_hint" />
             </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
-                android:text="@string/upload_title_description_pre_text"
-                android:textAlignment="center"
-                android:textColor="@color/accent" />
-
-            <android.support.v7.widget.AppCompatButton
-                android:id="@+id/upload_title_description_builder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:gravity="center"
-                android:text="@string/upload_title_description_builder"
-                android:textAlignment="center"
-                android:textColor="@color/accent" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -113,40 +84,69 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/upload_description_hint"
-                    android:inputType="textMultiLine"
-                    android:maxLines="3" />
+                    android:inputType="textMultiLine" />
             </android.support.design.widget.TextInputLayout>
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/upload_title_description_builder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:text="@string/upload_title_description_builder"
+                android:textAlignment="center"
+                android:textColor="@color/accent" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/upload_filename"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:layout_marginTop="6dp"
+                android:drawablePadding="5dp"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:textColor="@color/primary_text"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <View
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_weight="1" />
+
                 <android.support.v7.widget.AppCompatButton
                     android:id="@+id/upload_select_file_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
+                    android:layout_marginEnd="16dp"
                     android:drawablePadding="5dp"
                     android:gravity="center_vertical"
                     android:text="@string/upload_select_file"
                     android:textColor="@color/primary_text" />
 
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
                 <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/upload_upload_button"
+                    android:id="@+id/upload_take_photo_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
+                    android:layout_marginEnd="16dp"
+                    android:drawablePadding="5dp"
                     android:gravity="center_vertical"
-                    android:text="@string/upload_upload_button"
-                    android:textAlignment="center"
-                    android:textColor="@color/accent" />
+                    android:text="@string/upload_take_photo"
+                    android:textColor="@color/primary_text" />
             </LinearLayout>
-
         </LinearLayout>
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
@@ -159,6 +159,15 @@
         app:layout_anchorGravity="bottom|center"
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/upload_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_margins"
+        android:layout_marginEnd="@dimen/fab_margins"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
+        app:srcCompat="@drawable/ic_file_upload_white_24dp" />
+
 </android.support.design.widget.CoordinatorLayout>
-
-

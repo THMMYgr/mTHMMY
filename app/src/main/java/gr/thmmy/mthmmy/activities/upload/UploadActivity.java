@@ -4,16 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import gr.thmmy.mthmmy.R;
@@ -87,7 +90,7 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadTitle;
     private EditText uploadDescription;
     private AppCompatButton titleDescriptionBuilderButton;
-    private AppCompatButton selectFileButton;
+    private AppCompatTextView filenameHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,40 +196,45 @@ public class UploadActivity extends BaseActivity {
         uploadTitle = findViewById(R.id.upload_title);
         uploadDescription = findViewById(R.id.upload_description);
 
-        selectFileButton = findViewById(R.id.upload_select_file_button);
+        filenameHolder = findViewById(R.id.upload_filename);
+        Drawable filenameDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_attach_file_white_24dp);
+        filenameHolder.setCompoundDrawablesRelativeWithIntrinsicBounds(filenameDrawable, null, null, null);
+
+        AppCompatButton selectFileButton = findViewById(R.id.upload_select_file_button);
         Drawable selectStartDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_insert_drive_file_white_24dp);
         selectFileButton.setCompoundDrawablesRelativeWithIntrinsicBounds(selectStartDrawable, null, null, null);
         selectFileButton.setOnClickListener(v -> {
-            final CharSequence[] options = {"Take photo", "Choose file",
-                    "Cancel"};
-            AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
-            builder.setTitle("Upload file");
-            builder.setItems(options, (dialog, item) -> {
-                if (options[item].equals("Take photo")) {
-                    Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    takePhotoIntent.putExtra("return-data", true);
-                    takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getCacheFile(this)));
+            String[] mimeTypes = {"image/jpeg", "text/html", "image/png", "image/jpg", "image/gif",
+                    "application/pdf", "application/rar", "application/x-tar", "application/zip",
+                    "application/msword", "image/vnd.djvu", "application/gz", "application/tar.gz"};
 
-                    startActivityForResult(takePhotoIntent, AFR_REQUEST_CODE_CAMERA);
-                } else if (options[item].equals("Choose file")) {
-                    String[] mimeTypes = {"image/jpeg", "text/html", "image/png", "image/jpg", "image/gif",
-                            "application/pdf", "application/rar", "application/x-tar", "application/zip",
-                            "application/msword", "image/vnd.djvu", "application/gz", "application/tar.gz"};
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
+                    //.setType("*/*")
+                    .setType("image/jpeg")
+                    .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
-                            //.setType("*/*")
-                            .setType("image/jpeg")
-                            .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-
-                    startActivityForResult(intent, AFR_REQUEST_CODE_CHOOSE_FILE);
-                } else if (options[item].equals("Cancel")) {
-                    dialog.dismiss();
-                }
-            });
-            builder.show();
+            startActivityForResult(intent, AFR_REQUEST_CODE_CHOOSE_FILE);
         });
 
-        findViewById(R.id.upload_upload_button).setOnClickListener(view -> {
+        AppCompatButton takePhotoButton = findViewById(R.id.upload_take_photo_button);
+        Drawable takePhotoDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_photo_camera_white_24dp);
+        takePhotoButton.setCompoundDrawablesRelativeWithIntrinsicBounds(takePhotoDrawable, null, null, null);
+        takePhotoButton.setOnClickListener(v -> {
+            Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            takePhotoIntent.putExtra("return-data", true);
+            takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getTempFile(this)));
+
+            Intent targetedIntent = new Intent(takePhotoIntent);
+            List<ResolveInfo> resInfo = this.getPackageManager().queryIntentActivities(takePhotoIntent, 0);
+            for (ResolveInfo resolveInfo : resInfo) {
+                String packageName = resolveInfo.activityInfo.packageName;
+                targetedIntent.setPackage(packageName);
+            }
+            startActivityForResult(takePhotoIntent, AFR_REQUEST_CODE_CAMERA);
+        });
+
+        FloatingActionButton uploadFAB = findViewById(R.id.upload_fab);
+        uploadFAB.setOnClickListener(view -> {
             progressBar.setVisibility(View.VISIBLE);
 
             String uploadTitleText = uploadTitle.getText().toString();
@@ -236,7 +244,7 @@ public class UploadActivity extends BaseActivity {
                 uploadTitle.setError("Required");
             }
             if (fileUri == null) {
-                selectFileButton.setError("Required");
+                Toast.makeText(view.getContext(), "Please choose a file to upload or take a photo", Toast.LENGTH_LONG).show();
             }
             if (categorySelected.equals("-1")) {
                 Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
@@ -296,11 +304,19 @@ public class UploadActivity extends BaseActivity {
                                 Toast.makeText(context, "Upload completed successfully", Toast.LENGTH_SHORT).show();
                                 UploadsHelper.deleteTempFiles();
                                 BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
+
+                                uploadTitle.setText(null);
+                                uploadDescription.setText(null);
+                                fileUri = null;
+                                filenameHolder.setText(null);
+                                filenameHolder.setVisibility(View.GONE);
                                 progressBar.setVisibility(View.GONE);
                             }
 
                             @Override
                             public void onCancelled(Context context, UploadInfo uploadInfo) {
+                                Toast.makeText(context, "Upload canceled", Toast.LENGTH_SHORT).show();
+
                                 UploadsHelper.deleteTempFiles();
                                 progressBar.setVisibility(View.GONE);
                             }
@@ -355,7 +371,8 @@ public class UploadActivity extends BaseActivity {
             fileUri = data.getData();
             if (fileUri != null) {
                 String filename = UploadsHelper.filenameFromUri(this, fileUri);
-                selectFileButton.setText(filename);
+                filenameHolder.setText(filename);
+                filenameHolder.setVisibility(View.VISIBLE);
 
                 filename = filename.toLowerCase();
                 if (filename.endsWith(".jpg")) {
@@ -405,10 +422,11 @@ public class UploadActivity extends BaseActivity {
                     format(new Date());
             fileUri = Uri.parse(UploadsHelper.createTempFile(this, cacheFileUri, newFilename));
 
-            newFilename += ".jpg";
-            selectFileButton.setText(newFilename);
+                newFilename += ".jpg";
+                filenameHolder.setText(newFilename);
+                filenameHolder.setVisibility(View.VISIBLE);
 
-            UploadsHelper.deleteCacheFiles(this);
+                UploadsHelper.deleteCacheFiles(this);
         } else if (requestCode == AFR_REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
@@ -455,8 +473,8 @@ public class UploadActivity extends BaseActivity {
                 }
 
                 ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getApplicationContext(),
-                        android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
-                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        R.layout.spinner_item, tmpSpinnerArray);
+                spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
                 AppCompatSpinnerWithoutDefault subSpinner = new AppCompatSpinnerWithoutDefault(categoriesSpinners.getContext());
                 subSpinner.setPromptId(R.string.upload_spinners_hint);
@@ -561,10 +579,10 @@ public class UploadActivity extends BaseActivity {
             tmpSpinnerArray[i] = uploadRootCategories.get(i).getCategoryTitle();
         }
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
-                android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
-        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        rootCategorySpinner.setAdapter(spinnerArrayAdapter);
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
+                    R.layout.spinner_item, tmpSpinnerArray);
+            spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+            rootCategorySpinner.setAdapter(spinnerArrayAdapter);
 
         //Sets bundle selection
         if (bundleCategory != null) {
