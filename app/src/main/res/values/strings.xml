@@ -109,12 +109,10 @@
     <string name="upload_button">Upload</string>
 
     <!--Upload Activity-->
-    <string name="upload_category_pre_text">Select the correct category for the file</string>
-    <string name="upload_title_description_pre_text">Fill in the title and description\nor</string>
-    <string name="upload_title_description_builder">build them automatically</string>
+    <string name="upload_title_description_builder">Generate title and description</string>
     <string name="upload_title_hint">Title</string>
     <string name="upload_description_hint">Description</string>
-    <string name="upload_select_file">Select file to upload</string>
+    <string name="upload_select_file">Select file</string>
     <string name="upload_upload_button">Upload</string>
     <string name="upload_spinners_hint">Select a category</string>
 
