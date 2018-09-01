@@ -335,8 +335,8 @@ public class UploadActivity extends BaseActivity {
             }
 
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
-                    android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
-            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    R.layout.spinner_item, tmpSpinnerArray);
+            spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
             rootCategorySpinner.setAdapter(spinnerArrayAdapter);
 
             //Sets bundle selection
@@ -491,8 +491,8 @@ public class UploadActivity extends BaseActivity {
                 }
 
                 ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getApplicationContext(),
-                        android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
-                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        R.layout.spinner_item, tmpSpinnerArray);
+                spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
                 AppCompatSpinnerWithoutDefault subSpinner = new AppCompatSpinnerWithoutDefault(categoriesSpinners.getContext());
                 subSpinner.setPromptId(R.string.upload_spinners_hint);
@@ -591,8 +591,8 @@ public class UploadActivity extends BaseActivity {
             }
 
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
-                    android.R.layout.simple_spinner_dropdown_item, tmpSpinnerArray);
-            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    R.layout.spinner_item, tmpSpinnerArray);
+            spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
             rootCategorySpinner.setAdapter(spinnerArrayAdapter);
 
             //Sets bundle selection
