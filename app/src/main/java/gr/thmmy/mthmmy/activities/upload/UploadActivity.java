@@ -11,16 +11,17 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
@@ -86,7 +87,8 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadTitle;
     private EditText uploadDescription;
     private AppCompatButton titleDescriptionBuilderButton;
-    private TextView filenameHolder;
+    private AppCompatTextView filenameHolder;
+    private FloatingActionButton uploadFAB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,6 +195,8 @@ public class UploadActivity extends BaseActivity {
         uploadDescription = findViewById(R.id.upload_description);
 
         filenameHolder = findViewById(R.id.upload_filename);
+        Drawable filenameDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_attach_file_white_24dp);
+        filenameHolder.setCompoundDrawablesRelativeWithIntrinsicBounds(filenameDrawable, null, null, null);
 
         AppCompatButton selectFileButton = findViewById(R.id.upload_select_file_button);
         Drawable selectStartDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_insert_drive_file_white_24dp);
@@ -227,7 +231,8 @@ public class UploadActivity extends BaseActivity {
             startActivityForResult(takePhotoIntent, REQUEST_CODE_CAMERA);
         });
 
-        findViewById(R.id.upload_upload_button).setOnClickListener(view -> {
+        uploadFAB = findViewById(R.id.upload_fab);
+        uploadFAB.setOnClickListener(view -> {
             String uploadTitleText = uploadTitle.getText().toString();
             String uploadDescriptionText = uploadDescription.getText().toString();
 
@@ -302,7 +307,7 @@ public class UploadActivity extends BaseActivity {
 
                                 uploadTitle.setText(null);
                                 uploadDescription.setText(null);
-                                filenameHolder.setText(R.string.upload_filename);
+                                filenameHolder.setText(null);
                             }
 
                             @Override
