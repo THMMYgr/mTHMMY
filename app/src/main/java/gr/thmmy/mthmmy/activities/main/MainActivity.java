@@ -45,6 +45,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
     //-----------------------------------------CLASS VARIABLES------------------------------------------
     private static final int TIME_INTERVAL = 2000;
+    private SharedPreferences sharedPrefs;
+    private static final String DRAWER_INTRO = "DRAWER_INTRO";
     private long mBackPressed;
     private SectionsPagerAdapter sectionsPagerAdapter;
     private ViewPager viewPager;
@@ -83,12 +85,11 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         int preferredTab = Integer.parseInt(sharedPrefs.getString(DEFAULT_HOME_TAB, "0"));
         if (preferredTab != 3 || sessionManager.isLoggedIn()) {
             tabLayout.getTabAt(preferredTab).select();
         }
-
 
         setMainActivity(this);
     }
@@ -103,6 +104,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     protected void onResume() {
         drawer.setSelection(HOME_ID);
+        if(!sharedPrefs.getBoolean(DRAWER_INTRO, false)){
+            drawer.openDrawer();
+            sharedPrefs.edit().putBoolean(DRAWER_INTRO, true).apply();
+        }
         updateTabs();
         super.onResume();
     }

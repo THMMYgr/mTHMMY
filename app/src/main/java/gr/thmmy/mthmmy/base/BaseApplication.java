@@ -42,7 +42,7 @@ import timber.log.Timber;
 public class BaseApplication extends Application {
     private static BaseApplication baseApplication; //BaseApplication singleton
 
-    //FirebaseAnalytics
+    //Firebase Analytics
     private FirebaseAnalytics firebaseAnalytics;
 
     //Client & SessionManager
