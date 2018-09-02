@@ -142,7 +142,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center"
             android:orientation="vertical"
             app:hintEnabled="false">
 
@@ -157,7 +156,7 @@
             android:id="@+id/emoji_keyboard_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="bottom"
             android:padding="4dp"
             app:srcCompat="@drawable/ic_tag_faces_24dp"
             android:background="?android:selectableItemBackground"/>
@@ -166,7 +165,7 @@
             android:id="@+id/submit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="bottom"
             android:contentDescription="@string/submit"
             android:padding="4dp"
             app:srcCompat="@drawable/ic_send_accent_24dp"
