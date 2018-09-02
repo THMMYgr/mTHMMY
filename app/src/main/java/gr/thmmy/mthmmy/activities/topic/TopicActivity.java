@@ -172,6 +172,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         //LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(
                 getApplicationContext(), topicPageUrl);
+
         recyclerView.setLayoutManager(layoutManager);
         topicAdapter = new TopicAdapter(this, postsList);
         recyclerView.setAdapter(topicAdapter);
@@ -632,10 +633,10 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             postsList.addAll(postList);
             topicAdapter.notifyDataSetChanged();
         });
-        viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
+        /*viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
             if (focusedPostIndex == null) return;
             recyclerView.scrollToPosition(focusedPostIndex);
-        });
+        });*/
         viewModel.getTopicTaskResultCode().observe(this, resultCode -> {
             if (resultCode == null) return;
             progressBar.setVisibility(ProgressBar.GONE);
