@@ -59,7 +59,7 @@ public class EditorView extends LinearLayout {
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.EditorView, 0, 0);
         try {
-            edittextWrapper.setHint(a.getString(R.styleable.EditorView_hint));
+            editText.setHint(a.getString(R.styleable.EditorView_hint));
         } finally {
             a.recycle();
         }
