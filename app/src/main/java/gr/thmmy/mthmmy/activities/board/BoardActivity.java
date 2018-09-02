@@ -156,7 +156,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
     @Override
     public void onLoadMore() {
-        if (pagesLoaded < numberOfPages) {
+        if (pagesLoaded < numberOfPages && parsedTopics.get(parsedTopics.size() - 1) != null) {
             parsedTopics.add(null);
             boardAdapter.notifyItemInserted(parsedSubBoards.size() + parsedTopics.size());
 
@@ -185,6 +185,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
      * parameter!</p>
      */
     private class BoardTask extends ParseTask {
+        ArrayList<Board> tempSubboards = new ArrayList<>();
+        ArrayList<Topic> tempTopics = new ArrayList<>();
+
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -195,10 +198,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         public void parse(Document boardPage) throws ParseException {
             parsedTitle = boardPage.select("div.nav a.nav").last().text();
 
-            //Removes loading item
-            if (isLoadingMore) {
-                if (parsedTopics.size() > 0) parsedTopics.remove(parsedTopics.size() - 1);
-            }
             //Finds number of pages
             if (numberOfPages == -1) {
                 numberOfPages = 1;
@@ -254,7 +253,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                     }
                                 }
                             }
-                            parsedSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
+                            tempSubboards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
                         }
                     }
                 }
@@ -293,7 +292,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                 Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
                             }
                             pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
-                            parsedTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
+                            tempTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
                                     pStats, pLocked, pSticky, pUnread));
                         }
                     }
@@ -304,18 +303,31 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         @Override
         protected void postExecution(ResultCode result) {
             //TODO if (result == ResultCode.SUCCESS)...
-            if (boardTitle == null || Objects.equals(boardTitle, "")
-                    || !Objects.equals(boardTitle, parsedTitle)) {
-                boardTitle = parsedTitle;
-                toolbar.setTitle(boardTitle);
-                thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
+            if (result == ResultCode.SUCCESS) {
+                if (boardTitle == null || Objects.equals(boardTitle, "")
+                        || !Objects.equals(boardTitle, parsedTitle)) {
+                    boardTitle = parsedTitle;
+                    toolbar.setTitle(boardTitle);
+                    thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
+                }
+
+                //Removes loading item
+                if (isLoadingMore) {
+                    if (parsedTopics.size() > 0) parsedTopics.remove(parsedTopics.size() - 1);
+                }
+
+                parsedTopics.clear();
+                parsedSubBoards.clear();
+                parsedTopics.addAll(tempTopics);
+                parsedSubBoards.addAll(tempSubboards);
+                boardAdapter.notifyDataSetChanged();
+
+                //Parse was successful
+                ++pagesLoaded;
+                if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);
             }
 
-            //Parse was successful
-            ++pagesLoaded;
-            if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
-            boardAdapter.notifyDataSetChanged();
             isLoadingMore = false;
         }
     }
