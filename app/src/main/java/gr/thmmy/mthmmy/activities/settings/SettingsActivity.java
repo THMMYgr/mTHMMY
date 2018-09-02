@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.settings;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
 import gr.thmmy.mthmmy.R;

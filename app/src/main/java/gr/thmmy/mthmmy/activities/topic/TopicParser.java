@@ -1,9 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
-import android.util.Log;
 
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -248,6 +246,10 @@ public class TopicParser {
                 if (postDelete != null) {
                     p_deletePostURL = postDelete.attr("href");
                 }
+
+                Element postEdit = thisRow.select("a:has(img[alt='Αλλαγή'])").first();
+                if (postEdit != null)
+                    p_editPostURL = postEdit.attr("href");
 
                 //Finds post's submit date
                 Element postDate = thisRow.select("div.smalltext:matches(στις:)").first();

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/black"
+            style="@style/PopupMenuItem.TopItem"
+            android:text="@string/black" />
+
+        <TextView
+            android:id="@+id/red"
+            style="@style/PopupMenuItem"
+            android:text="@string/red" />
+
+        <TextView
+            android:id="@+id/yellow"
+            style="@style/PopupMenuItem"
+            android:text="@string/yellow" />
+
+        <TextView
+            android:id="@+id/pink"
+            style="@style/PopupMenuItem"
+            android:text="@string/pink" />
+
+        <TextView
+            android:id="@+id/green"
+            style="@style/PopupMenuItem"
+            android:text="@string/green" />
+
+        <TextView
+            android:id="@+id/orange"
+            style="@style/PopupMenuItem"
+            android:text="@string/orange" />
+
+        <TextView
+            android:id="@+id/purple"
+            style="@style/PopupMenuItem"
+            android:text="@string/purple" />
+
+        <TextView
+            android:id="@+id/blue"
+            style="@style/PopupMenuItem"
+            android:text="@string/blue" />
+
+        <TextView
+            android:id="@+id/beige"
+            style="@style/PopupMenuItem"
+            android:text="@string/beige" />
+
+        <TextView
+            android:id="@+id/brown"
+            style="@style/PopupMenuItem"
+            android:text="@string/brown" />
+
+        <TextView
+            android:id="@+id/teal"
+            style="@style/PopupMenuItem"
+            android:text="@string/teal" />
+
+        <TextView
+            android:id="@+id/navy"
+            style="@style/PopupMenuItem"
+            android:text="@string/navy" />
+
+        <TextView
+            android:id="@+id/maroon"
+            style="@style/PopupMenuItem"
+            android:text="@string/maroon" />
+
+        <TextView
+            android:id="@+id/lime_green"
+            style="@style/PopupMenuItem.BottomItem"
+            android:text="@string/lime_green" />
+    </LinearLayout>
+</ScrollView>

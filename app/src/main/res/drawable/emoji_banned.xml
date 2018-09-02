@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_banned_f0"
+android:duration="2000" />
+<item
+android:drawable="@drawable/emoji_banned_f1"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f2"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_banned_f3"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f4"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_banned_f5"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_banned_f6"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_banned_f7"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f8"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_banned_f9"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_banned_f10"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f11"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f12"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_banned_f13"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_banned_f14"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_banned_f15"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_banned_f16"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f17"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f18"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f19"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f20"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_banned_f21"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_banned_f22"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_banned_f23"
+android:duration="2000" />
+<item
+android:drawable="@drawable/emoji_banned_f24"
+android:duration="0" />
+<item
+android:drawable="@drawable/emoji_banned_f25"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f26"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f27"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f28"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_banned_f29"
+android:duration="100" />
+
+</animation-list>

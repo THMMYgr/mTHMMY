@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -44,6 +45,7 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
+import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
@@ -59,7 +61,8 @@ import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
  * key {@link #BUNDLE_TOPIC_TITLE} for faster title rendering.
  */
 @SuppressWarnings("unchecked")
-public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFocusChangeListener {
+public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFocusChangeListener,
+        EmojiKeyboard.EmojiKeyboardOwner{
     //Activity's variables
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
@@ -112,6 +115,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     private ImageButton lastPage;
     private Snackbar snackbar;
     private TopicViewModel viewModel;
+    private EmojiKeyboard emojiKeyboard;
 
     //Fix for vector drawables on android <21
     static {
@@ -159,6 +163,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         createDrawer();
 
         progressBar = findViewById(R.id.progressBar);
+        emojiKeyboard = findViewById(R.id.emoji_keyboard);
 
         postsList = new ArrayList<>();
 
@@ -196,6 +201,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
 
         paginationEnabled(false);
 
+        Timber.i("Starting initial topic load");
         viewModel.loadUrl(topicPageUrl);
     }
 
@@ -254,6 +260,19 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
             return;
+        } else if (emojiKeyboard.getVisibility() == View.VISIBLE) {
+            emojiKeyboard.setVisibility(View.GONE);
+            if (viewModel.isEditingPost()) {
+                TopicAdapter.EditMessageViewHolder vh = (TopicAdapter.EditMessageViewHolder)
+                        recyclerView.findViewHolderForAdapterPosition(viewModel.getPostBeingEditedPosition());
+                vh.editEditor.updateEmojiKeyboardVisibility();
+            }
+            if (viewModel.isWritingReply()) {
+                TopicAdapter.QuickReplyViewHolder vh = (TopicAdapter.QuickReplyViewHolder)
+                        recyclerView.findViewHolderForAdapterPosition(viewModel.postCount());
+                vh.replyEditor.updateEmojiKeyboardVisibility();
+            }
+            return;
         } else if (viewModel.isWritingReply()) {
             postsList.remove(postsList.size() - 1);
             topicAdapter.notifyItemRemoved(postsList.size());
@@ -291,6 +310,21 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     public void onPostFocusChange(int position) {
         recyclerView.scrollToPosition(position);
+    }
+
+    @Override
+    public void setEmojiKeyboardVisible(boolean visible) {
+        emojiKeyboard.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public boolean isEmojiKeyboardVisible() {
+        return emojiKeyboard.getVisibility() == View.VISIBLE;
+    }
+
+    @Override
+    public void setEmojiKeyboardInputConnection(InputConnection ic) {
+        emojiKeyboard.setInputConnection(ic);
     }
 
     //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------
@@ -468,10 +502,13 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             public void onDeleteTaskFinished(boolean result) {
                 progressBar.setVisibility(ProgressBar.GONE);
 
-                if (result)
+                if (result) {
+                    Timber.i("Post deleted successfully");
                     viewModel.reloadPage();
-                else
+                } else {
+                    Timber.w("Failed to delete post");
                     Toast.makeText(getBaseContext(), "Delete failed!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         viewModel.setReplyFinishListener(new ReplyTask.ReplyTaskCallbacks() {
@@ -491,15 +528,18 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 progressBar.setVisibility(ProgressBar.GONE);
 
                 if (success) {
+                    Timber.i("Post reply successful");
                     replyFAB.show();
                     bottomNavBar.setVisibility(View.VISIBLE);
                     viewModel.setWritingReply(false);
                     if ((postsList.get(postsList.size() - 1).getPostNumber() + 1) % 15 == 0) {
+                        Timber.i("Reply was posted in new page. Switching to last page.");
                         viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
                     } else {
                         viewModel.reloadPage();
                     }
                 } else {
+                    Timber.w("Post reply unsuccessful");
                     Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
                     recyclerView.getChildAt(postsList.size() - 1).setAlpha(1);
                     recyclerView.getChildAt(postsList.size() - 1).setEnabled(true);
@@ -534,6 +574,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 progressBar.setVisibility(ProgressBar.GONE);
 
                 if (result) {
+                    Timber.i("Post edit successful");
                     postsList.get(position).setPostType(Post.TYPE_POST);
                     topicAdapter.notifyItemChanged(position);
                     replyFAB.show();
@@ -541,6 +582,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     viewModel.setEditingPost(false);
                     viewModel.reloadPage();
                 } else {
+                    Timber.i("Post edit unsuccessful");
                     Toast.makeText(getBaseContext(), "Edit failed!", Toast.LENGTH_SHORT).show();
                     recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setAlpha(1);
                     recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setEnabled(true);
@@ -599,9 +641,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             progressBar.setVisibility(ProgressBar.GONE);
             switch (resultCode) {
                 case SUCCESS:
+                    Timber.i("Successfully loaded topic with URL %s", viewModel.getTopicUrl());
                     paginationEnabled(true);
                     break;
                 case NETWORK_ERROR:
+                    Timber.w("Network error on loaded page");
                     if (viewModel.getPostsList().getValue() == null) {
                         // no page has been loaded yet. Give user the ability to refresh
                         recyclerView.setVisibility(View.GONE);
@@ -623,6 +667,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     }
                     break;
                 case UNAUTHORIZED:
+                    Timber.w("Requested topic was unauthorized");
                     recyclerView.setVisibility(View.GONE);
                     TextView errorTextview = findViewById(R.id.error_textview);
                     errorTextview.setText(getString(R.string.unauthorized_topic_error));
@@ -630,7 +675,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     break;
                 default:
                     //Parse failed - should never happen
-                    Timber.d("Parse failed!");  //TODO report ParseException!!!
+                    Timber.wtf("Parse failed!");  //TODO report ParseException!!!
                     Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
@@ -639,6 +684,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         viewModel.getPrepareForReplyResult().observe(this, prepareForReplyResult -> {
             progressBar.setVisibility(ProgressBar.GONE);
             if (prepareForReplyResult != null && prepareForReplyResult.isSuccessful()) {
+                Timber.i("Prepare for reply successful");
                 //prepare for a reply
                 viewModel.setWritingReply(true);
                 postsList.add(Post.newQuickReply());
@@ -647,12 +693,14 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 replyFAB.hide();
                 bottomNavBar.setVisibility(View.GONE);
             } else {
+                Timber.i("Prepare for reply unsuccessful");
                 Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
             }
         });
         viewModel.getPrepareForEditResult().observe(this, result -> {
             progressBar.setVisibility(ProgressBar.GONE);
             if (result != null && result.isSuccessful()) {
+                Timber.i("Prepare for edit successful");
                 viewModel.setEditingPost(true);
                 postsList.get(result.getPosition()).setPostType(Post.TYPE_EDIT);
                 topicAdapter.notifyItemChanged(result.getPosition());
@@ -660,6 +708,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 replyFAB.hide();
                 bottomNavBar.setVisibility(View.GONE);
             } else {
+                Timber.i("Prepare for edit unsuccessful");
                 Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
             }
         });

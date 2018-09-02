@@ -25,4 +25,5 @@
     <color name="dialog_bg_semi_transparent">#D926A69A</color>
     <color name="dialog_bg_semi_transparent_dark">#D92B2B2B</color>
     <color name="member_of_the_month">#E91E63</color>
+    <color name="topic_post_icon">@color/primary_text</color>
 </resources>

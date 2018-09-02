@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_rofl_f0"
+android:duration="20" />
+<item
+android:drawable="@drawable/emoji_rofl_f1"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f2"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f3"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f4"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f5"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f6"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f7"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f8"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f9"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f10"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f11"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f12"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f13"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f14"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f15"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f16"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f17"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f18"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f19"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f20"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f21"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f22"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f23"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f24"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f25"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f26"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f27"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f28"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f29"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f30"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f31"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f32"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f33"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f34"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f35"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f36"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f37"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f38"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f39"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f40"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f41"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f42"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f43"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f44"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f45"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f46"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f47"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f48"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f49"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f50"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f51"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f52"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f53"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f54"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f55"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f56"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f57"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f58"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_rofl_f59"
+android:duration="100" />
+
+</animation-list>

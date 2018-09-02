@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
-import android.util.SparseArray;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,13 +8,11 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import gr.thmmy.mthmmy.activities.topic.TopicParser;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
-import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -110,7 +107,6 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             return new TopicTaskResult(ResultCode.SUCCESS, topicTitle, replyPageUrl, newPostsList, loadedPageTopicId,
                     currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods, topicViewers);
         } catch (IOException e) {
-            Timber.i(e, "IO Exception");
             return new TopicTaskResult(ResultCode.NETWORK_ERROR, null, null, null,
                     0, 0, 0, 0, null, null);
         } catch (Exception e) {
@@ -118,7 +114,7 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                 return new TopicTaskResult(ResultCode.UNAUTHORIZED, null, null, null,
                         0, 0, 0, 0, null, null);
             } else {
-                Timber.e(e, "Parsing Error");
+                Timber.e(e, "Topic parse failed");
                 return new TopicTaskResult(ResultCode.PARSING_ERROR, null, null, null,
                         0, 0, 0, 0, null, null);
             }
@@ -143,7 +139,6 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
     public interface TopicTaskObserver {
         void onTopicTaskStarted();
-
         void onTopicTaskCancelled();
     }
 

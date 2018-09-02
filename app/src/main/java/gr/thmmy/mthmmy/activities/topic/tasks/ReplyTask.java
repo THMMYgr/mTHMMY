@@ -54,6 +54,7 @@ public class ReplyTask extends AsyncTask<String, Void, Boolean> {
             Response response = client.newCall(post).execute();
             switch (replyStatus(response)) {
                 case SUCCESSFUL:
+                    BaseApplication.getInstance().logFirebaseAnalyticsEvent("post_creation", null);
                     return true;
                 case NEW_REPLY_WHILE_POSTING:
                     //TODO this...

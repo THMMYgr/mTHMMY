@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_cry_f0"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_cry_f1"
+android:duration="300" />
+<item
+android:drawable="@drawable/emoji_cry_f2"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_cry_f3"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_cry_f4"
+android:duration="150" />
+
+</animation-list>

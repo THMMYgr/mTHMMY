@@ -12,9 +12,12 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.session.SessionManager.BANNED_USER;
@@ -163,6 +166,7 @@ public class LoginActivity extends BaseActivity {
                     Toast.makeText(getApplicationContext(),
                             "Welcome, " + sessionManager.getUsername() + "!", Toast.LENGTH_LONG)
                             .show();
+                    BaseApplication.getInstance().logFirebaseAnalyticsEvent(FirebaseAnalytics.Event.LOGIN, null);
                     //Go to main
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);

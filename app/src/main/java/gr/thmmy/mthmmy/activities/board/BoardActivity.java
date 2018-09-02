@@ -286,9 +286,11 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             if (pLastPost.contains("by")) {
                                 pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
                                         "\n" + pLastPost.substring(pLastPost.indexOf("by"));
-                            } else {
+                            } else if (pLastPost.contains("από")) {
                                 pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
                                         "\n" + pLastPost.substring(pLastPost.indexOf("από"));
+                            } else {
+                                Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
                             }
                             pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
                             parsedTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,

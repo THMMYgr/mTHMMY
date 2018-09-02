@@ -41,6 +41,7 @@ public class DownloadHelper {
             request.setDestinationInExternalPublicDir(SAVE_DIR.getName(), fileName);
             request.allowScanningByMediaScanner();
 
+            BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_download", null);
             downloadManager.enqueue(request);
         } catch (Exception e) {
             Toast.makeText(applicationContext, "Download failed...", Toast.LENGTH_SHORT).show();

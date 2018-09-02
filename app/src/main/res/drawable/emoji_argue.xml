@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_argue_f0"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_argue_f1"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f2"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f3"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f4"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f5"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f6"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f7"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f8"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f9"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_argue_f10"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f11"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f12"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f13"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f14"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f15"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_argue_f16"
+android:duration="100" />
+
+</animation-list>

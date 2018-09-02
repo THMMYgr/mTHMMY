@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_slurp_f0"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f1"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f2"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f3"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f4"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f5"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f6"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f7"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f8"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f9"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f10"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f11"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f12"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f13"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f14"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f15"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f16"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f17"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f18"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_slurp_f19"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f20"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f21"
+android:duration="60" />
+<item
+android:drawable="@drawable/emoji_slurp_f22"
+android:duration="1000" />
+
+</animation-list>

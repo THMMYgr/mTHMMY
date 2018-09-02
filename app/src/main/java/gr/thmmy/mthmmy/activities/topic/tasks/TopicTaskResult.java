@@ -1,10 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic.tasks;
 
-import android.util.SparseArray;
-
 import java.util.ArrayList;
 
-import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
 import gr.thmmy.mthmmy.model.Post;
 
 public class TopicTaskResult {

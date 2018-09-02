@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_superinnocent_f0"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f1"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f2"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f3"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f4"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f5"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f6"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f7"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f8"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f9"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f10"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f11"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f12"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f13"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f14"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f15"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f16"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f17"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_superinnocent_f18"
+android:duration="500" />
+
+</animation-list>

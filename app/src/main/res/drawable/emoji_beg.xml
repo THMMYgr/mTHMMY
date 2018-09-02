@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_beg_f0"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_beg_f1"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_beg_f2"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_beg_f3"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_beg_f4"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_beg_f5"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_beg_f6"
+android:duration="200" />
+
+</animation-list>

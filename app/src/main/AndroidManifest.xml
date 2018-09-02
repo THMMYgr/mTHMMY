@@ -40,15 +40,12 @@
                 <data
                     android:host="www.thmmy.gr"
                     android:scheme="http" />
-
                 <data
                     android:host="www.thmmy.gr"
                     android:scheme="https" />
-
                 <data
                     android:host="thmmy.gr"
                     android:scheme="https" />
-
                 <data android:host="thmmy.gr" />
             </intent-filter>
         </activity>
@@ -124,7 +121,7 @@
         <activity
             android:name=".activities.settings.SettingsActivity"
             android:parentActivityName=".activities.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.PreferenceTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity" />
