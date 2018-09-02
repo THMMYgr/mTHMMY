@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f0"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f1"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f2"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f3"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f4"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f5"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f6"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f7"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f8"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f9"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f10"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f11"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f12"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f13"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f14"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f15"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f16"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f17"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f18"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f19"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f20"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f21"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f22"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f23"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f24"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f25"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f26"
+android:duration="400" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f27"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f28"
+android:duration="400" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f29"
+android:duration="300" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f30"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f31"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f32"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f33"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f34"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f35"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f36"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f37"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f38"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f39"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f40"
+android:duration="300" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f41"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f42"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f43"
+android:duration="10" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f44"
+android:duration="10" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f45"
+android:duration="300" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f46"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f47"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f48"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f49"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f50"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f51"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f52"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f53"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f54"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f55"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f56"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f57"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f58"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f59"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f60"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f61"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f62"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f63"
+android:duration="200" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f64"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f65"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f66"
+android:duration="300" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f67"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f68"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f69"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f70"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f71"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f72"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f73"
+android:duration="700" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f74"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f75"
+android:duration="700" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f76"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_a_eatpaper_f77"
+android:duration="1000" />
+
+</animation-list>

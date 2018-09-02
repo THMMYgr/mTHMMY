@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -44,6 +45,7 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
+import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
@@ -59,7 +61,8 @@ import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
  * key {@link #BUNDLE_TOPIC_TITLE} for faster title rendering.
  */
 @SuppressWarnings("unchecked")
-public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFocusChangeListener {
+public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFocusChangeListener,
+        EmojiKeyboard.EmojiKeyboardOwner{
     //Activity's variables
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
@@ -112,6 +115,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     private ImageButton lastPage;
     private Snackbar snackbar;
     private TopicViewModel viewModel;
+    private EmojiKeyboard emojiKeyboard;
 
     //Fix for vector drawables on android <21
     static {
@@ -159,6 +163,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         createDrawer();
 
         progressBar = findViewById(R.id.progressBar);
+        emojiKeyboard = findViewById(R.id.emoji_keyboard);
 
         postsList = new ArrayList<>();
 
@@ -255,6 +260,19 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
             return;
+        } else if (emojiKeyboard.getVisibility() == View.VISIBLE) {
+            emojiKeyboard.setVisibility(View.GONE);
+            if (viewModel.isEditingPost()) {
+                TopicAdapter.EditMessageViewHolder vh = (TopicAdapter.EditMessageViewHolder)
+                        recyclerView.findViewHolderForAdapterPosition(viewModel.getPostBeingEditedPosition());
+                vh.editEditor.updateEmojiKeyboardVisibility();
+            }
+            if (viewModel.isWritingReply()) {
+                TopicAdapter.QuickReplyViewHolder vh = (TopicAdapter.QuickReplyViewHolder)
+                        recyclerView.findViewHolderForAdapterPosition(viewModel.postCount());
+                vh.replyEditor.updateEmojiKeyboardVisibility();
+            }
+            return;
         } else if (viewModel.isWritingReply()) {
             postsList.remove(postsList.size() - 1);
             topicAdapter.notifyItemRemoved(postsList.size());
@@ -292,6 +310,21 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     public void onPostFocusChange(int position) {
         recyclerView.scrollToPosition(position);
+    }
+
+    @Override
+    public void setEmojiKeyboardVisible(boolean visible) {
+        emojiKeyboard.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public boolean isEmojiKeyboardVisible() {
+        return emojiKeyboard.getVisibility() == View.VISIBLE;
+    }
+
+    @Override
+    public void setEmojiKeyboardInputConnection(InputConnection ic) {
+        emojiKeyboard.setInputConnection(ic);
     }
 
     //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------

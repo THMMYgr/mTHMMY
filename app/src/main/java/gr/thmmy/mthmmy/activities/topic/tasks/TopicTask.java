@@ -139,7 +139,6 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
     public interface TopicTaskObserver {
         void onTopicTaskStarted();
-
         void onTopicTaskCancelled();
     }
 

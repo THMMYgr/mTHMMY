@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_foyska_f0"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_foyska_f1"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f2"
+android:duration="500" />
+<item
+android:drawable="@drawable/emoji_foyska_f3"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f4"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f5"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f6"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f7"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f8"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f9"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f10"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f11"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f12"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f13"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f14"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f15"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_foyska_f16"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f17"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f18"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f19"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f20"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f21"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f22"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f23"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f24"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f25"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f26"
+android:duration="300" />
+<item
+android:drawable="@drawable/emoji_foyska_f27"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f28"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_foyska_f29"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_foyska_f30"
+android:duration="600" />
+
+</animation-list>

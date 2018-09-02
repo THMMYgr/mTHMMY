@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_megashok1wq_f0"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f1"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f2"
+android:duration="600" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f3"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f4"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f5"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f6"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f7"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f8"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f9"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f10"
+android:duration="600" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f11"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f12"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f13"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f14"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f15"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f16"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f17"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f18"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f19"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f20"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f21"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f22"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f23"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f24"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f25"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f26"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f27"
+android:duration="300" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f28"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f29"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f30"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f31"
+android:duration="350" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f32"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f33"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f34"
+android:duration="800" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f35"
+android:duration="750" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f36"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f37"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f38"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f39"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f40"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f41"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f42"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f43"
+android:duration="150" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f44"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f45"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f46"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f47"
+android:duration="1500" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f48"
+android:duration="120" />
+<item
+android:drawable="@drawable/emoji_megashok1wq_f49"
+android:duration="150" />
+
+</animation-list>
