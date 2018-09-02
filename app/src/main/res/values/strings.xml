@@ -114,13 +114,11 @@
     <string name="upload_button">Upload</string>
 
     <!--Upload Activity-->
-    <string name="upload_category_pre_text">Select the correct category for the file</string>
-    <string name="upload_title_description_pre_text">Fill in the title and description\nor</string>
-    <string name="upload_title_description_builder">build them automatically</string>
+    <string name="upload_title_description_builder">Generate title and description</string>
     <string name="upload_title_hint">Title</string>
     <string name="upload_description_hint">Description</string>
-    <string name="upload_select_file">Select file to upload</string>
-    <string name="upload_upload_button">Upload</string>
+    <string name="upload_select_file">Select file</string>
+    <string name="upload_take_photo">Take photo</string>
     <string name="upload_spinners_hint">Select a category</string>
 
     <!--Upload Fields Builder Activity-->
@@ -134,7 +132,8 @@
     <string name="upload_fields_builder_radio_button_sept">September</string>
     <string name="upload_fields_builder_select_year_title">Select year</string>
     <string name="upload_fields_builder_year_hint">Year</string>
-    <string name="upload_fields_builder_submit">Build</string>
+    <string name="upload_fields_builder_submit">Generate</string>
+    <string name="upload_fields_builder_toolbar_title">Upload fields generator</string>
 
     <!--Settings Activity-->
     <string name="action_settings">Settings</string>

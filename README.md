@@ -22,7 +22,7 @@ Please refer to [CONTRIBUTING.md](/CONTRIBUTING.md) for details.
 
 ## Contact
 
-Do not hesitate to contact us for any matter, either by sending an email to `thmmynolife@gmail.com`, or by joining our [Discord server][discord-server].
+Do not hesitate to contact us for any matter, either by sending an email to [thmmynolife@gmail.com](mailto:thmmynolife@gmail.com), or by joining our [Discord server][discord-server].
 
 **Legal attribution: Google Play and the Google Play logo are trademarks of Google Inc.*
 

@@ -107,7 +107,6 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             return new TopicTaskResult(ResultCode.SUCCESS, topicTitle, replyPageUrl, newPostsList, loadedPageTopicId,
                     currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods, topicViewers);
         } catch (IOException e) {
-            Timber.i(e, "IO Exception");
             return new TopicTaskResult(ResultCode.NETWORK_ERROR, null, null, null,
                     0, 0, 0, 0, null, null);
         } catch (Exception e) {
@@ -115,7 +114,7 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                 return new TopicTaskResult(ResultCode.UNAUTHORIZED, null, null, null,
                         0, 0, 0, 0, null, null);
             } else {
-                Timber.e(e, "Parsing Error");
+                Timber.e(e, "Topic parse failed");
                 return new TopicTaskResult(ResultCode.PARSING_ERROR, null, null, null,
                         0, 0, 0, 0, null, null);
             }

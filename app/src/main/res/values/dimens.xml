@@ -7,6 +7,7 @@
     <dimen name="post_image_button">36dp</dimen>
     <dimen name="fab_margins">16dp</dimen>
     <dimen name="progress_bar_height">10dp</dimen>
+    <dimen name="medium_text">16sp</dimen>
     <dimen name="big_text">24sp</dimen>
     <dimen name="editor_format_button_size">24dp</dimen>
     <dimen name="editor_format_button_margin_between">4dp</dimen>
