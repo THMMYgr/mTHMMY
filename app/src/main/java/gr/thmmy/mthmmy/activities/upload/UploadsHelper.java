@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.upload;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.widget.Toast;
 
 import java.io.BufferedInputStream;
@@ -21,12 +23,32 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import timber.log.Timber;
+
+import static android.support.v4.content.FileProvider.getUriForFile;
 
 class UploadsHelper {
     private static final int DEFAULT_MIN_WIDTH_QUALITY = 400;
     private static final String CACHE_IMAGE_NAME = "tempUploadFile.jpg";
+
+    static File createImageFile(Context context) throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + ".jpg";
+
+
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), imageFileName);
+    }
+
+    void galleryAddPic(Context context, Uri photo) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        mediaScanIntent.setData(photo);
+        context.sendBroadcast(mediaScanIntent);
+    }
 
     @NonNull
     static String filenameFromUri(Context context, Uri uri) {

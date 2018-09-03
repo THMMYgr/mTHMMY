@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -12,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.FileProvider;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
@@ -36,6 +38,7 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,6 +85,7 @@ public class UploadActivity extends BaseActivity {
     private String uploadFilename;
     private Uri fileUri;
     private String fileIcon;
+    private File photoFile = null;
 
     //UI elements
     private MaterialProgressBar progressBar;
@@ -220,17 +224,29 @@ public class UploadActivity extends BaseActivity {
         Drawable takePhotoDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_photo_camera_white_24dp);
         takePhotoButton.setCompoundDrawablesRelativeWithIntrinsicBounds(takePhotoDrawable, null, null, null);
         takePhotoButton.setOnClickListener(v -> {
-            Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            takePhotoIntent.putExtra("return-data", true);
-            takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(UploadsHelper.getCacheFile(this)));
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                // Create the File where the photo should go
+                try {
+                    photoFile = UploadsHelper.createImageFile(this);
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                }
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+                    Uri photoURI = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 
-            Intent targetedIntent = new Intent(takePhotoIntent);
-            List<ResolveInfo> resInfo = this.getPackageManager().queryIntentActivities(takePhotoIntent, 0);
-            for (ResolveInfo resolveInfo : resInfo) {
-                String packageName = resolveInfo.activityInfo.packageName;
-                targetedIntent.setPackage(packageName);
+                    List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                    for (ResolveInfo resolveInfo : resInfoList) {
+                        String packageName = resolveInfo.activityInfo.packageName;
+                        grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
+
+                    startActivityForResult(takePictureIntent, AFR_REQUEST_CODE_CAMERA);
+                }
             }
-            startActivityForResult(takePhotoIntent, AFR_REQUEST_CODE_CAMERA);
         });
 
         FloatingActionButton uploadFAB = findViewById(R.id.upload_fab);
@@ -400,17 +416,14 @@ public class UploadActivity extends BaseActivity {
             }
 
             Bitmap bitmap;
-            File cacheImageFile = UploadsHelper.getCacheFile(this);
+            fileUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
 
-            Uri cacheFileUri = Uri.fromFile(cacheImageFile);
-            fileIcon = "jpg_image.gif";
-
-            bitmap = UploadsHelper.getImageResized(this, cacheFileUri);
-            int rotation = UploadsHelper.getRotation(this, cacheFileUri);
+            bitmap = UploadsHelper.getImageResized(this, fileUri);
+            int rotation = UploadsHelper.getRotation(this, fileUri);
             bitmap = UploadsHelper.rotate(bitmap, rotation);
 
             try {
-                FileOutputStream out = new FileOutputStream(cacheImageFile);
+                FileOutputStream out = new FileOutputStream(photoFile);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                 out.flush();
                 out.close();
@@ -418,15 +431,9 @@ public class UploadActivity extends BaseActivity {
                 e.printStackTrace();
             }
 
-            String newFilename = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).
-                    format(new Date());
-            fileUri = Uri.parse(UploadsHelper.createTempFile(this, cacheFileUri, newFilename));
-
-                newFilename += ".jpg";
-                filenameHolder.setText(newFilename);
-                filenameHolder.setVisibility(View.VISIBLE);
-
-                UploadsHelper.deleteCacheFiles(this);
+            filenameHolder.setText(photoFile.getName());
+            filenameHolder.setVisibility(View.VISIBLE);
+            fileIcon = "jpg_image.gif";
         } else if (requestCode == AFR_REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
@@ -579,10 +586,10 @@ public class UploadActivity extends BaseActivity {
             tmpSpinnerArray[i] = uploadRootCategories.get(i).getCategoryTitle();
         }
 
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
-                    R.layout.spinner_item, tmpSpinnerArray);
-            spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-            rootCategorySpinner.setAdapter(spinnerArrayAdapter);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
+                R.layout.spinner_item, tmpSpinnerArray);
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        rootCategorySpinner.setAdapter(spinnerArrayAdapter);
 
         //Sets bundle selection
         if (bundleCategory != null) {
