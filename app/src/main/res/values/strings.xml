@@ -114,12 +114,14 @@
     <string name="upload_button">Upload</string>
 
     <!--Upload Activity-->
-    <string name="upload_title_description_builder">Generate title and description</string>
+    <string name="upload_title_description_builder">Generate fields</string>
     <string name="upload_title_hint">Title</string>
+    <string name="upload_filename">Upload as (filename)</string>
     <string name="upload_description_hint">Description</string>
     <string name="upload_select_file">Select file</string>
     <string name="upload_take_photo">Take photo</string>
     <string name="upload_spinners_hint">Select a category</string>
+    <string name="upload_filename_info">Please follow the filename rules described in <a href="https://www.thmmy.gr/smf/index.php?topic=34294.0">this topic</a>.</string>
 
     <!--Upload Fields Builder Activity-->
     <string name="upload_fields_builder_type_radio_buttons_title">Select type of upload</string>

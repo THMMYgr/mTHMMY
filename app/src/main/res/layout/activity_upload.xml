@@ -45,6 +45,7 @@
                 android:id="@+id/upload_spinners"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:background="@color/background"
                 android:orientation="vertical">
 
@@ -73,6 +74,36 @@
                     android:maxLength="500" />
             </android.support.design.widget.TextInputLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_weight="1">
+
+                    <EditText
+                        android:id="@+id/upload_filename"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/upload_filename"
+                        android:inputType="text"
+                        android:maxLength="500" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.v7.widget.AppCompatImageButton
+                    android:id="@+id/upload_filename_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/background"
+                    app:srcCompat="@drawable/ic_info_outline_white_24dp" />
+            </LinearLayout>
+
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,18 +127,6 @@
                 android:text="@string/upload_title_description_builder"
                 android:textAlignment="center"
                 android:textColor="@color/accent" />
-
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/upload_filename"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:layout_marginTop="6dp"
-                android:drawablePadding="5dp"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:textColor="@color/primary_text"
-                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"

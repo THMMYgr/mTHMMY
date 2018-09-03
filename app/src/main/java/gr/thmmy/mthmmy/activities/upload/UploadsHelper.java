@@ -95,7 +95,7 @@ class UploadsHelper {
         return filename;
     }
 
-    static long sizeFromUri(Context context, Uri uri){
+    static long sizeFromUri(Context context, @NonNull Uri uri){
         try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
