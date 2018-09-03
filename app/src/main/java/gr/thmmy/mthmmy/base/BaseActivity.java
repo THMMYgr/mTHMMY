@@ -37,6 +37,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.snatik.storage.Storage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -90,6 +91,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //Common UI elements
     protected Toolbar toolbar;
     protected Drawer drawer;
+    protected Storage storage;
 
     private MainActivity mainActivity;
 
@@ -112,6 +114,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> {
             setTopicBookmark(thisPageBookmarkMenuButton);
         });
+
+        storage = new Storage(getApplicationContext());
     }
 
     @Override

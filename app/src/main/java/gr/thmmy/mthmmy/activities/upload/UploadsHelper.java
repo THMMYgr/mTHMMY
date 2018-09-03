@@ -1,13 +1,7 @@
 package gr.thmmy.mthmmy.activities.upload;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.OpenableColumns;
@@ -16,46 +10,21 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.widget.Toast;
 
+import com.snatik.storage.Storage;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import timber.log.Timber;
 
-import static android.support.v4.content.FileProvider.getUriForFile;
-
 class UploadsHelper {
-    @NonNull
-    static String filenameFromUri(Context context, Uri uri) {
-        String filename = null;
-        if (uri.getScheme().equals("content")) {
-            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            }
-        }
-        if (filename == null) {
-            filename = uri.getPath();
-            int cut = filename.lastIndexOf('/');
-            if (cut != -1) {
-                filename = filename.substring(cut + 1);
-            }
-        }
-
-        return filename;
-    }
-
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Nullable
-    static String createTempFile(Context context, Uri fileUri, String newFilename) {
+    static Uri createTempFile(Context context, Storage storage, Uri fileUri, String newFilename) {
         String oldFilename = filenameFromUri(context, fileUri);
         String fileExtension = oldFilename.substring(oldFilename.indexOf("."));
         String destinationFilename = Environment.getExternalStorageDirectory().getPath() +
@@ -101,7 +70,38 @@ class UploadsHelper {
             }
         }
 
-        return destinationFilename;
+        return FileProvider.getUriForFile(context, context.getPackageName() +
+                ".provider", storage.getFile(destinationFilename));
+    }
+
+    @NonNull
+    static String filenameFromUri(Context context, Uri uri) {
+        String filename = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            }
+        }
+        if (filename == null) {
+            filename = uri.getPath();
+            int cut = filename.lastIndexOf('/');
+            if (cut != -1) {
+                filename = filename.substring(cut + 1);
+            }
+        }
+
+        return filename;
+    }
+
+    static long sizeFromUri(Context context, Uri uri){
+        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
+            }
+        }
+        return -1;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

@@ -11,12 +11,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -31,6 +33,7 @@ import timber.log.Timber;
 
 public class TakePhoto {
     private static final int DEFAULT_MIN_WIDTH_QUALITY = 400;
+    private static final String IMAGE_CONTENT_DESCRIPTION = "mThmmy uploads image";
 
     @Nullable
     public static Intent getIntent(Context context, @NonNull File photoFile) {
@@ -92,17 +95,14 @@ public class TakePhoto {
             }
         }
 
-        File photoFile = new File(imageFolder, imageFileName);
-        galleryAddPic(context, photoFile);
-
-        return photoFile;
+        return new File(imageFolder, imageFileName);
     }
 
-    private static void galleryAddPic(Context context, File photoFile) {
+    public static void galleryAddPic(Context context, File photoFile) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, photoFile.getName());
-        values.put(MediaStore.Images.Media.DESCRIPTION, "mThmmy uploads image");
-        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis()); //TODO fix bug
+        values.put(MediaStore.Images.Media.DESCRIPTION, IMAGE_CONTENT_DESCRIPTION);
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
         values.put(MediaStore.Images.ImageColumns.BUCKET_ID, photoFile.toString().toLowerCase(Locale.US).hashCode());
         values.put(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME, photoFile.getName().toLowerCase(Locale.US));
         values.put("_data", photoFile.getAbsolutePath());
