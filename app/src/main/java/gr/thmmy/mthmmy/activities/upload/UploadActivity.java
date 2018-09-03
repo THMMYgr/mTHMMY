@@ -4,16 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.FileProvider;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
@@ -37,20 +32,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.UploadCategory;
 import gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault;
+import gr.thmmy.mthmmy.utils.TakePhoto;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -224,28 +214,13 @@ public class UploadActivity extends BaseActivity {
         Drawable takePhotoDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_photo_camera_white_24dp);
         takePhotoButton.setCompoundDrawablesRelativeWithIntrinsicBounds(takePhotoDrawable, null, null, null);
         takePhotoButton.setOnClickListener(v -> {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            // Ensure that there's a camera activity to handle the intent
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                // Create the File where the photo should go
-                try {
-                    photoFile = UploadsHelper.createImageFile(this);
-                } catch (IOException ex) {
-                    // Error occurred while creating the File
-                }
-                // Continue only if the File was successfully created
-                if (photoFile != null) {
-                    Uri photoURI = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+            // Create the File where the photo should go
+            photoFile = TakePhoto.createImageFile(this);
 
-                    List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                    for (ResolveInfo resolveInfo : resInfoList) {
-                        String packageName = resolveInfo.activityInfo.packageName;
-                        grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    }
-
-                    startActivityForResult(takePictureIntent, AFR_REQUEST_CODE_CAMERA);
-                }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                startActivityForResult(TakePhoto.getIntent(this, photoFile),
+                        AFR_REQUEST_CODE_CAMERA);
             }
         });
 
@@ -415,21 +390,7 @@ public class UploadActivity extends BaseActivity {
                 return;
             }
 
-            Bitmap bitmap;
-            fileUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
-
-            bitmap = UploadsHelper.getImageResized(this, fileUri);
-            int rotation = UploadsHelper.getRotation(this, fileUri);
-            bitmap = UploadsHelper.rotate(bitmap, rotation);
-
-            try {
-                FileOutputStream out = new FileOutputStream(photoFile);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                out.flush();
-                out.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            fileUri = TakePhoto.processResult(this, photoFile);
 
             filenameHolder.setText(photoFile.getName());
             filenameHolder.setVisibility(View.VISIBLE);

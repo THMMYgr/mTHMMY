@@ -32,24 +32,6 @@ import timber.log.Timber;
 import static android.support.v4.content.FileProvider.getUriForFile;
 
 class UploadsHelper {
-    private static final int DEFAULT_MIN_WIDTH_QUALITY = 400;
-    private static final String CACHE_IMAGE_NAME = "tempUploadFile.jpg";
-
-    static File createImageFile(Context context) throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + ".jpg";
-
-
-        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), imageFileName);
-    }
-
-    void galleryAddPic(Context context, Uri photo) {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        mediaScanIntent.setData(photo);
-        context.sendBroadcast(mediaScanIntent);
-    }
-
     @NonNull
     static String filenameFromUri(Context context, Uri uri) {
         String filename = null;
@@ -122,13 +104,6 @@ class UploadsHelper {
         return destinationFilename;
     }
 
-    static File getCacheFile(Context context) {
-        File imageFile = new File(context.getExternalCacheDir(), CACHE_IMAGE_NAME);
-        //noinspection ResultOfMethodCallIgnored
-        imageFile.getParentFile().mkdirs();
-        return imageFile;
-    }
-
     @SuppressWarnings("ResultOfMethodCallIgnored")
     static void deleteTempFiles() {
         File tempFilesDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
@@ -141,81 +116,5 @@ class UploadsHelper {
             }
             tempFilesDirectory.delete();
         }
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    static void deleteCacheFiles(Context context) {
-        File cacheFilesDirectory = context.getExternalCacheDir();
-        assert cacheFilesDirectory != null;
-        String[] tempFilesArray = cacheFilesDirectory.list();
-        for (String tempFile : tempFilesArray) {
-            new File(cacheFilesDirectory, tempFile).delete();
-        }
-    }
-
-    /**
-     * Resize to avoid using too much memory loading big images (e.g.: 2560*1920)
-     **/
-    static Bitmap getImageResized(Context context, Uri selectedImage) {
-        Bitmap bm;
-        int[] sampleSizes = new int[]{5, 3, 2, 1};
-        int i = 0;
-        do {
-            bm = decodeBitmap(context, selectedImage, sampleSizes[i]);
-            i++;
-        } while (bm.getWidth() < DEFAULT_MIN_WIDTH_QUALITY && i < sampleSizes.length);
-        return bm;
-    }
-
-    private static Bitmap decodeBitmap(Context context, Uri theUri, int sampleSize) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = sampleSize;
-
-        AssetFileDescriptor fileDescriptor = null;
-        try {
-            fileDescriptor = context.getContentResolver().openAssetFileDescriptor(theUri, "r");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        assert fileDescriptor != null;
-        return BitmapFactory.decodeFileDescriptor(
-                fileDescriptor.getFileDescriptor(), null, options);
-    }
-
-    static int getRotation(Context context, Uri imageUri) {
-        int rotation = 0;
-        try {
-
-            context.getContentResolver().notifyChange(imageUri, null);
-            ExifInterface exif = new ExifInterface(imageUri.getPath());
-            int orientation = exif.getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL);
-
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    rotation = 270;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    rotation = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotation = 90;
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return rotation;
-    }
-
-    static Bitmap rotate(Bitmap bm, int rotation) {
-        if (rotation != 0) {
-            Matrix matrix = new Matrix();
-            matrix.postRotate(rotation);
-            return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
-        }
-        return bm;
     }
 }
