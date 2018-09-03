@@ -632,10 +632,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 //-------------------------------------------BOOKMARKS END------------------------------------------
 
     //-------PERMS---------
-    private static final int PERMISSIONS_REQUEST_CODE = 69;
+    private static final int DOWNLOAD_REQUEST_CODE = 69;  //Arbitrary, application specific
 
     //True if permissions are OK
-    private boolean checkPerms() {
+    protected boolean checkPerms() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -648,13 +648,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //Display popup for user to grant permission
-    private void requestPerms() { //Runtime permissions request for devices with API >= 23
+    protected void requestPerms(int code) { //Runtime permissions request for devices with API >= 23
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-            requestPermissions(PERMISSIONS_STORAGE, PERMISSIONS_REQUEST_CODE);
+            requestPermissions(PERMISSIONS_STORAGE, code);
         }
     }
 
@@ -663,8 +663,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
             , @NonNull int[] grantResults) {
         switch (permsRequestCode) {
-            case PERMISSIONS_REQUEST_CODE:
-                downloadFile();
+            case DOWNLOAD_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    prepareDownload(tempThmmyFile);
                 break;
         }
     }
@@ -678,14 +679,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             prepareDownload(thmmyFile);
         else {
             tempThmmyFile = thmmyFile;
-            requestPerms();
+            requestPerms(DOWNLOAD_REQUEST_CODE);
         }
-    }
-
-    //Uses temp file - called after permission grant
-    private void downloadFile() {
-        if (checkPerms())
-            prepareDownload(tempThmmyFile);
     }
 
     private void prepareDownload(ThmmyFile thmmyFile) {
@@ -705,36 +700,25 @@ public abstract class BaseActivity extends AppCompatActivity {
         Button cancelButton = view.findViewById(R.id.cancel);
         Button openButton = view.findViewById(R.id.open);
         Button downloadButton = view.findViewById(R.id.download);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        openButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            try {
+                String fileName = thmmyFile.getFilename();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", new File(SAVE_DIR, fileName));
+                intent.setDataAndType(fileUri, getMimeType(fileName));
+                BaseActivity.this.startActivity(intent);
+            } catch (Exception e) {
+                Timber.e(e, "Couldn't open downloaded file...");
+                Toast.makeText(getBaseContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
             }
-        });
-        openButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                try {
-                    String fileName = thmmyFile.getFilename();
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", new File(SAVE_DIR, fileName));
-                    intent.setDataAndType(fileUri, getMimeType(fileName));
-                    BaseActivity.this.startActivity(intent);
-                } catch (Exception e) {
-                    Timber.e(e, "Couldn't open downloaded file...");
-                    Toast.makeText(getBaseContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
-                }
 
-            }
         });
-        downloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                DownloadHelper.enqueueDownload(thmmyFile);
-            }
+        downloadButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            DownloadHelper.enqueueDownload(thmmyFile);
         });
         dialog.show();
     }

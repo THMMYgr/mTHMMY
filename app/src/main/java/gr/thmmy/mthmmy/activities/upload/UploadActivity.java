@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
@@ -63,9 +65,14 @@ public class UploadActivity extends BaseActivity {
     /**
      * Request codes used in activities for result (AFR) calls
      */
-    private static final int AFR_REQUEST_CODE_CHOOSE_FILE = 8;
-    private static final int AFR_REQUEST_CODE_CAMERA = 4;
-    private static final int AFR_REQUEST_CODE_FIELDS_BUILDER = 74;
+    private static final int AFR_REQUEST_CODE_CHOOSE_FILE = 8;  //Arbitrary, application specific
+    private static final int AFR_REQUEST_CODE_CAMERA = 4;     //Arbitrary, application specific
+    private static final int AFR_REQUEST_CODE_FIELDS_BUILDER = 74;    //Arbitrary, application specific
+
+    /**
+     * Request code to gain read/write permission
+     */
+    private static final int UPLOAD_REQUEST_CODE = 42;    //Arbitrary, application specific
 
     private ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     private ParseUploadPageTask parseUploadPageTask;
@@ -214,14 +221,10 @@ public class UploadActivity extends BaseActivity {
         Drawable takePhotoDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_photo_camera_white_24dp);
         takePhotoButton.setCompoundDrawablesRelativeWithIntrinsicBounds(takePhotoDrawable, null, null, null);
         takePhotoButton.setOnClickListener(v -> {
-            // Create the File where the photo should go
-            photoFile = TakePhoto.createImageFile(this);
-
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                startActivityForResult(TakePhoto.getIntent(this, photoFile),
-                        AFR_REQUEST_CODE_CAMERA);
-            }
+        if(checkPerms())
+            takePhoto();
+        else
+            requestPerms(UPLOAD_REQUEST_CODE);
         });
 
         FloatingActionButton uploadFAB = findViewById(R.id.upload_fab);
@@ -406,6 +409,27 @@ public class UploadActivity extends BaseActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
+            , @NonNull int[] grantResults) {
+        switch (permsRequestCode) {
+            case UPLOAD_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    takePhoto();
+                break;
+        }
+    }
+
+    // Should only be called after making sure permissions are granted
+    private void takePhoto(){
+        // Create the File where the photo should go
+        photoFile = TakePhoto.createImageFile(this);
+
+        // Continue only if the File was successfully created
+        if (photoFile != null)
+            startActivityForResult(TakePhoto.getIntent(this, photoFile), AFR_REQUEST_CODE_CAMERA);
     }
 
     private class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
