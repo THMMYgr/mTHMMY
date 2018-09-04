@@ -4,14 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.editorview.EditorView;
 import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -32,8 +31,15 @@ public class CreateContentActivity extends AppCompatActivity implements EmojiKey
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_content);
 
-        TextView toolbarTitle = findViewById(R.id.toolbar_title);
-        toolbarTitle.setText(R.string.new_topic_toolbar);
+        //Initialize toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Create topic");
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+        ((TextView) findViewById(R.id.toolbar_title)).setText("Create topic");
 
         progressBar = findViewById(R.id.progressBar);
 

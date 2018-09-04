@@ -51,7 +51,8 @@
             android:id="@+id/main_content_editorview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/subject_input" />
+            android:layout_below="@id/subject_input"
+            app:hint="topic message"/>
 
         <gr.thmmy.mthmmy.editorview.EmojiKeyboard
             android:id="@+id/emoji_keyboard"
