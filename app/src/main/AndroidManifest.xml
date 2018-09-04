@@ -149,7 +149,11 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".activities.CreateContentActivity"></activity>
+        <activity
+            android:name=".activities.CreateContentActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".activities.main.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
