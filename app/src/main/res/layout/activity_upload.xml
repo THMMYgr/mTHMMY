@@ -91,7 +91,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/upload_filename"
-                        android:inputType="text"
+                        android:inputType="textNoSuggestions"
                         android:maxLength="500" />
                 </android.support.design.widget.TextInputLayout>
 

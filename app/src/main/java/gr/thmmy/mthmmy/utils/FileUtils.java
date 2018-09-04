@@ -1,5 +1,9 @@
 package gr.thmmy.mthmmy.utils;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.webkit.MimeTypeMap;
@@ -45,7 +49,37 @@ public class FileUtils {
         String fileExtension = getFileExtension(filename);
 
         return fileExtension == null
-                ? null
+                ? filename
                 : filename.substring(0, filename.indexOf(fileExtension));
+    }
+
+    @NonNull
+    public static String filenameFromUri(Context context, Uri uri) {
+        String filename = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            }
+        }
+        if (filename == null) {
+            filename = uri.getPath();
+            int cut = filename.lastIndexOf('/');
+            if (cut != -1) {
+                filename = filename.substring(cut + 1);
+            }
+        }
+
+        return filename;
+    }
+
+    public static long sizeFromUri(Context context, @NonNull Uri uri){
+        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
+            }
+        }
+        return -1;
     }
 }

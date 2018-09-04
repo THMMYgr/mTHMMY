@@ -17,9 +17,10 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
+import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -240,15 +241,24 @@ public class UploadActivity extends BaseActivity {
 
         uploadFilename = findViewById(R.id.upload_filename);
         uploadFilename.addTextChangedListener(new TextWatcher() {
-            String filenameText, fileExtension;
+            String oldFilename, fileExtension;
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                filenameText = s.toString();
+                oldFilename = s.toString();
 
                 if (fileUri != null) {
-                    fileExtension = FileUtils.getFileExtension(UploadsHelper.
+                    String uriExtension = FileUtils.getFileExtension(FileUtils.
                             filenameFromUri(getApplicationContext(), fileUri));
+
+                    if (fileExtension == null || !fileExtension.equals(uriExtension)) {
+                        //New file selected
+                        //Changes the extension of the saved filename instance
+                        oldFilename = FileUtils.getFilenameWithoutExtension(oldFilename) +
+                                uriExtension;
+                    }
+
+                    fileExtension = uriExtension;
                 } else {
                     fileExtension = null;
                 }
@@ -260,15 +270,6 @@ public class UploadActivity extends BaseActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (fileExtension == null) {
-                    return;
-                }
-
-                if (!s.toString().endsWith(fileExtension)) {
-                    uploadFilename.setText(filenameText);
-                    return;
-                }
-
                 String filenameWithoutExtension = FileUtils.getFilenameWithoutExtension(s.toString());
                 if (filenameWithoutExtension != null && !filenameWithoutExtension.isEmpty() &&
                         !filenameWithoutExtension.matches("[0-9a-zA-Z~!@#$%^&()_+=\\-`\\[\\]{};',.]+")) {
@@ -276,6 +277,19 @@ public class UploadActivity extends BaseActivity {
                 } else {
                     uploadFilenameInfo.setImageResource(R.drawable.ic_info_outline_white_24dp);
                 }
+
+                if (fileExtension == null) {
+                    return;
+                }
+
+                if (!s.toString().endsWith(fileExtension)) {
+                    uploadFilename.setText(oldFilename);
+                    return;
+                }
+
+                s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.secondary_text)),
+                        s.length() - fileExtension.length(), s.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         });
 
@@ -311,6 +325,7 @@ public class UploadActivity extends BaseActivity {
             progressBar.setVisibility(View.VISIBLE);
 
             String uploadTitleText = uploadTitle.getText().toString();
+            String editTextFilename = uploadFilename.getText().toString();
             String uploadDescriptionText = uploadDescription.getText().toString();
 
             //Checks if all required fields are filled
@@ -328,8 +343,12 @@ public class UploadActivity extends BaseActivity {
                     Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
                     shouldReturn = true;
                 }
-                if (fileUri != null && UploadsHelper.sizeFromUri(this, fileUri) > MAX_FILE_SIZE_SUPPORTED) {
+                if (fileUri != null && FileUtils.sizeFromUri(this, fileUri) > MAX_FILE_SIZE_SUPPORTED) {
                     Toast.makeText(view.getContext(), "Your files are too powerful for thmmy. Reduce size or split!", Toast.LENGTH_LONG).show();
+                    shouldReturn = true;
+                }
+                if (!editTextFilename.matches("(.+\\.)+.+")){
+                    uploadFilename.setError("Invalid filename");
                     shouldReturn = true;
                 }
                 if (shouldReturn) {
@@ -345,16 +364,16 @@ public class UploadActivity extends BaseActivity {
             }
 
             //Checks if a file renaming is necessary
+            Uri tempFileUri = null;
             {
-                String editTextFilename = uploadFilename.getText().toString();
-                String selectedFileFilename = UploadsHelper.filenameFromUri(this, fileUri);
+                String selectedFileFilename = FileUtils.filenameFromUri(this, fileUri);
 
                 if (!editTextFilename.equals(selectedFileFilename)) {
                     //File should be uploaded with a different name
                     switch (uploadMethodSelected) {
                         case SELECT_FILE_METHOD_SELECTED:
                             //Temporarily copies the file to a another location and renames it
-                            fileUri = UploadsHelper.createTempFile(this, storage, fileUri,
+                            tempFileUri = UploadsHelper.createTempFile(this, storage, fileUri,
                                     FileUtils.getFilenameWithoutExtension(editTextFilename));
                             break;
                         case TAKE_PHOTO_METHOD_SELECTED:
@@ -388,7 +407,10 @@ public class UploadActivity extends BaseActivity {
                         .addParameter("tp-dluploadtitle", uploadTitleText)
                         .addParameter("tp-dluploadcat", categorySelected)
                         .addParameter("tp-dluploadtext", uploadDescriptionText)
-                        .addFileToUpload(fileUri.toString(), "tp-dluploadfile")
+                        .addFileToUpload(tempFileUri == null
+                                        ? fileUri.toString()
+                                        : tempFileUri.toString()
+                                , "tp-dluploadfile")
                         .addParameter("tp_dluploadicon", fileIcon)
                         .addParameter("tp-uploaduser", uploaderProfileIndex)
                         .setNotificationConfig(new UploadNotificationConfig())
@@ -495,7 +517,7 @@ public class UploadActivity extends BaseActivity {
                 String previousFilename = "";
                 if (fileUri != null) {
                     previousFilename = FileUtils.
-                            getFilenameWithoutExtension(UploadsHelper.filenameFromUri(this, fileUri));
+                            getFilenameWithoutExtension(FileUtils.filenameFromUri(this, fileUri));
                 }
 
                 if (editTextFilename != null && !editTextFilename.isEmpty() &&
@@ -515,9 +537,13 @@ public class UploadActivity extends BaseActivity {
 
             fileUri = data.getData();
             if (fileUri != null) {
-                String filename = UploadsHelper.filenameFromUri(this, fileUri);
+                String filename = FileUtils.filenameFromUri(this, fileUri);
                 if (!hasCustomFilename) {
                     uploadFilename.setText(filename);
+                } else {
+                    //Causes the EditText watcher to detect the fileUri change in case the extension changed
+                    String badHack = "stringThatIntentionallyInvalidatesFilename";
+                    uploadFilename.setText(badHack);
                 }
 
                 filename = filename.toLowerCase();
@@ -556,7 +582,7 @@ public class UploadActivity extends BaseActivity {
                 String previousFilename = "";
                 if (fileUri != null) {
                     previousFilename = FileUtils.
-                            getFilenameWithoutExtension(UploadsHelper.filenameFromUri(this, fileUri));
+                            getFilenameWithoutExtension(FileUtils.filenameFromUri(this, fileUri));
                 }
 
                 if (editTextFilename != null && !editTextFilename.isEmpty() &&
@@ -574,7 +600,12 @@ public class UploadActivity extends BaseActivity {
 
             if (!hasCustomFilename) {
                 uploadFilename.setText(photoFileSelected.getName());
+            } else {
+                //Causes the EditText watcher to detect the fileUri change in case the extension changed
+                String badHack = "stringThatIntentionallyInvalidatesFilename";
+                uploadFilename.setText(badHack);
             }
+
             fileIcon = "jpg_image.gif";
         } else if (requestCode == AFR_REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {
