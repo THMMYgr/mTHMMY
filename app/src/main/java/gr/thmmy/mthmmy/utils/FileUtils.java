@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.utils;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
@@ -20,7 +21,31 @@ public class FileUtils {
         return type;
     }
 
-    public static boolean fileNameExists (String fileName) {
+    public static boolean fileNameExists(String fileName) {
         return fileName != null && (new File(SAVE_DIR.getAbsolutePath(), fileName)).isFile();
+    }
+
+    @Nullable
+    public static String getFileExtension(String filename) {
+        String fileExtension;
+
+        if (!filename.contains(".")) {
+            return null;
+        }
+        if (filename.toLowerCase().endsWith(".tar.gz")) {
+            fileExtension = filename.substring(filename.length() - 7);
+        } else {
+            fileExtension = filename.substring(filename.lastIndexOf("."));
+        }
+
+        return fileExtension;
+    }
+
+    public static String getFilenameWithoutExtension(String filename) {
+        String fileExtension = getFileExtension(filename);
+
+        return fileExtension == null
+                ? null
+                : filename.substring(0, filename.indexOf(fileExtension));
     }
 }

@@ -121,7 +121,9 @@
     <string name="upload_select_file">Select file</string>
     <string name="upload_take_photo">Take photo</string>
     <string name="upload_spinners_hint">Select a category</string>
-    <string name="upload_filename_info">Please follow the filename rules described in <a href="https://www.thmmy.gr/smf/index.php?topic=34294.0">this topic</a>.</string>
+    <string name="upload_filename_info">Please follow the filename rules as\ndescribed
+        in&#160;<a href="https://www.thmmy.gr/smf/index.php?topic=34294.0">this topic</a>.\n
+        \nThis does not rename your local files.</string>
 
     <!--Upload Fields Builder Activity-->
     <string name="upload_fields_builder_type_radio_buttons_title">Select type of upload</string>
