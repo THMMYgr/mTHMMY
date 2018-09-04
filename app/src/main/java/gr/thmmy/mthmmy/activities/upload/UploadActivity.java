@@ -50,6 +50,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.UploadCategory;
+import gr.thmmy.mthmmy.model.UploadFile;
 import gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.utils.TakePhoto;
@@ -84,10 +85,6 @@ public class UploadActivity extends BaseActivity {
      */
     private static final int UPLOAD_REQUEST_CODE = 42;    //Arbitrary, application specific
 
-    private static final int NO_UPLOAD_METHOD_SELECTED = 0;
-    private static final int SELECT_FILE_METHOD_SELECTED = 1;
-    private static final int TAKE_PHOTO_METHOD_SELECTED = 2;
-
     private static final int MAX_FILE_SIZE_SUPPORTED = 45000000;
 
     private ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
@@ -96,9 +93,7 @@ public class UploadActivity extends BaseActivity {
     private String categorySelected = "-1";
     private String uploaderProfileIndex = "1";
 
-    private int uploadMethodSelected = NO_UPLOAD_METHOD_SELECTED;
-    private Uri fileUri;
-    private File photoFileSelected = null;
+    private ArrayList<UploadFile> filesList = new ArrayList<>();
     private File photoFileCreated = null;
     private String fileIcon;
 
@@ -110,6 +105,7 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadFilename;
     private EditText uploadDescription;
     private AppCompatButton titleDescriptionBuilderButton;
+    private LinearLayout filesListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -247,21 +243,24 @@ public class UploadActivity extends BaseActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 oldFilename = s.toString();
 
-                if (fileUri != null) {
-                    String uriExtension = FileUtils.getFileExtension(FileUtils.
-                            filenameFromUri(getApplicationContext(), fileUri));
-
-                    if (fileExtension == null || !fileExtension.equals(uriExtension)) {
-                        //New file selected
-                        //Changes the extension of the saved filename instance
-                        oldFilename = FileUtils.getFilenameWithoutExtension(oldFilename) +
-                                uriExtension;
-                    }
-
-                    fileExtension = uriExtension;
-                } else {
+                String uriExtension;
+                if (filesList.isEmpty()) {
                     fileExtension = null;
+                    return;
+                } else if (filesList.size() == 1) {
+                    uriExtension = FileUtils.getFileExtension(FileUtils.
+                            filenameFromUri(getApplicationContext(), filesList.get(0).getFileUri()));
+                } else {
+                    uriExtension = ".zip";
                 }
+
+                if (fileExtension == null || !fileExtension.equals(uriExtension)) {
+                    //New file selected
+                    //Changes the extension of the saved filename instance
+                    oldFilename = FileUtils.getFilenameWithoutExtension(oldFilename) +
+                            uriExtension;
+                }
+                fileExtension = uriExtension;
             }
 
             @Override
@@ -292,6 +291,8 @@ public class UploadActivity extends BaseActivity {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         });
+
+        filesListView = findViewById(R.id.upload_files_list);
 
         AppCompatButton selectFileButton = findViewById(R.id.upload_select_file_button);
         Drawable selectStartDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_insert_drive_file_white_24dp);
@@ -335,7 +336,7 @@ public class UploadActivity extends BaseActivity {
                     uploadTitle.setError("Required");
                     shouldReturn = true;
                 }
-                if (fileUri == null) {
+                if (filesList.isEmpty()) {
                     Toast.makeText(view.getContext(), "Please choose a file to upload or take a photo", Toast.LENGTH_LONG).show();
                     shouldReturn = true;
                 }
@@ -343,11 +344,18 @@ public class UploadActivity extends BaseActivity {
                     Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
                     shouldReturn = true;
                 }
-                if (fileUri != null && FileUtils.sizeFromUri(this, fileUri) > MAX_FILE_SIZE_SUPPORTED) {
-                    Toast.makeText(view.getContext(), "Your files are too powerful for thmmy. Reduce size or split!", Toast.LENGTH_LONG).show();
-                    shouldReturn = true;
+                if (!filesList.isEmpty()) {
+                    long totalFilesSize = 0;
+                    for (UploadFile file : filesList) {
+                        totalFilesSize += FileUtils.sizeFromUri(this, file.getFileUri());
+                    }
+
+                    if (totalFilesSize > MAX_FILE_SIZE_SUPPORTED) {
+                        Toast.makeText(view.getContext(), "Your files are too powerful for thmmy. Reduce size or split!", Toast.LENGTH_LONG).show();
+                        shouldReturn = true;
+                    }
                 }
-                if (!editTextFilename.matches("(.+\\.)+.+")){
+                if (!editTextFilename.matches("(.+\\.)+.+")) {
                     uploadFilename.setError("Invalid filename");
                     shouldReturn = true;
                 }
@@ -363,42 +371,51 @@ public class UploadActivity extends BaseActivity {
                 uploadDescriptionText += uploadedFromThmmyPromptHtml;
             }
 
-            //Checks if a file renaming is necessary
             Uri tempFileUri = null;
-            {
-                String selectedFileFilename = FileUtils.filenameFromUri(this, fileUri);
+            if (filesList.size() == 1) {
+                //Checks if the file needs renaming
+                UploadFile uploadFile = filesList.get(0);
+                String selectedFileFilename = FileUtils.filenameFromUri(this, uploadFile.getFileUri());
 
                 if (!editTextFilename.equals(selectedFileFilename)) {
                     //File should be uploaded with a different name
-                    switch (uploadMethodSelected) {
-                        case SELECT_FILE_METHOD_SELECTED:
-                            //Temporarily copies the file to a another location and renames it
-                            tempFileUri = UploadsHelper.createTempFile(this, storage, fileUri,
-                                    FileUtils.getFilenameWithoutExtension(editTextFilename));
-                            break;
-                        case TAKE_PHOTO_METHOD_SELECTED:
-                            //Renames the photo taken
-                            String photoPath = photoFileSelected.getPath();
-                            photoPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
-                            String destinationFilename = photoPath + File.separator +
-                                    FileUtils.getFilenameWithoutExtension(editTextFilename) + ".jpg";
+                    if (!uploadFile.isCameraPhoto()) {
+                        //Temporarily copies the file to a another location and renames it
+                        tempFileUri = UploadsHelper.createTempFile(this, storage,
+                                uploadFile.getFileUri(),
+                                FileUtils.getFilenameWithoutExtension(editTextFilename));
+                    } else {
+                        //Renames the photo taken
+                        String photoPath = uploadFile.getPhotoFile().getPath();
+                        photoPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
+                        String destinationFilename = photoPath + File.separator +
+                                FileUtils.getFilenameWithoutExtension(editTextFilename) + ".jpg";
 
-                            if (!storage.rename(photoFileSelected.getAbsolutePath(), destinationFilename)) {
-                                //Something went wrong, abort
-                                Toast.makeText(this, "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
-                                return;
-                            }
+                        if (!storage.rename(uploadFile.getPhotoFile().getAbsolutePath(), destinationFilename)) {
+                            //Something went wrong, abort
+                            Toast.makeText(this, "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.GONE);
+                            return;
+                        }
 
-                            //Points photoFile and fileUri to the new copied and renamed file
-                            photoFileSelected = storage.getFile(destinationFilename);
-                            fileUri = FileProvider.getUriForFile(this, getPackageName() +
-                                    ".provider", photoFileSelected);
-                            break;
-                        default:
-                            break;
+                        //Points photoFile and fileUri to the new copied and renamed file
+                        uploadFile.setPhotoFile(storage.getFile(destinationFilename));
+                        uploadFile.setFileUri(FileProvider.getUriForFile(this, getPackageName() +
+                                ".provider", uploadFile.getPhotoFile()));
                     }
                 }
+            } else {
+                Uri[] filesListArray = new Uri[filesList.size()];
+                for (int i = 0; i < filesList.size(); ++i) {
+                    filesListArray[i] = filesList.get(i).getFileUri();
+                }
+
+                File zipFile = UploadsHelper.createZipFile(this);
+                assert zipFile != null;
+                tempFileUri = FileProvider.getUriForFile(this, getPackageName() +
+                        ".provider", zipFile);
+
+                UploadsHelper.zip(this, filesListArray, tempFileUri);
             }
 
             try {
@@ -408,7 +425,7 @@ public class UploadActivity extends BaseActivity {
                         .addParameter("tp-dluploadcat", categorySelected)
                         .addParameter("tp-dluploadtext", uploadDescriptionText)
                         .addFileToUpload(tempFileUri == null
-                                        ? fileUri.toString()
+                                        ? filesList.get(0).getFileUri().toString()
                                         : tempFileUri.toString()
                                 , "tp-dluploadfile")
                         .addParameter("tp_dluploadicon", fileIcon)
@@ -434,15 +451,18 @@ public class UploadActivity extends BaseActivity {
                                 UploadsHelper.deleteTempFiles();
                                 BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
 
-                                if (uploadMethodSelected == TAKE_PHOTO_METHOD_SELECTED) {
-                                    TakePhoto.galleryAddPic(context, photoFileSelected);
+                                for (UploadFile file : filesList) {
+                                    if (file.isCameraPhoto()) {
+                                        TakePhoto.galleryAddPic(context, file.getPhotoFile());
+                                    }
                                 }
+
                                 uploadTitle.setText(null);
                                 uploadFilename.setText(null);
                                 uploadDescription.setText(null);
-                                fileUri = null;
+                                filesList.clear();
+                                filesListView.removeAllViews();
                                 photoFileCreated = null;
-                                photoFileSelected = null;
                                 progressBar.setVisibility(View.GONE);
                             }
 
@@ -497,9 +517,6 @@ public class UploadActivity extends BaseActivity {
         if (photoFileCreated != null) {
             storage.deleteFile(photoFileCreated.getAbsolutePath());
         }
-        if (photoFileSelected != null) {
-            storage.deleteFile(photoFileSelected.getAbsolutePath());
-        }
     }
 
     @Override
@@ -509,62 +526,45 @@ public class UploadActivity extends BaseActivity {
                 return;
             }
 
-            //Keeps the filename between different file selections if it has been modified
-            boolean hasCustomFilename = false;
-            {
-                String editTextFilename = FileUtils.
-                        getFilenameWithoutExtension(uploadFilename.getText().toString());
-                String previousFilename = "";
-                if (fileUri != null) {
-                    previousFilename = FileUtils.
-                            getFilenameWithoutExtension(FileUtils.filenameFromUri(this, fileUri));
-                }
+            Uri newFileUri = data.getData();
+            if (newFileUri != null) {
+                String filename = FileUtils.filenameFromUri(this, newFileUri);
 
-                if (editTextFilename != null && !editTextFilename.isEmpty() &&
-                        !editTextFilename.equals(previousFilename)) {
-                    hasCustomFilename = true;
-                }
-            }
+                if (filesList.isEmpty()) {
+                    if (uploadFilename.getText().toString().isEmpty()) {
+                        uploadFilename.setText(filename);
+                    }
 
-            //Deletes any photo file previously created, as it is not going to be used
-            if (photoFileCreated != null) {
-                storage.deleteFile(photoFileCreated.getAbsolutePath());
-            }
-            if (photoFileSelected != null) {
-                storage.deleteFile(photoFileSelected.getAbsolutePath());
-            }
-            uploadMethodSelected = SELECT_FILE_METHOD_SELECTED;
-
-            fileUri = data.getData();
-            if (fileUri != null) {
-                String filename = FileUtils.filenameFromUri(this, fileUri);
-                if (!hasCustomFilename) {
-                    uploadFilename.setText(filename);
+                    filename = filename.toLowerCase();
+                    if (filename.endsWith(".jpg")) {
+                        fileIcon = "jpg_image.gif";
+                    } else if (filename.endsWith(".gif")) {
+                        fileIcon = "gif_image.gif";
+                    } else if (filename.endsWith(".png")) {
+                        fileIcon = "png_image.gif";
+                    } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
+                        fileIcon = "html_file.gif";
+                    } else if (filename.endsWith(".pdf") || filename.endsWith(".doc") ||
+                            filename.endsWith("djvu")) {
+                        fileIcon = "text_file.gif";
+                    } else if (filename.endsWith(".zip") || filename.endsWith(".rar") ||
+                            filename.endsWith(".tar") || filename.endsWith(".tar.gz") ||
+                            filename.endsWith(".gz")) {
+                        fileIcon = "archive.gif";
+                    } else {
+                        fileIcon = "blank.gif";
+                    }
                 } else {
-                    //Causes the EditText watcher to detect the fileUri change in case the extension changed
-                    String badHack = "stringThatIntentionallyInvalidatesFilename";
-                    uploadFilename.setText(badHack);
-                }
-
-                filename = filename.toLowerCase();
-                if (filename.endsWith(".jpg")) {
-                    fileIcon = "jpg_image.gif";
-                } else if (filename.endsWith(".gif")) {
-                    fileIcon = "gif_image.gif";
-                } else if (filename.endsWith(".png")) {
-                    fileIcon = "png_image.gif";
-                } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
-                    fileIcon = "html_file.gif";
-                } else if (filename.endsWith(".pdf") || filename.endsWith(".doc") ||
-                        filename.endsWith("djvu")) {
-                    fileIcon = "text_file.gif";
-                } else if (filename.endsWith(".zip") || filename.endsWith(".rar") ||
-                        filename.endsWith(".tar") || filename.endsWith(".tar.gz") ||
-                        filename.endsWith(".gz")) {
                     fileIcon = "archive.gif";
-                } else {
-                    fileIcon = "blank.gif";
+
+                    String currentFilename = uploadFilename.getText().toString();
+                    String newFilename = FileUtils.getFilenameWithoutExtension(currentFilename) +
+                            ".zip";
+                    uploadFilename.setText(newFilename);
                 }
+
+                addFileViewToList(filename);
+                filesList.add(new UploadFile(false, newFileUri, null));
             }
         } else if (requestCode == AFR_REQUEST_CODE_CAMERA) {
             if (resultCode == Activity.RESULT_CANCELED) {
@@ -572,41 +572,27 @@ public class UploadActivity extends BaseActivity {
                 storage.deleteFile(photoFileCreated.getAbsolutePath());
                 return;
             }
-            uploadMethodSelected = TAKE_PHOTO_METHOD_SELECTED;
 
-            //Keeps the filename between different file selections if it has been modified
-            boolean hasCustomFilename = false;
-            {
-                String editTextFilename = FileUtils.
-                        getFilenameWithoutExtension(uploadFilename.getText().toString());
-                String previousFilename = "";
-                if (fileUri != null) {
-                    previousFilename = FileUtils.
-                            getFilenameWithoutExtension(FileUtils.filenameFromUri(this, fileUri));
+            if (filesList.isEmpty()) {
+                if (uploadFilename.getText().toString().isEmpty()) {
+                    uploadFilename.setText(photoFileCreated.getName());
                 }
 
-                if (editTextFilename != null && !editTextFilename.isEmpty() &&
-                        !editTextFilename.equals(previousFilename)) {
-                    hasCustomFilename = true;
-                }
-            }
-
-            if (photoFileSelected != null) {
-                storage.deleteFile(photoFileSelected.getAbsolutePath());
-            }
-            photoFileSelected = photoFileCreated;
-
-            fileUri = TakePhoto.processResult(this, photoFileSelected);
-
-            if (!hasCustomFilename) {
-                uploadFilename.setText(photoFileSelected.getName());
+                fileIcon = "jpg_image.gif";
             } else {
-                //Causes the EditText watcher to detect the fileUri change in case the extension changed
-                String badHack = "stringThatIntentionallyInvalidatesFilename";
-                uploadFilename.setText(badHack);
+                fileIcon = "archive.gif";
+
+                String currentFilename = uploadFilename.getText().toString();
+                String newFilename = FileUtils.getFilenameWithoutExtension(currentFilename) +
+                        ".zip";
+                uploadFilename.setText(newFilename);
             }
 
-            fileIcon = "jpg_image.gif";
+            UploadFile newFile = new UploadFile(true, TakePhoto.processResult(this,
+                    photoFileCreated), photoFileCreated);
+            addFileViewToList(FileUtils.getFilenameWithoutExtension(FileUtils.
+                    filenameFromUri(this, newFile.getFileUri())));
+            filesList.add(newFile);
         } else if (requestCode == AFR_REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
@@ -649,6 +635,30 @@ public class UploadActivity extends BaseActivity {
             startActivityForResult(TakePhoto.getIntent(this, photoFileCreated),
                     AFR_REQUEST_CODE_CAMERA);
         }
+    }
+
+    private void addFileViewToList(String filename) {
+        LayoutInflater layoutInflater = getLayoutInflater();
+        LinearLayout newFileRow = (LinearLayout) layoutInflater.
+                inflate(R.layout.activity_upload_file_list_row, null);
+
+        TextView itemText = newFileRow.findViewById(R.id.upload_file_item_text);
+        Drawable filenameDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_attach_file_white_24dp);
+        itemText.setCompoundDrawablesRelativeWithIntrinsicBounds(filenameDrawable, null, null, null);
+        itemText.setText(filename);
+
+        newFileRow.findViewById(R.id.upload_file_item_remove).
+                setOnClickListener(view -> {
+                    int fileIndex = filesListView.indexOfChild(newFileRow);
+                    filesListView.removeViewAt(fileIndex);
+                    filesList.remove(fileIndex);
+                    if (filesList.isEmpty()) {
+                        filesListView.setVisibility(View.GONE);
+                    }
+                });
+
+        filesListView.addView(newFileRow);
+        filesListView.setVisibility(View.VISIBLE);
     }
 
     private class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
