@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.CreateContentActivity">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/subject_input"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/subject">
+        <android.support.design.widget.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </android.support.design.widget.TextInputLayout>
+
+    <gr.thmmy.mthmmy.editorview.EditorView
+        android:id="@+id/main_content_editorview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/subject_input"/>
+
+    <gr.thmmy.mthmmy.editorview.EmojiKeyboard
+        android:id="@+id/emoji_keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"/>
+
+</RelativeLayout>

@@ -1,9 +1,11 @@
 package gr.thmmy.mthmmy.activities.board;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.CreateContentActivity;
+import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Bookmark;
@@ -95,37 +99,27 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         progressBar = findViewById(R.id.progressBar);
         newTopicFAB = findViewById(R.id.board_fab);
-        newTopicFAB.setEnabled(false);
-        newTopicFAB.hide();
-        /*if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
+        if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
         else {
-            newTopicFAB.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (sessionManager.isLoggedIn()) {
-                        //TODO create topic
-                    } else {
-                        new AlertDialog.Builder(BoardActivity.this)
-                                .setMessage("You need to be logged in to create a new topic!")
-                                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        Intent intent = new Intent(BoardActivity.this, LoginActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                                    }
-                                })
-                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                    }
-                                })
-                                .show();
-                    }
+            newTopicFAB.setOnClickListener(view -> {
+                if (sessionManager.isLoggedIn()) {
+                    //TODO create topic
+                    startActivity(new Intent(this, CreateContentActivity.class));
+                } else {
+                    new AlertDialog.Builder(BoardActivity.this)
+                            .setMessage("You need to be logged in to create a new topic!")
+                            .setPositiveButton("Login", (dialogInterface, i) -> {
+                                Intent intent = new Intent(BoardActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                                finish();
+                                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                            })
+                            .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                            })
+                            .show();
                 }
             });
-        }*/
+        }
 
         boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
         RecyclerView mainContent = findViewById(R.id.board_recycler_view);
