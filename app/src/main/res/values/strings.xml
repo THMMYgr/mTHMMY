@@ -180,4 +180,7 @@
     <string name="dialog_link_url_hint">Link URL</string>
     <string name="dialog_link_text_hint">Link text</string>
     <string name="input_field_required">Required</string>
+
+    <!-- New topic activity -->
+    <string name="new_topic_toolbar">New topic</string>
 </resources>

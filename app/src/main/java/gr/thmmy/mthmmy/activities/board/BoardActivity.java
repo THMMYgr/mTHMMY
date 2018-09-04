@@ -55,6 +55,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
     private String boardUrl;
     private String boardTitle;
     private String parsedTitle;
+    private String newTopicUrl;
 
     private int numberOfPages = -1;
     private int pagesLoaded = 0;
@@ -104,7 +105,11 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             newTopicFAB.setOnClickListener(view -> {
                 if (sessionManager.isLoggedIn()) {
                     //TODO create topic
-                    startActivity(new Intent(this, CreateContentActivity.class));
+                    if (newTopicUrl != null) {
+                        Intent intent = new Intent(this, CreateContentActivity.class);
+                        intent.putExtra(CreateContentActivity.EXTRA_NEW_TOPIC_URL, newTopicUrl);
+                        startActivity(intent);
+                    }
                 } else {
                     new AlertDialog.Builder(BoardActivity.this)
                             .setMessage("You need to be logged in to create a new topic!")
@@ -209,6 +214,13 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     //It just means this board has only one page of topics.
                 }
             }
+
+            //Finds the url needed to create a new topic
+            Element newTopicButton = boardPage.select("a:has(img[alt=Start new topic])").first();
+            if (newTopicButton == null)
+                newTopicButton = boardPage.select("a:has(img[alt=Νέο θέμα])").first();
+            if (newTopicButton != null) newTopicUrl = newTopicButton.attr("href");
+
             { //Finds sub boards
                 Elements subBoardRows = boardPage.select("div.tborder>table>tbody>tr");
                 if (subBoardRows != null && !subBoardRows.isEmpty()) {
