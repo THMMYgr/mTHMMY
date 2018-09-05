@@ -27,6 +27,7 @@ import timber.log.Timber;
 
 class UploadsHelper {
     private final static int BUFFER = 4096;
+    private static final String TEMP_FILES_DIRECTORY = "~tmp_mThmmy_uploads";
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Nullable
@@ -34,10 +35,10 @@ class UploadsHelper {
         String oldFilename = FileUtils.filenameFromUri(context, fileUri);
         String fileExtension = oldFilename.substring(oldFilename.indexOf("."));
         String destinationFilename = Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + "~tmp_mThmmy_uploads" + File.separatorChar + newFilename + fileExtension;
+                File.separatorChar + TEMP_FILES_DIRECTORY + File.separatorChar + newFilename + fileExtension;
 
         File tempDirectory = new File(android.os.Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + "~tmp_mThmmy_uploads");
+                File.separatorChar + TEMP_FILES_DIRECTORY);
 
         if (!tempDirectory.exists()) {
             if (!tempDirectory.mkdirs()) {
@@ -130,17 +131,15 @@ class UploadsHelper {
         }
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    static void deleteTempFiles() {
+    static void deleteTempFiles(Storage storage) {
         File tempFilesDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + "~tmp_mThmmy_uploads");
+                File.separatorChar + TEMP_FILES_DIRECTORY);
 
-        if (tempFilesDirectory.isDirectory()) {
-            String[] tempFilesArray = tempFilesDirectory.list();
-            for (String tempFile : tempFilesArray) {
-                new File(tempFilesDirectory, tempFile).delete();
+        if (storage.isDirectoryExists(tempFilesDirectory.getAbsolutePath())) {
+            for (File tempFile : storage.getFiles(tempFilesDirectory.getAbsolutePath())) {
+                storage.deleteFile(tempFile.getAbsolutePath());
             }
-            tempFilesDirectory.delete();
+            storage.deleteDirectory(tempFilesDirectory.getAbsolutePath());
         }
     }
 }

@@ -28,6 +28,7 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
     static final String RESULT_DESCRIPTION = "RESULT_DESCRIPTION";
 
     private String course, semester;
+    private boolean isValidYear;
 
     private LinearLayout semesterChooserLinear;
     private RadioGroup typeRadio, semesterRadio;
@@ -38,18 +39,17 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             String working = s.toString();
-            boolean isValid;
 
             if (working.length() == 4) {
                 int currentYear = Calendar.getInstance().get(Calendar.YEAR);
                 int inputYear = Integer.parseInt(working);
 
-                isValid = inputYear <= currentYear && inputYear > 2000;
+                isValidYear = inputYear <= currentYear && inputYear > 1980;
             } else {
-                isValid = false;
+                isValidYear = false;
             }
 
-            if (!isValid) {
+            if (!isValidYear) {
                 year.setError("Please enter a valid year");
             } else {
                 year.setError(null);
@@ -121,8 +121,8 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
             } else if (semesterChooserLinear.getVisibility() == View.VISIBLE && semesterId == -1) {
                 Toast.makeText(view.getContext(), "Please choose a semester for the upload", Toast.LENGTH_SHORT).show();
                 return;
-            } else if (year.getText().toString().isEmpty()) {
-                Toast.makeText(view.getContext(), "Please choose a year for the upload", Toast.LENGTH_SHORT).show();
+            } else if (year.getText().toString().isEmpty() || !isValidYear) {
+                Toast.makeText(view.getContext(), "Please choose a valid year for the upload", Toast.LENGTH_SHORT).show();
                 return;
             }
 

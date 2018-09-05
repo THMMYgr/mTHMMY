@@ -32,7 +32,7 @@
     </style>
 
     <style name="PopupMenuStyle">
-        <item name="android:popupBackground">@color/primary</item>
+        <item name="android:popupBackground">@color/primary_light</item>
         <item name="android:textAppearanceLargePopupMenu">@color/accent</item>
         <item name="android:textAppearanceSmallPopupMenu">@color/accent</item>
     </style>

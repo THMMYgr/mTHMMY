@@ -1,9 +1,7 @@
 package gr.thmmy.mthmmy.activities.upload;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -24,7 +22,6 @@ import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -39,7 +36,6 @@ import android.widget.Toast;
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
-import net.gotev.uploadservice.UploadNotificationAction;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
@@ -312,7 +308,7 @@ public class UploadActivity extends BaseActivity {
                 }
                 if (!editTextFilename.matches("(.+\\.)+.+") ||
                         !FileUtils.getFilenameWithoutExtension(editTextFilename).
-                                matches("[0-9a-zA-Z~!@#$%^&()_+=\\-`\\[\\]{};',.]+")) {
+                                matches("[0-9a-zA-Zα-ωΑ-Ω~!@#$%^&()_+=\\-`\\[\\]{};',.]+")) {
                     uploadFilename.setError("Invalid filename");
                     shouldReturn = true;
                 }
@@ -400,7 +396,7 @@ public class UploadActivity extends BaseActivity {
                                     , "tp-dluploadfile")
                             .addParameter("tp_dluploadicon", fileIcon)
                             .addParameter("tp-uploaduser", uploaderProfileIndex)
-                            .setNotificationConfig(new UploadNotificationConfig())
+                            .setNotificationConfig(uploadNotificationConfig)
                             .setMaxRetries(2)
                             .setDelegate(new UploadStatusDelegate() {
                                 @Override
@@ -411,14 +407,14 @@ public class UploadActivity extends BaseActivity {
                                 public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
                                                     Exception exception) {
                                     Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
-                                    UploadsHelper.deleteTempFiles();
+                                    UploadsHelper.deleteTempFiles(storage);
                                     progressBar.setVisibility(View.GONE);
                                 }
 
                                 @Override
                                 public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
                                     Toast.makeText(context, "Upload completed successfully", Toast.LENGTH_SHORT).show();
-                                    UploadsHelper.deleteTempFiles();
+                                    UploadsHelper.deleteTempFiles(storage);
                                     BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
 
                                     for (UploadFile file : filesList) {
@@ -441,7 +437,7 @@ public class UploadActivity extends BaseActivity {
                                 public void onCancelled(Context context, UploadInfo uploadInfo) {
                                     Toast.makeText(context, "Upload canceled", Toast.LENGTH_SHORT).show();
 
-                                    UploadsHelper.deleteTempFiles();
+                                    UploadsHelper.deleteTempFiles(storage);
                                     progressBar.setVisibility(View.GONE);
                                 }
                             })
@@ -459,6 +455,10 @@ public class UploadActivity extends BaseActivity {
             });
 
             AlertDialog alert = builder.create();
+            alert.setOnCancelListener(dialog -> {
+                progressBar.setVisibility(View.GONE);
+                dialog.dismiss();
+            });
             alert.show();
         });
 
@@ -626,6 +626,36 @@ public class UploadActivity extends BaseActivity {
         if (photoFileCreated != null) {
             startActivityForResult(TakePhoto.getIntent(this, photoFileCreated),
                     AFR_REQUEST_CODE_CAMERA);
+        }
+    }
+
+    private void updateUIElements() {
+        String[] tmpSpinnerArray = new String[uploadRootCategories.size()];
+        for (int i = 0; i < uploadRootCategories.size(); ++i) {
+            tmpSpinnerArray[i] = uploadRootCategories.get(i).getCategoryTitle();
+        }
+
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
+                R.layout.spinner_item, tmpSpinnerArray);
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        rootCategorySpinner.setAdapter(spinnerArrayAdapter);
+
+        //Sets bundle selection
+        if (bundleCategory != null) {
+            int bundleSelectionIndex = -1, currentIndex = 0;
+
+            for (UploadCategory category : uploadRootCategories) {
+                if (bundleCategory.get(0).contains(category.getCategoryTitle())) {
+                    bundleSelectionIndex = currentIndex;
+                    break;
+                }
+                ++currentIndex;
+            }
+
+            if (bundleSelectionIndex != -1) {
+                rootCategorySpinner.setSelection(bundleSelectionIndex, true);
+                bundleCategory.remove(0);
+            }
         }
     }
 
@@ -857,36 +887,6 @@ public class UploadActivity extends BaseActivity {
             updateUIElements();
             titleDescriptionBuilderButton.setEnabled(true);
             progressBar.setVisibility(ProgressBar.GONE);
-        }
-    }
-
-    private void updateUIElements() {
-        String[] tmpSpinnerArray = new String[uploadRootCategories.size()];
-        for (int i = 0; i < uploadRootCategories.size(); ++i) {
-            tmpSpinnerArray[i] = uploadRootCategories.get(i).getCategoryTitle();
-        }
-
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(BaseApplication.getInstance().getApplicationContext(),
-                R.layout.spinner_item, tmpSpinnerArray);
-        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        rootCategorySpinner.setAdapter(spinnerArrayAdapter);
-
-        //Sets bundle selection
-        if (bundleCategory != null) {
-            int bundleSelectionIndex = -1, currentIndex = 0;
-
-            for (UploadCategory category : uploadRootCategories) {
-                if (bundleCategory.get(0).contains(category.getCategoryTitle())) {
-                    bundleSelectionIndex = currentIndex;
-                    break;
-                }
-                ++currentIndex;
-            }
-
-            if (bundleSelectionIndex != -1) {
-                rootCategorySpinner.setSelection(bundleSelectionIndex, true);
-                bundleCategory.remove(0);
-            }
         }
     }
 }
