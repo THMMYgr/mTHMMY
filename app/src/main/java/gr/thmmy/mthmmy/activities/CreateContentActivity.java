@@ -1,7 +1,9 @@
 package gr.thmmy.mthmmy.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,8 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
+import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.editorview.EditorView;
 import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
+import gr.thmmy.mthmmy.session.SessionManager;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
@@ -55,7 +60,14 @@ public class CreateContentActivity extends AppCompatActivity implements EmojiKey
         contentEditor.setEmojiKeyboardOwner(this);
         contentEditor.setOnSubmitListener(v -> {
             if (newTopicUrl != null) {
-                new NewTopicTask(this).execute(newTopicUrl, subjectInput.getEditText().getText().toString(),
+                boolean includeAppSignature = true;
+                SessionManager sessionManager = BaseActivity.getSessionManager();
+                if (sessionManager.isLoggedIn()) {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    includeAppSignature = prefs.getBoolean(SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY, true);
+                }
+
+                new NewTopicTask(this, includeAppSignature).execute(newTopicUrl, subjectInput.getEditText().getText().toString(),
                         contentEditor.getText().toString());
             }
         });

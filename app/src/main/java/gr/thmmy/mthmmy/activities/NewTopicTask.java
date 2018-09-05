@@ -20,9 +20,11 @@ import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
 
     private NewTopicTaskCallbacks listener;
+    private boolean includeAppSignature;
 
-    public NewTopicTask(NewTopicTaskCallbacks listener){
+    public NewTopicTask(NewTopicTaskCallbacks listener, boolean includeAppSignature){
         this.listener = listener;
+        this.includeAppSignature = includeAppSignature;
     }
 
     @Override
@@ -49,9 +51,12 @@ public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
             topic = document.select("input[name=topic]").first().attr("value");
             createTopicUrl = document.select("form").first().attr("action");
 
+            final String appSignature = "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/" +
+                    "details?id=gr.thmmy.mthmmy]mTHMMY[/url][/i][/size][/right]";
+
             RequestBody postBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("message", strings[2])
+                    .addFormDataPart("message", strings[2] + (includeAppSignature ? appSignature : ""))
                     .addFormDataPart("seqnum", seqnum)
                     .addFormDataPart("sc", sc)
                     .addFormDataPart("subject", strings[1])
