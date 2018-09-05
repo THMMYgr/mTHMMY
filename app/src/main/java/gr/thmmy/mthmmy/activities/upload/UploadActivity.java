@@ -1,7 +1,9 @@
 package gr.thmmy.mthmmy.activities.upload;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -12,6 +14,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
@@ -36,6 +39,7 @@ import android.widget.Toast;
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
+import net.gotev.uploadservice.UploadNotificationAction;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
@@ -232,7 +236,6 @@ public class UploadActivity extends BaseActivity {
             popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
             popUp.setFocusable(true);
 
-            //((TextView) popUpContent.findViewById(R.id.upload_filename_info_text)).setTe
             ((TextView) popUpContent.findViewById(R.id.upload_filename_info_text)).
                     setMovementMethod(LinkMovementMethod.getInstance());
             //Displays the popup
@@ -279,7 +282,7 @@ public class UploadActivity extends BaseActivity {
 
             String uploadTitleText = uploadTitle.getText().toString();
             String editTextFilename = uploadFilename.getText().toString();
-            String uploadDescriptionText = uploadDescription.getText().toString();
+            final String[] uploadDescriptionText = {uploadDescription.getText().toString()};
 
             //Checks if all required fields are filled
             {
@@ -307,7 +310,9 @@ public class UploadActivity extends BaseActivity {
                         shouldReturn = true;
                     }
                 }
-                if (!editTextFilename.matches("(.+\\.)+.+")) {
+                if (!editTextFilename.matches("(.+\\.)+.+") ||
+                        !FileUtils.getFilenameWithoutExtension(editTextFilename).
+                                matches("[0-9a-zA-Z~!@#$%^&()_+=\\-`\\[\\]{};',.]+")) {
                     uploadFilename.setError("Invalid filename");
                     shouldReturn = true;
                 }
@@ -317,121 +322,144 @@ public class UploadActivity extends BaseActivity {
                 }
             }
 
-            //Checks settings and possibly adds "Uploaded from mTHMMY" string to description
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(view.getContext());
-            if (sharedPrefs.getBoolean(UPLOADING_APP_SIGNATURE_ENABLE_KEY, true)) {
-                uploadDescriptionText += uploadedFromThmmyPromptHtml;
-            }
-
-            Uri tempFileUri = null;
-            if (filesList.size() == 1) {
-                //Checks if the file needs renaming
-                UploadFile uploadFile = filesList.get(0);
-                String selectedFileFilename = FileUtils.filenameFromUri(this, uploadFile.getFileUri());
-
-                if (!editTextFilename.equals(selectedFileFilename)) {
-                    //File should be uploaded with a different name
-                    if (!uploadFile.isCameraPhoto()) {
-                        //Temporarily copies the file to a another location and renames it
-                        tempFileUri = UploadsHelper.createTempFile(this, storage,
-                                uploadFile.getFileUri(),
-                                FileUtils.getFilenameWithoutExtension(editTextFilename));
-                    } else {
-                        //Renames the photo taken
-                        String photoPath = uploadFile.getPhotoFile().getPath();
-                        photoPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
-                        String destinationFilename = photoPath + File.separator +
-                                FileUtils.getFilenameWithoutExtension(editTextFilename) + ".jpg";
-
-                        if (!storage.rename(uploadFile.getPhotoFile().getAbsolutePath(), destinationFilename)) {
-                            //Something went wrong, abort
-                            Toast.makeText(this, "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                            return;
-                        }
-
-                        //Points photoFile and fileUri to the new copied and renamed file
-                        uploadFile.setPhotoFile(storage.getFile(destinationFilename));
-                        uploadFile.setFileUri(FileProvider.getUriForFile(this, getPackageName() +
-                                ".provider", uploadFile.getPhotoFile()));
-                    }
-                }
-            } else {
-                Uri[] filesListArray = new Uri[filesList.size()];
-                for (int i = 0; i < filesList.size(); ++i) {
-                    filesListArray[i] = filesList.get(i).getFileUri();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Upload to thmmy");
+            builder.setMessage("Are you sure?");
+            builder.setPositiveButton("YES, FIRE AWAY", (dialog, which) -> {
+                //Checks settings and possibly adds "Uploaded from mTHMMY" string to description
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(view.getContext());
+                if (sharedPrefs.getBoolean(UPLOADING_APP_SIGNATURE_ENABLE_KEY, true)) {
+                    uploadDescriptionText[0] += uploadedFromThmmyPromptHtml;
                 }
 
-                File zipFile = UploadsHelper.createZipFile(this);
-                assert zipFile != null;
-                tempFileUri = FileProvider.getUriForFile(this, getPackageName() +
-                        ".provider", zipFile);
+                Uri tempFileUri = null;
+                if (filesList.size() == 1) {
+                    //Checks if the file needs renaming
+                    UploadFile uploadFile = filesList.get(0);
+                    String selectedFileFilename = FileUtils.filenameFromUri(this, uploadFile.getFileUri());
 
-                UploadsHelper.zip(this, filesListArray, tempFileUri);
-            }
+                    if (!editTextFilename.equals(selectedFileFilename)) {
+                        //File should be uploaded with a different name
+                        if (!uploadFile.isCameraPhoto()) {
+                            //Temporarily copies the file to a another location and renames it
+                            tempFileUri = UploadsHelper.createTempFile(this, storage,
+                                    uploadFile.getFileUri(),
+                                    FileUtils.getFilenameWithoutExtension(editTextFilename));
+                        } else {
+                            //Renames the photo taken
+                            String photoPath = uploadFile.getPhotoFile().getPath();
+                            photoPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
+                            String destinationFilename = photoPath + File.separator +
+                                    FileUtils.getFilenameWithoutExtension(editTextFilename) + ".jpg";
 
-            try {
-                new MultipartUploadRequest(view.getContext(), uploadIndexUrl)
-                        .setUtf8Charset()
-                        .addParameter("tp-dluploadtitle", uploadTitleText)
-                        .addParameter("tp-dluploadcat", categorySelected)
-                        .addParameter("tp-dluploadtext", uploadDescriptionText)
-                        .addFileToUpload(tempFileUri == null
-                                        ? filesList.get(0).getFileUri().toString()
-                                        : tempFileUri.toString()
-                                , "tp-dluploadfile")
-                        .addParameter("tp_dluploadicon", fileIcon)
-                        .addParameter("tp-uploaduser", uploaderProfileIndex)
-                        .setNotificationConfig(new UploadNotificationConfig())
-                        .setMaxRetries(2)
-                        .setDelegate(new UploadStatusDelegate() {
-                            @Override
-                            public void onProgress(Context context, UploadInfo uploadInfo) {
-                            }
-
-                            @Override
-                            public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
-                                                Exception exception) {
-                                Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
-                                UploadsHelper.deleteTempFiles();
+                            if (!storage.rename(uploadFile.getPhotoFile().getAbsolutePath(), destinationFilename)) {
+                                //Something went wrong, abort
+                                Toast.makeText(this, "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
                                 progressBar.setVisibility(View.GONE);
+                                return;
                             }
 
-                            @Override
-                            public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                                Toast.makeText(context, "Upload completed successfully", Toast.LENGTH_SHORT).show();
-                                UploadsHelper.deleteTempFiles();
-                                BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
+                            //Points photoFile and fileUri to the new copied and renamed file
+                            uploadFile.setPhotoFile(storage.getFile(destinationFilename));
+                            uploadFile.setFileUri(FileProvider.getUriForFile(this, getPackageName() +
+                                    ".provider", uploadFile.getPhotoFile()));
+                        }
+                    }
+                } else {
+                    Uri[] filesListArray = new Uri[filesList.size()];
+                    for (int i = 0; i < filesList.size(); ++i) {
+                        filesListArray[i] = filesList.get(i).getFileUri();
+                    }
 
-                                for (UploadFile file : filesList) {
-                                    if (file.isCameraPhoto()) {
-                                        TakePhoto.galleryAddPic(context, file.getPhotoFile());
-                                    }
+                    File zipFile = UploadsHelper.createZipFile(this);
+                    assert zipFile != null;
+                    tempFileUri = FileProvider.getUriForFile(this, getPackageName() +
+                            ".provider", zipFile);
+
+                    UploadsHelper.zip(this, filesListArray, tempFileUri);
+                }
+
+                try {
+                    UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
+                    uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
+
+                    uploadNotificationConfig.getProgress().iconResourceID = android.R.drawable.stat_sys_upload;
+                    uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
+                    uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
+                    uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
+
+                    new MultipartUploadRequest(view.getContext(), uploadIndexUrl)
+                            .setUtf8Charset()
+                            .setNotificationConfig(uploadNotificationConfig)
+                            .addParameter("tp-dluploadtitle", uploadTitleText)
+                            .addParameter("tp-dluploadcat", categorySelected)
+                            .addParameter("tp-dluploadtext", uploadDescriptionText[0])
+                            .addFileToUpload(tempFileUri == null
+                                            ? filesList.get(0).getFileUri().toString()
+                                            : tempFileUri.toString()
+                                    , "tp-dluploadfile")
+                            .addParameter("tp_dluploadicon", fileIcon)
+                            .addParameter("tp-uploaduser", uploaderProfileIndex)
+                            .setNotificationConfig(new UploadNotificationConfig())
+                            .setMaxRetries(2)
+                            .setDelegate(new UploadStatusDelegate() {
+                                @Override
+                                public void onProgress(Context context, UploadInfo uploadInfo) {
                                 }
 
-                                uploadTitle.setText(null);
-                                uploadFilename.setText(null);
-                                hasModifiedFilename = false;
-                                uploadDescription.setText(null);
-                                filesList.clear();
-                                filesListView.removeAllViews();
-                                photoFileCreated = null;
-                                progressBar.setVisibility(View.GONE);
-                            }
+                                @Override
+                                public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
+                                                    Exception exception) {
+                                    Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
+                                    UploadsHelper.deleteTempFiles();
+                                    progressBar.setVisibility(View.GONE);
+                                }
 
-                            @Override
-                            public void onCancelled(Context context, UploadInfo uploadInfo) {
-                                Toast.makeText(context, "Upload canceled", Toast.LENGTH_SHORT).show();
+                                @Override
+                                public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                                    Toast.makeText(context, "Upload completed successfully", Toast.LENGTH_SHORT).show();
+                                    UploadsHelper.deleteTempFiles();
+                                    BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
 
-                                UploadsHelper.deleteTempFiles();
-                                progressBar.setVisibility(View.GONE);
-                            }
-                        })
-                        .startUpload();
-            } catch (Exception exception) {
-                Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
+                                    for (UploadFile file : filesList) {
+                                        if (file.isCameraPhoto()) {
+                                            TakePhoto.galleryAddPic(context, file.getPhotoFile());
+                                        }
+                                    }
+
+                                    uploadTitle.setText(null);
+                                    uploadFilename.setText(null);
+                                    hasModifiedFilename = false;
+                                    uploadDescription.setText(null);
+                                    filesList.clear();
+                                    filesListView.removeAllViews();
+                                    photoFileCreated = null;
+                                    progressBar.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onCancelled(Context context, UploadInfo uploadInfo) {
+                                    Toast.makeText(context, "Upload canceled", Toast.LENGTH_SHORT).show();
+
+                                    UploadsHelper.deleteTempFiles();
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            })
+                            .startUpload();
+                } catch (Exception exception) {
+                    Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
+                    progressBar.setVisibility(View.GONE);
+                }
+                dialog.dismiss();
+            });
+
+            builder.setNegativeButton("NOPE", (dialog, which) -> {
                 progressBar.setVisibility(View.GONE);
-            }
+                dialog.dismiss();
+            });
+
+            AlertDialog alert = builder.create();
+            alert.show();
         });
 
         if (uploadRootCategories.isEmpty()) {

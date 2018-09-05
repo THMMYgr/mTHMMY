@@ -83,7 +83,7 @@ class UploadsHelper {
 
     @Nullable
     public static File createZipFile(Context context) {
-        // Create an image file name
+        // Create a zip file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
         String zipFileName = "mThmmy_" + timeStamp + ".zip";
 

@@ -33,6 +33,6 @@
     </style>
 
     <style name="LightBackgroundColoredButton" parent="Widget.AppCompat.ImageButton">
-        <item name="android:colorButtonNormal">@color/background</item>
+        <item name="android:colorButtonNormal">@color/primary_light</item>
     </style>
 </resources>
