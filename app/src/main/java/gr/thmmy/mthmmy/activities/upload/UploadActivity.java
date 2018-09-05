@@ -22,6 +22,7 @@ import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -223,10 +224,12 @@ public class UploadActivity extends BaseActivity {
             if (layoutInflater == null) {
                 return;
             }
+
+            Context wrapper = new ContextThemeWrapper(this, R.style.PopupWindow);
             View popUpContent = layoutInflater.inflate(R.layout.activity_upload_filename_info_popup, null);
 
             //Creates the PopupWindow
-            PopupWindow popUp = new PopupWindow(view.getContext());
+            PopupWindow popUp = new PopupWindow(wrapper);
             popUp.setContentView(popUpContent);
             popUp.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
             popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);

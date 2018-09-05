@@ -54,6 +54,10 @@
         <item name="android:paddingBottom">8dp</item>
     </style>
 
+    <style name="PopupWindow" parent="Widget.AppCompat.PopupWindow">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
     <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:colorBackground">@color/colorPrimary</item>
