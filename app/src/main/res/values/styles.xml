@@ -46,11 +46,11 @@
         <item name="android:textColor">@color/primary_text</item>
     </style>
 
-    <style name="PopupMenuItem.TopItem" parent="PopupMenuItem" >
+    <style name="PopupMenuItem.TopItem" parent="PopupMenuItem">
         <item name="android:paddingTop">8dp</item>
     </style>
 
-    <style name="PopupMenuItem.BottomItem" parent="PopupMenuItem" >
+    <style name="PopupMenuItem.BottomItem" parent="PopupMenuItem">
         <item name="android:paddingBottom">8dp</item>
     </style>
 
@@ -81,5 +81,9 @@
         <item name="colorAccent">@color/iron</item>
         <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="android:colorBackground">@color/dialog_bg_semi_transparent</item>
+    </style>
+
+    <style name="LightBackgroundColoredButton" parent="Widget.AppCompat.ImageButton">
+        <item name="colorButtonNormal">@color/background</item>
     </style>
 </resources>

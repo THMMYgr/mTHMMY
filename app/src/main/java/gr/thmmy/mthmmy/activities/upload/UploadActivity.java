@@ -21,6 +21,7 @@ import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -96,6 +97,9 @@ public class UploadActivity extends BaseActivity {
     private ArrayList<UploadFile> filesList = new ArrayList<>();
     private File photoFileCreated = null;
     private String fileIcon;
+    private AppCompatImageButton uploadFilenameInfo;
+    private CustomTextWatcher textWatcher;
+    private boolean hasModifiedFilename = false;
 
     //UI elements
     private MaterialProgressBar progressBar;
@@ -211,7 +215,7 @@ public class UploadActivity extends BaseActivity {
         uploadTitle = findViewById(R.id.upload_title);
         uploadDescription = findViewById(R.id.upload_description);
 
-        AppCompatImageButton uploadFilenameInfo = findViewById(R.id.upload_filename_info);
+        uploadFilenameInfo = findViewById(R.id.upload_filename_info);
         uploadFilenameInfo.setOnClickListener(view -> {
             //Inflates the popup menu content
             LayoutInflater layoutInflater = (LayoutInflater) view.getContext().
@@ -236,61 +240,8 @@ public class UploadActivity extends BaseActivity {
         });
 
         uploadFilename = findViewById(R.id.upload_filename);
-        uploadFilename.addTextChangedListener(new TextWatcher() {
-            String oldFilename, fileExtension;
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                oldFilename = s.toString();
-
-                String uriExtension;
-                if (filesList.isEmpty()) {
-                    fileExtension = null;
-                    return;
-                } else if (filesList.size() == 1) {
-                    uriExtension = FileUtils.getFileExtension(FileUtils.
-                            filenameFromUri(getApplicationContext(), filesList.get(0).getFileUri()));
-                } else {
-                    uriExtension = ".zip";
-                }
-
-                if (fileExtension == null || !fileExtension.equals(uriExtension)) {
-                    //New file selected
-                    //Changes the extension of the saved filename instance
-                    oldFilename = FileUtils.getFilenameWithoutExtension(oldFilename) +
-                            uriExtension;
-                }
-                fileExtension = uriExtension;
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String filenameWithoutExtension = FileUtils.getFilenameWithoutExtension(s.toString());
-                if (filenameWithoutExtension != null && !filenameWithoutExtension.isEmpty() &&
-                        !filenameWithoutExtension.matches("[0-9a-zA-Z~!@#$%^&()_+=\\-`\\[\\]{};',.]+")) {
-                    uploadFilenameInfo.setImageResource(R.drawable.ic_info_outline_warning_24dp);
-                } else {
-                    uploadFilenameInfo.setImageResource(R.drawable.ic_info_outline_white_24dp);
-                }
-
-                if (fileExtension == null) {
-                    return;
-                }
-
-                if (!s.toString().endsWith(fileExtension)) {
-                    uploadFilename.setText(oldFilename);
-                    return;
-                }
-
-                s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.secondary_text)),
-                        s.length() - fileExtension.length(), s.length(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-        });
+        textWatcher = new CustomTextWatcher();
+        uploadFilename.addTextChangedListener(textWatcher);
 
         filesListView = findViewById(R.id.upload_files_list);
 
@@ -305,7 +256,8 @@ public class UploadActivity extends BaseActivity {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
                     //.setType("*/*")
                     .setType("image/jpeg")
-                    .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                    .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+                    .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
             startActivityForResult(intent, AFR_REQUEST_CODE_CHOOSE_FILE);
         });
@@ -459,6 +411,7 @@ public class UploadActivity extends BaseActivity {
 
                                 uploadTitle.setText(null);
                                 uploadFilename.setText(null);
+                                hasModifiedFilename = false;
                                 uploadDescription.setText(null);
                                 filesList.clear();
                                 filesListView.removeAllViews();
@@ -526,45 +479,56 @@ public class UploadActivity extends BaseActivity {
                 return;
             }
 
-            Uri newFileUri = data.getData();
-            if (newFileUri != null) {
-                String filename = FileUtils.filenameFromUri(this, newFileUri);
+            if (data.getClipData() != null) {
+                fileIcon = "archive.gif";
+                textWatcher.setFileExtension(".zip");
 
-                if (filesList.isEmpty()) {
-                    if (uploadFilename.getText().toString().isEmpty()) {
-                        uploadFilename.setText(filename);
-                    }
-
-                    filename = filename.toLowerCase();
-                    if (filename.endsWith(".jpg")) {
-                        fileIcon = "jpg_image.gif";
-                    } else if (filename.endsWith(".gif")) {
-                        fileIcon = "gif_image.gif";
-                    } else if (filename.endsWith(".png")) {
-                        fileIcon = "png_image.gif";
-                    } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
-                        fileIcon = "html_file.gif";
-                    } else if (filename.endsWith(".pdf") || filename.endsWith(".doc") ||
-                            filename.endsWith("djvu")) {
-                        fileIcon = "text_file.gif";
-                    } else if (filename.endsWith(".zip") || filename.endsWith(".rar") ||
-                            filename.endsWith(".tar") || filename.endsWith(".tar.gz") ||
-                            filename.endsWith(".gz")) {
-                        fileIcon = "archive.gif";
-                    } else {
-                        fileIcon = "blank.gif";
-                    }
-                } else {
-                    fileIcon = "archive.gif";
-
-                    String currentFilename = uploadFilename.getText().toString();
-                    String newFilename = FileUtils.getFilenameWithoutExtension(currentFilename) +
-                            ".zip";
-                    uploadFilename.setText(newFilename);
+                for (int fileIndex = 0; fileIndex < data.getClipData().getItemCount(); ++fileIndex) {
+                    Uri newFileUri = data.getClipData().getItemAt(fileIndex).getUri();
+                    String filename = FileUtils.filenameFromUri(this, newFileUri);
+                    addFileViewToList(filename);
+                    filesList.add(new UploadFile(false, newFileUri, null));
                 }
+            } else {
+                Uri newFileUri = data.getData();
+                if (newFileUri != null) {
+                    String filename = FileUtils.filenameFromUri(this, newFileUri);
 
-                addFileViewToList(filename);
-                filesList.add(new UploadFile(false, newFileUri, null));
+                    if (filesList.isEmpty()) {
+                        textWatcher.setFileExtension(FileUtils.getFileExtension(filename));
+
+                        if (!hasModifiedFilename) {
+                            uploadFilename.setText(filename);
+                            hasModifiedFilename = false;
+                        }
+
+                        filename = filename.toLowerCase();
+                        if (filename.endsWith(".jpg")) {
+                            fileIcon = "jpg_image.gif";
+                        } else if (filename.endsWith(".gif")) {
+                            fileIcon = "gif_image.gif";
+                        } else if (filename.endsWith(".png")) {
+                            fileIcon = "png_image.gif";
+                        } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
+                            fileIcon = "html_file.gif";
+                        } else if (filename.endsWith(".pdf") || filename.endsWith(".doc") ||
+                                filename.endsWith("djvu")) {
+                            fileIcon = "text_file.gif";
+                        } else if (filename.endsWith(".zip") || filename.endsWith(".rar") ||
+                                filename.endsWith(".tar") || filename.endsWith(".tar.gz") ||
+                                filename.endsWith(".gz")) {
+                            fileIcon = "archive.gif";
+                        } else {
+                            fileIcon = "blank.gif";
+                        }
+                    } else {
+                        fileIcon = "archive.gif";
+                        textWatcher.setFileExtension(".zip");
+                    }
+
+                    addFileViewToList(filename);
+                    filesList.add(new UploadFile(false, newFileUri, null));
+                }
             }
         } else if (requestCode == AFR_REQUEST_CODE_CAMERA) {
             if (resultCode == Activity.RESULT_CANCELED) {
@@ -574,18 +538,17 @@ public class UploadActivity extends BaseActivity {
             }
 
             if (filesList.isEmpty()) {
-                if (uploadFilename.getText().toString().isEmpty()) {
+                textWatcher.setFileExtension(FileUtils.getFileExtension(photoFileCreated.getName()));
+
+                if (!hasModifiedFilename) {
                     uploadFilename.setText(photoFileCreated.getName());
+                    hasModifiedFilename = false;
                 }
 
                 fileIcon = "jpg_image.gif";
             } else {
                 fileIcon = "archive.gif";
-
-                String currentFilename = uploadFilename.getText().toString();
-                String newFilename = FileUtils.getFilenameWithoutExtension(currentFilename) +
-                        ".zip";
-                uploadFilename.setText(newFilename);
+                textWatcher.setFileExtension(".zip");
             }
 
             UploadFile newFile = new UploadFile(true, TakePhoto.processResult(this,
@@ -606,6 +569,7 @@ public class UploadActivity extends BaseActivity {
                         FileUtils.getFileExtension(previousName);
                 uploadFilename.setText(filenameWithExtension);
             }
+            hasModifiedFilename = true;
 
             uploadTitle.setText(data.getStringExtra(RESULT_TITLE));
             uploadDescription.setText(data.getStringExtra(RESULT_DESCRIPTION));
@@ -651,14 +615,88 @@ public class UploadActivity extends BaseActivity {
                 setOnClickListener(view -> {
                     int fileIndex = filesListView.indexOfChild(newFileRow);
                     filesListView.removeViewAt(fileIndex);
+
+                    if (filesList.get(fileIndex).isCameraPhoto()) {
+                        storage.deleteFile(filesList.get(fileIndex).getPhotoFile().getAbsolutePath());
+                    }
                     filesList.remove(fileIndex);
                     if (filesList.isEmpty()) {
                         filesListView.setVisibility(View.GONE);
+                    } else if (filesList.size() == 1) {
+                        textWatcher.setFileExtension(FileUtils.getFileExtension(FileUtils.
+                                filenameFromUri(this, filesList.get(0).getFileUri())));
                     }
                 });
 
         filesListView.addView(newFileRow);
         filesListView.setVisibility(View.VISIBLE);
+    }
+
+    private class CustomTextWatcher implements TextWatcher {
+        String oldFilename, fileExtension;
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            //Saves an instance of the filename before changing
+            oldFilename = s.toString();
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            //Warns user for bad filenames
+            String filenameWithoutExtension = FileUtils.getFilenameWithoutExtension(s.toString());
+            if (filenameWithoutExtension != null && !filenameWithoutExtension.isEmpty() &&
+                    !filenameWithoutExtension.matches("[0-9a-zA-Z~!@#$%^&()_+=\\-`\\[\\]{};',.]+")) {
+                uploadFilenameInfo.setImageResource(R.drawable.ic_info_outline_warning_24dp);
+            } else {
+                uploadFilenameInfo.setImageResource(R.drawable.ic_info_outline_white_24dp);
+            }
+
+            if (fileExtension == null) {
+                hasModifiedFilename = !s.toString().isEmpty();
+                return;
+            }
+
+            if (!s.toString().endsWith(fileExtension)) {
+                //User tried to alter the extension
+                //Prevents the change
+                uploadFilename.setText(oldFilename);
+                return;
+            }
+
+            //User has modified the filename
+            hasModifiedFilename = true;
+            if (s.toString().isEmpty() || (filesList.size() == 1 && s.toString().equals(FileUtils.
+                    filenameFromUri(getApplicationContext(), filesList.get(0).getFileUri())))) {
+                //After modification the filename falls back to the original
+                hasModifiedFilename = false;
+            }
+
+            //Adds the grey colored span to the extension
+            s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.secondary_text)),
+                    s.length() - fileExtension.length(), s.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        void setFileExtension(String extension) {
+            boolean oldHasModifiedFilename = hasModifiedFilename;
+            oldFilename = uploadFilename.getText().toString();
+            fileExtension = extension;
+            String newFilename;
+
+            if (!oldFilename.isEmpty()) {
+                newFilename = FileUtils.getFilenameWithoutExtension(oldFilename) + extension;
+            } else {
+                newFilename = extension;
+            }
+
+            uploadFilename.setText(newFilename);
+            hasModifiedFilename = oldHasModifiedFilename;
+        }
     }
 
     private class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {

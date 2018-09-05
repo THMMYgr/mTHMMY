@@ -30,7 +30,7 @@ public class FileUtils {
     }
 
     @Nullable
-    public static String getFileExtension(String filename) {
+    public static String getFileExtension(@NonNull String filename) {
         String fileExtension;
 
         if (!filename.contains(".")) {
@@ -74,7 +74,7 @@ public class FileUtils {
         return filename;
     }
 
-    public static long sizeFromUri(Context context, @NonNull Uri uri){
+    public static long sizeFromUri(Context context, @NonNull Uri uri) {
         try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
