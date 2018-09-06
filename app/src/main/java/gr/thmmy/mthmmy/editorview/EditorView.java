@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.editorview;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -20,6 +21,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import java.util.Objects;
 
@@ -50,6 +52,7 @@ public class EditorView extends LinearLayout {
         init(context, attrs);
     }
 
+    @SuppressLint("SetTextI18n")
     private void init(Context context, AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.editor_view, this, true);
         setOrientation(VERTICAL);
@@ -142,7 +145,9 @@ public class EditorView extends LinearLayout {
             LinearLayout colorPicker = (LinearLayout) colorPickerScrollview.getChildAt(0);
             popupWindow.setContentView(colorPickerScrollview);
             for (int i = 0; i < colorPicker.getChildCount(); i++) {
-                colorPicker.getChildAt(i).setOnClickListener(v -> {
+                TextView child = (TextView) colorPicker.getChildAt(i);
+                child.setText("\u2B24   " + child.getText());
+                child.setOnClickListener(v -> {
                     boolean hadTextSelection = editText.hasSelection();
                     getText().insert(editText.getSelectionStart(), "[color=" + colors.get(v.getId()) + "]");
                     getText().insert(editText.getSelectionEnd(), "[/color]");
