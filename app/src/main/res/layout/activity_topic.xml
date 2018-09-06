@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/background"
     tools:context=".activities.topic.TopicActivity">
 
     <RelativeLayout
@@ -42,7 +43,6 @@
             android:layout_gravity="top|start"
             android:layout_below="@id/appbar"
             android:layout_above="@id/emoji_keyboard"
-            android:background="@color/background"
             android:clipToPadding="false"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"

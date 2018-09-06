@@ -141,7 +141,7 @@
 
     <string name="pref_category_app">App</string>
     <string name="pref_title_app_main_default_tab">Default home tab</string>
-    <string name="pref_summary_app_main_default_tab">Select your preferred, home screen, default tab</string>
+    <string name="pref_summary_app_main_default_tab">Sets a home screen tab as default</string>
     <string name="pref_app_main_default_tab_dialog_title">Default home tab</string>
 
     <string name="pref_category_notifications">Notifications</string>
@@ -149,17 +149,17 @@
     <string name="pref_summary_notifications_enable">Toggle notifications state</string>-->
     <string name="pref_title_notification_vibration_enable">Vibration</string>
     <string name="pref_title_notification_led_enable">Notifications led</string>
-    <string name="pref_summary_notification_led_enable">Enables/disables notifications led, if your device has one</string>
+    <string name="pref_summary_notification_led_enable">Enables/disables the notifications led (if the device has one)</string>
     <string name="pref_title_notifications_sound">Notifications sound</string>
-    <string name="pref_summary_notifications_sound">Select your preferred notification sound</string>
+    <string name="pref_summary_notifications_sound">Sets your preferred notification sound</string>
 
     <string name="pref_category_posting">Posting</string>
     <string name="pref_title_posting_app_signature_enable">App signature</string>
-    <string name="pref_summary_posting_app_signature_enable">If enabled, a \"sent from mTHMMY\" message will be inserted at the end of your posts</string>
+    <string name="pref_summary_posting_app_signature_enable">Appends a \"sent from mTHMMY\" message to your posts</string>
 
     <string name="pref_category_uploading">Uploading</string>
     <string name="pref_title_uploading_app_signature_enable">App signature</string>
-    <string name="pref_summary_uploading_app_signature_enable">If enabled, an \"uploaded from mTHMMY\" message will be inserted at the end of your uploads descriptions</string>
+    <string name="pref_summary_uploading_app_signature_enable">Appends an \"uploaded from mTHMMY\" message to the descriptions of your uploads</string>
 
     <!-- EditorView -->
     <string name="black">Black</string>
