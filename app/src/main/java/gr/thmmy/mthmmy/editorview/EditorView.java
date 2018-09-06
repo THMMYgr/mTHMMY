@@ -13,6 +13,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -134,7 +135,8 @@ public class EditorView extends LinearLayout {
         colors.append(R.id.lime_green, "limegreen");
 
         findViewById(R.id.text_color_button).setOnClickListener(view -> {
-            PopupWindow popupWindow = new PopupWindow(view.getContext());
+            Context wrapper = new ContextThemeWrapper(view.getContext(), R.style.PopupWindow);
+            PopupWindow popupWindow = new PopupWindow(wrapper);
             popupWindow.setHeight(LayoutParams.WRAP_CONTENT);
             popupWindow.setWidth(LayoutParams.WRAP_CONTENT);
             popupWindow.setFocusable(true);

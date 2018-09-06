@@ -305,26 +305,23 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withSelectionListEnabledForSingleProfile(false)
                 .withHeaderBackground(R.color.primary)
                 .addProfiles(profileDrawerItem)
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        if (sessionManager.isLoggedIn()) {
-                            Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
-                            Bundle extras = new Bundle();
-                            extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
-                            if (!sessionManager.hasAvatar())
-                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
-                            else
-                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, sessionManager.getAvatarLink());
-                            extras.putString(BUNDLE_PROFILE_USERNAME, sessionManager.getUsername());
-                            intent.putExtras(extras);
-                            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                            return false;
-                        }
-                        return true;
-
+                .withOnAccountHeaderListener((view, profile, currentProfile) -> {
+                    if (sessionManager.isLoggedIn()) {
+                        Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
+                        if (!sessionManager.hasAvatar())
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                        else
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, sessionManager.getAvatarLink());
+                        extras.putString(BUNDLE_PROFILE_USERNAME, sessionManager.getUsername());
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        return false;
                     }
+                    return true;
+
                 })
                 .build();
 
