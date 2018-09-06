@@ -146,7 +146,6 @@ public class EditorView extends LinearLayout {
             popupWindow.setContentView(colorPickerScrollview);
             for (int i = 0; i < colorPicker.getChildCount(); i++) {
                 TextView child = (TextView) colorPicker.getChildAt(i);
-                child.setText("\u2B24   " + child.getText());
                 child.setOnClickListener(v -> {
                     boolean hadTextSelection = editText.hasSelection();
                     getText().insert(editText.getSelectionStart(), "[color=" + colors.get(v.getId()) + "]");
