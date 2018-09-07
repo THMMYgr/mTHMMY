@@ -180,4 +180,5 @@
     <string name="dialog_link_url_hint">Link URL</string>
     <string name="dialog_link_text_hint">Link text</string>
     <string name="input_field_required">Required</string>
+    <string name="new_messages">NEW MESSAGES</string>
 </resources>

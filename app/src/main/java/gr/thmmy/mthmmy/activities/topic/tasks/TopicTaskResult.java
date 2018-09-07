@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import java.util.ArrayList;
 
+import gr.thmmy.mthmmy.activities.topic.TopicRecyclerViewItem;
 import gr.thmmy.mthmmy.model.Post;
 
 public class TopicTaskResult {
@@ -16,7 +17,7 @@ public class TopicTaskResult {
      * This topic's reply url
      */
     private final String replyPageUrl;
-    private final ArrayList<Post> newPostsList;
+    private final ArrayList<TopicRecyclerViewItem> newPostsList;
     /**
      * The topicId of the loaded page
      */
@@ -36,12 +37,11 @@ public class TopicTaskResult {
     //Topic's info related
     private final String topicTreeAndMods;
     private final String topicViewers;
-    private final boolean focusedPostLastSeenMessage;
 
     public TopicTaskResult(TopicTask.ResultCode resultCode, String topicTitle,
-                           String replyPageUrl, ArrayList<Post> newPostsList, int loadedPageTopicId,
+                           String replyPageUrl, ArrayList<TopicRecyclerViewItem> newPostsList, int loadedPageTopicId,
                            int currentPageIndex, int pageCount, int focusedPostIndex, String topicTreeAndMods,
-                           String topicViewers, boolean focusedPostLastSeenMessage) {
+                           String topicViewers) {
         this.resultCode = resultCode;
         this.topicTitle = topicTitle;
         this.replyPageUrl = replyPageUrl;
@@ -52,7 +52,6 @@ public class TopicTaskResult {
         this.focusedPostIndex = focusedPostIndex;
         this.topicTreeAndMods = topicTreeAndMods;
         this.topicViewers = topicViewers;
-        this.focusedPostLastSeenMessage = focusedPostLastSeenMessage;
     }
 
     public TopicTask.ResultCode getResultCode() {
@@ -67,7 +66,7 @@ public class TopicTaskResult {
         return replyPageUrl;
     }
 
-    public ArrayList<Post> getNewPostsList() {
+    public ArrayList<TopicRecyclerViewItem> getNewPostsList() {
         return newPostsList;
     }
 
@@ -93,9 +92,5 @@ public class TopicTaskResult {
 
     public String getTopicViewers() {
         return topicViewers;
-    }
-
-    public boolean isFocusedPostLastSeenMessage() {
-        return focusedPostLastSeenMessage;
     }
 }

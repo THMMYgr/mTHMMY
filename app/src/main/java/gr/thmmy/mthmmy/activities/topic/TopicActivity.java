@@ -633,21 +633,16 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             topicRecyclerviewItems.addAll(postList);
             topicAdapter.notifyDataSetChanged();
         });
-        viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
+        /*viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
             if (focusedPostIndex == null) return;
-            if (viewModel.isFocusedPostLastSeenMessage() && focusedPostIndex != viewModel.postCount() - 1) {
-                topicRecyclerviewItems.add(focusedPostIndex, new NewPostSeparator());
-                topicAdapter.notifyItemInserted(focusedPostIndex);
-            }
-            //recyclerView.scrollToPosition(focusedPostIndex);
-        });
+            recyclerView.scrollToPosition(focusedPostIndex);
+        });*/
         viewModel.getTopicTaskResultCode().observe(this, resultCode -> {
             if (resultCode == null) return;
             progressBar.setVisibility(ProgressBar.GONE);
             switch (resultCode) {
                 case SUCCESS:
                     Timber.i("Successfully loaded topic with URL %s", viewModel.getTopicUrl());
-                    Timber.i("load " + viewModel.isFocusedPostLastSeenMessage());
                     paginationEnabled(true);
                     break;
                 case NETWORK_ERROR:

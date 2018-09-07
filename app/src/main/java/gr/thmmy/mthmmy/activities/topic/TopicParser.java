@@ -146,10 +146,10 @@ public class TopicParser {
      * @return {@link ArrayList} of {@link Post}s
      * @see org.jsoup.Jsoup Jsoup
      */
-    public static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
+    public static ArrayList<TopicRecyclerViewItem> parseTopic(Document topic, ParseHelpers.Language language) {
         //Method's variables
         final int NO_INDEX = -1;
-        ArrayList<Post> parsedPostsList = new ArrayList<>();
+        ArrayList<TopicRecyclerViewItem> parsedPostsList = new ArrayList<>();
         Elements postRows;
 
         //Each row is a post

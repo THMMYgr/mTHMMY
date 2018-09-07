@@ -9,7 +9,9 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import gr.thmmy.mthmmy.activities.topic.NewPostSeparator;
 import gr.thmmy.mthmmy.activities.topic.TopicParser;
+import gr.thmmy.mthmmy.activities.topic.TopicRecyclerViewItem;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
@@ -50,11 +52,11 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
             if (tmp.contains(";")) {
                 postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
-                if (newPageUrl.contains("topicseen"))
+                if (newPageUrl.contains("topicseen") && !newPageUrl.contains("#new"))
                     focusedPostLastSeenMessage = true;
             } else if (tmp.contains("#")) {
                 postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
-                if (newPageUrl.contains("topicseen"))
+                if (newPageUrl.contains("topicseen") && !newPageUrl.contains("#new"))
                     focusedPostLastSeenMessage = true;
             }
         }
@@ -96,31 +98,33 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             //Finds number of pages
             int pageCount = TopicParser.parseTopicNumberOfPages(topic, currentPageIndex, language);
 
-            ArrayList<Post> newPostsList = TopicParser.parseTopic(topic, language);
+            ArrayList<TopicRecyclerViewItem> newPostsList = TopicParser.parseTopic(topic, language);
 
             int loadedPageTopicId = Integer.parseInt(ThmmyPage.getTopicId(newPageUrl));
 
             //Finds the position of the focused message if present
             int focusedPostIndex = 0;
             for (int i = 0; i < newPostsList.size(); ++i) {
-                if (newPostsList.get(i).getPostIndex() == postFocus) {
+                if (((Post) newPostsList.get(i)).getPostIndex() == postFocus) {
                     focusedPostIndex = i;
                     break;
                 }
             }
+            if (focusedPostLastSeenMessage)
+                newPostsList.add(focusedPostIndex, new NewPostSeparator());
             return new TopicTaskResult(ResultCode.SUCCESS, topicTitle, replyPageUrl, newPostsList, loadedPageTopicId,
-                    currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods, topicViewers, focusedPostLastSeenMessage);
+                    currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods, topicViewers);
         } catch (IOException e) {
             return new TopicTaskResult(ResultCode.NETWORK_ERROR, null, null, null,
-                    0, 0, 0, 0, null, null, false);
+                    0, 0, 0, 0, null, null);
         } catch (Exception e) {
             if (isUnauthorized(topic)) {
                 return new TopicTaskResult(ResultCode.UNAUTHORIZED, null, null, null,
-                        0, 0, 0, 0, null, null, false);
+                        0, 0, 0, 0, null, null);
             } else {
                 Timber.e(e, "Topic parse failed");
                 return new TopicTaskResult(ResultCode.PARSING_ERROR, null, null, null,
-                        0, 0, 0, 0, null, null, false);
+                        0, 0, 0, 0, null, null);
             }
         }
     }

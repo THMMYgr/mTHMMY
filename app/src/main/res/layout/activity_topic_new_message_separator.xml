@@ -9,12 +9,13 @@
         android:layout_height="1dp"
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
         android:background="@color/red"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NEW MESSAGES"
+        android:text="@string/new_messages"
         android:textColor="@color/red"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"/>
@@ -24,5 +25,6 @@
         android:layout_height="1dp"
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp"
         android:background="@color/red"/>
 </LinearLayout>
