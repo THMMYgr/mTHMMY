@@ -24,14 +24,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                app:contentInsetStartWithNavigation="0dp"
+                android:gravity="center"
                 app:popupTheme="@style/ToolbarTheme">
-
-                <TextView
-                    android:id="@+id/toolbar_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white" />
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
 
