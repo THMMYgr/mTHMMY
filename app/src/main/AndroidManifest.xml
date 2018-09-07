@@ -150,7 +150,7 @@
         </service>
 
         <activity
-            android:name=".activities.CreateContentActivity"
+            android:name=".activities.create_content.CreateContentActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />

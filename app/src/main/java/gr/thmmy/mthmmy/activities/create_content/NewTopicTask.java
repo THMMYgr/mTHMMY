@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities;
+package gr.thmmy.mthmmy.activities.create_content;
 
 import android.os.AsyncTask;
 
