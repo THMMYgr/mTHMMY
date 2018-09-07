@@ -25,7 +25,7 @@ import java.util.zip.ZipOutputStream;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import timber.log.Timber;
 
-class UploadsHelper {
+public class UploadsHelper {
     private final static int BUFFER = 4096;
     private static final String TEMP_FILES_DIRECTORY = "~tmp_mThmmy_uploads";
 
@@ -131,7 +131,7 @@ class UploadsHelper {
         }
     }
 
-    static void deleteTempFiles(Storage storage) {
+    public static void deleteTempFiles(Storage storage) {
         File tempFilesDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
                 File.separatorChar + TEMP_FILES_DIRECTORY);
 

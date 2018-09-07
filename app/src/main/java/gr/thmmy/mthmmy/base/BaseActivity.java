@@ -78,6 +78,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     //SessionManager
     protected static SessionManager sessionManager;
 
+    //Storage manager
+    protected Storage storage;
+
     //Bookmarks
     private static final String BOOKMARKS_SHARED_PREFS = "bookmarksSharedPrefs";
     private static final String BOOKMARKED_TOPICS_KEY = "bookmarkedTopicsKey";
@@ -91,7 +94,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     //Common UI elements
     protected Toolbar toolbar;
     protected Drawer drawer;
-    protected Storage storage;
 
     private MainActivity mainActivity;
 
@@ -138,6 +140,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public static SessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    public Storage getStorage() {
+        return storage;
     }
 
     //TODO: move stuff below (?)

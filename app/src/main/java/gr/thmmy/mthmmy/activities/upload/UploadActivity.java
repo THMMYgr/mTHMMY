@@ -35,10 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
-import net.gotev.uploadservice.ServerResponse;
-import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
-import net.gotev.uploadservice.UploadStatusDelegate;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -53,6 +50,7 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.UploadCategory;
 import gr.thmmy.mthmmy.model.UploadFile;
+import gr.thmmy.mthmmy.services.UploadsReceiver;
 import gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.utils.TakePhoto;
@@ -89,6 +87,7 @@ public class UploadActivity extends BaseActivity {
 
     private static final int MAX_FILE_SIZE_SUPPORTED = 45000000;
 
+    private UploadsReceiver uploadsReceiver = new UploadsReceiver();
     private ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     private ParseUploadPageTask parseUploadPageTask;
     private ArrayList<String> bundleCategory;
@@ -111,6 +110,58 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadDescription;
     private AppCompatButton titleDescriptionBuilderButton;
     private LinearLayout filesListView;
+    private AlertDialog uploadProgressDialog;
+    private MaterialProgressBar dialogProgressBar;
+    private TextView dialogProgressText;
+
+    private UploadsReceiver.Delegate uploadDelegate = new UploadsReceiver.Delegate() {
+        @Override
+        public void onProgress(long uploadedBytes, long totalBytes, int progress, double uploadRate) {
+            if (uploadProgressDialog != null) {
+                dialogProgressBar.setProgress(progress);
+                dialogProgressText.setText(getResources().getString(
+                        R.string.upload_progress_dialog_bytes_uploaded, (float) uploadRate,
+                        (int) uploadedBytes / 1000, (int) totalBytes / 1000));
+
+                if (uploadedBytes == totalBytes) {
+                    uploadProgressDialog.dismiss();
+                }
+            }
+        }
+
+        @Override
+        public void onError(Exception exception) {
+            Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+
+        }
+
+        @Override
+        public void onCompleted(int serverResponseCode, byte[] serverResponseBody) {
+            Toast.makeText(getApplicationContext(), "Upload completed successfully", Toast.LENGTH_SHORT).show();
+
+            uploadTitle.setText(null);
+            textWatcher.setFileExtension("");
+            uploadFilename.setText(null);
+            hasModifiedFilename = false;
+            uploadDescription.setText(null);
+            filesList.clear();
+            filesListView.removeAllViews();
+            photoFileCreated = null;
+            progressBar.setVisibility(View.GONE);
+
+            if (uploadProgressDialog != null) {
+                uploadProgressDialog.dismiss();
+            }
+
+        }
+
+        @Override
+        public void onCancelled() {
+            Toast.makeText(getApplicationContext(), "Upload canceled", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +198,9 @@ public class UploadActivity extends BaseActivity {
         drawer.setSelection(UPLOAD_ID);
 
         progressBar = findViewById(R.id.progressBar);
+
+        uploadsReceiver.setDelegate(uploadDelegate);
+        uploadsReceiver.provideStorage(storage);
 
         findViewById(R.id.upload_outer_scrollview).setVerticalScrollBarEnabled(false);
         categoriesSpinners = findViewById(R.id.upload_spinners);
@@ -325,6 +379,26 @@ public class UploadActivity extends BaseActivity {
             builder.setTitle("Upload to thmmy");
             builder.setMessage("Are you sure?");
             builder.setPositiveButton("YES, FIRE AWAY", (dialog, which) -> {
+                AlertDialog.Builder progressDialogBuilder = new AlertDialog.Builder(this);
+                LayoutInflater inflater = this.getLayoutInflater();
+                LinearLayout progressDialogLayout = (LinearLayout) inflater.inflate(R.layout.dialog_upload_progress, null);
+
+                dialogProgressBar = progressDialogLayout.findViewById(R.id.dialogProgressBar);
+                dialogProgressBar.setMax(100);
+                dialogProgressText = progressDialogLayout.findViewById(R.id.dialog_bytes_uploaded);
+
+                progressDialogBuilder.setView(progressDialogLayout);
+                progressDialogBuilder.setNeutralButton("Resume on background", (progressDialog, progressWhich) -> {
+                    uploadProgressDialog.dismiss();
+                    finish();
+                });
+                uploadProgressDialog = progressDialogBuilder.create();
+                uploadProgressDialog.setCancelable(false);
+
+                dialog.dismiss();
+                uploadProgressDialog.show();
+
+
                 //Checks settings and possibly adds "Uploaded from mTHMMY" string to description
                 SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(view.getContext());
                 if (sharedPrefs.getBoolean(UPLOADING_APP_SIGNATURE_ENABLE_KEY, true)) {
@@ -375,7 +449,14 @@ public class UploadActivity extends BaseActivity {
                     tempFileUri = FileProvider.getUriForFile(this, getPackageName() +
                             ".provider", zipFile);
 
+                    dialogProgressText.setText(R.string.upload_progress_dialog_zipping_files);
                     UploadsHelper.zip(this, filesListArray, tempFileUri);
+                }
+
+                for (UploadFile file : filesList) {
+                    if (file.isCameraPhoto()) {
+                        TakePhoto.galleryAddPic(this, file.getPhotoFile());
+                    }
                 }
 
                 try {
@@ -401,55 +482,11 @@ public class UploadActivity extends BaseActivity {
                             .addParameter("tp-uploaduser", uploaderProfileIndex)
                             .setNotificationConfig(uploadNotificationConfig)
                             .setMaxRetries(2)
-                            .setDelegate(new UploadStatusDelegate() {
-                                @Override
-                                public void onProgress(Context context, UploadInfo uploadInfo) {
-                                }
-
-                                @Override
-                                public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
-                                                    Exception exception) {
-                                    Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
-                                    UploadsHelper.deleteTempFiles(storage);
-                                    progressBar.setVisibility(View.GONE);
-                                }
-
-                                @Override
-                                public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                                    Toast.makeText(context, "Upload completed successfully", Toast.LENGTH_SHORT).show();
-                                    UploadsHelper.deleteTempFiles(storage);
-                                    BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
-
-                                    for (UploadFile file : filesList) {
-                                        if (file.isCameraPhoto()) {
-                                            TakePhoto.galleryAddPic(context, file.getPhotoFile());
-                                        }
-                                    }
-
-                                    uploadTitle.setText(null);
-                                    uploadFilename.setText(null);
-                                    hasModifiedFilename = false;
-                                    uploadDescription.setText(null);
-                                    filesList.clear();
-                                    filesListView.removeAllViews();
-                                    photoFileCreated = null;
-                                    progressBar.setVisibility(View.GONE);
-                                }
-
-                                @Override
-                                public void onCancelled(Context context, UploadInfo uploadInfo) {
-                                    Toast.makeText(context, "Upload canceled", Toast.LENGTH_SHORT).show();
-
-                                    UploadsHelper.deleteTempFiles(storage);
-                                    progressBar.setVisibility(View.GONE);
-                                }
-                            })
                             .startUpload();
                 } catch (Exception exception) {
                     Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
                     progressBar.setVisibility(View.GONE);
                 }
-                dialog.dismiss();
             });
 
             builder.setNegativeButton("NOPE", (dialog, which) -> {
@@ -489,6 +526,15 @@ public class UploadActivity extends BaseActivity {
     protected void onResume() {
         drawer.setSelection(UPLOAD_ID);
         super.onResume();
+        uploadsReceiver.setDelegate(uploadDelegate);
+        uploadsReceiver.provideStorage(storage);
+        uploadsReceiver.register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        uploadsReceiver.unregister(this);
     }
 
     @Override

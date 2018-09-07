@@ -124,6 +124,9 @@
     <string name="upload_filename_info">Please follow the filename rules as\ndescribed
         in&#160;<a href="https://www.thmmy.gr/smf/index.php?topic=34294.0">this topic</a>.\n
         \nThis does not rename your local files.</string>
+    <string name="upload_progress_dialog_title">Uploading your files</string>
+    <string name="upload_progress_dialog_zipping_files">Zipping files.</string>
+    <string name="upload_progress_dialog_bytes_uploaded">Uploading at %1$.2f Kbit/s, %2$d/%3$d KBytes uploaded.</string>
 
     <!--Upload Fields Builder Activity-->
     <string name="upload_fields_builder_type_radio_buttons_title">Select type of upload</string>
