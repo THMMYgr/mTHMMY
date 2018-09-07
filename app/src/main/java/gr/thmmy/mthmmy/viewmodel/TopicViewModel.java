@@ -73,6 +73,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private String topicUrl;
     private int currentPageIndex;
     private int pageCount;
+    private boolean focusedPostLastSeenMessage;
 
     private MutableLiveData<PrepareForReplyResult> prepareForReplyResult = new MutableLiveData<>();
     private MutableLiveData<PrepareForEditResult> prepareForEditResult = new MutableLiveData<>();
@@ -187,6 +188,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (result.getResultCode() == TopicTask.ResultCode.SUCCESS) {
             currentPageIndex = result.getCurrentPageIndex();
             pageCount = result.getPageCount();
+            focusedPostLastSeenMessage = result.isFocusedPostLastSeenMessage();
             topicTreeAndMods.setValue(result.getTopicTreeAndMods());
             topicViewers.setValue(result.getTopicViewers());
             pageTopicId.setValue(result.getLoadedPageTopicId());
@@ -391,5 +393,9 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (postsList.getValue() == null)
             throw  new NullPointerException("No page has been loaded yet!");
         return postsList.getValue().size();
+    }
+
+    public boolean isFocusedPostLastSeenMessage() {
+        return focusedPostLastSeenMessage;
     }
 }

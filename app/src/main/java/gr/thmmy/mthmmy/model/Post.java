@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import gr.thmmy.mthmmy.activities.topic.TopicRecyclerViewItem;
+
 /**
  * Class that defines a topic's post. All member variables are declared final (thus no setters are
  * supplied). Class has two constructors and getter methods for all variables.
@@ -15,7 +17,7 @@ import java.util.Objects;
  * gender, number of posts, personal text and number of start to be described <b>in addition to
  * previous fields</b>.</p>
  */
-public class Post {
+public class Post extends TopicRecyclerViewItem {
     public static final int TYPE_POST = 0;
     public static final int TYPE_QUICK_REPLY = 1;
     public static final int TYPE_EDIT = 2;

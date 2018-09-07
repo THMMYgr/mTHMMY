@@ -35,7 +35,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
@@ -74,16 +74,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
     private final OnPostFocusChangeListener postFocusListener;
     private final EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner;
-    private final List<Post> postsList;
+    private final ArrayList<TopicRecyclerViewItem> topicRecyclerViewItems;
     private TopicViewModel viewModel;
 
     /**
      * @param context   the context of the {@link RecyclerView}
-     * @param postsList List of {@link Post} objects to use
+     * @param topicRecyclerViewItems List of {@link Post} objects to use
      */
-    TopicAdapter(TopicActivity context, List<Post> postsList) {
+    TopicAdapter(TopicActivity context, ArrayList<TopicRecyclerViewItem> topicRecyclerViewItems) {
         this.context = context;
-        this.postsList = postsList;
+        this.topicRecyclerViewItems = topicRecyclerViewItems;
         this.postFocusListener = context;
         this.emojiKeyboardOwner = context;
 
@@ -94,7 +94,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return postsList.get(position).getPostType();
+        if (topicRecyclerViewItems.get(position) instanceof NewPostSeparator)
+            return NewPostSeparator.TYPE_NEW_MESSAGE_SEPARATOR;
+        return ((Post) topicRecyclerViewItems.get(position)).getPostType();
     }
 
     @NonNull
@@ -130,6 +132,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             editPostEdittext.requestFocus();
 
             return new EditMessageViewHolder(view);
+        } else if (viewType == NewPostSeparator.TYPE_NEW_MESSAGE_SEPARATOR) {
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.activity_topic_new_message_separator, parent, false);
+            return new NewMessageSeparatorViewHolder(view);
         } else {
             throw new IllegalArgumentException("Unknown view type");
         }
@@ -140,7 +146,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder currentHolder,
                                  final int position) {
         if (currentHolder instanceof PostViewHolder) {
-            final Post currentPost = postsList.get(position);
+            final Post currentPost = (Post) topicRecyclerViewItems.get(position);
             final PostViewHolder holder = (PostViewHolder) currentHolder;
 
             //Post's WebView parameters
@@ -396,7 +402,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     editPostButton.setVisibility(View.GONE);
                 } else {
                     editPostButton.setOnClickListener(v -> {
-                        viewModel.prepareForEdit(position, postsList.get(position).getPostEditURL());
+                        viewModel.prepareForEdit(position, ((Post) topicRecyclerViewItems.get(position)).getPostEditURL());
                         popUp.dismiss();
                     });
                 }
@@ -504,7 +510,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .transform(new CircleTransform())
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
-            holder.editSubject.setText(postsList.get(position).getSubject());
+            holder.editSubject.setText(((Post) topicRecyclerViewItems.get(position)).getSubject());
 
             holder.editEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
             InputConnection ic = holder.editEditor.getInputConnection();
@@ -542,7 +548,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return postsList.size();
+        return topicRecyclerViewItems.size();
     }
 
     /**
@@ -631,6 +637,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    static class NewMessageSeparatorViewHolder extends RecyclerView.ViewHolder {
+        NewMessageSeparatorViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
     /**
      * This class is used to handle link clicks in WebViews. When link url is one that the app can
      * handle internally, it does. Otherwise user is prompt to open the link in a browser.
@@ -674,8 +686,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         if (tmpUrlSbstr.contains("msg"))
                             tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
                         int testAgainst = Integer.parseInt(tmpUrlSbstr);
-                        for (int i = 0; i < postsList.size(); i++) {
-                            if (postsList.get(i).getPostIndex() == testAgainst) {
+                        for (int i = 0; i < topicRecyclerViewItems.size(); i++) {
+                            if (!(topicRecyclerViewItems.get(i) instanceof Post)) continue;
+                            if (((Post) topicRecyclerViewItems.get(i)).getPostIndex() == testAgainst) {
                                 //same page
                                 Timber.e(Integer.toString(i));
                                 postFocusListener.onPostFocusChange(i);

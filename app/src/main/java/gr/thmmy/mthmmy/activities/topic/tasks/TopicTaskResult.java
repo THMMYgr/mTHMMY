@@ -36,11 +36,12 @@ public class TopicTaskResult {
     //Topic's info related
     private final String topicTreeAndMods;
     private final String topicViewers;
+    private final boolean focusedPostLastSeenMessage;
 
     public TopicTaskResult(TopicTask.ResultCode resultCode, String topicTitle,
                            String replyPageUrl, ArrayList<Post> newPostsList, int loadedPageTopicId,
                            int currentPageIndex, int pageCount, int focusedPostIndex, String topicTreeAndMods,
-                           String topicViewers) {
+                           String topicViewers, boolean focusedPostLastSeenMessage) {
         this.resultCode = resultCode;
         this.topicTitle = topicTitle;
         this.replyPageUrl = replyPageUrl;
@@ -51,6 +52,7 @@ public class TopicTaskResult {
         this.focusedPostIndex = focusedPostIndex;
         this.topicTreeAndMods = topicTreeAndMods;
         this.topicViewers = topicViewers;
+        this.focusedPostLastSeenMessage = focusedPostLastSeenMessage;
     }
 
     public TopicTask.ResultCode getResultCode() {
@@ -91,5 +93,9 @@ public class TopicTaskResult {
 
     public String getTopicViewers() {
         return topicViewers;
+    }
+
+    public boolean isFocusedPostLastSeenMessage() {
+        return focusedPostLastSeenMessage;
     }
 }

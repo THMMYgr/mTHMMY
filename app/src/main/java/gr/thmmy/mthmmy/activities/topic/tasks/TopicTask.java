@@ -45,13 +45,17 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
         //Finds the index of message focus if present
         int postFocus = 0;
-        {
-            if (newPageUrl.contains("msg")) {
-                String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
-                if (tmp.contains(";"))
-                    postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
-                else if (tmp.contains("#"))
-                    postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
+        boolean focusedPostLastSeenMessage = false;
+        if (newPageUrl.contains("msg")) {
+            String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
+            if (tmp.contains(";")) {
+                postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
+                if (newPageUrl.contains("topicseen"))
+                    focusedPostLastSeenMessage = true;
+            } else if (tmp.contains("#")) {
+                postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
+                if (newPageUrl.contains("topicseen"))
+                    focusedPostLastSeenMessage = true;
             }
         }
 
@@ -105,18 +109,18 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                 }
             }
             return new TopicTaskResult(ResultCode.SUCCESS, topicTitle, replyPageUrl, newPostsList, loadedPageTopicId,
-                    currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods, topicViewers);
+                    currentPageIndex, pageCount, focusedPostIndex, topicTreeAndMods, topicViewers, focusedPostLastSeenMessage);
         } catch (IOException e) {
             return new TopicTaskResult(ResultCode.NETWORK_ERROR, null, null, null,
-                    0, 0, 0, 0, null, null);
+                    0, 0, 0, 0, null, null, false);
         } catch (Exception e) {
             if (isUnauthorized(topic)) {
                 return new TopicTaskResult(ResultCode.UNAUTHORIZED, null, null, null,
-                        0, 0, 0, 0, null, null);
+                        0, 0, 0, 0, null, null, false);
             } else {
                 Timber.e(e, "Topic parse failed");
                 return new TopicTaskResult(ResultCode.PARSING_ERROR, null, null, null,
-                        0, 0, 0, 0, null, null);
+                        0, 0, 0, 0, null, null, false);
             }
         }
     }
@@ -139,6 +143,7 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
     public interface TopicTaskObserver {
         void onTopicTaskStarted();
+
         void onTopicTaskCancelled();
     }
 
