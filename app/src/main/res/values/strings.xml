@@ -183,4 +183,5 @@
 
     <!-- New topic activity -->
     <string name="new_topic_toolbar">New topic</string>
+    <string name="create_topic">Create topic</string>
 </resources>

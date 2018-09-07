@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.create_content.NewTopicTask;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.editorview.EditorView;
@@ -45,7 +44,7 @@ public class CreateContentActivity extends AppCompatActivity implements EmojiKey
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        ((TextView) findViewById(R.id.toolbar_title)).setText("Create topic");
+        ((TextView) findViewById(R.id.toolbar_title)).setText(R.string.create_topic);
 
         progressBar = findViewById(R.id.progressBar);
 
