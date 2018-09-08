@@ -5,14 +5,14 @@
     android:layout_height="wrap_content"
     android:background="@color/background"
     android:orientation="vertical"
-    android:paddingEnd="12dp"
-    android:paddingStart="12dp"
     android:paddingTop="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -36,8 +36,10 @@
     <android.support.v7.widget.AppCompatTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="3dp"
         android:layout_marginTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp"
         android:singleLine="true"
         android:text="@string/changelog_subtitle"
         android:textColor="@color/accent"
@@ -46,14 +48,18 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginBottom="6dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginStart="12dp"
         android:background="@color/accent" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:orientation="horizontal">
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp">
 
         <TextView
             android:id="@+id/version"
@@ -80,6 +86,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/background"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingEnd="12dp"
+            android:paddingStart="12dp" />
     </ScrollView>
 </LinearLayout>

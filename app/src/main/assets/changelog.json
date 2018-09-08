@@ -35,7 +35,7 @@
         {
           "change": "feature",
           "title": "Tweak it.",
-          "description": "Settings are now available, in case you want to change your notifications sound."
+          "description": "Settings are now available, in case you want to change your notification sound."
         },
         {
           "change": "feature",
@@ -49,7 +49,7 @@
         },{
           "change": "bug",
           "title": "Many bugs.",
-          "description": "We fixed a ton of other bugs to the app is now like 36.2% more bug free."
+          "description": "We fixed a ton of other bugs, so the app is now like 36.2% more bug free."
         },
         {
           "change": "improvement",
@@ -73,8 +73,8 @@
         },
         {
           "change": "improvement",
-          "title": "No wifi, no topic.",
-          "description": "Added a message in topics that warns when no connection is available."
+          "title": "No WI-FI, no topic.",
+          "description": "Added a message on topics that warns when no connection is available."
         },
         {
           "change": "improvement",
