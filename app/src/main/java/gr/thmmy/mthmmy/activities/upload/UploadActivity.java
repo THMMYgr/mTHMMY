@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.upload;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
+import net.gotev.uploadservice.UploadNotificationAction;
 import net.gotev.uploadservice.UploadNotificationConfig;
 
 import org.jsoup.nodes.Document;
@@ -42,8 +44,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -87,7 +93,7 @@ public class UploadActivity extends BaseActivity {
 
     private static final int MAX_FILE_SIZE_SUPPORTED = 45000000;
 
-    private UploadsReceiver uploadsReceiver = new UploadsReceiver();
+    //private UploadsReceiver uploadsReceiver = new UploadsReceiver();
     private ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     private ParseUploadPageTask parseUploadPageTask;
     private ArrayList<String> bundleCategory;
@@ -110,58 +116,6 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadDescription;
     private AppCompatButton titleDescriptionBuilderButton;
     private LinearLayout filesListView;
-    private AlertDialog uploadProgressDialog;
-    private MaterialProgressBar dialogProgressBar;
-    private TextView dialogProgressText;
-
-    private UploadsReceiver.Delegate uploadDelegate = new UploadsReceiver.Delegate() {
-        @Override
-        public void onProgress(long uploadedBytes, long totalBytes, int progress, double uploadRate) {
-            if (uploadProgressDialog != null) {
-                dialogProgressBar.setProgress(progress);
-                dialogProgressText.setText(getResources().getString(
-                        R.string.upload_progress_dialog_bytes_uploaded, (float) uploadRate,
-                        (int) uploadedBytes / 1000, (int) totalBytes / 1000));
-
-                if (uploadedBytes == totalBytes) {
-                    uploadProgressDialog.dismiss();
-                }
-            }
-        }
-
-        @Override
-        public void onError(Exception exception) {
-            Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
-
-        }
-
-        @Override
-        public void onCompleted(int serverResponseCode, byte[] serverResponseBody) {
-            Toast.makeText(getApplicationContext(), "Upload completed successfully", Toast.LENGTH_SHORT).show();
-
-            uploadTitle.setText(null);
-            textWatcher.setFileExtension("");
-            uploadFilename.setText(null);
-            hasModifiedFilename = false;
-            uploadDescription.setText(null);
-            filesList.clear();
-            filesListView.removeAllViews();
-            photoFileCreated = null;
-            progressBar.setVisibility(View.GONE);
-
-            if (uploadProgressDialog != null) {
-                uploadProgressDialog.dismiss();
-            }
-
-        }
-
-        @Override
-        public void onCancelled() {
-            Toast.makeText(getApplicationContext(), "Upload canceled", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,8 +153,8 @@ public class UploadActivity extends BaseActivity {
 
         progressBar = findViewById(R.id.progressBar);
 
-        uploadsReceiver.setDelegate(uploadDelegate);
-        uploadsReceiver.provideStorage(storage);
+        /*uploadsReceiver.setDelegate(uploadDelegate);
+        uploadsReceiver.provideStorage(storage);*/
 
         findViewById(R.id.upload_outer_scrollview).setVerticalScrollBarEnabled(false);
         categoriesSpinners = findViewById(R.id.upload_spinners);
@@ -379,30 +333,16 @@ public class UploadActivity extends BaseActivity {
             builder.setTitle("Upload to thmmy");
             builder.setMessage("Are you sure?");
             builder.setPositiveButton("YES, FIRE AWAY", (dialog, which) -> {
-                AlertDialog.Builder progressDialogBuilder = new AlertDialog.Builder(this);
-                LayoutInflater inflater = this.getLayoutInflater();
-                LinearLayout progressDialogLayout = (LinearLayout) inflater.inflate(R.layout.dialog_upload_progress, null);
-
-                dialogProgressBar = progressDialogLayout.findViewById(R.id.dialogProgressBar);
-                dialogProgressBar.setMax(100);
-                dialogProgressText = progressDialogLayout.findViewById(R.id.dialog_bytes_uploaded);
-
-                progressDialogBuilder.setView(progressDialogLayout);
-                progressDialogBuilder.setNeutralButton("Resume on background", (progressDialog, progressWhich) -> {
-                    uploadProgressDialog.dismiss();
-                    finish();
-                });
-                uploadProgressDialog = progressDialogBuilder.create();
-                uploadProgressDialog.setCancelable(false);
-
-                dialog.dismiss();
-                uploadProgressDialog.show();
-
-
                 //Checks settings and possibly adds "Uploaded from mTHMMY" string to description
                 SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(view.getContext());
                 if (sharedPrefs.getBoolean(UPLOADING_APP_SIGNATURE_ENABLE_KEY, true)) {
                     uploadDescriptionText[0] += uploadedFromThmmyPromptHtml;
+                }
+
+                for (UploadFile file : filesList) {
+                    if (file.isCameraPhoto()) {
+                        TakePhoto.galleryAddPic(this, file.getPhotoFile());
+                    }
                 }
 
                 Uri tempFileUri = null;
@@ -444,48 +384,47 @@ public class UploadActivity extends BaseActivity {
                         filesListArray[i] = filesList.get(i).getFileUri();
                     }
 
-                    File zipFile = UploadsHelper.createZipFile(this);
-                    assert zipFile != null;
-                    tempFileUri = FileProvider.getUriForFile(this, getPackageName() +
-                            ".provider", zipFile);
-
-                    dialogProgressText.setText(R.string.upload_progress_dialog_zipping_files);
-                    UploadsHelper.zip(this, filesListArray, tempFileUri);
+                    new ZipTask(this, editTextFilename, categorySelected,
+                            uploadTitleText, uploadDescriptionText[0], fileIcon,
+                            uploaderProfileIndex).execute(filesListArray);
+                    finish();
                 }
 
-                for (UploadFile file : filesList) {
-                    if (file.isCameraPhoto()) {
-                        TakePhoto.galleryAddPic(this, file.getPhotoFile());
-                    }
-                }
+                Intent retryIntent = new Intent(this, UploadsReceiver.class);
+                retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
 
-                try {
-                    UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
-                    uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
+                Intent cancelIntent = new Intent(this, UploadsReceiver.class);
+                cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
 
-                    uploadNotificationConfig.getProgress().iconResourceID = android.R.drawable.stat_sys_upload;
-                    uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
-                    uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
-                    uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
+                UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
+                uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
 
-                    new MultipartUploadRequest(view.getContext(), uploadIndexUrl)
-                            .setUtf8Charset()
-                            .setNotificationConfig(uploadNotificationConfig)
-                            .addParameter("tp-dluploadtitle", uploadTitleText)
-                            .addParameter("tp-dluploadcat", categorySelected)
-                            .addParameter("tp-dluploadtext", uploadDescriptionText[0])
-                            .addFileToUpload(tempFileUri == null
-                                            ? filesList.get(0).getFileUri().toString()
-                                            : tempFileUri.toString()
-                                    , "tp-dluploadfile")
-                            .addParameter("tp_dluploadicon", fileIcon)
-                            .addParameter("tp-uploaduser", uploaderProfileIndex)
-                            .setNotificationConfig(uploadNotificationConfig)
-                            .setMaxRetries(2)
-                            .startUpload();
-                } catch (Exception exception) {
-                    Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
-                    progressBar.setVisibility(View.GONE);
+                uploadNotificationConfig.getProgress().iconResourceID = android.R.drawable.stat_sys_upload;
+                uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
+                uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
+                uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
+
+                uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
+                        R.drawable.ic_cancel_accent_24dp,
+                        this.getString(R.string.upload_notification_cancel),
+                        PendingIntent.getBroadcast(this, 0, cancelIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT)
+                ));
+                uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
+                        R.drawable.ic_cached_accent_24dp,
+                        this.getString(R.string.upload_notification_retry),
+                        PendingIntent.getBroadcast(this, 0, retryIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT)
+                ));
+
+                if (uploadFile(this, uploadNotificationConfig, categorySelected,
+                        uploadTitleText, uploadDescriptionText[0], fileIcon, uploaderProfileIndex,
+                        tempFileUri == null
+                                ? filesList.get(0).getFileUri()
+                                : tempFileUri)) {
+                    finish();
+                } else {
+                    Toast.makeText(this, "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -526,15 +465,15 @@ public class UploadActivity extends BaseActivity {
     protected void onResume() {
         drawer.setSelection(UPLOAD_ID);
         super.onResume();
-        uploadsReceiver.setDelegate(uploadDelegate);
+        /*uploadsReceiver.setDelegate(uploadDelegate);
         uploadsReceiver.provideStorage(storage);
-        uploadsReceiver.register(this);
+        uploadsReceiver.register(this);*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        uploadsReceiver.unregister(this);
+        //uploadsReceiver.unregister(this);
     }
 
     @Override
@@ -559,6 +498,13 @@ public class UploadActivity extends BaseActivity {
             if (data.getClipData() != null) {
                 fileIcon = "archive.gif";
                 textWatcher.setFileExtension(".zip");
+
+                if (!hasModifiedFilename) {
+                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
+                    String zipFilename = "mThmmy_" + timeStamp + ".zip";
+                    uploadFilename.setText(zipFilename);
+                    hasModifiedFilename = false;
+                }
 
                 for (int fileIndex = 0; fileIndex < data.getClipData().getItemCount(); ++fileIndex) {
                     Uri newFileUri = data.getClipData().getItemAt(fileIndex).getUri();
@@ -601,6 +547,13 @@ public class UploadActivity extends BaseActivity {
                     } else {
                         fileIcon = "archive.gif";
                         textWatcher.setFileExtension(".zip");
+
+                        if (!hasModifiedFilename) {
+                            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
+                            String zipFilename = "mThmmy_" + timeStamp + ".zip";
+                            uploadFilename.setText(zipFilename);
+                            hasModifiedFilename = false;
+                        }
                     }
 
                     addFileViewToList(filename);
@@ -626,6 +579,13 @@ public class UploadActivity extends BaseActivity {
             } else {
                 fileIcon = "archive.gif";
                 textWatcher.setFileExtension(".zip");
+
+                if (!hasModifiedFilename) {
+                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
+                    String zipFilename = "mThmmy_" + timeStamp + ".zip";
+                    uploadFilename.setText(zipFilename);
+                    hasModifiedFilename = false;
+                }
             }
 
             UploadFile newFile = new UploadFile(true, TakePhoto.processResult(this,
@@ -737,6 +697,32 @@ public class UploadActivity extends BaseActivity {
 
         filesListView.addView(newFileRow);
         filesListView.setVisibility(View.VISIBLE);
+    }
+
+    private static boolean uploadFile(Context context,
+                                      UploadNotificationConfig uploadNotificationConfig,
+                                      String categorySelected, String uploadTitleText,
+                                      String uploadDescriptionText, String fileIcon,
+                                      String uploaderProfileIndex, Uri fileUri) {
+        try {
+            new MultipartUploadRequest(context, uploadIndexUrl)
+                    .setUtf8Charset()
+                    .setNotificationConfig(uploadNotificationConfig)
+                    .addParameter("tp-dluploadtitle", uploadTitleText)
+                    .addParameter("tp-dluploadcat", categorySelected)
+                    .addParameter("tp-dluploadtext", uploadDescriptionText)
+                    .addFileToUpload(fileUri.toString()
+                            , "tp-dluploadfile")
+                    .addParameter("tp_dluploadicon", fileIcon)
+                    .addParameter("tp-uploaduser", uploaderProfileIndex)
+                    .setNotificationConfig(uploadNotificationConfig)
+                    .setMaxRetries(2)
+                    .startUpload();
+            return true;
+        } catch (Exception exception) {
+            Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
+            return false;
+        }
     }
 
     private class CustomTextWatcher implements TextWatcher {
@@ -936,6 +922,108 @@ public class UploadActivity extends BaseActivity {
             updateUIElements();
             titleDescriptionBuilderButton.setEnabled(true);
             progressBar.setVisibility(ProgressBar.GONE);
+        }
+    }
+
+    public static class ZipTask extends AsyncTask<Uri, Void, Boolean> {
+        // Weak references will still allow the Activity to be garbage-collected
+        private final WeakReference<Activity> weakActivity;
+        final String zipFilename, categorySelected, uploadTitleText, uploadDescriptionText,
+                fileIcon, uploaderProfileIndex;
+        Uri zipFileUri;
+
+        // Suppresses default constructor
+        @SuppressWarnings("unused")
+        private ZipTask() {
+            weakActivity = null;
+            this.zipFilename = null;
+            this.categorySelected = null;
+            this.uploadTitleText = null;
+            this.uploadDescriptionText = null;
+            this.fileIcon = null;
+            this.uploaderProfileIndex = null;
+        }
+
+        ZipTask(Activity uploadsActivity, @NonNull String zipFilename,
+                @NonNull String categorySelected, @NonNull String uploadTitleText,
+                @NonNull String uploadDescriptionText, @NonNull String fileIcon,
+                @NonNull String uploaderProfileIndex) {
+            weakActivity = new WeakReference<>(uploadsActivity);
+            this.zipFilename = zipFilename;
+            this.categorySelected = categorySelected;
+            this.uploadTitleText = uploadTitleText;
+            this.uploadDescriptionText = uploadDescriptionText;
+            this.fileIcon = fileIcon;
+            this.uploaderProfileIndex = uploaderProfileIndex;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            assert weakActivity != null;
+            Toast.makeText(weakActivity.get(), "Zipping files", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Uri... filesToZip) {
+            if (weakActivity == null || zipFilename == null) {
+                return false;
+            }
+            File zipFile = UploadsHelper.createZipFile(zipFilename);
+
+            if (zipFile == null) {
+                return false;
+            }
+            zipFileUri = FileProvider.getUriForFile(weakActivity.get(),
+                    weakActivity.get().getPackageName() +
+                            ".provider", zipFile);
+
+            UploadsHelper.zip(weakActivity.get(), filesToZip, zipFileUri);
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (weakActivity == null) {
+                return;
+            }
+
+            if (!result) {
+                Toast.makeText(weakActivity.get(), "Couldn't create zip!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent retryIntent = new Intent(weakActivity.get(), UploadsReceiver.class);
+            retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
+
+            Intent cancelIntent = new Intent(weakActivity.get(), UploadsReceiver.class);
+            cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
+
+            UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
+            uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
+
+            uploadNotificationConfig.getProgress().iconResourceID = android.R.drawable.stat_sys_upload;
+            uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
+            uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
+            uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
+
+            uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
+                    R.drawable.ic_cancel_accent_24dp,
+                    weakActivity.get().getString(R.string.upload_notification_cancel),
+                    PendingIntent.getBroadcast(weakActivity.get(), 0, cancelIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT)
+            ));
+            uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
+                    R.drawable.ic_cached_accent_24dp,
+                    weakActivity.get().getString(R.string.upload_notification_retry),
+                    PendingIntent.getBroadcast(weakActivity.get(), 0, retryIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT)
+            ));
+
+            if (!uploadFile(weakActivity.get(), uploadNotificationConfig, categorySelected,
+                    uploadTitleText, uploadDescriptionText, fileIcon, uploaderProfileIndex,
+                    zipFileUri)) {
+                Toast.makeText(weakActivity.get(), "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

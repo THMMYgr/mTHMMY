@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities.upload;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.widget.Toast;
@@ -16,9 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -83,23 +81,19 @@ public class UploadsHelper {
     }
 
     @Nullable
-    public static File createZipFile(Context context) {
+    public static File createZipFile(@NonNull String zipFilename) {
         // Create a zip file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-        String zipFileName = "mThmmy_" + timeStamp + ".zip";
-
         File zipFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) +
                 File.separator + "mThmmy");
 
         if (!zipFolder.exists()) {
             if (!zipFolder.mkdirs()) {
                 Timber.w("Zip folder build returned false in %s", UploadsHelper.class.getSimpleName());
-                Toast.makeText(context, "Couldn't create zip directory", Toast.LENGTH_SHORT).show();
                 return null;
             }
         }
 
-        return new File(zipFolder, zipFileName);
+        return new File(zipFolder, zipFilename);
     }
 
     public static void zip(Context context, Uri[] files, Uri zipFile) {

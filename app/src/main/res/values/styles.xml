@@ -35,11 +35,11 @@
         <item name="colorControlActivated">@color/accent</item>
     </style>
 
-    <style name="PopupMenuStyle">
+    <!--<style name="PopupMenuStyle">
         <item name="android:popupBackground">@color/primary_light</item>
         <item name="android:textAppearanceLargePopupMenu">@color/accent</item>
         <item name="android:textAppearanceSmallPopupMenu">@color/accent</item>
-    </style>
+    </style>-->
 
     <style name="PopupMenuItem" parent="Widget.AppCompat.PopupMenu">
         <item name="android:layout_height">32dp</item>
