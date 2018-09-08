@@ -180,4 +180,11 @@
     <string name="dialog_link_url_hint">Link URL</string>
     <string name="dialog_link_text_hint">Link text</string>
     <string name="input_field_required">Required</string>
+
+    <!-- Changelog -->
+    <string name="alien_monster_mascot_description">mascot</string>
+    <string name="alien_monster_mascot_speech">Human, I bring good news.</string>
+    <string name="changelog_version_text">v. %1$s</string>
+    <string name="changelog_subtitle">Your software has been updated!</string>
+    <string name="dialog_not_interested_button">Cool, thanx for awesome app</string>
 </resources>

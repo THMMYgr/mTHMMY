@@ -1,0 +1,97 @@
+{
+  "changelogs": [
+    {
+      "version_code": 13,
+      "version": "5.0.0",
+      "release_date": "Someday in september.... hopefully",
+      "video": "Maybe someday",
+      "prelude": "May be useful sometimes.. like a text above the actual change list",
+      "change_list": [
+        {
+          "change": "feature",
+          "title": "Brand new editor view ARISES!",
+          "description": "Take advantage of the new post content editor to post like you never before. (hint: it can emoji)"
+        },
+        {
+          "change": "feature",
+          "title": "Uploads!",
+          "description": "Yes, it's true, you can now upload files. Small files, big files. It's really up to you."
+        },
+        {
+          "change": "feature",
+          "title": "New topics ooooonnn the wayyyyy.",
+          "description": "It was something missing."
+        },
+        {
+          "change": "feature",
+          "title": "Postal manipulation.",
+          "description": "Edit or delete your posts, if you dare."
+        },
+        {
+          "change": "feature",
+          "title": "Quotes: year 2018.",
+          "description": "You can quote from multiple pages. We did this too, just because."
+        },
+        {
+          "change": "feature",
+          "title": "Tweak it.",
+          "description": "Settings are now available, in case you want to change your notifications sound."
+        },
+        {
+          "change": "feature",
+          "title": "OMG this is a long changelog!!",
+          "description": "Well get used to it, we have ultra cool changelogs now!"
+        },
+        {
+          "change": "bug",
+          "title": "Unread posts missing.",
+          "description": "Know how you could only see the first page of your unread messages? Not anymore!"
+        },{
+          "change": "bug",
+          "title": "Many bugs.",
+          "description": "We fixed a ton of other bugs to the app is now like 36.2% more bug free."
+        },
+        {
+          "change": "improvement",
+          "title": "Much cutter icons in boards.",
+          "description": "Sticky icon changed to much the overall greatness of the forum, also a dot was added. Don't you just love dots?"
+        },
+        {
+          "change": "improvement",
+          "title": "Post actions overflow.",
+          "description": "We noticed how post cards were getting cramped up by all the quote buttons and whatnot, so we moved some to an overflow."
+        },
+        {
+          "change": "improvement",
+          "title": "Vectors once again.",
+          "description": "All icons are now in vector format. No zoom is scary in this parts!"
+        },
+        {
+          "change": "improvement",
+          "title": "Reporting.",
+          "description": "Long overdue job was done in the reporting class. We shall now have an easier time fixing bothering bugs."
+        },
+        {
+          "change": "improvement",
+          "title": "No wifi, no topic.",
+          "description": "Added a message in topics that warns when no connection is available."
+        },
+        {
+          "change": "improvement",
+          "title": "Get mentioned.",
+          "description": "A yellow border is added to posts that quote you. It's beautiful!"
+        },
+        {
+          "change": "improvement",
+          "title": "The inner update.",
+          "description": "Updated the libraries used. So expect 4% better behavior."
+        },
+        {
+          "change": "undef",
+          "title": "You made it!",
+          "description": "Congrats, this is the end.. of the changelog! Have a cookie \uD83C\uDF6A"
+        }
+      ]
+    }
+  ]
+}

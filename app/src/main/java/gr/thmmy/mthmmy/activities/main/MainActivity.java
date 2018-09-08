@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.main;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -9,7 +10,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
+import android.view.LayoutInflater;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -28,6 +32,7 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicSummary;
+import gr.thmmy.mthmmy.utils.Changelog;
 import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
@@ -41,7 +46,8 @@ import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
-public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener, UnreadFragment.UnreadFragmentInteractionListener {
+public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener,
+        ForumFragment.ForumFragmentInteractionListener, UnreadFragment.UnreadFragmentInteractionListener {
 
     //-----------------------------------------CLASS VARIABLES------------------------------------------
     private static final int TIME_INTERVAL = 2000;
@@ -92,6 +98,11 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         }
 
         setMainActivity(this);
+
+        if (Changelog.getLaunchType(this) == Changelog.LAUNCH_TYPE.FIRST_LAUNCH_AFTER_UPDATE) {
+            AlertDialog dialog = Changelog.getChangelogDialog(this);
+            dialog.show();
+        }
     }
 
     @Override
@@ -104,7 +115,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     protected void onResume() {
         drawer.setSelection(HOME_ID);
-        if(!sharedPrefs.getBoolean(DRAWER_INTRO, false)){
+        if (!sharedPrefs.getBoolean(DRAWER_INTRO, false)) {
             drawer.openDrawer();
             sharedPrefs.edit().putBoolean(DRAWER_INTRO, true).apply();
         }

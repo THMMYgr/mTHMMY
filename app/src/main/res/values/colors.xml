@@ -26,4 +26,11 @@
     <color name="dialog_bg_semi_transparent_dark">#D92B2B2B</color>
     <color name="member_of_the_month">#E91E63</color>
     <color name="topic_post_icon">@color/primary_text</color>
+
+    <!--<color name="changelog_feature_dot">#658550</color>-->
+    <color name="changelog_feature_dot">#17C723</color>
+    <!--<color name="changelog_bug_dot">#af1d1d</color>-->
+    <color name="changelog_bug_dot">#DE0607</color>
+    <color name="changelog_improvement_dot">#772BB2</color>
+    <color name="changelog_default_dot">@color/accent</color>
 </resources>
