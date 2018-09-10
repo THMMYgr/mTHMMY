@@ -124,6 +124,8 @@
     <string name="upload_filename_info">Please follow the filename rules as\ndescribed
         in&#160;<a href="https://www.thmmy.gr/smf/index.php?topic=34294.0">this topic</a>.\n
         \nThis does not rename your local files.</string>
+    <string name="upload_progress_dialog_title">Uploading</string>
+    <string name="upload_progress_dialog_bytes_uploaded">Uploading: %1$.2f Kbit/s, %2$d/%3$d KBytes</string>
     <string name="upload_notification_cancel">"Cancel"</string>
     <string name="upload_notification_retry">"Retry"</string>
 

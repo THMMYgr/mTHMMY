@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -152,9 +154,6 @@ public class UploadActivity extends BaseActivity {
         drawer.setSelection(UPLOAD_ID);
 
         progressBar = findViewById(R.id.progressBar);
-
-        /*uploadsReceiver.setDelegate(uploadDelegate);
-        uploadsReceiver.provideStorage(storage);*/
 
         findViewById(R.id.upload_outer_scrollview).setVerticalScrollBarEnabled(false);
         categoriesSpinners = findViewById(R.id.upload_spinners);
@@ -388,36 +387,11 @@ public class UploadActivity extends BaseActivity {
                             uploadTitleText, uploadDescriptionText[0], fileIcon,
                             uploaderProfileIndex).execute(filesListArray);
                     finish();
+                    return;
                 }
 
-                Intent retryIntent = new Intent(this, UploadsReceiver.class);
-                retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
-
-                Intent cancelIntent = new Intent(this, UploadsReceiver.class);
-                cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
-
-                UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
-                uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
-
-                uploadNotificationConfig.getProgress().iconResourceID = android.R.drawable.stat_sys_upload;
-                uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
-                uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
-                uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
-
-                uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
-                        R.drawable.ic_cancel_accent_24dp,
-                        this.getString(R.string.upload_notification_cancel),
-                        PendingIntent.getBroadcast(this, 0, cancelIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT)
-                ));
-                uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
-                        R.drawable.ic_cached_accent_24dp,
-                        this.getString(R.string.upload_notification_retry),
-                        PendingIntent.getBroadcast(this, 0, retryIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT)
-                ));
-
-                if (uploadFile(this, uploadNotificationConfig, categorySelected,
+                String uploadID = UUID.randomUUID().toString();
+                if (uploadFile(this, uploadID, getConfigForUpload(this, uploadID), categorySelected,
                         uploadTitleText, uploadDescriptionText[0], fileIcon, uploaderProfileIndex,
                         tempFileUri == null
                                 ? filesList.get(0).getFileUri()
@@ -465,15 +439,11 @@ public class UploadActivity extends BaseActivity {
     protected void onResume() {
         drawer.setSelection(UPLOAD_ID);
         super.onResume();
-        /*uploadsReceiver.setDelegate(uploadDelegate);
-        uploadsReceiver.provideStorage(storage);
-        uploadsReceiver.register(this);*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //uploadsReceiver.unregister(this);
     }
 
     @Override
@@ -699,13 +669,56 @@ public class UploadActivity extends BaseActivity {
         filesListView.setVisibility(View.VISIBLE);
     }
 
-    private static boolean uploadFile(Context context,
+    private static UploadNotificationConfig getConfigForUpload(Context context, String uploadID) {
+        UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
+        uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
+
+        uploadNotificationConfig.getProgress().iconResourceID = android.R.drawable.stat_sys_upload;
+        uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
+        uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
+        uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
+        uploadNotificationConfig.getCancelled().iconColorResourceID = android.R.drawable.stat_sys_upload_done;
+
+        Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
+        //combinedActionsIntent.setAction(UploadsReceiver.ACTION_COMBINED_UPLOAD);
+        combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
+
+        uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
+                1, combinedActionsIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Intent retryIntent = new Intent(context, UploadsReceiver.class);
+            retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
+            retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
+
+            Intent cancelIntent = new Intent(context, UploadsReceiver.class);
+            cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
+            cancelIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
+
+            uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
+                    R.drawable.ic_cancel_accent_24dp,
+                    context.getString(R.string.upload_notification_cancel),
+                    PendingIntent.getBroadcast(context, 0, cancelIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT)
+            ));
+            uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
+                    R.drawable.ic_notification,
+                    context.getString(R.string.upload_notification_retry),
+                    PendingIntent.getBroadcast(context, 0, retryIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT)
+            ));
+        }
+
+        return uploadNotificationConfig;
+    }
+
+    private static boolean uploadFile(Context context, String uploadID,
                                       UploadNotificationConfig uploadNotificationConfig,
                                       String categorySelected, String uploadTitleText,
                                       String uploadDescriptionText, String fileIcon,
                                       String uploaderProfileIndex, Uri fileUri) {
         try {
-            new MultipartUploadRequest(context, uploadIndexUrl)
+            new MultipartUploadRequest(context, uploadID, uploadIndexUrl)
                     .setUtf8Charset()
                     .setNotificationConfig(uploadNotificationConfig)
                     .addParameter("tp-dluploadtitle", uploadTitleText)
@@ -718,6 +731,8 @@ public class UploadActivity extends BaseActivity {
                     .setNotificationConfig(uploadNotificationConfig)
                     .setMaxRetries(2)
                     .startUpload();
+
+            Toast.makeText(context, "Uploading files in the background.", Toast.LENGTH_SHORT).show();
             return true;
         } catch (Exception exception) {
             Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
@@ -992,34 +1007,9 @@ public class UploadActivity extends BaseActivity {
                 return;
             }
 
-            Intent retryIntent = new Intent(weakActivity.get(), UploadsReceiver.class);
-            retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
-
-            Intent cancelIntent = new Intent(weakActivity.get(), UploadsReceiver.class);
-            cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
-
-            UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
-            uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
-
-            uploadNotificationConfig.getProgress().iconResourceID = android.R.drawable.stat_sys_upload;
-            uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
-            uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
-            uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
-
-            uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
-                    R.drawable.ic_cancel_accent_24dp,
-                    weakActivity.get().getString(R.string.upload_notification_cancel),
-                    PendingIntent.getBroadcast(weakActivity.get(), 0, cancelIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT)
-            ));
-            uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
-                    R.drawable.ic_cached_accent_24dp,
-                    weakActivity.get().getString(R.string.upload_notification_retry),
-                    PendingIntent.getBroadcast(weakActivity.get(), 0, retryIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT)
-            ));
-
-            if (!uploadFile(weakActivity.get(), uploadNotificationConfig, categorySelected,
+            String uploadID = UUID.randomUUID().toString();
+            if (!uploadFile(weakActivity.get(), uploadID,
+                    getConfigForUpload(weakActivity.get(), uploadID), categorySelected,
                     uploadTitleText, uploadDescriptionText, fileIcon, uploaderProfileIndex,
                     zipFileUri)) {
                 Toast.makeText(weakActivity.get(), "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();

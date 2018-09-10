@@ -19,9 +19,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseActivity;
 import timber.log.Timber;
 
-public class UploadFieldsBuilderActivity extends AppCompatActivity {
+public class UploadFieldsBuilderActivity extends BaseActivity {
     static final String BUNDLE_UPLOAD_FIELD_BUILDER_COURSE = "UPLOAD_FIELD_BUILDER_COURSE";
     static final String BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER = "UPLOAD_FIELD_BUILDER_SEMESTER";
 
@@ -88,13 +89,16 @@ public class UploadFieldsBuilderActivity extends AppCompatActivity {
         }
 
         //Initialize toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.upload_fields_builder_toolbar_title);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        createDrawer();
+        drawer.setSelection(UPLOAD_ID, false);
 
         semesterChooserLinear = findViewById(R.id.upload_fields_builder_choose_semester);
         semesterRadio = findViewById(R.id.upload_fields_builder_semester_radio_group);

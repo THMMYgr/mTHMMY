@@ -3,8 +3,10 @@ package gr.thmmy.mthmmy.base;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -15,13 +17,16 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,8 +41,9 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.snatik.storage.Storage;
+
+import net.gotev.uploadservice.UploadService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,9 +60,11 @@ import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
+import gr.thmmy.mthmmy.services.UploadsReceiver;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.OkHttpClient;
 import timber.log.Timber;
 
@@ -68,6 +76,7 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_ID_KEY;
 import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
@@ -94,12 +103,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     //Common UI elements
     protected Toolbar toolbar;
     protected Drawer drawer;
+    //Uploads progress dialog
+    UploadsShowDialogReceiver uploadsShowDialogReceiver;
+    AlertDialog uploadsProgressDialog;
 
     private MainActivity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (client == null)
             client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
 
@@ -124,6 +137,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateDrawer();
+        uploadsShowDialogReceiver = new UploadsShowDialogReceiver(this);
+        this.registerReceiver(uploadsShowDialogReceiver, new IntentFilter(UploadsReceiver.ACTION_COMBINED_UPLOAD));
     }
 
     @Override
@@ -131,8 +146,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onPause();
         if (drawer != null)    //close drawer animation after returning to activity
             drawer.closeDrawer();
+        if (uploadsShowDialogReceiver != null) {
+            this.unregisterReceiver(uploadsShowDialogReceiver);
+        }
     }
-
 
     public static OkHttpClient getClient() {
         return client;
@@ -728,6 +745,52 @@ public abstract class BaseActivity extends AppCompatActivity {
             DownloadHelper.enqueueDownload(thmmyFile);
         });
         dialog.show();
+    }
+
+    //------------------------------------------ UPLOADS -------------------------------------------
+    private class UploadsShowDialogReceiver extends BroadcastReceiver {
+        private final Context activityContext;
+
+        UploadsShowDialogReceiver(Context activityContext) {
+            this.activityContext = activityContext;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle intentBundle = intent.getExtras();
+            if (intentBundle == null) {
+                return;
+            }
+
+            String dialogUploadID = intentBundle.getString(UPLOAD_ID_KEY);
+
+            if (uploadsProgressDialog == null) {
+                AlertDialog.Builder progressDialogBuilder = new AlertDialog.Builder(activityContext);
+                LayoutInflater inflater = LayoutInflater.from(activityContext);
+                LinearLayout progressDialogLayout = (LinearLayout) inflater.inflate(R.layout.dialog_upload_progress, null);
+
+                MaterialProgressBar dialogProgressBar = progressDialogLayout.findViewById(R.id.dialogProgressBar);
+                dialogProgressBar.setMax(100);
+
+                progressDialogBuilder.setView(progressDialogLayout);
+
+                progressDialogBuilder.setNeutralButton("Resume on background", (progressDialog, progressWhich) -> {
+                    progressDialog.dismiss();
+                });
+                progressDialogBuilder.setNegativeButton("Cancel", (progressDialog, progressWhich) -> {
+                    UploadService.stopUpload(dialogUploadID);
+                    progressDialog.dismiss();
+                });
+
+                uploadsProgressDialog = progressDialogBuilder.create();
+
+                UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID);
+                uploadsProgressDialog.show();
+            } else {
+                UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID);
+                uploadsProgressDialog.show();
+            }
+        }
     }
 
     //----------------------------------MISC----------------------
