@@ -5,13 +5,13 @@
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:background="@color/background"
+    android:fitsSystemWindows="true"
     tools:context=".activities.topic.TopicActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appbar"
@@ -32,6 +32,7 @@
                     android:id="@+id/toolbar_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
                     android:textColor="@color/white" />
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
@@ -39,10 +40,11 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/topic_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|start"
-            android:layout_below="@id/appbar"
+            android:layout_height="match_parent"
             android:layout_above="@id/emoji_keyboard"
+            android:layout_below="@id/appbar"
+            android:layout_gravity="top|start"
+            android:background="@color/background"
             android:clipToPadding="false"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
@@ -55,18 +57,20 @@
             android:layout_width="match_parent"
             android:layout_height="240dp"
             android:layout_alignParentBottom="true"
-            android:visibility="gone"/>
-    </RelativeLayout>
+            android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/error_textview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/network_error_retry_prompt"
-        android:textColor="@color/white"
-        android:textSize="32sp"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/error_textview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/appbar"
+            android:layout_gravity="top|start"
+            android:gravity="center"
+            android:text="@string/network_error_retry_prompt"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:visibility="gone" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/bottom_navigation_bar"

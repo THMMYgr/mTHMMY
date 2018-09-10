@@ -12,12 +12,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,7 +67,7 @@ import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
  */
 @SuppressWarnings("unchecked")
 public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFocusChangeListener,
-        EmojiKeyboard.EmojiKeyboardOwner{
+        EmojiKeyboard.EmojiKeyboardOwner {
     //Activity's variables
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
@@ -651,7 +656,15 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         // no page has been loaded yet. Give user the ability to refresh
                         recyclerView.setVisibility(View.GONE);
                         TextView errorTextview = findViewById(R.id.error_textview);
-                        errorTextview.setText(getString(R.string.network_error_retry_prompt));
+
+                        Spannable errorText = new SpannableString(getString(R.string.network_error_retry_prompt));
+                        errorText.setSpan(
+                                new ForegroundColorSpan(ResourcesCompat.getColor(getResources(), R.color.accent, null)),
+                                errorText.toString().indexOf("Tap to retry"),
+                                errorText.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                        errorTextview.setText(errorText);
                         errorTextview.setVisibility(View.VISIBLE);
                         errorTextview.setOnClickListener(view -> {
                             viewModel.reloadPage();
@@ -671,6 +684,15 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     Timber.w("Requested topic was unauthorized");
                     recyclerView.setVisibility(View.GONE);
                     TextView errorTextview = findViewById(R.id.error_textview);
+
+                    Spannable errorText = new SpannableString(getString(R.string.unauthorized_topic_error));
+                    errorText.setSpan(
+                            //TODO: maybe change the color to a red in order to indicate the error nature of the message
+                            new ForegroundColorSpan(ResourcesCompat.getColor(getResources(), R.color.accent, null)),
+                            0,
+                            errorText.length(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
                     errorTextview.setText(getString(R.string.unauthorized_topic_error));
                     errorTextview.setVisibility(View.VISIBLE);
                     break;
