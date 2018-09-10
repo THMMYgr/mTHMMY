@@ -40,6 +40,20 @@ public abstract class NewParseTask<U, V> extends AsyncTask<U, Void, V> {
             super.onPostExecute(v);
     }
 
+    public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskCancelledListener onParseTaskCancelledListener,
+                        OnParseTaskFinishedListener onParseTaskFinishedListener) {
+        this.onParseTaskStartedListener = onParseTaskStartedListener;
+        this.onParseTaskCancelledListener = onParseTaskCancelledListener;
+        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    }
+
+    public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener onParseTaskFinishedListener) {
+        this.onParseTaskStartedListener = onParseTaskStartedListener;
+        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    }
+
+    public NewParseTask() { }
+
     public void setOnParseTaskStartedListener(OnParseTaskStartedListener onParseTaskStartedListener) {
         this.onParseTaskStartedListener = onParseTaskStartedListener;
     }
