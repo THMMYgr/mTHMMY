@@ -6,7 +6,7 @@ public abstract class NewParseTask<U, V> extends AsyncTask<U, Void, V> {
 
     private OnParseTaskStartedListener onParseTaskStartedListener;
     private OnParseTaskCancelledListener onParseTaskCancelledListener;
-    private OnParseTaskFinishedListener onParseTaskFinishedListener;
+    private OnParseTaskFinishedListener<V> onParseTaskFinishedListener;
 
     @Override
     protected void onPreExecute() {
@@ -35,36 +35,24 @@ public abstract class NewParseTask<U, V> extends AsyncTask<U, Void, V> {
     @Override
     protected void onPostExecute(V v) {
         if (onParseTaskFinishedListener != null)
-            onParseTaskFinishedListener.onParseFinish();
+            onParseTaskFinishedListener.onParseFinish(v);
         else
             super.onPostExecute(v);
     }
 
     public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskCancelledListener onParseTaskCancelledListener,
-                        OnParseTaskFinishedListener onParseTaskFinishedListener) {
+                        OnParseTaskFinishedListener<V> onParseTaskFinishedListener) {
         this.onParseTaskStartedListener = onParseTaskStartedListener;
         this.onParseTaskCancelledListener = onParseTaskCancelledListener;
         this.onParseTaskFinishedListener = onParseTaskFinishedListener;
     }
 
-    public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener onParseTaskFinishedListener) {
+    public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<V> onParseTaskFinishedListener) {
         this.onParseTaskStartedListener = onParseTaskStartedListener;
         this.onParseTaskFinishedListener = onParseTaskFinishedListener;
     }
 
     public NewParseTask() { }
-
-    public void setOnParseTaskStartedListener(OnParseTaskStartedListener onParseTaskStartedListener) {
-        this.onParseTaskStartedListener = onParseTaskStartedListener;
-    }
-
-    public void setOnParseTaskCancelledListener(OnParseTaskCancelledListener onParseTaskCancelledListener) {
-        this.onParseTaskCancelledListener = onParseTaskCancelledListener;
-    }
-
-    public void setOnParseTaskFinishedListener(OnParseTaskFinishedListener onParseTaskFinishedListener) {
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
-    }
 
     public interface OnParseTaskStartedListener {
         void onParseStart();
@@ -74,7 +62,7 @@ public abstract class NewParseTask<U, V> extends AsyncTask<U, Void, V> {
         void onParseCancel();
     }
 
-    public interface OnParseTaskFinishedListener {
-        void onParseFinish();
+    public interface OnParseTaskFinishedListener<V> {
+        void onParseFinish(V result);
     }
 }
