@@ -102,15 +102,12 @@ public class UnreadFragment extends BaseFragment {
         if (rootView instanceof RelativeLayout) {
             progressBar = rootView.findViewById(R.id.progressBar);
             unreadAdapter = new UnreadAdapter(topicSummaries,
-                    fragmentInteractionListener, new UnreadAdapter.MarkReadInteractionListener() {
-                @Override
-                public void onMarkReadInteraction(String markReadLinkUrl) {
-                    if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                        markReadTask = new MarkReadTask();
-                        markReadTask.execute(markReadLinkUrl);
-                    }
-                }
-            });
+                    fragmentInteractionListener, markReadLinkUrl -> {
+                        if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                            markReadTask = new MarkReadTask();
+                            markReadTask.execute(markReadLinkUrl);
+                        }
+                    });
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -124,19 +121,15 @@ public class UnreadFragment extends BaseFragment {
             swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
-                    new SwipeRefreshLayout.OnRefreshListener() {
-                        @Override
-                        public void onRefresh() {
-                            if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                                topicSummaries.clear();
-                                numberOfPages = 0;
-                                loadedPages = 0;
-                                unreadTask = new UnreadTask();
-                                assert SessionManager.unreadUrl != null;
-                                unreadTask.execute(SessionManager.unreadUrl.toString());
-                            }
+                    () -> {
+                        if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                            topicSummaries.clear();
+                            numberOfPages = 0;
+                            loadedPages = 0;
+                            unreadTask = new UnreadTask();
+                            assert SessionManager.unreadUrl != null;
+                            unreadTask.execute(SessionManager.unreadUrl.toString());
                         }
-
                     }
             );
         }
@@ -237,7 +230,12 @@ public class UnreadFragment extends BaseFragment {
                     assert SessionManager.unreadUrl != null;
                     unreadTask.execute(SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
                 }
-
+                else {
+                    progressBar.setVisibility(ProgressBar.INVISIBLE);
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }
+            else{
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
             }
