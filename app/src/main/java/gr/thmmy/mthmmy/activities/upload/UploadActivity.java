@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -73,6 +74,7 @@ import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUND
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_DESCRIPTION;
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_FILENAME;
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_TITLE;
+import static gr.thmmy.mthmmy.utils.FileUtils.faIconFromFilename;
 
 public class UploadActivity extends BaseActivity {
     /**
@@ -391,8 +393,9 @@ public class UploadActivity extends BaseActivity {
                 }
 
                 String uploadID = UUID.randomUUID().toString();
-                if (uploadFile(this, uploadID, getConfigForUpload(this, uploadID), categorySelected,
-                        uploadTitleText, uploadDescriptionText[0], fileIcon, uploaderProfileIndex,
+                if (uploadFile(this, uploadID, getConfigForUpload(this, uploadID,
+                        editTextFilename), categorySelected, uploadTitleText,
+                        uploadDescriptionText[0], fileIcon, uploaderProfileIndex,
                         tempFileUri == null
                                 ? filesList.get(0).getFileUri()
                                 : tempFileUri)) {
@@ -449,12 +452,8 @@ public class UploadActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (parseUploadPageTask != null && parseUploadPageTask.getStatus() != AsyncTask.Status.RUNNING)
+        if (parseUploadPageTask != null && parseUploadPageTask.getStatus() != AsyncTask.Status.RUNNING) {
             parseUploadPageTask.cancel(true);
-
-        //Deletes any photo file previously created, as it is not going to be used
-        if (photoFileCreated != null) {
-            storage.deleteFile(photoFileCreated.getAbsolutePath());
         }
     }
 
@@ -644,9 +643,9 @@ public class UploadActivity extends BaseActivity {
                 inflate(R.layout.activity_upload_file_list_row, null);
 
         TextView itemText = newFileRow.findViewById(R.id.upload_file_item_text);
-        Drawable filenameDrawable = AppCompatResources.getDrawable(this, R.drawable.ic_attach_file_white_24dp);
-        itemText.setCompoundDrawablesRelativeWithIntrinsicBounds(filenameDrawable, null, null, null);
-        itemText.setText(filename);
+        itemText.setTypeface(Typeface.createFromAsset(this.getAssets()
+                , "fonts/fontawesome-webfont.ttf"));
+        itemText.setText(faIconFromFilename(this, filename) + " " + filename);
 
         newFileRow.findViewById(R.id.upload_file_item_remove).
                 setOnClickListener(view -> {
@@ -669,9 +668,10 @@ public class UploadActivity extends BaseActivity {
         filesListView.setVisibility(View.VISIBLE);
     }
 
-    private static UploadNotificationConfig getConfigForUpload(Context context, String uploadID) {
+    private static UploadNotificationConfig getConfigForUpload(Context context, String uploadID, String filename) {
         UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
         uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
+        uploadNotificationConfig.setTitleForAllStatuses("Uploading " + filename);
 
         uploadNotificationConfig.getProgress().iconResourceID = android.R.drawable.stat_sys_upload;
         uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
@@ -680,7 +680,6 @@ public class UploadActivity extends BaseActivity {
         uploadNotificationConfig.getCancelled().iconColorResourceID = android.R.drawable.stat_sys_upload_done;
 
         Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
-        //combinedActionsIntent.setAction(UploadsReceiver.ACTION_COMBINED_UPLOAD);
         combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
 
         uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
@@ -1009,7 +1008,7 @@ public class UploadActivity extends BaseActivity {
 
             String uploadID = UUID.randomUUID().toString();
             if (!uploadFile(weakActivity.get(), uploadID,
-                    getConfigForUpload(weakActivity.get(), uploadID), categorySelected,
+                    getConfigForUpload(weakActivity.get(), uploadID, zipFilename), categorySelected,
                     uploadTitleText, uploadDescriptionText, fileIcon, uploaderProfileIndex,
                     zipFileUri)) {
                 Toast.makeText(weakActivity.get(), "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();

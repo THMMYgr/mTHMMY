@@ -43,8 +43,8 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
 
         switch (intentAction) {
             case ACTION_CANCEL_UPLOAD:
-                String notificationID = intentBundle.getString(UPLOAD_ID_KEY);
-                UploadService.stopUpload(notificationID);
+                String uploadID = intentBundle.getString(UPLOAD_ID_KEY);
+                UploadService.stopUpload(uploadID);
                 break;
             case ACTION_RETRY_UPLOAD:
                 //TODO

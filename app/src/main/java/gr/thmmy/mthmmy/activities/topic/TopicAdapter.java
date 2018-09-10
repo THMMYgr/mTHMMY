@@ -62,6 +62,7 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
 import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
 import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
+import static gr.thmmy.mthmmy.utils.FileUtils.faIconFromFilename;
 
 /**
  * Custom {@link android.support.v7.widget.RecyclerView.Adapter} used for topics.
@@ -194,7 +195,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         attached.setClickable(true);
                         attached.setTypeface(Typeface.createFromAsset(context.getAssets()
                                 , "fonts/fontawesome-webfont.ttf"));
-                        attached.setText(faIconFromFilename(attachedFile.getFilename()) + " "
+                        attached.setText(faIconFromFilename(context, attachedFile.getFilename()) + " "
                                 + attachedFile.getFilename() + attachedFile.getFileInfo());
                         attached.setTextColor(filesTextColor);
                         attached.setPadding(0, 3, 0, 3);
@@ -732,38 +733,5 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     //we need to set a callback to topic activity to scroll the recyclerview when post focus is requested
     public interface OnPostFocusChangeListener {
         void onPostFocusChange(int position);
-    }
-
-    /**
-     * Returns a String with a single FontAwesome typeface character corresponding to this file's
-     * extension.
-     *
-     * @param filename String with filename <b>containing file's extension</b>
-     * @return FontAwesome character according to file's type
-     * @see <a href="http://fontawesome.io/">FontAwesome</a>
-     */
-    @NonNull
-    private String faIconFromFilename(String filename) {
-        filename = filename.toLowerCase();
-
-        if (filename.contains("jpg") || filename.contains("gif") || filename.contains("jpeg")
-                || filename.contains("png"))
-            return context.getResources().getString(R.string.fa_file_image_o);
-        else if (filename.contains("pdf"))
-            return context.getResources().getString(R.string.fa_file_pdf_o);
-        else if (filename.contains("zip") || filename.contains("rar") || filename.contains("tar.gz"))
-            return context.getResources().getString(R.string.fa_file_zip_o);
-        else if (filename.contains("txt"))
-            return context.getResources().getString(R.string.fa_file_text_o);
-        else if (filename.contains("doc") || filename.contains("docx"))
-            return context.getResources().getString(R.string.fa_file_word_o);
-        else if (filename.contains("xls") || filename.contains("xlsx"))
-            return context.getResources().getString(R.string.fa_file_excel_o);
-        else if (filename.contains("pps"))
-            return context.getResources().getString(R.string.fa_file_powerpoint_o);
-        else if (filename.contains("mpg"))
-            return context.getResources().getString(R.string.fa_file_video_o);
-
-        return context.getResources().getString(R.string.fa_file);
     }
 }
