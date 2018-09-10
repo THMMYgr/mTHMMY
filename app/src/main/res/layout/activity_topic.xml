@@ -44,7 +44,6 @@
             android:layout_above="@id/emoji_keyboard"
             android:layout_below="@id/appbar"
             android:layout_gravity="top|start"
-            android:background="@color/background"
             android:clipToPadding="false"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
