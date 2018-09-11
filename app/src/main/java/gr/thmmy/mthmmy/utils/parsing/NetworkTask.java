@@ -30,11 +30,13 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
 
     @Override
     protected final Parcel<T> doInBackground(String... input) {
-        Request request = createRequest(input);
-        Response response = getResponse(request, BaseApplication.getInstance().getClient());
+        Response response = sendRequest(BaseApplication.getInstance().getClient(), input);
         String responseBodyString;
         try {
             responseBodyString = response.body().string();
+        } catch (NullPointerException npe) {
+            Timber.e(npe, "Invalid response. Detatails: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Response.html#body--");
+            return new Parcel<>(Parcel.ResultCode.NETWORK_ERROR, null);
         } catch (IOException e) {
             Timber.e(e);
             return new Parcel<>(Parcel.ResultCode.NETWORK_ERROR, null);
@@ -60,9 +62,7 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             super.onPostExecute(tParcel);
     }
 
-    protected abstract Request createRequest(String... input);
-
-    protected abstract Response getResponse(Request request, OkHttpClient client);
+    protected abstract Response sendRequest(OkHttpClient client, String... input);
 
     protected abstract T performTask(Document document) throws ParseException;
 
