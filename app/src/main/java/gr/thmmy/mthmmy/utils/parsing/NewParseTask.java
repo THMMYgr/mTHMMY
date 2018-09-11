@@ -13,7 +13,7 @@ public abstract class NewParseTask<T> extends NetworkTask<T> {
         try {
             return parse(document);
         } catch (Exception e) {
-            throw new ParseException("Parse failed.");
+            throw new ParseException("Parse failed.", e);
         }
     }
 
