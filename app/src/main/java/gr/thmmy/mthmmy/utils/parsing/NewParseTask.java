@@ -1,68 +1,27 @@
 package gr.thmmy.mthmmy.utils.parsing;
 
-import android.os.AsyncTask;
+import org.jsoup.nodes.Document;
 
-public abstract class NewParseTask<U, V> extends AsyncTask<U, Void, V> {
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
-    private OnParseTaskStartedListener onParseTaskStartedListener;
-    private OnParseTaskCancelledListener onParseTaskCancelledListener;
-    private OnParseTaskFinishedListener<V> onParseTaskFinishedListener;
-
-    @Override
-    protected void onPreExecute() {
-        if (onParseTaskStartedListener != null)
-            onParseTaskStartedListener.onParseStart();
-        else
-            super.onPreExecute();
-    }
+public abstract class NewParseTask<T> extends NetworkTask<T> {
 
     @Override
-    protected void onCancelled() {
-        if (onParseTaskCancelledListener != null)
-            onParseTaskCancelledListener.onParseCancel();
-        else
-            super.onCancelled();
+    final T performTask(Document document) throws ParseException {
+        try {
+            return parse(document);
+        } catch (Exception e) {
+            throw new ParseException("Parse failed.");
+        }
     }
 
-    @Override
-    protected void onCancelled(V v) {
-        if (onParseTaskCancelledListener != null)
-            onParseTaskCancelledListener.onParseCancel();
-        else
-            super.onCancelled();
-    }
+    abstract Request createRequest(String... input);
 
-    @Override
-    protected void onPostExecute(V v) {
-        if (onParseTaskFinishedListener != null)
-            onParseTaskFinishedListener.onParseFinish(v);
-        else
-            super.onPostExecute(v);
-    }
+    abstract Response getResponse(Request request, OkHttpClient client);
 
-    public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskCancelledListener onParseTaskCancelledListener,
-                        OnParseTaskFinishedListener<V> onParseTaskFinishedListener) {
-        this.onParseTaskStartedListener = onParseTaskStartedListener;
-        this.onParseTaskCancelledListener = onParseTaskCancelledListener;
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
-    }
+    abstract T parse (Document document);
 
-    public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<V> onParseTaskFinishedListener) {
-        this.onParseTaskStartedListener = onParseTaskStartedListener;
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
-    }
-
-    public NewParseTask() { }
-
-    public interface OnParseTaskStartedListener {
-        void onParseStart();
-    }
-
-    public interface OnParseTaskCancelledListener {
-        void onParseCancel();
-    }
-
-    public interface OnParseTaskFinishedListener<V> {
-        void onParseFinish(V result);
-    }
+    abstract int getResultCode(Response response, T data);
 }
