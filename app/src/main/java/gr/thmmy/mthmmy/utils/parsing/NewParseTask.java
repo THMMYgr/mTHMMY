@@ -2,11 +2,18 @@ package gr.thmmy.mthmmy.utils.parsing;
 
 import org.jsoup.nodes.Document;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 public abstract class NewParseTask<T> extends NetworkTask<T> {
+
+    public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskCancelledListener onParseTaskCancelledListener,
+                        OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
+        super(onParseTaskStartedListener, onParseTaskCancelledListener, onParseTaskFinishedListener);
+    }
+
+    public NewParseTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
+        super(onParseTaskStartedListener, onParseTaskFinishedListener);
+    }
+
+    public NewParseTask() {}
 
     @Override
     final T performTask(Document document) throws ParseException {
@@ -17,11 +24,5 @@ public abstract class NewParseTask<T> extends NetworkTask<T> {
         }
     }
 
-    abstract Request createRequest(String... input);
-
-    abstract Response getResponse(Request request, OkHttpClient client);
-
     abstract T parse (Document document);
-
-    abstract int getResultCode(Response response, T data);
 }

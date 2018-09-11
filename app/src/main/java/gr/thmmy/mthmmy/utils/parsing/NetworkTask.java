@@ -15,6 +15,19 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
 
     private OnParseTaskFinishedListener<T> onParseTaskFinishedListener;
 
+    public NetworkTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskCancelledListener onParseTaskCancelledListener,
+                             OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
+        super(onParseTaskStartedListener, onParseTaskCancelledListener, null);
+        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    }
+
+    public NetworkTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
+        super(onParseTaskStartedListener, null);
+        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    }
+
+    public NetworkTask() {}
+
     @Override
     protected final Parcel<T> doInBackground(String... input) {
         Request request = createRequest(input);
