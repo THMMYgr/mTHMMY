@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
@@ -30,15 +29,21 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
 
     @Override
     protected final Parcel<T> doInBackground(String... input) {
-        Response response = sendRequest(BaseApplication.getInstance().getClient(), input);
+        Response response;
+        try {
+            response = sendRequest(BaseApplication.getInstance().getClient(), input);
+        } catch (IOException e) {
+            Timber.e(e, "Error connecting to thmmy.gr");
+            return new Parcel<>(Parcel.ResultCode.NETWORK_ERROR, null);
+        }
         String responseBodyString;
         try {
             responseBodyString = response.body().string();
         } catch (NullPointerException npe) {
-            Timber.e(npe, "Invalid response. Detatails: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Response.html#body--");
+            Timber.wtf(npe, "Invalid response. Detatails: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Response.html#body--");
             return new Parcel<>(Parcel.ResultCode.NETWORK_ERROR, null);
         } catch (IOException e) {
-            Timber.e(e);
+            Timber.e(e, "Error getting response body string");
             return new Parcel<>(Parcel.ResultCode.NETWORK_ERROR, null);
         }
         try {
@@ -62,9 +67,9 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             super.onPostExecute(tParcel);
     }
 
-    protected abstract Response sendRequest(OkHttpClient client, String... input);
+    protected abstract Response sendRequest(OkHttpClient client, String... input) throws IOException;
 
-    protected abstract T performTask(Document document) throws ParseException;
+    protected abstract T performTask(Document document);
 
     protected abstract int getResultCode(Response response, T data);
 
@@ -73,6 +78,6 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
     }
 
     public interface OnParseTaskFinishedListener<T> {
-        void onParseFinish(int resultCOde, T data);
+        void onParseFinish(int resultCode, T data);
     }
 }
