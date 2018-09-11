@@ -4,9 +4,9 @@ import android.os.AsyncTask;
 
 public abstract class ExternalAsyncTask<U, V> extends AsyncTask<U, Void, V> {
 
-    private OnParseTaskStartedListener onParseTaskStartedListener;
-    private OnParseTaskCancelledListener onParseTaskCancelledListener;
-    private OnParseTaskFinishedListener<V> onParseTaskFinishedListener;
+    protected OnParseTaskStartedListener onParseTaskStartedListener;
+    protected OnParseTaskCancelledListener onParseTaskCancelledListener;
+    protected OnParseTaskFinishedListener<V> onParseTaskFinishedListener;
 
     @Override
     protected void onPreExecute() {

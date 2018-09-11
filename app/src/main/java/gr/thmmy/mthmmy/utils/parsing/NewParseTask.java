@@ -16,7 +16,7 @@ public abstract class NewParseTask<T> extends NetworkTask<T> {
     public NewParseTask() {}
 
     @Override
-    final T performTask(Document document) throws ParseException {
+    protected final T performTask(Document document) throws ParseException {
         try {
             return parse(document);
         } catch (Exception e) {
@@ -24,5 +24,5 @@ public abstract class NewParseTask<T> extends NetworkTask<T> {
         }
     }
 
-    abstract T parse (Document document);
+    protected abstract T parse (Document document);
 }

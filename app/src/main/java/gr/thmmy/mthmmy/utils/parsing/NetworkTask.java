@@ -13,7 +13,7 @@ import timber.log.Timber;
 
 public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>> {
 
-    private OnParseTaskFinishedListener<T> onParseTaskFinishedListener;
+    protected OnParseTaskFinishedListener<T> onParseTaskFinishedListener;
 
     public NetworkTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskCancelledListener onParseTaskCancelledListener,
                              OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
@@ -60,13 +60,13 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             super.onPostExecute(tParcel);
     }
 
-    abstract Request createRequest(String... input);
+    protected abstract Request createRequest(String... input);
 
-    abstract Response getResponse(Request request, OkHttpClient client);
+    protected abstract Response getResponse(Request request, OkHttpClient client);
 
-    abstract T performTask(Document document) throws ParseException;
+    protected abstract T performTask(Document document) throws ParseException;
 
-    abstract int getResultCode(Response response, T data);
+    protected abstract int getResultCode(Response response, T data);
 
     public void setOnParseTaskFinishedListener(OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
         this.onParseTaskFinishedListener = onParseTaskFinishedListener;
