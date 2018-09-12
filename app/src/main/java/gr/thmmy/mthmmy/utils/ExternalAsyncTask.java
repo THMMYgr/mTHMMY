@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils.parsing;
+package gr.thmmy.mthmmy.utils;
 
 import android.os.AsyncTask;
 

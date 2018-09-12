@@ -30,8 +30,8 @@ import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
-import gr.thmmy.mthmmy.utils.parsing.Parcel;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.HttpUrl;
@@ -170,11 +170,11 @@ public class ForumFragment extends BaseFragment {
     }
 
     public void onForumTaskFinished(int resultCode, ArrayList<Category> fetchedCategories) {
-        if (resultCode == Parcel.ResultCode.SUCCESSFUL) {
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             categories.clear();
             categories.addAll(fetchedCategories);
             forumAdapter.notifyParentDataSetChanged(false);
-        } else if (resultCode == Parcel.ResultCode.NETWORK_ERROR) {
+        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
         }
 
@@ -229,7 +229,7 @@ public class ForumFragment extends BaseFragment {
 
         @Override
         protected int getResultCode(Response response, ArrayList<Category> data) {
-            return Parcel.ResultCode.SUCCESSFUL;
+            return NetworkResultCodes.SUCCESSFUL;
         }
 
         //TODO delete and simplify e.g. in prepareRequest possible?

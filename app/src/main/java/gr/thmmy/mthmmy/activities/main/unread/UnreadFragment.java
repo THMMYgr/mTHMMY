@@ -27,12 +27,10 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
-import gr.thmmy.mthmmy.utils.parsing.Parcel;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
-import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -163,7 +161,7 @@ public class UnreadFragment extends BaseFragment {
     }
 
     private void onUnreadTaskFinished(int resultCode, Void data) {
-        if (resultCode == Parcel.ResultCode.SUCCESSFUL) {
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             unreadAdapter.notifyDataSetChanged();
 
             ++loadedPages;
@@ -180,7 +178,7 @@ public class UnreadFragment extends BaseFragment {
         else{
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);
-            if (resultCode == Parcel.ResultCode.NETWORK_ERROR)
+            if (resultCode == NetworkResultCodes.NETWORK_ERROR)
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
         }
     }
@@ -257,7 +255,7 @@ public class UnreadFragment extends BaseFragment {
 
         @Override
         protected int getResultCode(Response response, Void data) {
-            return Parcel.ResultCode.SUCCESSFUL;
+            return NetworkResultCodes.SUCCESSFUL;
         }
     }
 

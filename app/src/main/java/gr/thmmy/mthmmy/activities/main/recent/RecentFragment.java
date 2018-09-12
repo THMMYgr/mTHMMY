@@ -15,7 +15,6 @@ import android.widget.Toast;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -27,12 +26,10 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
-import gr.thmmy.mthmmy.utils.parsing.Parcel;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
@@ -145,11 +142,11 @@ public class RecentFragment extends BaseFragment {
     }
 
     private void onRecentTaskFinished(int resultCode, ArrayList<TopicSummary> fetchedRecent) {
-        if (resultCode == Parcel.ResultCode.SUCCESSFUL) {
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             topicSummaries.clear();
             topicSummaries.addAll(fetchedRecent);
             recentAdapter.notifyDataSetChanged();
-        } else if (resultCode == Parcel.ResultCode.NETWORK_ERROR) {
+        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
         }
 
@@ -209,7 +206,7 @@ public class RecentFragment extends BaseFragment {
 
         @Override
         protected int getResultCode(Response response, ArrayList<TopicSummary> data) {
-            return Parcel.ResultCode.SUCCESSFUL;
+            return NetworkResultCodes.SUCCESSFUL;
         }
     }
 }

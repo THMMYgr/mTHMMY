@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils.parsing;
+package gr.thmmy.mthmmy.utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -35,17 +36,17 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             response = sendRequest(BaseApplication.getInstance().getClient(), input);
         } catch (IOException e) {
             Timber.e(e, "Error connecting to thmmy.gr");
-            return new Parcel<>(Parcel.ResultCode.NETWORK_ERROR, null);
+            return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         }
         String responseBodyString;
         try {
             responseBodyString = response.body().string();
         } catch (NullPointerException npe) {
             Timber.wtf(npe, "Invalid response. Detatails: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Response.html#body--");
-            return new Parcel<>(Parcel.ResultCode.NETWORK_ERROR, null);
+            return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         } catch (IOException e) {
             Timber.e(e, "Error getting response body string");
-            return new Parcel<>(Parcel.ResultCode.NETWORK_ERROR, null);
+            return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         }
         try {
             T data = performTask(Jsoup.parse(responseBodyString));
@@ -53,10 +54,10 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             return new Parcel<>(resultCode, data);
         } catch (ParseException pe) {
             Timber.e(pe);
-            return new Parcel<>(Parcel.ResultCode.PARSE_ERROR, null);
+            return new Parcel<>(NetworkResultCodes.PARSE_ERROR, null);
         } catch (Exception e) {
             Timber.e(e);
-            return new Parcel<>(Parcel.ResultCode.PERFORM_TASK_ERROR, null);
+            return new Parcel<>(NetworkResultCodes.PERFORM_TASK_ERROR, null);
         }
     }
 

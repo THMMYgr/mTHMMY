@@ -4,8 +4,8 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
-import gr.thmmy.mthmmy.utils.parsing.NetworkTask;
-import gr.thmmy.mthmmy.utils.parsing.Parcel;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.NetworkTask;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -34,6 +34,6 @@ public class DeleteTask extends NetworkTask<Void> {
 
     @Override
     protected int getResultCode(Response response, Void data) {
-        return Parcel.ResultCode.SUCCESSFUL;
+        return NetworkResultCodes.SUCCESSFUL;
     }
 }

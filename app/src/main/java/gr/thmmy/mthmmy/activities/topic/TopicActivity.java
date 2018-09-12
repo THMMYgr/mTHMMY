@@ -50,7 +50,7 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
-import gr.thmmy.mthmmy.utils.parsing.Parcel;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -500,7 +500,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         viewModel.setDeleteTaskStartedListener(() -> progressBar.setVisibility(ProgressBar.VISIBLE));
         viewModel.setDeleteTaskFinishedListener((resultCode, data) -> {
             progressBar.setVisibility(ProgressBar.GONE);
-            if (resultCode == Parcel.ResultCode.SUCCESSFUL) {
+            if (resultCode == NetworkResultCodes.SUCCESSFUL) {
                 Timber.i("Post deleted successfully");
                 viewModel.reloadPage();
             } else {
