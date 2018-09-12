@@ -645,24 +645,24 @@ public class UploadActivity extends BaseActivity {
         TextView itemText = newFileRow.findViewById(R.id.upload_file_item_text);
         itemText.setTypeface(Typeface.createFromAsset(this.getAssets()
                 , "fonts/fontawesome-webfont.ttf"));
-        itemText.setText(faIconFromFilename(this, filename) + " " + filename);
+        String filenameWithIcon = faIconFromFilename(this, filename) + " " + filename;
+        itemText.setText(filenameWithIcon);
 
-        newFileRow.findViewById(R.id.upload_file_item_remove).
-                setOnClickListener(view -> {
-                    int fileIndex = filesListView.indexOfChild(newFileRow);
-                    filesListView.removeViewAt(fileIndex);
+        newFileRow.findViewById(R.id.upload_file_item_remove).setOnClickListener(view -> {
+            int fileIndex = filesListView.indexOfChild(newFileRow);
+            filesListView.removeViewAt(fileIndex);
 
-                    if (filesList.get(fileIndex).isCameraPhoto()) {
-                        storage.deleteFile(filesList.get(fileIndex).getPhotoFile().getAbsolutePath());
-                    }
-                    filesList.remove(fileIndex);
-                    if (filesList.isEmpty()) {
-                        filesListView.setVisibility(View.GONE);
-                    } else if (filesList.size() == 1) {
-                        textWatcher.setFileExtension(FileUtils.getFileExtension(FileUtils.
-                                filenameFromUri(this, filesList.get(0).getFileUri())));
-                    }
-                });
+            if (filesList.get(fileIndex).isCameraPhoto()) {
+                storage.deleteFile(filesList.get(fileIndex).getPhotoFile().getAbsolutePath());
+            }
+            filesList.remove(fileIndex);
+            if (filesList.isEmpty()) {
+                filesListView.setVisibility(View.GONE);
+            } else if (filesList.size() == 1) {
+                textWatcher.setFileExtension(FileUtils.getFileExtension(FileUtils.
+                        filenameFromUri(this, filesList.get(0).getFileUri())));
+            }
+        });
 
         filesListView.addView(newFileRow);
         filesListView.setVisibility(View.VISIBLE);
@@ -677,14 +677,19 @@ public class UploadActivity extends BaseActivity {
         uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
         uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
         uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            uploadNotificationConfig.getError().message = "Error during upload. Click for options";
+        }
         uploadNotificationConfig.getCancelled().iconColorResourceID = android.R.drawable.stat_sys_upload_done;
+        uploadNotificationConfig.getCancelled().autoClear = true;
 
-        Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
-        combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
 
-        uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
-                1, combinedActionsIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-
+            uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
+                    1, combinedActionsIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Intent retryIntent = new Intent(context, UploadsReceiver.class);
             retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);

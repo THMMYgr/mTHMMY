@@ -137,8 +137,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateDrawer();
-        uploadsShowDialogReceiver = new UploadsShowDialogReceiver(this);
-        this.registerReceiver(uploadsShowDialogReceiver, new IntentFilter(UploadsReceiver.ACTION_COMBINED_UPLOAD));
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (uploadsShowDialogReceiver == null) {
+                uploadsShowDialogReceiver = new UploadsShowDialogReceiver(this);
+            }
+            this.registerReceiver(uploadsShowDialogReceiver, new IntentFilter(UploadsReceiver.ACTION_COMBINED_UPLOAD));
+        }
     }
 
     @Override
@@ -146,7 +151,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onPause();
         if (drawer != null)    //close drawer animation after returning to activity
             drawer.closeDrawer();
-        if (uploadsShowDialogReceiver != null) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && uploadsShowDialogReceiver != null) {
             this.unregisterReceiver(uploadsShowDialogReceiver);
         }
     }
@@ -762,33 +768,36 @@ public abstract class BaseActivity extends AppCompatActivity {
                 return;
             }
 
-            String dialogUploadID = intentBundle.getString(UPLOAD_ID_KEY);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                String dialogUploadID = intentBundle.getString(UPLOAD_ID_KEY);
 
-            if (uploadsProgressDialog == null) {
-                AlertDialog.Builder progressDialogBuilder = new AlertDialog.Builder(activityContext);
-                LayoutInflater inflater = LayoutInflater.from(activityContext);
-                LinearLayout progressDialogLayout = (LinearLayout) inflater.inflate(R.layout.dialog_upload_progress, null);
+                Intent retryIntent = new Intent(context, UploadsReceiver.class);
+                retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
+                retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, dialogUploadID);
 
-                MaterialProgressBar dialogProgressBar = progressDialogLayout.findViewById(R.id.dialogProgressBar);
-                dialogProgressBar.setMax(100);
+                if (uploadsProgressDialog == null) {
+                    AlertDialog.Builder progressDialogBuilder = new AlertDialog.Builder(activityContext);
+                    LayoutInflater inflater = LayoutInflater.from(activityContext);
+                    LinearLayout progressDialogLayout = (LinearLayout) inflater.inflate(R.layout.dialog_upload_progress, null);
 
-                progressDialogBuilder.setView(progressDialogLayout);
+                    MaterialProgressBar dialogProgressBar = progressDialogLayout.findViewById(R.id.dialogProgressBar);
+                    dialogProgressBar.setMax(100);
 
-                progressDialogBuilder.setNeutralButton("Resume on background", (progressDialog, progressWhich) -> {
-                    progressDialog.dismiss();
-                });
-                progressDialogBuilder.setNegativeButton("Cancel", (progressDialog, progressWhich) -> {
-                    UploadService.stopUpload(dialogUploadID);
-                    progressDialog.dismiss();
-                });
+                    progressDialogBuilder.setView(progressDialogLayout);
 
-                uploadsProgressDialog = progressDialogBuilder.create();
+                    uploadsProgressDialog = progressDialogBuilder.create();
+                    //Empty buttons are needed, they are updated with correct values in the receiver
+                    uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "placeholder", (progressDialog, progressWhich) -> {
+                    });
+                    uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "placeholder", (progressDialog, progressWhich) -> {
+                    });
 
-                UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID);
-                uploadsProgressDialog.show();
-            } else {
-                UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID);
-                uploadsProgressDialog.show();
+                    UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
+                    uploadsProgressDialog.show();
+                } else {
+                    UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
+                    uploadsProgressDialog.show();
+                }
             }
         }
     }
