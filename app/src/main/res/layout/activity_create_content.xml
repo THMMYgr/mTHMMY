@@ -39,7 +39,11 @@
 
             <android.support.design.widget.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:inputType="text"/>
         </android.support.design.widget.TextInputLayout>
 
         <gr.thmmy.mthmmy.editorview.EditorView
