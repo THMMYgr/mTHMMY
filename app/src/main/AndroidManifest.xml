@@ -20,6 +20,7 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
+
         <activity
             android:name=".activities.main.MainActivity"
             android:configChanges="orientation|screenSize"
@@ -147,6 +148,12 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <activity
+            android:name=".activities.create_content.CreateContentActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".activities.main.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

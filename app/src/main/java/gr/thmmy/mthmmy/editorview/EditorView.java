@@ -205,7 +205,7 @@ public class EditorView extends LinearLayout {
                 linkText.getEditText().setText(
                         editText.getText().toString().substring(editText.getSelectionStart(), editText.getSelectionEnd()));
             }
-            new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyleAccent)
+            new AlertDialog.Builder(context, R.style.AppTheme_Dark_Dialog)
                     .setTitle(R.string.dialog_create_link_title)
                     .setView(dialogBody)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
