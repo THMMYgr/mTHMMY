@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
@@ -67,7 +68,13 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             super.onPostExecute(tParcel);
     }
 
-    protected abstract Response sendRequest(OkHttpClient client, String... input) throws IOException;
+    protected Response sendRequest(OkHttpClient client, String... input) throws IOException {
+        String url = input[0];
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        return client.newCall(request).execute();
+    }
 
     protected abstract T performTask(Document document);
 

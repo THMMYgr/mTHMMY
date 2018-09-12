@@ -22,13 +22,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
+import gr.thmmy.mthmmy.utils.parsing.Parcel;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import timber.log.Timber;
 
 /**
@@ -83,7 +89,7 @@ public class UnreadFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (topicSummaries.isEmpty()) {
-            unreadTask = new UnreadTask();
+            unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
             assert SessionManager.unreadUrl != null;
             unreadTask.execute(SessionManager.unreadUrl.toString());
         }
@@ -126,7 +132,7 @@ public class UnreadFragment extends BaseFragment {
                             topicSummaries.clear();
                             numberOfPages = 0;
                             loadedPages = 0;
-                            unreadTask = new UnreadTask();
+                            unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
                             assert SessionManager.unreadUrl != null;
                             unreadTask.execute(SessionManager.unreadUrl.toString());
                         }
@@ -151,13 +157,42 @@ public class UnreadFragment extends BaseFragment {
     }
 
     //---------------------------------------ASYNC TASK-----------------------------------
-    private class UnreadTask extends ParseTask {
-        protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+
+    private void onUnreadTaskStarted() {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+    }
+
+    private void onUnreadTaskFinished(int resultCode, Void data) {
+        if (resultCode == Parcel.ResultCode.SUCCESSFUL) {
+            unreadAdapter.notifyDataSetChanged();
+
+            ++loadedPages;
+            if (loadedPages < numberOfPages) {
+                unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
+                assert SessionManager.unreadUrl != null;
+                unreadTask.execute(SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
+            }
+            else {
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+        else{
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            swipeRefreshLayout.setRefreshing(false);
+            if (resultCode == Parcel.ResultCode.NETWORK_ERROR)
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class UnreadTask extends NewParseTask<Void> {
+
+        UnreadTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<Void> onParseTaskFinishedListener) {
+            super(onParseTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        public void parse(Document document) {
+        protected Void parse(Document document) throws ParseException {
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
             if (!unread.isEmpty()) {
                 //topicSummaries.clear();
@@ -217,28 +252,12 @@ public class UnreadFragment extends BaseFragment {
                 }
                 topicSummaries.add(new TopicSummary(null, null, null, message));
             }
+            return null;
         }
 
         @Override
-        protected void postExecution(ParseTask.ResultCode result) {
-            if (result == ResultCode.SUCCESS) {
-                unreadAdapter.notifyDataSetChanged();
-
-                ++loadedPages;
-                if (loadedPages < numberOfPages) {
-                    unreadTask = new UnreadTask();
-                    assert SessionManager.unreadUrl != null;
-                    unreadTask.execute(SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
-                }
-                else {
-                    progressBar.setVisibility(ProgressBar.INVISIBLE);
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-            else{
-                progressBar.setVisibility(ProgressBar.INVISIBLE);
-                swipeRefreshLayout.setRefreshing(false);
-            }
+        protected int getResultCode(Response response, Void data) {
+            return Parcel.ResultCode.SUCCESSFUL;
         }
     }
 
@@ -282,7 +301,7 @@ public class UnreadFragment extends BaseFragment {
                         , "Fatal error!\n Task aborted...", Toast.LENGTH_LONG).show();
             } else {
                 if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                    unreadTask = new UnreadTask();
+                    unreadTask = new UnreadTask(UnreadFragment.this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskFinished);
                     assert SessionManager.unreadUrl != null;
                     unreadTask.execute(SessionManager.unreadUrl.toString());
                 }
