@@ -16,10 +16,12 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebResourceRequest;
@@ -456,6 +458,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
             holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
+            holder.quickReplySubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
+            holder.quickReplySubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
             holder.replyEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
             InputConnection ic = holder.replyEditor.getInputConnection();
@@ -505,6 +509,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .into(holder.thumbnail);
             holder.username.setText(getSessionManager().getUsername());
             holder.editSubject.setText(postsList.get(position).getSubject());
+            holder.editSubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
+            holder.editSubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
             holder.editEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
             InputConnection ic = holder.editEditor.getInputConnection();

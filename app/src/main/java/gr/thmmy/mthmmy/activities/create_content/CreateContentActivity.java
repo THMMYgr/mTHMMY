@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TextInputLayout;
+import android.text.InputType;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
@@ -50,6 +52,8 @@ public class CreateContentActivity extends BaseActivity implements EmojiKeyboard
         emojiKeyboard = findViewById(R.id.emoji_keyboard);
 
         subjectInput = findViewById(R.id.subject_input);
+        subjectInput.getEditText().setRawInputType(InputType.TYPE_CLASS_TEXT);
+        subjectInput.getEditText().setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         contentEditor = findViewById(R.id.main_content_editorview);
         setEmojiKeyboardInputConnection(contentEditor.getInputConnection());
