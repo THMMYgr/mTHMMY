@@ -6,14 +6,16 @@ public class Poll {
     private final String question;
     private Entry[] entries;
     private int availableVoteCount;
-    private String pollFormUrl, sc;
+    private String pollFormUrl, sc, removeVoteUrl;
 
-    public Poll(String question, Entry[] entries, int availableVoteCount, String pollFormUrl, String sc) {
+    public Poll(String question, Entry[] entries, int availableVoteCount, String pollFormUrl, String sc,
+                String removeVoteUrl) {
         this.question = question;
         this.entries = entries;
         this.availableVoteCount = availableVoteCount;
         this.pollFormUrl = pollFormUrl;
         this.sc = sc;
+        this.removeVoteUrl = removeVoteUrl;
     }
 
     public String getQuestion() {
@@ -34,6 +36,10 @@ public class Poll {
 
     public String getSc() {
         return sc;
+    }
+
+    public String getRemoveVoteUrl() {
+        return removeVoteUrl;
     }
 
     public int totalVotes() {
