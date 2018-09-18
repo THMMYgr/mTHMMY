@@ -2,7 +2,9 @@ package gr.thmmy.mthmmy.model;
 
 import java.text.DecimalFormat;
 
-public class Poll {
+public class Poll extends TopicItem {
+    public static int TYPE_POLL = 3;
+
     private final String question;
     private Entry[] entries;
     private int availableVoteCount;

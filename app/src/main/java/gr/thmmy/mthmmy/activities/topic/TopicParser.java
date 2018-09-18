@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
+import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
 
@@ -146,10 +147,10 @@ public class TopicParser {
      * @return {@link ArrayList} of {@link Post}s
      * @see org.jsoup.Jsoup Jsoup
      */
-    public static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
+    public static ArrayList<TopicItem> parseTopic(Document topic, ParseHelpers.Language language) {
         //Method's variables
         final int NO_INDEX = -1;
-        ArrayList<Post> parsedPostsList = new ArrayList<>();
+        ArrayList<TopicItem> parsedPostsList = new ArrayList<>();
         Elements postRows;
 
         //Each row is a post

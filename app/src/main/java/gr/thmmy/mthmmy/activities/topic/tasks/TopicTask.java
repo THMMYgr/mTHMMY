@@ -13,6 +13,7 @@ import gr.thmmy.mthmmy.activities.topic.TopicParser;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
+import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -92,14 +93,14 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             //Finds number of pages
             int pageCount = TopicParser.parseTopicNumberOfPages(topic, currentPageIndex, language);
 
-            ArrayList<Post> newPostsList = TopicParser.parseTopic(topic, language);
+            ArrayList<TopicItem> newPostsList = TopicParser.parseTopic(topic, language);
 
             int loadedPageTopicId = Integer.parseInt(ThmmyPage.getTopicId(newPageUrl));
 
             //Finds the position of the focused message if present
             int focusedPostIndex = 0;
             for (int i = 0; i < newPostsList.size(); ++i) {
-                if (newPostsList.get(i).getPostIndex() == postFocus) {
+                if (newPostsList.get(i) instanceof Post && ((Post) newPostsList.get(i)).getPostIndex() == postFocus) {
                     focusedPostIndex = i;
                     break;
                 }

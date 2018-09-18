@@ -20,6 +20,7 @@ import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTaskResult;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Post;
+import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
@@ -65,7 +66,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private MutableLiveData<String> replyPageUrl = new MutableLiveData<>();
     private MutableLiveData<Integer> pageTopicId = new MutableLiveData<>();
     private MutableLiveData<String> topicTitle = new MutableLiveData<>();
-    private MutableLiveData<ArrayList<Post>> postsList = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<TopicItem>> topicItems = new MutableLiveData<>();
     private MutableLiveData<Integer> focusedPostIndex = new MutableLiveData<>();
     private MutableLiveData<TopicTask.ResultCode> topicTaskResultCode = new MutableLiveData<>();
     private MutableLiveData<String> topicTreeAndMods = new MutableLiveData<>();
@@ -193,7 +194,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             replyPageUrl.setValue(result.getReplyPageUrl());
             topicTitle.setValue(result.getTopicTitle());
             pageIndicatorIndex.setValue(result.getCurrentPageIndex());
-            postsList.setValue(result.getNewPostsList());
+            topicItems.setValue(result.getNewPostsList());
             focusedPostIndex.setValue(result.getFocusedPostIndex());
             isUserExtraInfoVisibile.clear();
             for (int i = 0; i < result.getNewPostsList().size(); i++) {
@@ -262,8 +263,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         return focusedPostIndex;
     }
 
-    public MutableLiveData<ArrayList<Post>> getPostsList() {
-        return postsList;
+    public MutableLiveData<ArrayList<TopicItem>> getTopicItems() {
+        return topicItems;
     }
 
     public MutableLiveData<String> getReplyPageUrl() {
@@ -388,8 +389,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public int postCount() {
-        if (postsList.getValue() == null)
+        if (topicItems.getValue() == null)
             throw  new NullPointerException("No page has been loaded yet!");
-        return postsList.getValue().size();
+        return topicItems.getValue().size();
     }
 }

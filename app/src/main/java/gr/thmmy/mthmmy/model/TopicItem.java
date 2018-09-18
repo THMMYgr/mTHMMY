@@ -1,4 +1,5 @@
 package gr.thmmy.mthmmy.model;
 
-public class TopicItem {
+public abstract class TopicItem {
+
 }
