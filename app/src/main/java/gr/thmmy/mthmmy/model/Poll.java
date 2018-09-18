@@ -3,21 +3,36 @@ package gr.thmmy.mthmmy.model;
 import java.text.DecimalFormat;
 
 public class Poll extends TopicItem {
-    public static int TYPE_POLL = 3;
+    public static final int TYPE_POLL = 3;
 
     private final String question;
     private Entry[] entries;
     private int availableVoteCount;
-    private String pollFormUrl, sc, removeVoteUrl;
+    private String pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl;
 
     public Poll(String question, Entry[] entries, int availableVoteCount, String pollFormUrl, String sc,
-                String removeVoteUrl) {
+                String removeVoteUrl, String showVoteResultsUrl) {
         this.question = question;
         this.entries = entries;
         this.availableVoteCount = availableVoteCount;
         this.pollFormUrl = pollFormUrl;
         this.sc = sc;
         this.removeVoteUrl = removeVoteUrl;
+        this.showVoteResultsUrl = showVoteResultsUrl;
+    }
+
+    public int totalVotes() {
+        int sum = 0;
+        for (Entry entry : entries) {
+            sum += entry.votes;
+        }
+        return sum;
+    }
+
+    public String getVotePercentage(int index) {
+        DecimalFormat format = new DecimalFormat(".#");
+        double percentage = 100 * ((double) entries[index].votes / (double) totalVotes());
+        return format.format(percentage);
     }
 
     public String getQuestion() {
@@ -44,21 +59,11 @@ public class Poll extends TopicItem {
         return removeVoteUrl;
     }
 
-    public int totalVotes() {
-        int sum = 0;
-        for (Entry entry : entries) {
-            sum += entry.votes;
-        }
-        return sum;
+    public String getShowVoteResultsUrl() {
+        return showVoteResultsUrl;
     }
 
-    public String getVotePercentage(int index) {
-        DecimalFormat format = new DecimalFormat(".#");
-        double percentage = 100 * ((double) entries[index].votes / (double) totalVotes());
-        return format.format(percentage);
-    }
-
-    static class Entry {
+    public static class Entry {
         private final String entryName;
         private int votes;
 

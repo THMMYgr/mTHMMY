@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -27,6 +28,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -38,6 +41,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
@@ -135,6 +139,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             editPostEdittext.requestFocus();
 
             return new EditMessageViewHolder(view);
+        } else if (viewType == Poll.TYPE_POLL) {
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.activity_topic_edit_row, parent, false);
+            return new PollViewHolder(view);
         } else {
             throw new IllegalArgumentException("Unknown view type");
         }
@@ -145,7 +153,18 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder currentHolder,
                                  final int position) {
         if (currentHolder.getItemViewType() == Poll.TYPE_POLL) {
-
+            Poll poll = (Poll) topicItems.get(position);
+            Poll.Entry[] entries = poll.getEntries();
+            PollViewHolder holder = (PollViewHolder) currentHolder;
+            holder.question.setText(poll.getQuestion());
+            if (poll.getAvailableVoteCount() > 1) {
+                for (int i = 0; i < entries.length; i++) {
+                    CheckBox checkBox = new CheckBox(context);
+                    checkBox.setText(entries[i].getEntryName());
+                    checkBox.setOnCheckedChangeListener((buttonView, isChecked) ->
+                            viewModel.onVoteCheckboxClicked(holder.optionsLayout.indexOfChild(buttonView), isChecked));
+                }
+            }
         } else {
             Post currentPost = (Post) topicItems.get(position);
             if (currentHolder instanceof PostViewHolder) {
@@ -641,6 +660,23 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             username = editView.findViewById(R.id.username);
             editSubject = editView.findViewById(R.id.edit_message_subject);
             editEditor = editView.findViewById(R.id.edit_editorview);
+        }
+    }
+
+    static class PollViewHolder extends RecyclerView.ViewHolder {
+        final TextView question, errorTooManySelected;
+        final LinearLayout optionsLayout;
+        final AppCompatButton submitButton;
+        final AppCompatButton removeVotesButton;
+
+        public PollViewHolder(View itemView) {
+            super(itemView);
+
+            question = itemView.findViewById(R.id.question_textview);
+            optionsLayout = itemView.findViewById(R.id.options_layout);
+            submitButton = itemView.findViewById(R.id.submit_button);
+            removeVotesButton = itemView.findViewById(R.id.remove_vote_button);
+            errorTooManySelected = itemView.findViewById(R.id.error_too_many_checked);
         }
     }
 

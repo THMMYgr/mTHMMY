@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.CheckBox;
 
 import java.util.ArrayList;
 
@@ -44,6 +46,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
      * holds the adapter position of the post being edited
      */
     private int postBeingEditedPosition;
+    private ArrayList<Integer> selectedVoteIndices;
 
     private TopicTask currentTopicTask;
     private PrepareForEditTask currentPrepareForEditTask;
@@ -243,6 +246,15 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         int oldIndicatorIndex = this.pageIndicatorIndex.getValue();
         this.pageIndicatorIndex.setValue(pageIndicatorIndex);
         if (changePage && oldIndicatorIndex != this.pageIndicatorIndex.getValue()) performPageChange();
+    }
+
+    public void onVoteCheckboxClicked(int index, boolean checked) {
+        if (checked) {
+            selectedVoteIndices.add(index);
+        } else {
+            selectedVoteIndices.remove(index);
+        }
+
     }
 
     // <-------------Just getters, setters and helper methods below here---------------->
