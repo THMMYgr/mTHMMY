@@ -35,6 +35,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -158,12 +160,27 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             PollViewHolder holder = (PollViewHolder) currentHolder;
             holder.question.setText(poll.getQuestion());
             if (poll.getAvailableVoteCount() > 1) {
-                for (int i = 0; i < entries.length; i++) {
+                LinearLayout optionsLayout = new LinearLayout(context);
+                optionsLayout.setOrientation(LinearLayout.HORIZONTAL);
+                for (Poll.Entry entry : entries) {
                     CheckBox checkBox = new CheckBox(context);
-                    checkBox.setText(entries[i].getEntryName());
+                    checkBox.setText(entry.getEntryName());
                     checkBox.setOnCheckedChangeListener((buttonView, isChecked) ->
-                            viewModel.onVoteCheckboxClicked(holder.optionsLayout.indexOfChild(buttonView), isChecked));
+                            viewModel.onVoteCheckboxClicked(optionsLayout.indexOfChild(buttonView), isChecked));
+                    optionsLayout.addView(checkBox);
                 }
+                holder.rootLayout.addView(optionsLayout, 1);
+            } else if (poll.getAvailableVoteCount() == 1) {
+                RadioGroup radioGroup = new RadioGroup(context);
+                for (int i = 0; i < entries.length; i++) {
+                    RadioButton radioButton = new RadioButton(context);
+                    radioButton.setText(entries[i].getEntryName());
+                    radioButton.setOnClickListener(v -> viewModel.onRadioButtonCLicked(radioGroup.indexOfChild(v)));
+                    radioGroup.addView(radioButton);
+                }
+                holder.rootLayout.addView(radioGroup, 1);
+            } else {
+                //Showing results
             }
         } else {
             Post currentPost = (Post) topicItems.get(position);
@@ -665,7 +682,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     static class PollViewHolder extends RecyclerView.ViewHolder {
         final TextView question, errorTooManySelected;
-        final LinearLayout optionsLayout;
+        final LinearLayout rootLayout;
         final AppCompatButton submitButton;
         final AppCompatButton removeVotesButton;
 
@@ -673,7 +690,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             super(itemView);
 
             question = itemView.findViewById(R.id.question_textview);
-            optionsLayout = itemView.findViewById(R.id.options_layout);
+            rootLayout = (LinearLayout) itemView;
             submitButton = itemView.findViewById(R.id.submit_button);
             removeVotesButton = itemView.findViewById(R.id.remove_vote_button);
             errorTooManySelected = itemView.findViewById(R.id.error_too_many_checked);
