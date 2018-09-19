@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.TopicItem;
@@ -150,6 +151,9 @@ public class TopicParser {
     public static ArrayList<TopicItem> parseTopic(Document topic, ParseHelpers.Language language) {
         //Method's variables
         final int NO_INDEX = -1;
+
+        Poll poll = findPoll(topic, language);
+
         ArrayList<TopicItem> parsedPostsList = new ArrayList<>();
         Elements postRows;
 
@@ -467,6 +471,20 @@ public class TopicParser {
             }
         }
         return parsedPostsList;
+    }
+
+    private static Poll findPoll(Document topic, ParseHelpers.Language language) {
+        Elements tables = topic.select("table");
+        for (int i = 0; i < tables.size(); i++) {
+            try {
+                Element image = tables.get(i).child(0).child(0).child(0);
+                if (image.html().contains("Poll")) {
+                    return new Poll();
+                } else if (image.html().contains("Ψηφοφορία")) {
+                    return new Poll();
+                }
+            } catch (Exception ignored) { }
+        }
     }
 
     /**
