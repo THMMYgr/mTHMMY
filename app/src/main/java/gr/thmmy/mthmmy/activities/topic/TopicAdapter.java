@@ -29,7 +29,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,10 +39,18 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
@@ -172,15 +179,26 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.rootLayout.addView(optionsLayout, 1);
             } else if (poll.getAvailableVoteCount() == 1) {
                 RadioGroup radioGroup = new RadioGroup(context);
-                for (int i = 0; i < entries.length; i++) {
+                for (Poll.Entry entry : entries) {
                     RadioButton radioButton = new RadioButton(context);
-                    radioButton.setText(entries[i].getEntryName());
+                    radioButton.setText(entry.getEntryName());
                     radioButton.setOnClickListener(v -> viewModel.onRadioButtonCLicked(radioGroup.indexOfChild(v)));
                     radioGroup.addView(radioButton);
                 }
                 holder.rootLayout.addView(radioGroup, 1);
             } else {
                 //Showing results
+                ArrayList<BarEntry> valuesToCompare = new ArrayList<>();
+                for (int i = 0; i < entries.length; i++) {
+                    valuesToCompare.add(new BarEntry(entries[i].getVotes(), i));
+                }
+                BarDataSet data = new BarDataSet(valuesToCompare, "Vote Results");
+
+                YAxis yAxisLeft = holder.voteChart.getAxisLeft();
+                yAxisLeft.setValueFormatter((value, axis) -> entries[(int) value].getEntryName());
+
+                BarData barData = new BarData(data);
+                holder.voteChart.setData(barData);
             }
         } else {
             Post currentPost = (Post) topicItems.get(position);
@@ -685,6 +703,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final LinearLayout rootLayout;
         final AppCompatButton submitButton;
         final AppCompatButton removeVotesButton;
+        final HorizontalBarChart voteChart;
 
         public PollViewHolder(View itemView) {
             super(itemView);
@@ -694,6 +713,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             submitButton = itemView.findViewById(R.id.submit_button);
             removeVotesButton = itemView.findViewById(R.id.remove_vote_button);
             errorTooManySelected = itemView.findViewById(R.id.error_too_many_checked);
+            voteChart = itemView.findViewById(R.id.vote_chart);
         }
     }
 
