@@ -150,7 +150,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return new EditMessageViewHolder(view);
         } else if (viewType == Poll.TYPE_POLL) {
             View view = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.activity_topic_edit_row, parent, false);
+                    inflate(R.layout.activity_topic_poll, parent, false);
             return new PollViewHolder(view);
         } else {
             throw new IllegalArgumentException("Unknown view type");

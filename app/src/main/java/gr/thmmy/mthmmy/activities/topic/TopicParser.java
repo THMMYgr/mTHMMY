@@ -153,9 +153,12 @@ public class TopicParser {
         //Method's variables
         final int NO_INDEX = -1;
 
-        Poll poll = findPoll(topic);
-
         ArrayList<TopicItem> parsedPostsList = new ArrayList<>();
+
+        Poll poll = findPoll(topic);
+        if (poll != null)
+            parsedPostsList.add(poll);
+
         Elements postRows;
 
         //Each row is a post
@@ -491,7 +494,7 @@ public class TopicParser {
                     Element secondRow = tables.get(i).select("tr[class=windowbg]").first();
                     Element secondColumn = secondRow.child(1);
                     String columnString = secondColumn.outerHtml();
-                    question = columnString.substring(columnString.indexOf('>'), columnString.indexOf('<', 2)).trim();
+                    question = columnString.substring(columnString.indexOf('>') + 1, columnString.indexOf('<', 2)).trim();
 
                     Element form = secondColumn.select("form").first();
                     if (form != null) {
@@ -518,11 +521,12 @@ public class TopicParser {
                         }
                     } else {
                         // english poll in results mode
-                        Elements optionRows = secondColumn.child(0).select("table").first().children();
+                        Elements optionRows = secondColumn.child(0).child(0).select("table").first().child(0).children();
                         for (int j = 0; j < optionRows.size(); j++) {
-                            String optionName = optionRows.get(i).child(0).text();
-                            String voteCountDescription = optionRows.get(i).child(1).text();
+                            String optionName = optionRows.get(j).child(0).text();
+                            String voteCountDescription = optionRows.get(j).child(1).text();
                             Matcher integerMatcher = integerPattern.matcher(voteCountDescription);
+                            integerMatcher.find();
                             int voteCount = Integer.parseInt(voteCountDescription.substring(integerMatcher.start(),
                                     integerMatcher.end()));
                             entries.add(new Poll.Entry(optionName, voteCount));
