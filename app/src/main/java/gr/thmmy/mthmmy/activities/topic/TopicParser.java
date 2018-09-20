@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -152,7 +153,7 @@ public class TopicParser {
         //Method's variables
         final int NO_INDEX = -1;
 
-        Poll poll = findPoll(topic, language);
+        Poll poll = findPoll(topic);
 
         ArrayList<TopicItem> parsedPostsList = new ArrayList<>();
         Elements postRows;
@@ -473,18 +474,76 @@ public class TopicParser {
         return parsedPostsList;
     }
 
-    private static Poll findPoll(Document topic, ParseHelpers.Language language) {
+    private static Poll findPoll(Document topic) {
+        Pattern integerPattern = Pattern.compile("[0-9]+");
         Elements tables = topic.select("table");
         for (int i = 0; i < tables.size(); i++) {
             try {
                 Element image = tables.get(i).child(0).child(0).child(0);
-                if (image.html().contains("Poll")) {
-                    return new Poll();
-                } else if (image.html().contains("Ψηφοφορία")) {
-                    return new Poll();
+                if (image.html().contains("Poll") || image.html().contains("Ψηφοφορία")) {
+                    // has poll in english
+                    String question;
+                    ArrayList<Poll.Entry> entries = new ArrayList<>();
+                    int availableVoteCount = 0;
+                    String pollFormUrl = null, sc = null, removeVoteUrl = null, showVoteResultsUrl = null,
+                    showOptionsUrl = null;
+
+                    Element secondRow = tables.get(i).select("tr[class=windowbg]").first();
+                    Element secondColumn = secondRow.child(1);
+                    String columnString = secondColumn.outerHtml();
+                    question = columnString.substring(columnString.indexOf('>'), columnString.indexOf('<', 2)).trim();
+
+                    Element form = secondColumn.select("form").first();
+                    if (form != null) {
+                        // english poll in vote mode
+                        pollFormUrl = form.attr("action");
+
+                        Elements formInputs = form.select("input");
+                        for (int j = 0; j < formInputs.size(); j++) {
+                            if (formInputs.get(i).attr("name").equals("options[]")) {
+                                entries.add(new Poll.Entry(formInputs.get(i).text()));
+                            } else if (formInputs.get(i).attr("name").equals("sc")) {
+                                sc = formInputs.get(i).attr("value");
+                            }
+                        }
+
+                        Element promptColumn = form.child(0).child(0).child(0);
+                        String prompt = promptColumn.text();
+                        Matcher integerMatcher = integerPattern.matcher(prompt);
+                        availableVoteCount = Integer.parseInt(prompt.substring(integerMatcher.start(), integerMatcher.end()));
+
+                        Elements links = form.select("a");
+                        if (links != null && links.size() > 0) {
+                            showVoteResultsUrl = links.first().attr("href");
+                        }
+                    } else {
+                        // english poll in results mode
+                        Elements optionRows = secondColumn.child(0).select("table").first().children();
+                        for (int j = 0; j < optionRows.size(); j++) {
+                            String optionName = optionRows.get(i).child(0).text();
+                            String voteCountDescription = optionRows.get(i).child(1).text();
+                            Matcher integerMatcher = integerPattern.matcher(voteCountDescription);
+                            int voteCount = Integer.parseInt(voteCountDescription.substring(integerMatcher.start(),
+                                    integerMatcher.end()));
+                            entries.add(new Poll.Entry(optionName, voteCount));
+                        }
+
+                        Elements links = secondColumn.select("a");
+                        if (links != null && links.size() > 0) {
+                            if (links.first().text().equals("Remove Vote") || links.first().text().equals("Αφαίρεση ψήφου"))
+                                removeVoteUrl = links.first().attr("href");
+                            else if (links.first().text().equals("Voting options") || links.first().text().equals("Επιλογές ψηφοφορίας"))
+                                showOptionsUrl = links.first().attr("href");
+                        }
+                    }
+                    return new Poll(question, entries.toArray(new Poll.Entry[0]), availableVoteCount,
+                            pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl, showOptionsUrl);
                 }
-            } catch (Exception ignored) { }
+            } catch (Exception e) {
+                Timber.v(e, "Could not parse a poll");
+            }
         }
+        return null;
     }
 
     /**

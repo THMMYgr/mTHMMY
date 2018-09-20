@@ -8,10 +8,10 @@ public class Poll extends TopicItem {
     private final String question;
     private Entry[] entries;
     private int availableVoteCount;
-    private String pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl;
+    private String pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl, showOptionsUrl;
 
     public Poll(String question, Entry[] entries, int availableVoteCount, String pollFormUrl, String sc,
-                String removeVoteUrl, String showVoteResultsUrl) {
+                String removeVoteUrl, String showVoteResultsUrl, String showOptionsUrl) {
         this.question = question;
         this.entries = entries;
         this.availableVoteCount = availableVoteCount;
@@ -19,6 +19,7 @@ public class Poll extends TopicItem {
         this.sc = sc;
         this.removeVoteUrl = removeVoteUrl;
         this.showVoteResultsUrl = showVoteResultsUrl;
+        this.showOptionsUrl = showOptionsUrl;
     }
 
     public int totalVotes() {
@@ -61,6 +62,10 @@ public class Poll extends TopicItem {
 
     public String getShowVoteResultsUrl() {
         return showVoteResultsUrl;
+    }
+
+    public String getShowOptionsUrl() {
+        return showOptionsUrl;
     }
 
     public static class Entry {
