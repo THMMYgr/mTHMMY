@@ -40,13 +40,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.HorizontalBarChart;
-import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -188,18 +186,36 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.rootLayout.addView(radioGroup, 1);
             } else {
                 //Showing results
-                ArrayList<BarEntry> valuesToCompare = new ArrayList<>();
+                List<BarEntry> valuesToCompare = new ArrayList<>();
                 for (int i = 0; i < entries.length; i++) {
-                    valuesToCompare.add(new BarEntry(entries[i].getVotes(), i));
+                    valuesToCompare.add(new BarEntry(i, entries[i].getVotes()));
                 }
                 BarDataSet data = new BarDataSet(valuesToCompare, "Vote Results");
 
                 YAxis yAxisLeft = holder.voteChart.getAxisLeft();
-                yAxisLeft.setValueFormatter((value, axis) -> entries[(int) value].getEntryName());
+                yAxisLeft.setGranularity(1f);
+                YAxis yAxisRight = holder.voteChart.getAxisRight();
+                yAxisRight.setEnabled(false);
+
+                XAxis xAxis = holder.voteChart.getXAxis();
+                xAxis.setValueFormatter((value, axis) -> entries[(int) value].getEntryName());
+                xAxis.setTextColor(context.getResources().getColor(R.color.primary_text));
+                xAxis.setGranularity(1f);
+                xAxis.setDrawGridLines(false);
+                xAxis.setDrawAxisLine(false);
+                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
                 BarData barData = new BarData(data);
+                barData.setValueTextColor(context.getResources().getColor(R.color.accent));
                 holder.voteChart.setData(barData);
+                holder.voteChart.getLegend().setEnabled(false);
+                holder.voteChart.getDescription().setEnabled(false);
+                holder.voteChart.invalidate();
             }
+            if (poll.getRemoveVoteUrl() != null) holder.removeVotesButton.setVisibility(View.VISIBLE);
+            if (poll.getShowVoteResultsUrl() != null) holder.showPollResultsButton.setVisibility(View.VISIBLE);
+            if (poll.getShowOptionsUrl() != null) holder.showPollOptionsButton.setVisibility(View.VISIBLE);
+            if (poll.getPollFormUrl() != null) holder.submitButton.setVisibility(View.VISIBLE);
         } else {
             Post currentPost = (Post) topicItems.get(position);
             if (currentHolder instanceof PostViewHolder) {
@@ -702,7 +718,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView question, errorTooManySelected;
         final LinearLayout rootLayout;
         final AppCompatButton submitButton;
-        final AppCompatButton removeVotesButton;
+        final AppCompatButton removeVotesButton, showPollResultsButton, showPollOptionsButton;
         final HorizontalBarChart voteChart;
 
         public PollViewHolder(View itemView) {
@@ -712,6 +728,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             rootLayout = (LinearLayout) itemView;
             submitButton = itemView.findViewById(R.id.submit_button);
             removeVotesButton = itemView.findViewById(R.id.remove_vote_button);
+            showPollResultsButton = itemView.findViewById(R.id.show_poll_results_button);
+            showPollOptionsButton = itemView.findViewById(R.id.show_poll_options_button);
             errorTooManySelected = itemView.findViewById(R.id.error_too_many_checked);
             voteChart = itemView.findViewById(R.id.vote_chart);
         }

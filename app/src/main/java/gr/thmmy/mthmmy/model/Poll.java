@@ -99,5 +99,10 @@ public class Poll extends TopicItem {
         public void setVotes(int votes) {
             this.votes = votes;
         }
+
+        @Override
+        public String toString() {
+            return "Vote label:" + entryName + ", num votes:" + votes;
+        }
     }
 }
