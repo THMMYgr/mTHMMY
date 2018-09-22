@@ -166,17 +166,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             PollViewHolder holder = (PollViewHolder) currentHolder;
             holder.question.setText(poll.getQuestion());
             if (poll.getAvailableVoteCount() > 1) {
-                LinearLayout optionsLayout = new LinearLayout(context);
-                optionsLayout.setOrientation(LinearLayout.VERTICAL);
                 for (Poll.Entry entry : entries) {
                     CheckBox checkBox = new CheckBox(context);
                     checkBox.setText(entry.getEntryName());
                     checkBox.setTextColor(context.getResources().getColor(R.color.primary_text));
-                    checkBox.setOnCheckedChangeListener((buttonView, isChecked) ->
-                            viewModel.onVoteCheckboxClicked(optionsLayout.indexOfChild(buttonView), isChecked));
-                    optionsLayout.addView(checkBox);
+                    holder.optionsLayout.addView(checkBox);
                 }
-                holder.rootLayout.addView(optionsLayout, 1);
+                holder.voteChart.setVisibility(View.GONE);
+                holder.optionsLayout.setVisibility(View.VISIBLE);
             } else if (poll.getAvailableVoteCount() == 1) {
                 RadioGroup radioGroup = new RadioGroup(context);
                 for (Poll.Entry entry : entries) {
@@ -185,9 +182,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     radioButton.setOnClickListener(v -> viewModel.onRadioButtonCLicked(radioGroup.indexOfChild(v)));
                     radioGroup.addView(radioButton);
                 }
-                holder.rootLayout.addView(radioGroup, 1);
+                holder.optionsLayout.addView(radioGroup);
+                holder.voteChart.setVisibility(View.GONE);
+                holder.optionsLayout.setVisibility(View.VISIBLE);
             } else {
                 //Showing results
+                holder.optionsLayout.removeAllViews();
+                holder.optionsLayout.setVisibility(View.GONE);
                 List<BarEntry> valuesToCompare = new ArrayList<>();
                 for (int i = 0; i < entries.length; i++) {
                     valuesToCompare.add(new BarEntry(i, entries[i].getVotes()));
@@ -223,23 +224,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (poll.getRemoveVoteUrl() != null) holder.removeVotesButton.setVisibility(View.VISIBLE);
             else holder.removeVotesButton.setVisibility(View.GONE);
             if (poll.getShowVoteResultsUrl() != null) {
-                holder.showPollResultsButton.setOnClickListener(v -> {
-                    if (holder.voteChart.getData() != null) {
-                        // Chart has been already created, just make it visible
-                        holder.voteChart.setVisibility(View.VISIBLE);
-                        holder.showPollResultsButton.setVisibility(View.GONE);
-                        holder.hidePollResultsButton.setVisibility(View.VISIBLE);
-                    } else viewModel.viewVoteResults();
-                });
+                holder.showPollResultsButton.setOnClickListener(v -> viewModel.loadUrl(poll.getShowVoteResultsUrl()));
                 holder.showPollResultsButton.setVisibility(View.VISIBLE);
             } else holder.showPollResultsButton.setVisibility(View.GONE);
 
             if (poll.getShowOptionsUrl() != null) {
-                holder.hidePollResultsButton.setOnClickListener(v -> {
-                    holder.voteChart.setVisibility(View.GONE);
-                    holder.hidePollResultsButton.setVisibility(View.GONE);
-                    holder.showPollResultsButton.setVisibility(View.VISIBLE);
-                });
+                holder.hidePollResultsButton.setOnClickListener(v -> viewModel.loadUrl(poll.getShowOptionsUrl()));
                 holder.hidePollResultsButton.setVisibility(View.VISIBLE);
             } else holder.hidePollResultsButton.setVisibility(View.GONE);
             if (poll.getPollFormUrl() != null) holder.submitButton.setVisibility(View.VISIBLE);
@@ -744,7 +734,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     static class PollViewHolder extends RecyclerView.ViewHolder {
         final TextView question, errorTooManySelected;
-        final LinearLayout rootLayout;
+        final LinearLayout optionsLayout;
         final AppCompatButton submitButton;
         final AppCompatButton removeVotesButton, showPollResultsButton, hidePollResultsButton;
         final HorizontalBarChart voteChart;
@@ -753,7 +743,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             super(itemView);
 
             question = itemView.findViewById(R.id.question_textview);
-            rootLayout = (LinearLayout) itemView;
+            optionsLayout = itemView.findViewById(R.id.options_layout);
             submitButton = itemView.findViewById(R.id.submit_button);
             removeVotesButton = itemView.findViewById(R.id.remove_vote_button);
             showPollResultsButton = itemView.findViewById(R.id.show_poll_results_button);
