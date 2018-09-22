@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -19,6 +20,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -193,9 +195,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     valuesToCompare.add(new BarEntry(i, entries[i].getVotes()));
                 }
                 BarDataSet data = new BarDataSet(valuesToCompare, "Vote Results");
+                data.setColor(context.getResources().getColor(R.color.accent));
 
                 YAxis yAxisLeft = holder.voteChart.getAxisLeft();
                 yAxisLeft.setGranularity(1f);
+                yAxisLeft.setTextColor(context.getResources().getColor(R.color.primary_text));
                 YAxis yAxisRight = holder.voteChart.getAxisRight();
                 yAxisRight.setEnabled(false);
 
@@ -212,6 +216,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setData(barData);
                 holder.voteChart.getLegend().setEnabled(false);
                 holder.voteChart.getDescription().setEnabled(false);
+                int chartHeightdp = 10 + 30 * entries.length;
+                DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+                holder.voteChart.setMinimumHeight((int) (chartHeightdp * (metrics.densityDpi / 160f)));
                 holder.voteChart.invalidate();
                 holder.voteChart.setVisibility(View.VISIBLE);
             }
