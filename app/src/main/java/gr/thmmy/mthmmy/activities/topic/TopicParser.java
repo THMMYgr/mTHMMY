@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -500,20 +501,29 @@ public class TopicParser {
                     if (form != null) {
                         // english poll in vote mode
                         pollFormUrl = form.attr("action");
+                        sc = form.select("input[name=sc]").first().attr("value");
 
-                        Elements formInputs = form.select("input");
-                        for (int j = 0; j < formInputs.size(); j++) {
-                            if (formInputs.get(i).attr("name").equals("options[]")) {
-                                entries.add(new Poll.Entry(formInputs.get(i).text()));
-                            } else if (formInputs.get(i).attr("name").equals("sc")) {
-                                sc = formInputs.get(i).attr("value");
+                        int rowIndex = -1;
+                        Elements possibleEntriesRows = form.child(0).child(0).children();
+                        for (int j = 0; j < possibleEntriesRows.size(); j++) {
+                            if (possibleEntriesRows.get(j).select("input").size() > 0) {
+                                rowIndex = j;
+                                break;
                             }
+                        }
+                        String entriesRaw = form.child(0).child(0).child(rowIndex).child(0).html();
+                        Matcher entryMatcher = Pattern.compile(">[^<]+<br").matcher(entriesRaw);
+                        while (entryMatcher.find()) {
+                            entries.add(new Poll.Entry(entriesRaw.substring(entryMatcher.start() + 1, entryMatcher.end() - 3).trim()));
                         }
 
                         Element promptColumn = form.child(0).child(0).child(0);
                         String prompt = promptColumn.text();
                         Matcher integerMatcher = integerPattern.matcher(prompt);
-                        availableVoteCount = Integer.parseInt(prompt.substring(integerMatcher.start(), integerMatcher.end()));
+                        if (integerMatcher.find())
+                            availableVoteCount = Integer.parseInt(prompt.substring(integerMatcher.start(), integerMatcher.end()));
+                        else
+                            availableVoteCount = 1;
 
                         Elements links = form.select("a");
                         if (links != null && links.size() > 0) {

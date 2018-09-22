@@ -48,6 +48,7 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -166,10 +167,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.question.setText(poll.getQuestion());
             if (poll.getAvailableVoteCount() > 1) {
                 LinearLayout optionsLayout = new LinearLayout(context);
-                optionsLayout.setOrientation(LinearLayout.HORIZONTAL);
+                optionsLayout.setOrientation(LinearLayout.VERTICAL);
                 for (Poll.Entry entry : entries) {
                     CheckBox checkBox = new CheckBox(context);
                     checkBox.setText(entry.getEntryName());
+                    checkBox.setTextColor(context.getResources().getColor(R.color.primary_text));
                     checkBox.setOnCheckedChangeListener((buttonView, isChecked) ->
                             viewModel.onVoteCheckboxClicked(optionsLayout.indexOfChild(buttonView), isChecked));
                     optionsLayout.addView(checkBox);
@@ -211,6 +213,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.getLegend().setEnabled(false);
                 holder.voteChart.getDescription().setEnabled(false);
                 holder.voteChart.invalidate();
+                holder.voteChart.setVisibility(View.VISIBLE);
             }
             if (poll.getRemoveVoteUrl() != null) holder.removeVotesButton.setVisibility(View.VISIBLE);
             if (poll.getShowVoteResultsUrl() != null) holder.showPollResultsButton.setVisibility(View.VISIBLE);
