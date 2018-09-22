@@ -5,6 +5,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
@@ -179,11 +181,9 @@ public class ParseHelpers {
      * @return the base URL of the given topic
      */
     public static String getBaseURL(String topicURL) {
-        if (topicURL.substring(0, topicURL.lastIndexOf(".")).contains("topic="))
-            return topicURL.substring(0, topicURL.lastIndexOf("."));
-        else {
-            Timber.wtf(new ParseException("Could not parse base URL of topic"));
-            return "";
-        }
+        Matcher baseUrlMatcher = Pattern.compile(".+topic=[0-9]+").matcher(topicURL);
+        if (baseUrlMatcher.find())
+            return topicURL.substring(baseUrlMatcher.start(), baseUrlMatcher.end());
+        else return "";
     }
 }

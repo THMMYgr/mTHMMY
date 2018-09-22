@@ -106,6 +106,18 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         }
     }
 
+    public void viewVoteResults() {
+        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        Timber.i("Viewing poll results");
+        loadUrl(ParseHelpers.getBaseURL(topicUrl) + ";viewResults");
+    }
+
+    public void loadBaseUrl() {
+        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        Timber.i("Viewing poll results");
+        loadUrl(ParseHelpers.getBaseURL(topicUrl));
+    }
+
     public void prepareForReply() {
         if (replyPageUrl.getValue() == null)
             throw new NullPointerException("Topic task has not finished yet!");

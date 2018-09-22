@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -50,7 +49,6 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -223,9 +221,29 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setVisibility(View.VISIBLE);
             }
             if (poll.getRemoveVoteUrl() != null) holder.removeVotesButton.setVisibility(View.VISIBLE);
-            if (poll.getShowVoteResultsUrl() != null) holder.showPollResultsButton.setVisibility(View.VISIBLE);
-            if (poll.getShowOptionsUrl() != null) holder.showPollOptionsButton.setVisibility(View.VISIBLE);
+            else holder.removeVotesButton.setVisibility(View.GONE);
+            if (poll.getShowVoteResultsUrl() != null) {
+                holder.showPollResultsButton.setOnClickListener(v -> {
+                    if (holder.voteChart.getData() != null) {
+                        // Chart has been already created, just make it visible
+                        holder.voteChart.setVisibility(View.VISIBLE);
+                        holder.showPollResultsButton.setVisibility(View.GONE);
+                        holder.hidePollResultsButton.setVisibility(View.VISIBLE);
+                    } else viewModel.viewVoteResults();
+                });
+                holder.showPollResultsButton.setVisibility(View.VISIBLE);
+            } else holder.showPollResultsButton.setVisibility(View.GONE);
+
+            if (poll.getShowOptionsUrl() != null) {
+                holder.hidePollResultsButton.setOnClickListener(v -> {
+                    holder.voteChart.setVisibility(View.GONE);
+                    holder.hidePollResultsButton.setVisibility(View.GONE);
+                    holder.showPollResultsButton.setVisibility(View.VISIBLE);
+                });
+                holder.hidePollResultsButton.setVisibility(View.VISIBLE);
+            } else holder.hidePollResultsButton.setVisibility(View.GONE);
             if (poll.getPollFormUrl() != null) holder.submitButton.setVisibility(View.VISIBLE);
+            else holder.submitButton.setVisibility(View.GONE);
         } else {
             Post currentPost = (Post) topicItems.get(position);
             if (currentHolder instanceof PostViewHolder) {
@@ -728,7 +746,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView question, errorTooManySelected;
         final LinearLayout rootLayout;
         final AppCompatButton submitButton;
-        final AppCompatButton removeVotesButton, showPollResultsButton, showPollOptionsButton;
+        final AppCompatButton removeVotesButton, showPollResultsButton, hidePollResultsButton;
         final HorizontalBarChart voteChart;
 
         public PollViewHolder(View itemView) {
@@ -739,7 +757,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             submitButton = itemView.findViewById(R.id.submit_button);
             removeVotesButton = itemView.findViewById(R.id.remove_vote_button);
             showPollResultsButton = itemView.findViewById(R.id.show_poll_results_button);
-            showPollOptionsButton = itemView.findViewById(R.id.show_poll_options_button);
+            hidePollResultsButton = itemView.findViewById(R.id.show_poll_options_button);
             errorTooManySelected = itemView.findViewById(R.id.error_too_many_checked);
             voteChart = itemView.findViewById(R.id.vote_chart);
         }
