@@ -9,8 +9,8 @@ import android.preference.PreferenceManager;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
-import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditResult;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
@@ -52,7 +52,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     //callbacks for topic activity
     private TopicTask.TopicTaskObserver topicTaskObserver;
-    private DeleteTask.DeleteTaskCallbacks deleteTaskCallbacks;
+    private DeleteTask.OnParseTaskStartedListener deleteTaskStartedListener;
+    private DeleteTask.OnParseTaskFinishedListener<Void> deleteTaskFinishedListener;
     private ReplyTask.ReplyTaskCallbacks replyFinishListener;
     private PrepareForEditTask.PrepareForEditCallbacks prepareForEditCallbacks;
     private EditTask.EditTaskCallbacks editTaskCallbacks;
@@ -135,7 +136,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     public void deletePost(String postDeleteUrl) {
         Timber.i("Deleting post");
-        new DeleteTask(deleteTaskCallbacks).execute(postDeleteUrl);
+        new DeleteTask(deleteTaskStartedListener, deleteTaskFinishedListener).execute(postDeleteUrl);
     }
 
     public void prepareForEdit(int position, String postEditURL) {
@@ -325,8 +326,13 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         this.topicTaskObserver = topicTaskObserver;
     }
 
-    public void setDeleteTaskCallbacks(DeleteTask.DeleteTaskCallbacks deleteTaskCallbacks) {
-        this.deleteTaskCallbacks = deleteTaskCallbacks;
+
+    public void setDeleteTaskStartedListener(DeleteTask.OnParseTaskStartedListener deleteTaskStartedListener) {
+        this.deleteTaskStartedListener = deleteTaskStartedListener;
+    }
+
+    public void setDeleteTaskFinishedListener(DeleteTask.OnParseTaskFinishedListener<Void> deleteTaskFinishedListener) {
+        this.deleteTaskFinishedListener = deleteTaskFinishedListener;
     }
 
     public void setReplyFinishListener(ReplyTask.ReplyTaskCallbacks replyFinishListener) {

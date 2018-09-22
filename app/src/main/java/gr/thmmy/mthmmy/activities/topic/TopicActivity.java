@@ -38,7 +38,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
@@ -52,6 +51,7 @@ import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -498,23 +498,15 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 progressBar.setVisibility(ProgressBar.GONE);
             }
         });
-        viewModel.setDeleteTaskCallbacks(new DeleteTask.DeleteTaskCallbacks() {
-            @Override
-            public void onDeleteTaskStarted() {
-                progressBar.setVisibility(ProgressBar.VISIBLE);
-            }
-
-            @Override
-            public void onDeleteTaskFinished(boolean result) {
-                progressBar.setVisibility(ProgressBar.GONE);
-
-                if (result) {
-                    Timber.i("Post deleted successfully");
-                    viewModel.reloadPage();
-                } else {
-                    Timber.w("Failed to delete post");
-                    Toast.makeText(getBaseContext(), "Delete failed!", Toast.LENGTH_SHORT).show();
-                }
+        viewModel.setDeleteTaskStartedListener(() -> progressBar.setVisibility(ProgressBar.VISIBLE));
+        viewModel.setDeleteTaskFinishedListener((resultCode, data) -> {
+            progressBar.setVisibility(ProgressBar.GONE);
+            if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+                Timber.i("Post deleted successfully");
+                viewModel.reloadPage();
+            } else {
+                Timber.w("Failed to delete post");
+                Toast.makeText(getBaseContext(), "Delete failed!", Toast.LENGTH_SHORT).show();
             }
         });
         viewModel.setReplyFinishListener(new ReplyTask.ReplyTaskCallbacks() {

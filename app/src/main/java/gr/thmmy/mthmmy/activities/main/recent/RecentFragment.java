@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -20,13 +21,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
-import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import okhttp3.Response;
 import timber.log.Timber;
 
 
@@ -79,7 +83,7 @@ public class RecentFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (topicSummaries.isEmpty()) {
-            recentTask = new RecentTask();
+            recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
             recentTask.execute(SessionManager.indexUrl.toString());
 
         }
@@ -109,16 +113,11 @@ public class RecentFragment extends BaseFragment {
             swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
             swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
-            swipeRefreshLayout.setOnRefreshListener(
-                    new SwipeRefreshLayout.OnRefreshListener() {
-                        @Override
-                        public void onRefresh() {
-                            if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING) {
-                                recentTask = new RecentTask();
-                                recentTask.execute(SessionManager.indexUrl.toString());
-                            }
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                        if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING) {
+                            recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
+                            recentTask.execute(SessionManager.indexUrl.toString());
                         }
-
                     }
             );
         }
@@ -138,18 +137,34 @@ public class RecentFragment extends BaseFragment {
         void onRecentFragmentInteraction(TopicSummary topicSummary);
     }
 
-    //---------------------------------------ASYNC TASK-----------------------------------
-    private class RecentTask extends ParseTask {
-        private List<TopicSummary> fetchedRecent;
+    private void onRecentTaskStarted() {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+    }
 
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
-            fetchedRecent = new ArrayList<>();
+    private void onRecentTaskFinished(int resultCode, ArrayList<TopicSummary> fetchedRecent) {
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            topicSummaries.clear();
+            topicSummaries.addAll(fetchedRecent);
+            recentAdapter.notifyDataSetChanged();
+        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+        }
+
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    //---------------------------------------ASYNC TASK-----------------------------------
+    private class RecentTask extends NewParseTask<ArrayList<TopicSummary>> {
+
+        public RecentTask(OnParseTaskStartedListener onParseTaskStartedListener,
+                          OnParseTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
+            super(onParseTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        public void parse(Document document) throws ParseException {
+        protected ArrayList<TopicSummary> parse(Document document) throws ParseException {
+            ArrayList<TopicSummary> fetchedRecent = new ArrayList<>();
             Elements recent = document.select("#block8 :first-child div");
             if (!recent.isEmpty()) {
                 for (int i = 0; i < recent.size(); i += 3) {
@@ -174,7 +189,7 @@ public class RecentFragment extends BaseFragment {
                                 dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
                             dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
                         } else {
-                            dateTime=dateTime.substring(0,dateTime.lastIndexOf(":"));
+                            dateTime = dateTime.substring(0, dateTime.lastIndexOf(":"));
                         }
                         if (!dateTime.contains(",")) {
                             dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
@@ -184,22 +199,14 @@ public class RecentFragment extends BaseFragment {
 
                     fetchedRecent.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
-                return;
+                return fetchedRecent;
             }
             throw new ParseException("Parsing failed");
         }
 
         @Override
-        protected void postExecution(ParseTask.ResultCode result) {
-            if (result == ResultCode.SUCCESS)
-            {
-                topicSummaries.clear();
-                topicSummaries.addAll(fetchedRecent);
-                recentAdapter.notifyDataSetChanged();
-            }
-
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            swipeRefreshLayout.setRefreshing(false);
+        protected int getResultCode(Response response, ArrayList<TopicSummary> data) {
+            return NetworkResultCodes.SUCCESSFUL;
         }
     }
 }

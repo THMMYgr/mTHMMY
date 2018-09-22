@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 
@@ -17,21 +18,26 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
-import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import timber.log.Timber;
 
 /**
@@ -83,7 +89,7 @@ public class ForumFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (categories.isEmpty()) {
-            forumTask = new ForumTask();
+            forumTask = new ForumTask(this::onForumTaskStarted, this::onForumTaskFinished);
             forumTask.execute();
 
         }
@@ -106,7 +112,7 @@ public class ForumFragment extends BaseFragment {
                     if (BaseActivity.getSessionManager().isLoggedIn()) {
                         if (forumTask.getStatus() == AsyncTask.Status.RUNNING)
                             forumTask.cancel(true);
-                        forumTask = new ForumTask();
+                        forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
                         forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
                         forumTask.execute();
                     }
@@ -117,7 +123,7 @@ public class ForumFragment extends BaseFragment {
                     if (BaseActivity.getSessionManager().isLoggedIn()) {
                         if (forumTask.getStatus() == AsyncTask.Status.RUNNING)
                             forumTask.cancel(true);
-                        forumTask = new ForumTask();
+                        forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
                         forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
                         forumTask.execute();
                     }
@@ -135,16 +141,12 @@ public class ForumFragment extends BaseFragment {
             swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
             swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
-            swipeRefreshLayout.setOnRefreshListener(
-                    new SwipeRefreshLayout.OnRefreshListener() {
-                        @Override
-                        public void onRefresh() {
-                            if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING) {
-                                forumTask = new ForumTask();
-                                forumTask.execute(SessionManager.indexUrl.toString());
-                            }
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                        if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING) {
+                            forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
+                            //forumTask.execute(SessionManager.indexUrl.toString());
+                            forumTask.execute();
                         }
-
                     }
             );
 
@@ -163,33 +165,38 @@ public class ForumFragment extends BaseFragment {
         void onForumFragmentInteraction(Board board);
     }
 
+    public void onForumTaskStarted() {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+    }
+
+    public void onForumTaskFinished(int resultCode, ArrayList<Category> fetchedCategories) {
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            categories.clear();
+            categories.addAll(fetchedCategories);
+            forumAdapter.notifyParentDataSetChanged(false);
+        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+        }
+
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
     //---------------------------------------ASYNC TASK-----------------------------------
 
-    private class ForumTask extends ParseTask {
+    private class ForumTask extends NewParseTask<ArrayList<Category>> {
         private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
 
-        private final List<Category> fetchedCategories;
-
-        ForumTask() {
-            fetchedCategories = new ArrayList<>();
-        }
-
-        protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+        public ForumTask(OnParseTaskStartedListener onParseTaskStartedListener,
+                         OnParseTaskFinishedListener<ArrayList<Category>> onParseTaskFinishedListener) {
+            super(onParseTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        protected Request prepareRequest(String... params) {
-            return new Request.Builder()
-                    .url(forumUrl)
-                    .build();
-        }
-
-
-        @Override
-        public void parse(Document document) throws ParseException {
+        protected ArrayList<Category> parse(Document document) throws ParseException {
             Elements categoryBlocks = document.select(".tborder:not([style])>table[cellpadding=5]");
             if (categoryBlocks.size() != 0) {
+                ArrayList<Category> fetchedCategories = new ArrayList<>();
                 for (Element categoryBlock : categoryBlocks) {
                     Element categoryElement = categoryBlock.select("td[colspan=2]>[name]").first();
                     String categoryUrl = categoryElement.attr("href");
@@ -207,24 +214,26 @@ public class ForumFragment extends BaseFragment {
 
                     fetchedCategories.add(category);
                 }
-                categories.clear();
-                categories.addAll(fetchedCategories);
-                fetchedCategories.clear();
+                return fetchedCategories;
             } else
                 throw new ParseException("Parsing failed");
         }
 
         @Override
-        protected void postExecution(ParseTask.ResultCode result) {
-            if (result == ResultCode.SUCCESS)
-                forumAdapter.notifyParentDataSetChanged(false);
-
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            swipeRefreshLayout.setRefreshing(false);
+        protected Response sendRequest(OkHttpClient client, String... input) throws IOException {
+            Request request = new Request.Builder()
+                    .url(forumUrl)
+                    .build();
+            return client.newCall(request).execute();
         }
 
-        public void setUrl(String string)   //TODO delete and simplify e.g. in prepareRequest possible?
-        {
+        @Override
+        protected int getResultCode(Response response, ArrayList<Category> data) {
+            return NetworkResultCodes.SUCCESSFUL;
+        }
+
+        //TODO delete and simplify e.g. in prepareRequest possible?
+        public void setUrl(String string) {
             forumUrl = HttpUrl.parse(string);
         }
     }
