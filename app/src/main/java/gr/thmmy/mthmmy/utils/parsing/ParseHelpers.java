@@ -181,9 +181,10 @@ public class ParseHelpers {
      * @return the base URL of the given topic
      */
     public static String getBaseURL(String topicURL) {
-        Matcher baseUrlMatcher = Pattern.compile(".+topic=[0-9]+").matcher(topicURL);
+        String forumUrl = "https://www.thmmy.gr/smf/index.php?";
+        Matcher baseUrlMatcher = Pattern.compile("topic=[0-9]+").matcher(topicURL);
         if (baseUrlMatcher.find())
-            return topicURL.substring(baseUrlMatcher.start(), baseUrlMatcher.end());
+            return forumUrl + topicURL.substring(baseUrlMatcher.start(), baseUrlMatcher.end());
         else return "";
     }
 }

@@ -187,13 +187,13 @@ public class ForumFragment extends BaseFragment {
     private class ForumTask extends NewParseTask<ArrayList<Category>> {
         private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
 
-        public ForumTask(OnParseTaskStartedListener onParseTaskStartedListener,
-                         OnParseTaskFinishedListener<ArrayList<Category>> onParseTaskFinishedListener) {
-            super(onParseTaskStartedListener, onParseTaskFinishedListener);
+        public ForumTask(OnTaskStartedListener onTaskStartedListener,
+                         OnNetworkTaskFinishedListener<ArrayList<Category>> onParseTaskFinishedListener) {
+            super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        protected ArrayList<Category> parse(Document document) throws ParseException {
+        protected ArrayList<Category> parse(Document document, Response response) throws ParseException {
             Elements categoryBlocks = document.select(".tborder:not([style])>table[cellpadding=5]");
             if (categoryBlocks.size() != 0) {
                 ArrayList<Category> fetchedCategories = new ArrayList<>();

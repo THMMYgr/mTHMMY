@@ -50,8 +50,10 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
+import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.NetworkTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -597,6 +599,15 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             public void onPrepareForReplyCancelled() {
                 progressBar.setVisibility(ProgressBar.GONE);
             }
+        });
+        viewModel.setVoteTaskStartedListener(() -> progressBar.setVisibility(ProgressBar.VISIBLE));
+        viewModel.setVoteTaskFinishedListener((resultCode, data) -> {
+            if (resultCode == NetworkResultCodes.SUCCESSFUL)
+                Toast.makeText(this, "success", Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(this, "fail", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.GONE);
+            viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + ".0");
         });
         // observe the chages in data
         viewModel.getPageIndicatorIndex().observe(this, pageIndicatorIndex -> {

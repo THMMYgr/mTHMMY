@@ -12,8 +12,8 @@ import okhttp3.Response;
 
 public class DeleteTask extends NetworkTask<Void> {
 
-    public DeleteTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<Void> onParseTaskFinishedListener) {
-        super(onParseTaskStartedListener, onParseTaskFinishedListener);
+    public DeleteTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Void> onParseTaskFinishedListener) {
+        super(onTaskStartedListener, onParseTaskFinishedListener);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class DeleteTask extends NetworkTask<Void> {
     }
 
     @Override
-    protected Void performTask(Document document) {
+    protected Void performTask(Document document, Response response) {
         return null;
     }
 

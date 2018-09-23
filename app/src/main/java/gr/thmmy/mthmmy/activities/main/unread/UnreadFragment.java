@@ -185,12 +185,12 @@ public class UnreadFragment extends BaseFragment {
 
     private class UnreadTask extends NewParseTask<Void> {
 
-        UnreadTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<Void> onParseTaskFinishedListener) {
-            super(onParseTaskStartedListener, onParseTaskFinishedListener);
+        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Void> onParseTaskFinishedListener) {
+            super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        protected Void parse(Document document) throws ParseException {
+        protected Void parse(Document document, Response response) throws ParseException {
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
             if (!unread.isEmpty()) {
                 //topicSummaries.clear();

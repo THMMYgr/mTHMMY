@@ -4,77 +4,77 @@ import android.os.AsyncTask;
 
 public abstract class ExternalAsyncTask<U, V> extends AsyncTask<U, Void, V> {
 
-    protected OnParseTaskStartedListener onParseTaskStartedListener;
-    protected OnParseTaskCancelledListener onParseTaskCancelledListener;
-    protected OnParseTaskFinishedListener<V> onParseTaskFinishedListener;
+    protected OnTaskStartedListener onTaskStartedListener;
+    protected OnTaskCancelledListener onTaskCancelledListener;
+    protected OnTaskFinishedListener<V> onTaskFinishedListener;
 
     @Override
     protected void onPreExecute() {
-        if (onParseTaskStartedListener != null)
-            onParseTaskStartedListener.onParseStart();
+        if (onTaskStartedListener != null)
+            onTaskStartedListener.onTaskStarted();
         else
             super.onPreExecute();
     }
 
     @Override
     protected void onCancelled() {
-        if (onParseTaskCancelledListener != null)
-            onParseTaskCancelledListener.onParseCancel();
+        if (onTaskCancelledListener != null)
+            onTaskCancelledListener.onTaskCanceled();
         else
             super.onCancelled();
     }
 
     @Override
     protected void onCancelled(V v) {
-        if (onParseTaskCancelledListener != null)
-            onParseTaskCancelledListener.onParseCancel();
+        if (onTaskCancelledListener != null)
+            onTaskCancelledListener.onTaskCanceled();
         else
             super.onCancelled();
     }
 
     @Override
     protected void onPostExecute(V v) {
-        if (onParseTaskFinishedListener != null)
-            onParseTaskFinishedListener.onParseFinish(v);
+        if (onTaskFinishedListener != null)
+            onTaskFinishedListener.onTaskFinished(v);
         else
             super.onPostExecute(v);
     }
 
-    public ExternalAsyncTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskCancelledListener onParseTaskCancelledListener,
-                        OnParseTaskFinishedListener<V> onParseTaskFinishedListener) {
-        this.onParseTaskStartedListener = onParseTaskStartedListener;
-        this.onParseTaskCancelledListener = onParseTaskCancelledListener;
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    public ExternalAsyncTask(OnTaskStartedListener onTaskStartedListener, OnTaskCancelledListener onTaskCancelledListener,
+                             OnTaskFinishedListener<V> onTaskFinishedListener) {
+        this.onTaskStartedListener = onTaskStartedListener;
+        this.onTaskCancelledListener = onTaskCancelledListener;
+        this.onTaskFinishedListener = onTaskFinishedListener;
     }
 
-    public ExternalAsyncTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<V> onParseTaskFinishedListener) {
-        this.onParseTaskStartedListener = onParseTaskStartedListener;
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    public ExternalAsyncTask(OnTaskStartedListener onTaskStartedListener, OnTaskFinishedListener<V> onTaskFinishedListener) {
+        this.onTaskStartedListener = onTaskStartedListener;
+        this.onTaskFinishedListener = onTaskFinishedListener;
     }
 
     public ExternalAsyncTask() { }
 
-    public void setOnParseTaskStartedListener(OnParseTaskStartedListener onParseTaskStartedListener) {
-        this.onParseTaskStartedListener = onParseTaskStartedListener;
+    public void setOnTaskStartedListener(OnTaskStartedListener onTaskStartedListener) {
+        this.onTaskStartedListener = onTaskStartedListener;
     }
 
-    public void setOnParseTaskCancelledListener(OnParseTaskCancelledListener onParseTaskCancelledListener) {
-        this.onParseTaskCancelledListener = onParseTaskCancelledListener;
+    public void setOnTaskCancelledListener(OnTaskCancelledListener onTaskCancelledListener) {
+        this.onTaskCancelledListener = onTaskCancelledListener;
     }
 
-    public void setOnParseTaskFinishedListener(OnParseTaskFinishedListener<V> onParseTaskFinishedListener) {
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    public void setOnTaskFinishedListener(OnTaskFinishedListener<V> onTaskFinishedListener) {
+        this.onTaskFinishedListener = onTaskFinishedListener;
     }
 
-    public interface OnParseTaskStartedListener {
-        void onParseStart();
+    public interface OnTaskStartedListener {
+        void onTaskStarted();
     }
 
-    public interface OnParseTaskCancelledListener {
-        void onParseCancel();
+    public interface OnTaskCancelledListener {
+        void onTaskCanceled();
     }
 
-    public interface OnParseTaskFinishedListener<V> {
-        void onParseFinish(V result);
+    public interface OnTaskFinishedListener<V> {
+        void onTaskFinished(V result);
     }
 }

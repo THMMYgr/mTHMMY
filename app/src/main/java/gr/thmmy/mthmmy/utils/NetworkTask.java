@@ -14,17 +14,17 @@ import timber.log.Timber;
 
 public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>> {
 
-    protected OnParseTaskFinishedListener<T> onParseTaskFinishedListener;
+    protected OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener;
 
-    public NetworkTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskCancelledListener onParseTaskCancelledListener,
-                             OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
-        super(onParseTaskStartedListener, onParseTaskCancelledListener, null);
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    public NetworkTask(OnTaskStartedListener onTaskStartedListener, OnTaskCancelledListener onTaskCancelledListener,
+                       OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener) {
+        super(onTaskStartedListener, onTaskCancelledListener, null);
+        this.onNetworkTaskFinishedListener = onNetworkTaskFinishedListener;
     }
 
-    public NetworkTask(OnParseTaskStartedListener onParseTaskStartedListener, OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
-        super(onParseTaskStartedListener, null);
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    public NetworkTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener) {
+        super(onTaskStartedListener, null);
+        this.onNetworkTaskFinishedListener = onNetworkTaskFinishedListener;
     }
 
     public NetworkTask() {}
@@ -49,7 +49,7 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         }
         try {
-            T data = performTask(Jsoup.parse(responseBodyString));
+            T data = performTask(Jsoup.parse(responseBodyString), response);
             int resultCode = getResultCode(response, data);
             return new Parcel<>(resultCode, data);
         } catch (ParseException pe) {
@@ -63,8 +63,8 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
 
     @Override
     protected void onPostExecute(Parcel<T> tParcel) {
-        if (onParseTaskFinishedListener != null)
-            onParseTaskFinishedListener.onParseFinish(tParcel.getResultCode(), tParcel.getData());
+        if (onNetworkTaskFinishedListener != null)
+            onNetworkTaskFinishedListener.onNetworkTaskFinished(tParcel.getResultCode(), tParcel.getData());
         else
             super.onPostExecute(tParcel);
     }
@@ -77,15 +77,15 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
         return client.newCall(request).execute();
     }
 
-    protected abstract T performTask(Document document);
+    protected abstract T performTask(Document document, Response response);
 
     protected abstract int getResultCode(Response response, T data);
 
-    public void setOnParseTaskFinishedListener(OnParseTaskFinishedListener<T> onParseTaskFinishedListener) {
-        this.onParseTaskFinishedListener = onParseTaskFinishedListener;
+    public void setOnNetworkTaskFinishedListener(OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener) {
+        this.onNetworkTaskFinishedListener = onNetworkTaskFinishedListener;
     }
 
-    public interface OnParseTaskFinishedListener<T> {
-        void onParseFinish(int resultCode, T data);
+    public interface OnNetworkTaskFinishedListener<T> {
+        void onNetworkTaskFinished(int resultCode, T data);
     }
 }
