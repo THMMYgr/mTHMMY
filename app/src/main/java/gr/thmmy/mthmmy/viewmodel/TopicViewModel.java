@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 
@@ -15,12 +18,18 @@ import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditResult;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReplyResult;
+import gr.thmmy.mthmmy.activities.topic.tasks.RemoveVoteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.ReplyTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.SubmitVoteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTaskResult;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
+import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
+import gr.thmmy.mthmmy.utils.NetworkTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
 
@@ -50,12 +59,16 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     //callbacks for topic activity
     private TopicTask.TopicTaskObserver topicTaskObserver;
-    private DeleteTask.OnParseTaskStartedListener deleteTaskStartedListener;
-    private DeleteTask.OnParseTaskFinishedListener<Void> deleteTaskFinishedListener;
+    private ExternalAsyncTask.OnTaskStartedListener deleteTaskStartedListener;
+    private NetworkTask.OnNetworkTaskFinishedListener<Void> deleteTaskFinishedListener;
     private ReplyTask.ReplyTaskCallbacks replyFinishListener;
     private PrepareForEditTask.PrepareForEditCallbacks prepareForEditCallbacks;
     private EditTask.EditTaskCallbacks editTaskCallbacks;
     private PrepareForReply.PrepareForReplyCallbacks prepareForReplyCallbacks;
+    private ExternalAsyncTask.OnTaskStartedListener voteTaskStartedListener;
+    private NetworkTask.OnNetworkTaskFinishedListener<Void> voteTaskFinishedListener;
+    private ExternalAsyncTask.OnTaskStartedListener removeVoteTaskStartedListener;
+    private NetworkTask.OnNetworkTaskFinishedListener<Void> removeVoteTaskFinishedListener;
 
     /**
      * Holds the value (index) of the page to be requested when a user interaction with bottom
@@ -66,7 +79,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private MutableLiveData<String> replyPageUrl = new MutableLiveData<>();
     private MutableLiveData<Integer> pageTopicId = new MutableLiveData<>();
     private MutableLiveData<String> topicTitle = new MutableLiveData<>();
-    private MutableLiveData<ArrayList<Post>> postsList = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<TopicItem>> topicItems = new MutableLiveData<>();
     private MutableLiveData<Integer> focusedPostIndex = new MutableLiveData<>();
     private MutableLiveData<TopicTask.ResultCode> topicTaskResultCode = new MutableLiveData<>();
     private MutableLiveData<String> topicTreeAndMods = new MutableLiveData<>();
@@ -91,7 +104,17 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         loadUrl(topicUrl);
     }
 
-    public void performPageChange() {
+    /**
+     * In contrasto to {@link TopicViewModel#reloadPage()} this method gets rid of any arguements
+     * in the url before refreshing
+     */
+    public void resetPage() {
+        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        Timber.i("Reseting page");
+        loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
+    }
+
+    public void loadPageIndicated() {
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
         int pageRequested = pageIndicatorIndex.getValue() - 1;
@@ -102,6 +125,35 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         } else {
             stopLoading();
         }
+    }
+
+    public void submitVote(LinearLayout optionsLayout) {
+        if (topicItems.getValue() == null) throw new NullPointerException("Topic task has not finished yet!");
+        ArrayList<Integer> votes = new ArrayList<>();
+        if (optionsLayout.getChildAt(0) instanceof RadioGroup) {
+            RadioGroup optionsRadioGroup = (RadioGroup) optionsLayout.getChildAt(0);
+            votes.add(optionsRadioGroup.getCheckedRadioButtonId());
+        } else if (optionsLayout.getChildAt(0) instanceof CheckBox) {
+            for (int i = 0; i < optionsLayout.getChildCount(); i++) {
+                if (((CheckBox) optionsLayout.getChildAt(i)).isChecked())
+                    votes.add(i);
+            }
+        }
+        int[] votesArray = new int[votes.size()];
+        for (int i = 0; i < votes.size(); i++) votesArray[i] = votes.get(i);
+        Poll poll = (Poll) topicItems.getValue().get(0);
+        SubmitVoteTask submitVoteTask = new SubmitVoteTask(votesArray);
+        submitVoteTask.setOnTaskStartedListener(voteTaskStartedListener);
+        submitVoteTask.setOnNetworkTaskFinishedListener(voteTaskFinishedListener);
+        submitVoteTask.execute(poll.getPollFormUrl(), poll.getSc());
+    }
+
+    public void removeVote() {
+        if (topicItems.getValue() == null) throw new NullPointerException("Topic task has not finished yet!");
+        RemoveVoteTask removeVoteTask = new RemoveVoteTask();
+        removeVoteTask.setOnTaskStartedListener(removeVoteTaskStartedListener);
+        removeVoteTask.setOnNetworkTaskFinishedListener(removeVoteTaskFinishedListener);
+        removeVoteTask.execute(((Poll) topicItems.getValue().get(0)).getRemoveVoteUrl());
     }
 
     public void prepareForReply() {
@@ -194,7 +246,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             replyPageUrl.setValue(result.getReplyPageUrl());
             topicTitle.setValue(result.getTopicTitle());
             pageIndicatorIndex.setValue(result.getCurrentPageIndex());
-            postsList.setValue(result.getNewPostsList());
+            topicItems.setValue(result.getNewPostsList());
             focusedPostIndex.setValue(result.getFocusedPostIndex());
             isUserExtraInfoVisibile.clear();
             for (int i = 0; i < result.getNewPostsList().size(); i++) {
@@ -223,7 +275,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() + step);
         } else
             pageIndicatorIndex.setValue(pageCount);
-        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) performPageChange();
+        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) loadPageIndicated();
     }
 
     public void decrementPageRequestValue(int step, boolean changePage) {
@@ -234,7 +286,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() - step);
         } else
             pageIndicatorIndex.setValue(1);
-        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) performPageChange();
+        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) loadPageIndicated();
     }
 
     public void setPageIndicatorIndex(int pageIndicatorIndex, boolean changePage) {
@@ -242,10 +294,27 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             throw new NullPointerException("No page has been loaded yet!");
         int oldIndicatorIndex = this.pageIndicatorIndex.getValue();
         this.pageIndicatorIndex.setValue(pageIndicatorIndex);
-        if (changePage && oldIndicatorIndex != this.pageIndicatorIndex.getValue()) performPageChange();
+        if (changePage && oldIndicatorIndex != this.pageIndicatorIndex.getValue()) loadPageIndicated();
     }
 
     // <-------------Just getters, setters and helper methods below here---------------->
+
+
+    public void setRemoveVoteTaskStartedListener(ExternalAsyncTask.OnTaskStartedListener removeVoteTaskStartedListener) {
+        this.removeVoteTaskStartedListener = removeVoteTaskStartedListener;
+    }
+
+    public void setRemoveVoteTaskFinishedListener(NetworkTask.OnNetworkTaskFinishedListener<Void> removeVoteTaskFinishedListener) {
+        this.removeVoteTaskFinishedListener = removeVoteTaskFinishedListener;
+    }
+
+    public void setVoteTaskStartedListener(ExternalAsyncTask.OnTaskStartedListener voteTaskStartedListener) {
+        this.voteTaskStartedListener = voteTaskStartedListener;
+    }
+
+    public void setVoteTaskFinishedListener(NetworkTask.OnNetworkTaskFinishedListener<Void> voteTaskFinishedListener) {
+        this.voteTaskFinishedListener = voteTaskFinishedListener;
+    }
 
     public MutableLiveData<String> getTopicViewers() {
         return topicViewers;
@@ -263,8 +332,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         return focusedPostIndex;
     }
 
-    public MutableLiveData<ArrayList<Post>> getPostsList() {
-        return postsList;
+    public MutableLiveData<ArrayList<TopicItem>> getTopicItems() {
+        return topicItems;
     }
 
     public MutableLiveData<String> getReplyPageUrl() {
@@ -315,11 +384,11 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
 
-    public void setDeleteTaskStartedListener(DeleteTask.OnParseTaskStartedListener deleteTaskStartedListener) {
+    public void setDeleteTaskStartedListener(ExternalAsyncTask.OnTaskStartedListener deleteTaskStartedListener) {
         this.deleteTaskStartedListener = deleteTaskStartedListener;
     }
 
-    public void setDeleteTaskFinishedListener(DeleteTask.OnParseTaskFinishedListener<Void> deleteTaskFinishedListener) {
+    public void setDeleteTaskFinishedListener(NetworkTask.OnNetworkTaskFinishedListener<Void> deleteTaskFinishedListener) {
         this.deleteTaskFinishedListener = deleteTaskFinishedListener;
     }
 
@@ -394,8 +463,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public int postCount() {
-        if (postsList.getValue() == null)
+        if (topicItems.getValue() == null)
             throw  new NullPointerException("No page has been loaded yet!");
-        return postsList.getValue().size();
+        return topicItems.getValue().size();
     }
 }

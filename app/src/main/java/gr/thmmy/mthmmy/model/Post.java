@@ -15,7 +15,7 @@ import java.util.Objects;
  * gender, number of posts, personal text and number of start to be described <b>in addition to
  * previous fields</b>.</p>
  */
-public class Post {
+public class Post extends TopicItem {
     public static final int TYPE_POST = 0;
     public static final int TYPE_QUICK_REPLY = 1;
     public static final int TYPE_EDIT = 2;

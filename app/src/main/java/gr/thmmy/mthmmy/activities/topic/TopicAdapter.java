@@ -15,9 +15,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,16 +29,26 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,9 +58,11 @@ import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.editorview.EditorView;
 import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
+import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
+import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
@@ -76,16 +90,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
     private final OnPostFocusChangeListener postFocusListener;
     private final EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner;
-    private final List<Post> postsList;
+    private final List<TopicItem> topicItems;
     private TopicViewModel viewModel;
 
     /**
      * @param context   the context of the {@link RecyclerView}
-     * @param postsList List of {@link Post} objects to use
+     * @param topicItems List of {@link Post} objects to use
      */
-    TopicAdapter(TopicActivity context, List<Post> postsList) {
+    TopicAdapter(TopicActivity context, List<TopicItem> topicItems) {
         this.context = context;
-        this.postsList = postsList;
+        this.topicItems = topicItems;
         this.postFocusListener = context;
         this.emojiKeyboardOwner = context;
 
@@ -96,7 +110,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return postsList.get(position).getPostType();
+        if (topicItems.get(position) instanceof Poll) return Poll.TYPE_POLL;
+        return ((Post) topicItems.get(position)).getPostType();
     }
 
     @NonNull
@@ -132,6 +147,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             editPostEdittext.requestFocus();
 
             return new EditMessageViewHolder(view);
+        } else if (viewType == Poll.TYPE_POLL) {
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.activity_topic_poll, parent, false);
+            return new PollViewHolder(view);
         } else {
             throw new IllegalArgumentException("Unknown view type");
         }
@@ -141,414 +160,496 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder currentHolder,
                                  final int position) {
-        if (currentHolder instanceof PostViewHolder) {
-            final Post currentPost = postsList.get(position);
-            final PostViewHolder holder = (PostViewHolder) currentHolder;
-
-            //Post's WebView parameters
-            holder.post.setClickable(true);
-            holder.post.setWebViewClient(new LinkLauncher());
-
-            //Avoids errors about layout having 0 width/height
-            holder.thumbnail.setMinimumWidth(1);
-            holder.thumbnail.setMinimumHeight(1);
-            //Sets thumbnail size
-            holder.thumbnail.setMaxWidth(THUMBNAIL_SIZE);
-            holder.thumbnail.setMaxHeight(THUMBNAIL_SIZE);
-
-            //noinspection ConstantConditions
-            Picasso.with(context)
-                    .load(currentPost.getThumbnailURL())
-                    .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                    .centerCrop()
-                    .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                    .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                    .transform(new CircleTransform())
-                    .into(holder.thumbnail);
-
-            //Sets username,submit date, index number, subject, post's and attached files texts
-            holder.username.setText(currentPost.getAuthor());
-            holder.postDate.setText(currentPost.getPostDate());
-            if (currentPost.getPostNumber() != 0)
-                holder.postNum.setText(context.getString(
-                        R.string.user_number_of_posts, currentPost.getPostNumber()));
-            else
-                holder.postNum.setText("");
-            holder.subject.setText(currentPost.getSubject());
-            holder.post.loadDataWithBaseURL("file:///android_asset/", currentPost.getContent(), "text/html", "UTF-8", null);
-            if ((currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0)
-                    || (currentPost.getLastEdit() != null)) {
-                holder.bodyFooterDivider.setVisibility(View.VISIBLE);
-                holder.postFooter.removeAllViews();
-
-                if (currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0) {
-                    int filesTextColor;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        filesTextColor = context.getResources().getColor(R.color.accent, null);
-                    } else //noinspection deprecation
-                        filesTextColor = context.getResources().getColor(R.color.accent);
-
-                    for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
-                        final TextView attached = new TextView(context);
-                        attached.setTextSize(10f);
-                        attached.setClickable(true);
-                        attached.setTypeface(Typeface.createFromAsset(context.getAssets()
-                                , "fonts/fontawesome-webfont.ttf"));
-                        attached.setText(faIconFromFilename(attachedFile.getFilename()) + " "
-                                + attachedFile.getFilename() + attachedFile.getFileInfo());
-                        attached.setTextColor(filesTextColor);
-                        attached.setPadding(0, 3, 0, 3);
-
-                        attached.setOnClickListener(view -> ((BaseActivity) context).downloadFile(attachedFile));
-
-                        holder.postFooter.addView(attached);
-                    }
+        if (currentHolder.getItemViewType() == Poll.TYPE_POLL) {
+            Poll poll = (Poll) topicItems.get(position);
+            Poll.Entry[] entries = poll.getEntries();
+            PollViewHolder holder = (PollViewHolder) currentHolder;
+            holder.question.setText(poll.getQuestion());
+            holder.optionsLayout.removeAllViews();
+            if (poll.getAvailableVoteCount() > 1) {
+                for (Poll.Entry entry : entries) {
+                    CheckBox checkBox = new CheckBox(context);
+                    checkBox.setText(entry.getEntryName());
+                    checkBox.setTextColor(context.getResources().getColor(R.color.primary_text));
+                    holder.optionsLayout.addView(checkBox);
                 }
-                if (currentPost.getLastEdit() != null && currentPost.getLastEdit().length() > 0) {
-                    int lastEditTextColor;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        lastEditTextColor = context.getResources().getColor(R.color.white, null);
-                    } else //noinspection deprecation
-                        lastEditTextColor = context.getResources().getColor(R.color.white);
-
-                    final TextView lastEdit = new TextView(context);
-                    lastEdit.setTextSize(12f);
-                    lastEdit.setText(currentPost.getLastEdit());
-                    lastEdit.setTextColor(lastEditTextColor);
-                    lastEdit.setPadding(0, 3, 0, 3);
-                    holder.postFooter.addView(lastEdit);
+                holder.voteChart.setVisibility(View.GONE);
+                holder.optionsLayout.setVisibility(View.VISIBLE);
+            } else if (poll.getAvailableVoteCount() == 1) {
+                RadioGroup radioGroup = new RadioGroup(context);
+                for (int i = 0; i < entries.length; i++) {
+                    RadioButton radioButton = new RadioButton(context);
+                    radioButton.setId(i);
+                    radioButton.setText(entries[i].getEntryName());
+                    radioButton.setTextColor(context.getResources().getColor(R.color.primary_text));
+                    radioGroup.addView(radioButton);
                 }
+                holder.optionsLayout.addView(radioGroup);
+                holder.voteChart.setVisibility(View.GONE);
+                holder.optionsLayout.setVisibility(View.VISIBLE);
             } else {
-                holder.bodyFooterDivider.setVisibility(View.GONE);
-                holder.postFooter.removeAllViews();
+                //Showing results
+                holder.optionsLayout.setVisibility(View.GONE);
+                List<BarEntry> valuesToCompare = new ArrayList<>();
+                for (int i = 0; i < entries.length; i++) {
+                    valuesToCompare.add(new BarEntry(i, entries[i].getVotes()));
+                }
+                BarDataSet data = new BarDataSet(valuesToCompare, "Vote Results");
+                data.setColor(context.getResources().getColor(R.color.accent));
+
+                YAxis yAxisLeft = holder.voteChart.getAxisLeft();
+                yAxisLeft.setGranularity(1f);
+                yAxisLeft.setTextColor(context.getResources().getColor(R.color.primary_text));
+                yAxisLeft.setAxisMinimum(0);
+                YAxis yAxisRight = holder.voteChart.getAxisRight();
+                yAxisRight.setEnabled(false);
+
+                XAxis xAxis = holder.voteChart.getXAxis();
+                xAxis.setValueFormatter((value, axis) -> entries[(int) value].getEntryName());
+                xAxis.setTextColor(context.getResources().getColor(R.color.primary_text));
+                xAxis.setGranularity(1f);
+                xAxis.setDrawGridLines(false);
+                xAxis.setDrawAxisLine(false);
+                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                BarData barData = new BarData(data);
+                barData.setValueTextColor(context.getResources().getColor(R.color.accent));
+                holder.voteChart.setData(barData);
+                holder.voteChart.getLegend().setEnabled(false);
+                holder.voteChart.getDescription().setEnabled(false);
+                int chartHeightdp = 10 + 30 * entries.length;
+                DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+                holder.voteChart.setMinimumHeight((int) (chartHeightdp * (metrics.densityDpi / 160f)));
+                holder.voteChart.invalidate();
+                holder.voteChart.setVisibility(View.VISIBLE);
             }
+            if (poll.getRemoveVoteUrl() != null) {
+                holder.removeVotesButton.setOnClickListener(v -> viewModel.removeVote());
+                holder.removeVotesButton.setVisibility(View.VISIBLE);
+            } else holder.removeVotesButton.setVisibility(View.GONE);
+            if (poll.getShowVoteResultsUrl() != null) {
+                holder.showPollResultsButton.setOnClickListener(v -> viewModel.loadUrl(poll.getShowVoteResultsUrl()));
+                holder.showPollResultsButton.setVisibility(View.VISIBLE);
+            } else holder.showPollResultsButton.setVisibility(View.GONE);
 
-            String mSpecialRank, mRank, mGender, mNumberOfPosts, mPersonalText;
-            int mNumberOfStars, mUserColor;
+            if (poll.getShowOptionsUrl() != null) {
+                holder.hidePollResultsButton.setOnClickListener(v -> viewModel.loadUrl(poll.getShowOptionsUrl()));
+                holder.hidePollResultsButton.setVisibility(View.VISIBLE);
+            } else holder.hidePollResultsButton.setVisibility(View.GONE);
+            if (poll.getPollFormUrl() != null) {
+                holder.submitButton.setOnClickListener(v -> viewModel.submitVote(holder.optionsLayout));
+                holder.submitButton.setVisibility(View.VISIBLE);
+            } else holder.submitButton.setVisibility(View.GONE);
+        } else {
+            Post currentPost = (Post) topicItems.get(position);
+            if (currentHolder instanceof PostViewHolder) {
+                final PostViewHolder holder = (PostViewHolder) currentHolder;
 
-            if (!currentPost.isDeleted()) { //Sets user's extra info
-                mSpecialRank = currentPost.getSpecialRank();
-                mRank = currentPost.getRank();
-                mGender = currentPost.getGender();
-                mNumberOfPosts = currentPost.getNumberOfPosts();
-                mPersonalText = currentPost.getPersonalText();
-                mNumberOfStars = currentPost.getNumberOfStars();
-            } else {
-                mSpecialRank = null;
-                mRank = null;
-                mGender = null;
-                mNumberOfPosts = null;
-                mPersonalText = null;
-                mNumberOfStars = 0;
-            }
-            mUserColor = currentPost.getUserColor();
+                //Post's WebView parameters
+                holder.post.setClickable(true);
+                holder.post.setWebViewClient(new LinkLauncher());
 
-            if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
-                holder.specialRank.setText(mSpecialRank);
-                holder.specialRank.setVisibility(View.VISIBLE);
-            } else
-                holder.specialRank.setVisibility(View.GONE);
-            if (!Objects.equals(mRank, "") && mRank != null) {
-                holder.rank.setText(mRank);
-                holder.rank.setVisibility(View.VISIBLE);
-            } else
-                holder.rank.setVisibility(View.GONE);
-            if (!Objects.equals(mGender, "") && mGender != null) {
-                holder.gender.setText(mGender);
-                holder.gender.setVisibility(View.VISIBLE);
-            } else
-                holder.gender.setVisibility(View.GONE);
-            if (!Objects.equals(mNumberOfPosts, "") && mNumberOfPosts != null) {
-                holder.numberOfPosts.setText(mNumberOfPosts);
-                holder.numberOfPosts.setVisibility(View.VISIBLE);
-            } else
-                holder.numberOfPosts.setVisibility(View.GONE);
-            if (!Objects.equals(mPersonalText, "") && mPersonalText != null) {
-                holder.personalText.setText("\"" + mPersonalText + "\"");
-                holder.personalText.setVisibility(View.VISIBLE);
-            } else
-                holder.personalText.setVisibility(View.GONE);
-            if (mUserColor != USER_COLOR_YELLOW) {
-                holder.username.setTextColor(mUserColor);
-            } else {
-                holder.username.setTextColor(USER_COLOR_WHITE);
-            }
-            if (mNumberOfStars > 0) {
-                holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
-                        , "fonts/fontawesome-webfont.ttf"));
+                //Avoids errors about layout having 0 width/height
+                holder.thumbnail.setMinimumWidth(1);
+                holder.thumbnail.setMinimumHeight(1);
+                //Sets thumbnail size
+                holder.thumbnail.setMaxWidth(THUMBNAIL_SIZE);
+                holder.thumbnail.setMaxHeight(THUMBNAIL_SIZE);
 
-                String aStar = context.getResources().getString(R.string.fa_icon_star);
-                StringBuilder usersStars = new StringBuilder();
-                for (int i = 0; i < mNumberOfStars; ++i) {
-                    usersStars.append(aStar);
-                }
-                holder.stars.setText(usersStars.toString());
-                holder.stars.setTextColor(mUserColor);
-                holder.stars.setVisibility(View.VISIBLE);
-            } else
-                holder.stars.setVisibility(View.GONE);
+                //noinspection ConstantConditions
+                Picasso.with(context)
+                        .load(currentPost.getThumbnailURL())
+                        .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                        .centerCrop()
+                        .error(ResourcesCompat.getDrawable(context.getResources()
+                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                        .placeholder(ResourcesCompat.getDrawable(context.getResources()
+                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                        .transform(new CircleTransform())
+                        .into(holder.thumbnail);
 
-            if (currentPost.isUserMentionedInPost()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.mention_card, null));
-                } else //noinspection deprecation
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.mention_card));
-            } else if (mUserColor == TopicParser.USER_COLOR_PINK) {
-                //Special card for special member of the month!
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.member_of_the_month_card, null));
-                } else //noinspection deprecation
-                    holder.cardChildLinear.setBackground(context.getResources().
-                            getDrawable(R.drawable.member_of_the_month_card));
-            } else holder.cardChildLinear.setBackground(null);
-
-            //Avoid's view's visibility recycling
-            if (!currentPost.isDeleted() && viewModel.isUserExtraInfoVisible(holder.getAdapterPosition())) {
-                holder.userExtraInfo.setVisibility(View.VISIBLE);
-                holder.userExtraInfo.setAlpha(1.0f);
-
-                holder.username.setMaxLines(Integer.MAX_VALUE);
-                holder.username.setEllipsize(null);
-
-                holder.subject.setTextColor(Color.parseColor("#FFFFFF"));
-                holder.subject.setMaxLines(Integer.MAX_VALUE);
-                holder.subject.setEllipsize(null);
-            } else {
-                holder.userExtraInfo.setVisibility(View.GONE);
-                holder.userExtraInfo.setAlpha(0.0f);
-
-                holder.username.setMaxLines(1);
-                holder.username.setEllipsize(TextUtils.TruncateAt.END);
-
-                holder.subject.setTextColor(Color.parseColor("#757575"));
-                holder.subject.setMaxLines(1);
-                holder.subject.setEllipsize(TextUtils.TruncateAt.END);
-            }
-            if (!currentPost.isDeleted()) {
-                //Sets graphics behavior
-                holder.thumbnail.setOnClickListener(view -> {
-                    //Clicking the thumbnail opens user's profile
-                    Intent intent = new Intent(context, ProfileActivity.class);
-                    Bundle extras = new Bundle();
-                    extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
-                    if (currentPost.getThumbnailURL() == null)
-                        extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
-                    else
-                        extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailURL());
-                    extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
-                    intent.putExtras(extras);
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                });
-                holder.header.setOnClickListener(v -> {
-                    //Clicking the header makes it expand/collapse
-                    viewModel.toggleUserInfo(holder.getAdapterPosition());
-                    TopicAnimations.animateUserExtraInfoVisibility(holder.username,
-                            holder.subject, Color.parseColor("#FFFFFF"),
-                            Color.parseColor("#757575"), holder.userExtraInfo);
-                });
-                //Clicking the expanded part of a header (the extra info) makes it collapse
-                holder.userExtraInfo.setOnClickListener(v -> {
-                    viewModel.hideUserInfo(holder.getAdapterPosition());
-                    TopicAnimations.animateUserExtraInfoVisibility(holder.username,
-                            holder.subject, Color.parseColor("#FFFFFF"),
-                            Color.parseColor("#757575"), (LinearLayout) v);
-                });
-            } else {
-                holder.header.setOnClickListener(null);
-                holder.userExtraInfo.setOnClickListener(null);
-            }
-
-            holder.overflowButton.setOnClickListener(view -> {
-                //Inflates the popup menu content
-                LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                if (layoutInflater == null) {
-                    return;
-                }
-                View popUpContent = layoutInflater.inflate(R.layout.activity_topic_overflow_menu, null);
-
-                //Creates the PopupWindow
-                final PopupWindow popUp = new PopupWindow(holder.overflowButton.getContext());
-                popUp.setContentView(popUpContent);
-                popUp.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
-                popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
-                popUp.setFocusable(true);
-
-                TextView shareButton = popUpContent.findViewById(R.id.post_share_button);
-                Drawable shareStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_share_white_24dp);
-                shareButton.setCompoundDrawablesRelativeWithIntrinsicBounds(shareStartDrawable, null, null, null);
-                shareButton.setOnClickListener(v -> {
-                    Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                    sendIntent.setType("text/plain");
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, currentPost.getPostURL());
-                    context.startActivity(Intent.createChooser(sendIntent, "Share via"));
-                    popUp.dismiss();
-                });
-
-                final TextView editPostButton = popUpContent.findViewById(R.id.edit_post);
-                Drawable editStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_edit_white_24dp);
-                editPostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(editStartDrawable, null, null, null);
-
-                if (viewModel.isEditingPost() || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
-                    editPostButton.setVisibility(View.GONE);
-                } else {
-                    editPostButton.setOnClickListener(v -> {
-                        viewModel.prepareForEdit(position, postsList.get(position).getPostEditURL());
-                        popUp.dismiss();
-                    });
-                }
-
-                TextView deletePostButton = popUpContent.findViewById(R.id.delete_post);
-
-                if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")) {
-                    deletePostButton.setVisibility(View.GONE);
-                } else {
-                    Drawable deleteStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_delete_white_24dp);
-                    deletePostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(deleteStartDrawable, null, null, null);
-                    popUpContent.findViewById(R.id.delete_post).setOnClickListener(v -> {
-                        new AlertDialog.Builder(holder.overflowButton.getContext())
-                                .setTitle("Delete post")
-                                .setMessage("Do you really want to delete this post?")
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> viewModel.deletePost(currentPost.getPostDeleteURL()))
-                                .setNegativeButton(android.R.string.no, null).show();
-                        popUp.dismiss();
-                    });
-                }
-
-                //Displays the popup
-                popUp.showAsDropDown(holder.overflowButton);
-            });
-
-            //noinspection PointlessBooleanExpression,ConstantConditions
-            if (!BaseActivity.getSessionManager().isLoggedIn() || !viewModel.canReply()) {
-                holder.quoteToggle.setVisibility(View.GONE);
-            } else {
-                if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
+                //Sets username,submit date, index number, subject, post's and attached files texts
+                holder.username.setText(currentPost.getAuthor());
+                holder.postDate.setText(currentPost.getPostDate());
+                if (currentPost.getPostNumber() != 0)
+                    holder.postNum.setText(context.getString(
+                            R.string.user_number_of_posts, currentPost.getPostNumber()));
                 else
-                    holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_24dp);
-                //Sets graphics behavior
-                holder.quoteToggle.setOnClickListener(view -> {
-                    viewModel.postIndexToggle(currentPost.getPostIndex());
+                    holder.postNum.setText("");
+                holder.subject.setText(currentPost.getSubject());
+                holder.post.loadDataWithBaseURL("file:///android_asset/", currentPost.getContent(), "text/html", "UTF-8", null);
+                if ((currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0)
+                        || (currentPost.getLastEdit() != null)) {
+                    holder.bodyFooterDivider.setVisibility(View.VISIBLE);
+                    holder.postFooter.removeAllViews();
+
+                    if (currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0) {
+                        int filesTextColor;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            filesTextColor = context.getResources().getColor(R.color.accent, null);
+                        } else //noinspection deprecation
+                            filesTextColor = context.getResources().getColor(R.color.accent);
+
+                        for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
+                            final TextView attached = new TextView(context);
+                            attached.setTextSize(10f);
+                            attached.setClickable(true);
+                            attached.setTypeface(Typeface.createFromAsset(context.getAssets()
+                                    , "fonts/fontawesome-webfont.ttf"));
+                            attached.setText(faIconFromFilename(attachedFile.getFilename()) + " "
+                                    + attachedFile.getFilename() + attachedFile.getFileInfo());
+                            attached.setTextColor(filesTextColor);
+                            attached.setPadding(0, 3, 0, 3);
+
+                            attached.setOnClickListener(view -> ((BaseActivity) context).downloadFile(attachedFile));
+
+                            holder.postFooter.addView(attached);
+                        }
+                    }
+                    if (currentPost.getLastEdit() != null && currentPost.getLastEdit().length() > 0) {
+                        int lastEditTextColor;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            lastEditTextColor = context.getResources().getColor(R.color.white, null);
+                        } else //noinspection deprecation
+                            lastEditTextColor = context.getResources().getColor(R.color.white);
+
+                        final TextView lastEdit = new TextView(context);
+                        lastEdit.setTextSize(12f);
+                        lastEdit.setText(currentPost.getLastEdit());
+                        lastEdit.setTextColor(lastEditTextColor);
+                        lastEdit.setPadding(0, 3, 0, 3);
+                        holder.postFooter.addView(lastEdit);
+                    }
+                } else {
+                    holder.bodyFooterDivider.setVisibility(View.GONE);
+                    holder.postFooter.removeAllViews();
+                }
+
+                String mSpecialRank, mRank, mGender, mNumberOfPosts, mPersonalText;
+                int mNumberOfStars, mUserColor;
+
+                if (!currentPost.isDeleted()) { //Sets user's extra info
+                    mSpecialRank = currentPost.getSpecialRank();
+                    mRank = currentPost.getRank();
+                    mGender = currentPost.getGender();
+                    mNumberOfPosts = currentPost.getNumberOfPosts();
+                    mPersonalText = currentPost.getPersonalText();
+                    mNumberOfStars = currentPost.getNumberOfStars();
+                } else {
+                    mSpecialRank = null;
+                    mRank = null;
+                    mGender = null;
+                    mNumberOfPosts = null;
+                    mPersonalText = null;
+                    mNumberOfStars = 0;
+                }
+                mUserColor = currentPost.getUserColor();
+
+                if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
+                    holder.specialRank.setText(mSpecialRank);
+                    holder.specialRank.setVisibility(View.VISIBLE);
+                } else
+                    holder.specialRank.setVisibility(View.GONE);
+                if (!Objects.equals(mRank, "") && mRank != null) {
+                    holder.rank.setText(mRank);
+                    holder.rank.setVisibility(View.VISIBLE);
+                } else
+                    holder.rank.setVisibility(View.GONE);
+                if (!Objects.equals(mGender, "") && mGender != null) {
+                    holder.gender.setText(mGender);
+                    holder.gender.setVisibility(View.VISIBLE);
+                } else
+                    holder.gender.setVisibility(View.GONE);
+                if (!Objects.equals(mNumberOfPosts, "") && mNumberOfPosts != null) {
+                    holder.numberOfPosts.setText(mNumberOfPosts);
+                    holder.numberOfPosts.setVisibility(View.VISIBLE);
+                } else
+                    holder.numberOfPosts.setVisibility(View.GONE);
+                if (!Objects.equals(mPersonalText, "") && mPersonalText != null) {
+                    holder.personalText.setText("\"" + mPersonalText + "\"");
+                    holder.personalText.setVisibility(View.VISIBLE);
+                } else
+                    holder.personalText.setVisibility(View.GONE);
+                if (mUserColor != USER_COLOR_YELLOW) {
+                    holder.username.setTextColor(mUserColor);
+                } else {
+                    holder.username.setTextColor(USER_COLOR_WHITE);
+                }
+                if (mNumberOfStars > 0) {
+                    holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
+                            , "fonts/fontawesome-webfont.ttf"));
+
+                    String aStar = context.getResources().getString(R.string.fa_icon_star);
+                    StringBuilder usersStars = new StringBuilder();
+                    for (int i = 0; i < mNumberOfStars; ++i) {
+                        usersStars.append(aStar);
+                    }
+                    holder.stars.setText(usersStars.toString());
+                    holder.stars.setTextColor(mUserColor);
+                    holder.stars.setVisibility(View.VISIBLE);
+                } else
+                    holder.stars.setVisibility(View.GONE);
+
+                if (currentPost.isUserMentionedInPost()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        holder.cardChildLinear.setBackground(context.getResources().
+                                getDrawable(R.drawable.mention_card, null));
+                    } else //noinspection deprecation
+                        holder.cardChildLinear.setBackground(context.getResources().
+                                getDrawable(R.drawable.mention_card));
+                } else if (mUserColor == TopicParser.USER_COLOR_PINK) {
+                    //Special card for special member of the month!
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        holder.cardChildLinear.setBackground(context.getResources().
+                                getDrawable(R.drawable.member_of_the_month_card, null));
+                    } else //noinspection deprecation
+                        holder.cardChildLinear.setBackground(context.getResources().
+                                getDrawable(R.drawable.member_of_the_month_card));
+                } else holder.cardChildLinear.setBackground(null);
+
+                //Avoid's view's visibility recycling
+                if (!currentPost.isDeleted() && viewModel.isUserExtraInfoVisible(holder.getAdapterPosition())) {
+                    holder.userExtraInfo.setVisibility(View.VISIBLE);
+                    holder.userExtraInfo.setAlpha(1.0f);
+
+                    holder.username.setMaxLines(Integer.MAX_VALUE);
+                    holder.username.setEllipsize(null);
+
+                    holder.subject.setTextColor(Color.parseColor("#FFFFFF"));
+                    holder.subject.setMaxLines(Integer.MAX_VALUE);
+                    holder.subject.setEllipsize(null);
+                } else {
+                    holder.userExtraInfo.setVisibility(View.GONE);
+                    holder.userExtraInfo.setAlpha(0.0f);
+
+                    holder.username.setMaxLines(1);
+                    holder.username.setEllipsize(TextUtils.TruncateAt.END);
+
+                    holder.subject.setTextColor(Color.parseColor("#757575"));
+                    holder.subject.setMaxLines(1);
+                    holder.subject.setEllipsize(TextUtils.TruncateAt.END);
+                }
+                if (!currentPost.isDeleted()) {
+                    //Sets graphics behavior
+                    holder.thumbnail.setOnClickListener(view -> {
+                        //Clicking the thumbnail opens user's profile
+                        Intent intent = new Intent(context, ProfileActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_PROFILE_URL, currentPost.getProfileURL());
+                        if (currentPost.getThumbnailURL() == null)
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                        else
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPost.getThumbnailURL());
+                        extras.putString(BUNDLE_PROFILE_USERNAME, currentPost.getAuthor());
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    });
+                    holder.header.setOnClickListener(v -> {
+                        //Clicking the header makes it expand/collapse
+                        viewModel.toggleUserInfo(holder.getAdapterPosition());
+                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                                holder.subject, Color.parseColor("#FFFFFF"),
+                                Color.parseColor("#757575"), holder.userExtraInfo);
+                    });
+                    //Clicking the expanded part of a header (the extra info) makes it collapse
+                    holder.userExtraInfo.setOnClickListener(v -> {
+                        viewModel.hideUserInfo(holder.getAdapterPosition());
+                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                                holder.subject, Color.parseColor("#FFFFFF"),
+                                Color.parseColor("#757575"), (LinearLayout) v);
+                    });
+                } else {
+                    holder.header.setOnClickListener(null);
+                    holder.userExtraInfo.setOnClickListener(null);
+                }
+
+                holder.overflowButton.setOnClickListener(view -> {
+                    //Inflates the popup menu content
+                    LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    if (layoutInflater == null) {
+                        return;
+                    }
+                    View popUpContent = layoutInflater.inflate(R.layout.activity_topic_overflow_menu, null);
+
+                    //Creates the PopupWindow
+                    final PopupWindow popUp = new PopupWindow(holder.overflowButton.getContext());
+                    popUp.setContentView(popUpContent);
+                    popUp.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
+                    popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
+                    popUp.setFocusable(true);
+
+                    TextView shareButton = popUpContent.findViewById(R.id.post_share_button);
+                    Drawable shareStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_share_white_24dp);
+                    shareButton.setCompoundDrawablesRelativeWithIntrinsicBounds(shareStartDrawable, null, null, null);
+                    shareButton.setOnClickListener(v -> {
+                        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                        sendIntent.setType("text/plain");
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, currentPost.getPostURL());
+                        context.startActivity(Intent.createChooser(sendIntent, "Share via"));
+                        popUp.dismiss();
+                    });
+
+                    final TextView editPostButton = popUpContent.findViewById(R.id.edit_post);
+                    Drawable editStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_edit_white_24dp);
+                    editPostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(editStartDrawable, null, null, null);
+
+                    if (viewModel.isEditingPost() || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
+                        editPostButton.setVisibility(View.GONE);
+                    } else {
+                        editPostButton.setOnClickListener(v -> {
+                            viewModel.prepareForEdit(position, currentPost.getPostEditURL());
+                            popUp.dismiss();
+                        });
+                    }
+
+                    TextView deletePostButton = popUpContent.findViewById(R.id.delete_post);
+
+                    if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")) {
+                        deletePostButton.setVisibility(View.GONE);
+                    } else {
+                        Drawable deleteStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_delete_white_24dp);
+                        deletePostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(deleteStartDrawable, null, null, null);
+                        popUpContent.findViewById(R.id.delete_post).setOnClickListener(v -> {
+                            new AlertDialog.Builder(holder.overflowButton.getContext())
+                                    .setTitle("Delete post")
+                                    .setMessage("Do you really want to delete this post?")
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> viewModel.deletePost(currentPost.getPostDeleteURL()))
+                                    .setNegativeButton(android.R.string.no, null).show();
+                            popUp.dismiss();
+                        });
+                    }
+
+                    //Displays the popup
+                    popUp.showAsDropDown(holder.overflowButton);
+                });
+
+                //noinspection PointlessBooleanExpression,ConstantConditions
+                if (!BaseActivity.getSessionManager().isLoggedIn() || !viewModel.canReply()) {
+                    holder.quoteToggle.setVisibility(View.GONE);
+                } else {
                     if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
                         holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                     else
                         holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_24dp);
-                });
-            }
-        } else if (currentHolder instanceof QuickReplyViewHolder) {
-            final QuickReplyViewHolder holder = (QuickReplyViewHolder) currentHolder;
+                    //Sets graphics behavior
+                    holder.quoteToggle.setOnClickListener(view -> {
+                        viewModel.postIndexToggle(currentPost.getPostIndex());
+                        if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
+                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
+                        else
+                            holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_24dp);
+                    });
+                }
+            } else if (currentHolder instanceof QuickReplyViewHolder) {
+                final QuickReplyViewHolder holder = (QuickReplyViewHolder) currentHolder;
 
-            //noinspection ConstantConditions
-            Picasso.with(context)
-                    .load(getSessionManager().getAvatarLink())
-                    .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                    .centerCrop()
-                    .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                    .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                    .transform(new CircleTransform())
-                    .into(holder.thumbnail);
-            holder.username.setText(getSessionManager().getUsername());
-            holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
-            holder.quickReplySubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
-            holder.quickReplySubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                //noinspection ConstantConditions
+                Picasso.with(context)
+                        .load(getSessionManager().getAvatarLink())
+                        .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                        .centerCrop()
+                        .error(ResourcesCompat.getDrawable(context.getResources()
+                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                        .placeholder(ResourcesCompat.getDrawable(context.getResources()
+                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                        .transform(new CircleTransform())
+                        .into(holder.thumbnail);
+                holder.username.setText(getSessionManager().getUsername());
+                holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
+                holder.quickReplySubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
+                holder.quickReplySubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
-            holder.replyEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
-            InputConnection ic = holder.replyEditor.getInputConnection();
-            emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
-            holder.replyEditor.updateEmojiKeyboardVisibility();
-            holder.replyEditor.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
-                InputConnection ic12 = holder.replyEditor.getInputConnection();
-                emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic12);
+                holder.replyEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
+                InputConnection ic = holder.replyEditor.getInputConnection();
+                emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
                 holder.replyEditor.updateEmojiKeyboardVisibility();
-            });
+                holder.replyEditor.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
+                    InputConnection ic12 = holder.replyEditor.getInputConnection();
+                    emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic12);
+                    holder.replyEditor.updateEmojiKeyboardVisibility();
+                });
 
-            holder.replyEditor.setText(viewModel.getBuildedQuotes());
-            holder.replyEditor.setOnSubmitListener(view -> {
-                if (holder.quickReplySubject.getText().toString().isEmpty()) return;
-                if (holder.replyEditor.getText().toString().isEmpty()) {
-                    holder.replyEditor.setError("Required");
-                    return;
+                holder.replyEditor.setText(viewModel.getBuildedQuotes());
+                holder.replyEditor.setOnSubmitListener(view -> {
+                    if (holder.quickReplySubject.getText().toString().isEmpty()) return;
+                    if (holder.replyEditor.getText().toString().isEmpty()) {
+                        holder.replyEditor.setError("Required");
+                        return;
+                    }
+                    InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    holder.itemView.setAlpha(0.5f);
+                    holder.itemView.setEnabled(false);
+                    emojiKeyboardOwner.setEmojiKeyboardVisible(false);
+
+                    viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
+                            holder.replyEditor.getText().toString());
+                });
+                holder.replyEditor.setOnClickListener(view -> holder.replyEditor.setError(null));
+
+                if (backPressHidden) {
+                    holder.replyEditor.requestFocus();
+                    backPressHidden = false;
                 }
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                holder.itemView.setAlpha(0.5f);
-                holder.itemView.setEnabled(false);
-                emojiKeyboardOwner.setEmojiKeyboardVisible(false);
+            } else if (currentHolder instanceof EditMessageViewHolder) {
+                final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 
-                viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
-                        holder.replyEditor.getText().toString());
-            });
-            holder.replyEditor.setOnClickListener(view -> holder.replyEditor.setError(null));
+                //noinspection ConstantConditions
+                Picasso.with(context)
+                        .load(getSessionManager().getAvatarLink())
+                        .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                        .centerCrop()
+                        .error(ResourcesCompat.getDrawable(context.getResources()
+                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                        .placeholder(ResourcesCompat.getDrawable(context.getResources()
+                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                        .transform(new CircleTransform())
+                        .into(holder.thumbnail);
+                holder.username.setText(getSessionManager().getUsername());
+                holder.editSubject.setText(currentPost.getSubject());
+                holder.editSubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
+                holder.editSubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
-            if (backPressHidden) {
-                holder.replyEditor.requestFocus();
-                backPressHidden = false;
-            }
-        } else if (currentHolder instanceof EditMessageViewHolder) {
-            final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
+                holder.editEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
+                InputConnection ic = holder.editEditor.getInputConnection();
+                emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
+                holder.editEditor.updateEmojiKeyboardVisibility();
+                holder.editEditor.setText(viewModel.getPostBeingEditedText());
+                holder.editEditor.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
+                    if (hasFocus) {
+                        InputConnection ic1 = holder.editEditor.getInputConnection();
+                        emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic1);
+                        holder.editEditor.updateEmojiKeyboardVisibility();
+                    }
+                });
+                holder.editEditor.setOnSubmitListener(view -> {
+                    if (holder.editSubject.getText().toString().isEmpty()) return;
+                    if (holder.editEditor.getText().toString().isEmpty()) {
+                        holder.editEditor.setError("Required");
+                        return;
+                    }
+                    InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    holder.itemView.setAlpha(0.5f);
+                    holder.itemView.setEnabled(false);
+                    emojiKeyboardOwner.setEmojiKeyboardVisible(false);
 
-            //noinspection ConstantConditions
-            Picasso.with(context)
-                    .load(getSessionManager().getAvatarLink())
-                    .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                    .centerCrop()
-                    .error(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                    .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                    .transform(new CircleTransform())
-                    .into(holder.thumbnail);
-            holder.username.setText(getSessionManager().getUsername());
-            holder.editSubject.setText(postsList.get(position).getSubject());
-            holder.editSubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
-            holder.editSubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                    viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editEditor.getText().toString());
+                });
 
-            holder.editEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
-            InputConnection ic = holder.editEditor.getInputConnection();
-            emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
-            holder.editEditor.updateEmojiKeyboardVisibility();
-            holder.editEditor.setText(viewModel.getPostBeingEditedText());
-            holder.editEditor.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
-                if (hasFocus) {
-                    InputConnection ic1 = holder.editEditor.getInputConnection();
-                    emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic1);
-                    holder.editEditor.updateEmojiKeyboardVisibility();
+                if (backPressHidden) {
+                    holder.editEditor.requestFocus();
+                    backPressHidden = false;
                 }
-            });
-            holder.editEditor.setOnSubmitListener(view -> {
-                if (holder.editSubject.getText().toString().isEmpty()) return;
-                if (holder.editEditor.getText().toString().isEmpty()) {
-                    holder.editEditor.setError("Required");
-                    return;
-                }
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                holder.itemView.setAlpha(0.5f);
-                holder.itemView.setEnabled(false);
-                emojiKeyboardOwner.setEmojiKeyboardVisible(false);
-
-                viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editEditor.getText().toString());
-            });
-
-            if (backPressHidden) {
-                holder.editEditor.requestFocus();
-                backPressHidden = false;
             }
         }
     }
 
     @Override
     public int getItemCount() {
-        return postsList.size();
+        return topicItems.size();
     }
 
     /**
@@ -637,6 +738,27 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    static class PollViewHolder extends RecyclerView.ViewHolder {
+        final TextView question, errorTooManySelected;
+        final LinearLayout optionsLayout;
+        final AppCompatButton submitButton;
+        final AppCompatButton removeVotesButton, showPollResultsButton, hidePollResultsButton;
+        final HorizontalBarChart voteChart;
+
+        public PollViewHolder(View itemView) {
+            super(itemView);
+
+            question = itemView.findViewById(R.id.question_textview);
+            optionsLayout = itemView.findViewById(R.id.options_layout);
+            submitButton = itemView.findViewById(R.id.submit_button);
+            removeVotesButton = itemView.findViewById(R.id.remove_vote_button);
+            showPollResultsButton = itemView.findViewById(R.id.show_poll_results_button);
+            hidePollResultsButton = itemView.findViewById(R.id.show_poll_options_button);
+            errorTooManySelected = itemView.findViewById(R.id.error_too_many_checked);
+            voteChart = itemView.findViewById(R.id.vote_chart);
+        }
+    }
+
     /**
      * This class is used to handle link clicks in WebViews. When link url is one that the app can
      * handle internally, it does. Otherwise user is prompt to open the link in a browser.
@@ -680,8 +802,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         if (tmpUrlSbstr.contains("msg"))
                             tmpUrlSbstr = tmpUrlSbstr.substring(0, tmpUrlSbstr.indexOf("msg") - 1);
                         int testAgainst = Integer.parseInt(tmpUrlSbstr);
-                        for (int i = 0; i < postsList.size(); i++) {
-                            if (postsList.get(i).getPostIndex() == testAgainst) {
+                        for (int i = 0; i < topicItems.size(); i++) {
+                            if (topicItems.get(i) instanceof Post && ((Post) topicItems.get(i)).getPostIndex() == testAgainst) {
                                 //same page
                                 Timber.e(Integer.toString(i));
                                 postFocusListener.onPostFocusChange(i);

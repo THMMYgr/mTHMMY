@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,11 +14,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
+import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
 
@@ -146,10 +150,16 @@ public class TopicParser {
      * @return {@link ArrayList} of {@link Post}s
      * @see org.jsoup.Jsoup Jsoup
      */
-    public static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
+    public static ArrayList<TopicItem> parseTopic(Document topic, ParseHelpers.Language language) {
         //Method's variables
         final int NO_INDEX = -1;
-        ArrayList<Post> parsedPostsList = new ArrayList<>();
+
+        ArrayList<TopicItem> parsedPostsList = new ArrayList<>();
+
+        Poll poll = findPoll(topic);
+        if (poll != null)
+            parsedPostsList.add(poll);
+
         Elements postRows;
 
         //Each row is a post
@@ -466,6 +476,88 @@ public class TopicParser {
             }
         }
         return parsedPostsList;
+    }
+
+    private static Poll findPoll(Document topic) {
+        Pattern integerPattern = Pattern.compile("[0-9]+");
+        Elements tables = topic.select("table");
+        for (int i = 0; i < tables.size(); i++) {
+            try {
+                Element image = tables.get(i).child(0).child(0).child(0);
+                if (image.html().contains("Poll") || image.html().contains("Ψηφοφορία")) {
+                    // has poll in english
+                    String question;
+                    ArrayList<Poll.Entry> entries = new ArrayList<>();
+                    int availableVoteCount = 0;
+                    String pollFormUrl = null, sc = null, removeVoteUrl = null, showVoteResultsUrl = null,
+                    showOptionsUrl = null;
+
+                    Element secondRow = tables.get(i).select("tr[class=windowbg]").first();
+                    Element secondColumn = secondRow.child(1);
+                    String columnString = secondColumn.outerHtml();
+                    question = columnString.substring(columnString.indexOf('>') + 1, columnString.indexOf('<', 2)).trim();
+
+                    Element form = secondColumn.select("form").first();
+                    if (form != null) {
+                        // english poll in vote mode
+                        pollFormUrl = form.attr("action");
+                        sc = form.select("input[name=sc]").first().attr("value");
+
+                        int rowIndex = -1;
+                        Elements possibleEntriesRows = form.child(0).child(0).children();
+                        for (int j = 0; j < possibleEntriesRows.size(); j++) {
+                            if (possibleEntriesRows.get(j).select("input").size() > 0) {
+                                rowIndex = j;
+                                break;
+                            }
+                        }
+                        String entriesRaw = form.child(0).child(0).child(rowIndex).child(0).html();
+                        Matcher entryMatcher = Pattern.compile(">[^<]+<br").matcher(entriesRaw);
+                        while (entryMatcher.find()) {
+                            entries.add(new Poll.Entry(entriesRaw.substring(entryMatcher.start() + 1, entryMatcher.end() - 3).trim()));
+                        }
+
+                        Element promptColumn = form.child(0).child(0).child(0);
+                        String prompt = promptColumn.text();
+                        Matcher integerMatcher = integerPattern.matcher(prompt);
+                        if (integerMatcher.find())
+                            availableVoteCount = Integer.parseInt(prompt.substring(integerMatcher.start(), integerMatcher.end()));
+                        else
+                            availableVoteCount = 1;
+
+                        Elements links = form.select("a");
+                        if (links != null && links.size() > 0) {
+                            showVoteResultsUrl = links.first().attr("href");
+                        }
+                    } else {
+                        // english poll in results mode
+                        Elements optionRows = secondColumn.child(0).child(0).select("table").first().child(0).children();
+                        for (int j = 0; j < optionRows.size(); j++) {
+                            String optionName = optionRows.get(j).child(0).text();
+                            String voteCountDescription = optionRows.get(j).child(1).text();
+                            Matcher integerMatcher = integerPattern.matcher(voteCountDescription);
+                            integerMatcher.find();
+                            int voteCount = Integer.parseInt(voteCountDescription.substring(integerMatcher.start(),
+                                    integerMatcher.end()));
+                            entries.add(new Poll.Entry(optionName, voteCount));
+                        }
+
+                        Elements links = secondColumn.select("a");
+                        if (links != null && links.size() > 0) {
+                            if (links.first().text().equals("Remove Vote") || links.first().text().equals("Αφαίρεση ψήφου"))
+                                removeVoteUrl = links.first().attr("href");
+                            else if (links.first().text().equals("Voting options") || links.first().text().equals("Επιλογές ψηφοφορίας"))
+                                showOptionsUrl = links.first().attr("href");
+                        }
+                    }
+                    return new Poll(question, entries.toArray(new Poll.Entry[0]), availableVoteCount,
+                            pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl, showOptionsUrl);
+                }
+            } catch (Exception e) {
+                Timber.v(e, "Could not parse a poll");
+            }
+        }
+        return null;
     }
 
     /**

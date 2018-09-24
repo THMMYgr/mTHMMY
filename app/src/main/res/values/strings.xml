@@ -59,6 +59,10 @@
     <string name="generic_network_error">Network error</string>
     <string name="retry">retry</string>
     <string name="unauthorized_topic_error">This topic is either missing or off limits to you</string>
+    <string name="remove_vote_button">Remove vote</string>
+    <string name="show_vote_results_button">show results</string>
+    <string name="error_too_many_checked">You may only select %d options</string>
+    <string name="show_vote_options_button">hide results</string>
 
     <!--Profile Activity-->
     <string name="username">Username</string>

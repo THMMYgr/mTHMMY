@@ -3,6 +3,8 @@ package gr.thmmy.mthmmy.model;
 import android.net.Uri;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
@@ -180,10 +182,10 @@ public class ThmmyPage {
 
     public static String getTopicId(String topicUrl) {
         if (resolvePageCategory(Uri.parse(topicUrl)) == PageCategory.TOPIC) {
-            String returnString = topicUrl.substring(topicUrl.indexOf("topic=") + 6);
-            if (returnString.contains("."))
-                returnString = returnString.substring(0, returnString.indexOf("."));
-            return returnString;
+            Matcher topicIdMatcher = Pattern.compile("topic=[0-9]+").matcher(topicUrl);
+            if (topicIdMatcher.find()) {
+                return topicUrl.substring(topicIdMatcher.start() + 6, topicIdMatcher.end());
+            } else return null;
         }
         return null;
     }

@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.model.Post;
+import gr.thmmy.mthmmy.model.TopicItem;
 
 public class TopicTaskResult {
     private final TopicTask.ResultCode resultCode;
@@ -16,7 +17,7 @@ public class TopicTaskResult {
      * This topic's reply url
      */
     private final String replyPageUrl;
-    private final ArrayList<Post> newPostsList;
+    private final ArrayList<TopicItem> newPostsList;
     /**
      * The topicId of the loaded page
      */
@@ -38,7 +39,7 @@ public class TopicTaskResult {
     private final String topicViewers;
 
     public TopicTaskResult(TopicTask.ResultCode resultCode, String topicTitle,
-                           String replyPageUrl, ArrayList<Post> newPostsList, int loadedPageTopicId,
+                           String replyPageUrl, ArrayList<TopicItem> newPostsList, int loadedPageTopicId,
                            int currentPageIndex, int pageCount, int focusedPostIndex, String topicTreeAndMods,
                            String topicViewers) {
         this.resultCode = resultCode;
@@ -65,7 +66,7 @@ public class TopicTaskResult {
         return replyPageUrl;
     }
 
-    public ArrayList<Post> getNewPostsList() {
+    public ArrayList<TopicItem> getNewPostsList() {
         return newPostsList;
     }
 

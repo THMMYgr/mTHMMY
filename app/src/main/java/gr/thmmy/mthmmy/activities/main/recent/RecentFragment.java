@@ -157,13 +157,13 @@ public class RecentFragment extends BaseFragment {
     //---------------------------------------ASYNC TASK-----------------------------------
     private class RecentTask extends NewParseTask<ArrayList<TopicSummary>> {
 
-        public RecentTask(OnParseTaskStartedListener onParseTaskStartedListener,
-                          OnParseTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
-            super(onParseTaskStartedListener, onParseTaskFinishedListener);
+        public RecentTask(OnTaskStartedListener onTaskStartedListener,
+                          OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
+            super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        protected ArrayList<TopicSummary> parse(Document document) throws ParseException {
+        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException {
             ArrayList<TopicSummary> fetchedRecent = new ArrayList<>();
             Elements recent = document.select("#block8 :first-child div");
             if (!recent.isEmpty()) {

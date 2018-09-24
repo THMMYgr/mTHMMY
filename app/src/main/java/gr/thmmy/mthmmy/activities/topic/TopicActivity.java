@@ -48,9 +48,11 @@ import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
+import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.NetworkTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -84,7 +86,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     /**
      * Holds a list of this topic's posts
      */
-    private ArrayList<Post> postsList;
+    private ArrayList<TopicItem> topicItems;
     //Reply related
     private FloatingActionButton replyFAB;
     //Topic's pages related
@@ -169,7 +171,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         progressBar = findViewById(R.id.progressBar);
         emojiKeyboard = findViewById(R.id.emoji_keyboard);
 
-        postsList = new ArrayList<>();
+        topicItems = new ArrayList<>();
 
         recyclerView = findViewById(R.id.topic_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -178,7 +180,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 getApplicationContext(), topicPageUrl);
 
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, postsList);
+        topicAdapter = new TopicAdapter(this, topicItems);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = findViewById(R.id.topic_fab);
@@ -279,15 +281,15 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
             return;
         } else if (viewModel.isWritingReply()) {
-            postsList.remove(postsList.size() - 1);
-            topicAdapter.notifyItemRemoved(postsList.size());
+            topicItems.remove(topicItems.size() - 1);
+            topicAdapter.notifyItemRemoved(topicItems.size());
             topicAdapter.setBackButtonHidden();
             viewModel.setWritingReply(false);
             replyFAB.show();
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
         } else if (viewModel.isEditingPost()) {
-            postsList.get(viewModel.getPostBeingEditedPosition()).setPostType(Post.TYPE_POST);
+            ((Post) topicItems.get(viewModel.getPostBeingEditedPosition())).setPostType(Post.TYPE_POST);
             topicAdapter.notifyItemChanged(viewModel.getPostBeingEditedPosition());
             topicAdapter.setBackButtonHidden();
             viewModel.setEditingPost(false);
@@ -420,7 +422,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
                     autoIncrement = false;
                     paginationEnabled(true);
-                    viewModel.performPageChange();
+                    viewModel.loadPageIndicated();
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
@@ -464,7 +466,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 } else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
                     autoDecrement = false;
                     paginationEnabled(true);
-                    viewModel.performPageChange();
+                    viewModel.loadPageIndicated();
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (rect != null &&
                             !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
@@ -529,7 +531,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     replyFAB.show();
                     bottomNavBar.setVisibility(View.VISIBLE);
                     viewModel.setWritingReply(false);
-                    if ((postsList.get(postsList.size() - 1).getPostNumber() + 1) % 15 == 0) {
+                    if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
                         Timber.i("Reply was posted in new page. Switching to last page.");
                         viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
                     } else {
@@ -538,8 +540,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 } else {
                     Timber.w("Post reply unsuccessful");
                     Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
-                    recyclerView.getChildAt(postsList.size() - 1).setAlpha(1);
-                    recyclerView.getChildAt(postsList.size() - 1).setEnabled(true);
+                    recyclerView.getChildAt(topicItems.size() - 1).setAlpha(1);
+                    recyclerView.getChildAt(topicItems.size() - 1).setEnabled(true);
                 }
             }
         });
@@ -572,7 +574,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
 
                 if (result) {
                     Timber.i("Post edit successful");
-                    postsList.get(position).setPostType(Post.TYPE_POST);
+                    ((Post) topicItems.get(position)).setPostType(Post.TYPE_POST);
                     topicAdapter.notifyItemChanged(position);
                     replyFAB.show();
                     bottomNavBar.setVisibility(View.VISIBLE);
@@ -595,6 +597,30 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             @Override
             public void onPrepareForReplyCancelled() {
                 progressBar.setVisibility(ProgressBar.GONE);
+            }
+        });
+        viewModel.setVoteTaskStartedListener(() -> progressBar.setVisibility(ProgressBar.VISIBLE));
+        viewModel.setVoteTaskFinishedListener((resultCode, data) -> {
+            progressBar.setVisibility(View.GONE);
+            if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+                Timber.i("Vote sent");
+                viewModel.resetPage();
+            }
+            else {
+                Timber.w("Failed to send vote");
+                Toast.makeText(this, "Failed to send vote", Toast.LENGTH_LONG).show();
+            }
+        });
+        viewModel.setRemoveVoteTaskStartedListener(() -> progressBar.setVisibility(ProgressBar.VISIBLE));
+        viewModel.setRemoveVoteTaskFinishedListener((resultCode, data) -> {
+            progressBar.setVisibility(View.GONE);
+            if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+                Timber.i("Vote removed");
+                viewModel.resetPage();
+            }
+            else {
+                Timber.w("Failed to remove vote");
+                Toast.makeText(this, "Failed to remove vote", Toast.LENGTH_LONG).show();
             }
         });
         // observe the chages in data
@@ -622,11 +648,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             else
                 replyFAB.show();
         });
-        viewModel.getPostsList().observe(this, postList -> {
+        viewModel.getTopicItems().observe(this, postList -> {
             if (postList == null) progressBar.setVisibility(ProgressBar.VISIBLE);
             recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
-            postsList.clear();
-            postsList.addAll(postList);
+            topicItems.clear();
+            topicItems.addAll(postList);
             topicAdapter.notifyDataSetChanged();
         });
         /*viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
@@ -643,7 +669,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     break;
                 case NETWORK_ERROR:
                     Timber.w("Network error on loaded page");
-                    if (viewModel.getPostsList().getValue() == null) {
+                    if (viewModel.getTopicItems().getValue() == null) {
                         // no page has been loaded yet. Give user the ability to refresh
                         recyclerView.setVisibility(View.GONE);
                         TextView errorTextview = findViewById(R.id.error_textview);
@@ -701,9 +727,9 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 Timber.i("Prepare for reply successful");
                 //prepare for a reply
                 viewModel.setWritingReply(true);
-                postsList.add(Post.newQuickReply());
-                topicAdapter.notifyItemInserted(postsList.size());
-                recyclerView.scrollToPosition(postsList.size() - 1);
+                topicItems.add(Post.newQuickReply());
+                topicAdapter.notifyItemInserted(topicItems.size());
+                recyclerView.scrollToPosition(topicItems.size() - 1);
                 replyFAB.hide();
                 bottomNavBar.setVisibility(View.GONE);
             } else {
@@ -716,7 +742,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             if (result != null && result.isSuccessful()) {
                 Timber.i("Prepare for edit successful");
                 viewModel.setEditingPost(true);
-                postsList.get(result.getPosition()).setPostType(Post.TYPE_EDIT);
+                ((Post) topicItems.get(result.getPosition())).setPostType(Post.TYPE_EDIT);
                 topicAdapter.notifyItemChanged(result.getPosition());
                 recyclerView.scrollToPosition(result.getPosition());
                 replyFAB.hide();
