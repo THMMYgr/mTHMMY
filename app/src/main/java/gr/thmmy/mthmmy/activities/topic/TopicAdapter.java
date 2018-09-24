@@ -200,6 +200,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 YAxis yAxisLeft = holder.voteChart.getAxisLeft();
                 yAxisLeft.setGranularity(1f);
                 yAxisLeft.setTextColor(context.getResources().getColor(R.color.primary_text));
+                yAxisLeft.setAxisMinimum(0);
                 YAxis yAxisRight = holder.voteChart.getAxisRight();
                 yAxisRight.setEnabled(false);
 
@@ -223,10 +224,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setVisibility(View.VISIBLE);
             }
             if (poll.getRemoveVoteUrl() != null) {
-                holder.removeVotesButton.setOnClickListener(v -> {
-                    viewModel.loadUrl(poll.getRemoveVoteUrl());
-                    viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + ".0");
-                });
+                holder.removeVotesButton.setOnClickListener(v -> viewModel.removeVote());
                 holder.removeVotesButton.setVisibility(View.VISIBLE);
             } else holder.removeVotesButton.setVisibility(View.GONE);
             if (poll.getShowVoteResultsUrl() != null) {

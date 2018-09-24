@@ -3,7 +3,6 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.NetworkTask;
@@ -11,7 +10,6 @@ import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import timber.log.Timber;
 
 public class SubmitVoteTask extends NetworkTask<Void> {
 
@@ -29,7 +27,6 @@ public class SubmitVoteTask extends NetworkTask<Void> {
         for (int vote : votes) {
             postBodyBuilder.addFormDataPart("options[]", Integer.toString(vote));
         }
-        Timber.d("response" + Arrays.toString(votes));
 
         Request voteRequest = new Request.Builder()
                 .url(input[0])
@@ -46,7 +43,6 @@ public class SubmitVoteTask extends NetworkTask<Void> {
 
     @Override
     protected int getResultCode(Response response, Void data) {
-        Timber.d("response" + response);
         return NetworkResultCodes.SUCCESSFUL;
     }
 }

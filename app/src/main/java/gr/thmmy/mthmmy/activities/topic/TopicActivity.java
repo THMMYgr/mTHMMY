@@ -50,7 +50,6 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
-import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.NetworkTask;
@@ -423,7 +422,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
                     autoIncrement = false;
                     paginationEnabled(true);
-                    viewModel.performPageChange();
+                    viewModel.loadPageIndicated();
                 } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
@@ -467,7 +466,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 } else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
                     autoDecrement = false;
                     paginationEnabled(true);
-                    viewModel.performPageChange();
+                    viewModel.loadPageIndicated();
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (rect != null &&
                             !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
@@ -602,12 +601,27 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         });
         viewModel.setVoteTaskStartedListener(() -> progressBar.setVisibility(ProgressBar.VISIBLE));
         viewModel.setVoteTaskFinishedListener((resultCode, data) -> {
-            if (resultCode == NetworkResultCodes.SUCCESSFUL)
-                Toast.makeText(this, "success", Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(this, "fail", Toast.LENGTH_LONG).show();
             progressBar.setVisibility(View.GONE);
-            viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + ".0");
+            if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+                Timber.i("Vote sent");
+                viewModel.resetPage();
+            }
+            else {
+                Timber.w("Failed to send vote");
+                Toast.makeText(this, "Failed to send vote", Toast.LENGTH_LONG).show();
+            }
+        });
+        viewModel.setRemoveVoteTaskStartedListener(() -> progressBar.setVisibility(ProgressBar.VISIBLE));
+        viewModel.setRemoveVoteTaskFinishedListener((resultCode, data) -> {
+            progressBar.setVisibility(View.GONE);
+            if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+                Timber.i("Vote removed");
+                viewModel.resetPage();
+            }
+            else {
+                Timber.w("Failed to remove vote");
+                Toast.makeText(this, "Failed to remove vote", Toast.LENGTH_LONG).show();
+            }
         });
         // observe the chages in data
         viewModel.getPageIndicatorIndex().observe(this, pageIndicatorIndex -> {
