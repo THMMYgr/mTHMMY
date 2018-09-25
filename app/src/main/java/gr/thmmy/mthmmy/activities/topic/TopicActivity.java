@@ -542,6 +542,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         } else {
                             viewModel.reloadPage();
                         }
+                        break;
                     case NEW_REPLY_WHILE_POSTING:
                         Timber.i("New reply while writing a reply");
                         TopicAdapter.QuickReplyViewHolder replyHolder = (TopicAdapter.QuickReplyViewHolder)
@@ -567,6 +568,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                                     .show();
                         };
                         viewModel.reloadPageThen(addReply);
+                        break;
                     default:
                         Timber.w("Post reply unsuccessful");
                         Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
