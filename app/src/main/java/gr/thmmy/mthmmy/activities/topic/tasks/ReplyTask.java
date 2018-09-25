@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import java.io.IOException;
 
+import gr.thmmy.mthmmy.activities.topic.Posting;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -14,7 +15,7 @@ import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
-public class ReplyTask extends AsyncTask<String, Void, Boolean> {
+public class ReplyTask extends AsyncTask<String, Void, Posting.REPLY_STATUS> {
     private ReplyTaskCallbacks listener;
     private boolean includeAppSignature;
 
@@ -29,7 +30,7 @@ public class ReplyTask extends AsyncTask<String, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(String... args) {
+    protected Posting.REPLY_STATUS doInBackground(String... args) {
         final String sentFrommTHMMY = includeAppSignature
                 ? "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy]mTHMMY[/url][/i][/size][/right]"
                 : "";
@@ -52,30 +53,20 @@ public class ReplyTask extends AsyncTask<String, Void, Boolean> {
             OkHttpClient client = BaseApplication.getInstance().getClient();
             client.newCall(post).execute();
             Response response = client.newCall(post).execute();
-            switch (replyStatus(response)) {
-                case SUCCESSFUL:
-                    BaseApplication.getInstance().logFirebaseAnalyticsEvent("post_creation", null);
-                    return true;
-                case NEW_REPLY_WHILE_POSTING:
-                    //TODO this...
-                    return true;
-                default:
-                    Timber.e("Malformed post. Request string: %s", post.toString());
-                    return true;
-            }
+            return replyStatus(response);
         } catch (IOException e) {
             Timber.e(e, "Post failed.");
-            return false;
+            return Posting.REPLY_STATUS.OTHER_ERROR;
         }
     }
 
     @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(Posting.REPLY_STATUS result) {
         listener.onReplyTaskFinished(result);
     }
 
     public interface ReplyTaskCallbacks {
         void onReplyTaskStarted();
-        void onReplyTaskFinished(boolean result);
+        void onReplyTaskFinished(Posting.REPLY_STATUS result);
     }
 }

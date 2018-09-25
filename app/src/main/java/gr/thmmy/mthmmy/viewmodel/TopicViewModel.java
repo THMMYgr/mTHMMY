@@ -104,6 +104,17 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         loadUrl(topicUrl);
     }
 
+    public void reloadPageThen(Runnable runnable) {
+        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        Timber.i("Reloading page");
+        stopLoading();
+        currentTopicTask = new TopicTask(topicTaskObserver, result -> {
+            TopicViewModel.this.onTopicTaskCompleted(result);
+            runnable.run();
+        });
+        currentTopicTask.execute(topicUrl);
+    }
+
     /**
      * In contrasto to {@link TopicViewModel#reloadPage()} this method gets rid of any arguements
      * in the url before refreshing
@@ -127,7 +138,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         }
     }
 
-    public void submitVote(LinearLayout optionsLayout) {
+    public boolean submitVote(LinearLayout optionsLayout) {
         if (topicItems.getValue() == null) throw new NullPointerException("Topic task has not finished yet!");
         ArrayList<Integer> votes = new ArrayList<>();
         if (optionsLayout.getChildAt(0) instanceof RadioGroup) {
@@ -142,10 +153,12 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         int[] votesArray = new int[votes.size()];
         for (int i = 0; i < votes.size(); i++) votesArray[i] = votes.get(i);
         Poll poll = (Poll) topicItems.getValue().get(0);
+        if (poll.getAvailableVoteCount() < votesArray.length) return false;
         SubmitVoteTask submitVoteTask = new SubmitVoteTask(votesArray);
         submitVoteTask.setOnTaskStartedListener(voteTaskStartedListener);
         submitVoteTask.setOnNetworkTaskFinishedListener(voteTaskFinishedListener);
         submitVoteTask.execute(poll.getPollFormUrl(), poll.getSc());
+        return true;
     }
 
     public void removeVote() {

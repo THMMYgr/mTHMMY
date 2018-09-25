@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -36,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
@@ -44,6 +46,7 @@ import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
 import gr.thmmy.mthmmy.activities.topic.tasks.ReplyTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
@@ -52,12 +55,12 @@ import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
-import gr.thmmy.mthmmy.utils.NetworkTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
+import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
 
 /**
@@ -517,7 +520,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
 
             @Override
-            public void onReplyTaskFinished(boolean success) {
+            public void onReplyTaskFinished(Posting.REPLY_STATUS replyStatus) {
                 View view = getCurrentFocus();
                 if (view != null) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -526,22 +529,49 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
 
                 progressBar.setVisibility(ProgressBar.GONE);
 
-                if (success) {
-                    Timber.i("Post reply successful");
-                    replyFAB.show();
-                    bottomNavBar.setVisibility(View.VISIBLE);
-                    viewModel.setWritingReply(false);
-                    if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
-                        Timber.i("Reply was posted in new page. Switching to last page.");
-                        viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
-                    } else {
-                        viewModel.reloadPage();
-                    }
-                } else {
-                    Timber.w("Post reply unsuccessful");
-                    Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
-                    recyclerView.getChildAt(topicItems.size() - 1).setAlpha(1);
-                    recyclerView.getChildAt(topicItems.size() - 1).setEnabled(true);
+                switch (replyStatus) {
+                    case SUCCESSFUL:
+                        BaseApplication.getInstance().logFirebaseAnalyticsEvent("post_creation", null);
+                        Timber.i("Post reply successful");
+                        replyFAB.show();
+                        bottomNavBar.setVisibility(View.VISIBLE);
+                        viewModel.setWritingReply(false);
+                        if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
+                            Timber.i("Reply was posted in new page. Switching to last page.");
+                            viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
+                        } else {
+                            viewModel.reloadPage();
+                        }
+                    case NEW_REPLY_WHILE_POSTING:
+                        Timber.i("New reply while writing a reply");
+                        TopicAdapter.QuickReplyViewHolder replyHolder = (TopicAdapter.QuickReplyViewHolder)
+                                recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
+                        String subject = replyHolder.quickReplySubject.getText().toString();
+                        String message = replyHolder.replyEditor.getText().toString();
+                        Runnable addReply = () -> {
+                            viewModel.setWritingReply(true);
+                            topicItems.add(Post.newQuickReply());
+                            topicAdapter.notifyItemInserted(topicItems.size());
+                            recyclerView.scrollToPosition(topicItems.size() - 1);
+                            replyFAB.hide();
+                            bottomNavBar.setVisibility(View.GONE);
+                            TopicAdapter.QuickReplyViewHolder newReplyHolder = (TopicAdapter.QuickReplyViewHolder)
+                                    recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
+                            newReplyHolder.quickReplySubject.setText(subject);
+                            newReplyHolder.replyEditor.setText(message);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(TopicActivity.this,
+                                    R.style.AppCompatAlertDialogStyleAccent);
+                            builder.setMessage("A new reply was posted before you completed your new post." +
+                                    " Please review it and send your reply again")
+                                    .setNeutralButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        };
+                        viewModel.reloadPageThen(addReply);
+                    default:
+                        Timber.w("Post reply unsuccessful");
+                        Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
+                        recyclerView.getChildAt(topicItems.size() - 1).setAlpha(1);
+                        recyclerView.getChildAt(topicItems.size() - 1).setEnabled(true);
                 }
             }
         });

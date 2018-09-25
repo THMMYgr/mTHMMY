@@ -495,11 +495,12 @@ public class TopicParser {
                     Element secondRow = tables.get(i).select("tr[class=windowbg]").first();
                     Element secondColumn = secondRow.child(1);
                     String columnString = secondColumn.outerHtml();
-                    question = columnString.substring(columnString.indexOf('>') + 1, columnString.indexOf('<', 2)).trim();
+                    question = columnString.substring(columnString.indexOf('>') + 1, columnString.indexOf('<', 2))
+                            .replace("&nbsp;", " ").trim();
 
                     Element form = secondColumn.select("form").first();
                     if (form != null) {
-                        // english poll in vote mode
+                        // poll in vote mode
                         pollFormUrl = form.attr("action");
                         sc = form.select("input[name=sc]").first().attr("value");
 
@@ -530,7 +531,7 @@ public class TopicParser {
                             showVoteResultsUrl = links.first().attr("href");
                         }
                     } else {
-                        // english poll in results mode
+                        // poll in results mode
                         Elements optionRows = secondColumn.child(0).child(0).select("table").first().child(0).children();
                         for (int j = 0; j < optionRows.size(); j++) {
                             String optionName = optionRows.get(j).child(0).text();
@@ -539,7 +540,7 @@ public class TopicParser {
                             integerMatcher.find();
                             int voteCount = Integer.parseInt(voteCountDescription.substring(integerMatcher.start(),
                                     integerMatcher.end()));
-                            entries.add(new Poll.Entry(optionName, voteCount));
+                            entries.add(0, new Poll.Entry(optionName, voteCount));
                         }
 
                         Elements links = secondColumn.select("a");

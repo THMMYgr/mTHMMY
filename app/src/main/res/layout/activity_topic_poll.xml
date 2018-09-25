@@ -28,7 +28,6 @@
         android:id="@+id/error_too_many_checked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/error_too_many_checked"
         android:textColor="@color/red"
         android:visibility="gone" />
 

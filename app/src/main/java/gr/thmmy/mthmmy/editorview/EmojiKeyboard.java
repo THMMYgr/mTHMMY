@@ -152,6 +152,7 @@ public class EmojiKeyboard extends LinearLayout {
     public void init(Context context, AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.emoji_keyboard, this, true);
         setOrientation(VERTICAL);
+        setBackgroundColor(getResources().getColor(R.color.primary));
 
         RecyclerView emojiRecyclerview = findViewById(R.id.emoji_recyclerview);
         emojiRecyclerview.setHasFixedSize(true);

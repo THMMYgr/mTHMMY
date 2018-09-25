@@ -166,6 +166,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             PollViewHolder holder = (PollViewHolder) currentHolder;
             holder.question.setText(poll.getQuestion());
             holder.optionsLayout.removeAllViews();
+            holder.errorTooManySelected.setVisibility(View.GONE);
             if (poll.getAvailableVoteCount() > 1) {
                 for (Poll.Entry entry : entries) {
                     CheckBox checkBox = new CheckBox(context);
@@ -237,7 +238,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.hidePollResultsButton.setVisibility(View.VISIBLE);
             } else holder.hidePollResultsButton.setVisibility(View.GONE);
             if (poll.getPollFormUrl() != null) {
-                holder.submitButton.setOnClickListener(v -> viewModel.submitVote(holder.optionsLayout));
+                holder.submitButton.setOnClickListener(v -> {
+                    if (!viewModel.submitVote(holder.optionsLayout)) {
+                        holder.errorTooManySelected.setText(context.getResources()
+                                .getQuantityText(R.plurals.error_too_many_checked, poll.getAvailableVoteCount()));
+                        holder.errorTooManySelected.setVisibility(View.VISIBLE);
+                    }
+                });
                 holder.submitButton.setVisibility(View.VISIBLE);
             } else holder.submitButton.setVisibility(View.GONE);
         } else {
