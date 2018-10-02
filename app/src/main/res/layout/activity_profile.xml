@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,14 +9,14 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.profile.ProfileActivity">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/appbar_padding_top"
         android:theme="@style/ToolbarTheme">
 
-        <android.support.design.widget.CollapsingToolbarLayout
+        <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/main_collapsing"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -52,9 +52,9 @@
                     android:textColor="@color/primary_text"
                     android:visibility="gone"/>
             </LinearLayout>
-        </android.support.design.widget.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
@@ -71,9 +71,9 @@
                 android:text="@string/username"
                 android:textColor="@color/accent"
                 android:textSize="25sp"/>
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
-        <android.support.design.widget.TabLayout
+        <com.google.android.material.tabs.TabLayout
             android:id="@+id/profile_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -82,9 +82,9 @@
             app:tabMode="fixed"
             app:tabSelectedTextColor="@color/accent"
             app:tabTextColor="@color/white"/>
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/profile_tab_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -106,7 +106,7 @@
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal"/>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/profile_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -114,6 +114,6 @@
         android:layout_margin="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_pm_fab"/>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 

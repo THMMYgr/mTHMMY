@@ -2,21 +2,20 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -37,7 +36,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
@@ -60,7 +58,6 @@ import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
 
 /**

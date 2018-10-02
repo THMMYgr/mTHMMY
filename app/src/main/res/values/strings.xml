@@ -15,6 +15,12 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 
+    <!--Main Activity-->
+    <string name="recent">Recent</string>
+    <string name="forum">Forum</string>
+    <string name="unread">Unread</string>
+    <string name="shoutbox">Shoutbox</string>
+
     <!--Login Activity-->
     <string name="thmmy_img_description">thmmy.gr</string>
     <string name="hint_username">Username</string>

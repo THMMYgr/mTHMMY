@@ -10,7 +10,7 @@
         android:layout_height="1dp"
         android:background="#000000" />
 
-    <android.support.v7.widget.AppCompatImageButton
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/backspace_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
         android:padding="6dp"
         app:srcCompat="@drawable/ic_backspace_black_24dp" />
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/emoji_recyclerview"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
