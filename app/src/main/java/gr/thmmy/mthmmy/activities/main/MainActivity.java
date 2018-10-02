@@ -4,18 +4,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.preference.PreferenceManager;
 import android.widget.Toast;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
@@ -38,7 +39,6 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     private static final String DRAWER_INTRO = "DRAWER_INTRO";
     private long mBackPressed;
     private SectionsPagerAdapter sectionsPagerAdapter;
-    private ViewPager viewPager;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,18 +79,39 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         if (sessionManager.isLoggedIn())
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
 
-        //Set up the ViewPager with the sections adapter.
-        viewPager = findViewById(R.id.container);
-        viewPager.setAdapter(sectionsPagerAdapter);
+        FragmentTransaction initialFragmentTransaction = getSupportFragmentManager().beginTransaction();
+        RecentFragment initialRecentFragment = RecentFragment.newInstance(1);
+        initialFragmentTransaction.add(R.id.fragment_container, initialRecentFragment);
+        initialFragmentTransaction.commit();
 
-        TabLayout tabLayout = findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        bottomNavigation = findViewById(R.id.main_bottom_navigation);
+        bottomNavigation.setOnNavigationItemSelectedListener(menuItem -> {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            switch (menuItem.getItemId()) {
+                case R.id.action_recent:
+                    fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    RecentFragment recentFragment = RecentFragment.newInstance(1);
+                    fragmentTransaction.replace(R.id.fragment_container, recentFragment);
+                    fragmentTransaction.commit();
+                    return true;
+                case R.id.action_forum:
+                    ForumFragment forumFragment = ForumFragment.newInstance(2);
+                    fragmentTransaction.replace(R.id.fragment_container, forumFragment);
+                    fragmentTransaction.commit();
+                    return true;
+                case R.id.action_unread:
+                    UnreadFragment unreadFragment = UnreadFragment.newInstance(3);
+                    fragmentTransaction.replace(R.id.fragment_container, unreadFragment);
+                    fragmentTransaction.commit();
+                    return true;
+                case R.id.action_shoutbox:
+                    return true;
+                default:
+                    return false;
+            }
+        });
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int preferredTab = Integer.parseInt(sharedPrefs.getString(DEFAULT_HOME_TAB, "0"));
-        if (preferredTab != 3 || sessionManager.isLoggedIn()) {
-            tabLayout.getTabAt(preferredTab).select();
-        }
 
         setMainActivity(this);
     }
@@ -105,7 +126,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     protected void onResume() {
         drawer.setSelection(HOME_ID);
-        if(!sharedPrefs.getBoolean(DRAWER_INTRO, false)){
+        if (!sharedPrefs.getBoolean(DRAWER_INTRO, false)) {
             drawer.openDrawer();
             sharedPrefs.edit().putBoolean(DRAWER_INTRO, true).apply();
         }
@@ -181,8 +202,6 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             fragmentList.remove(position);
             fragmentTitleList.remove(position);
             notifyDataSetChanged();
-            if (viewPager.getCurrentItem() == position)
-                viewPager.setCurrentItem(position - 1);
         }
 
         @Override
