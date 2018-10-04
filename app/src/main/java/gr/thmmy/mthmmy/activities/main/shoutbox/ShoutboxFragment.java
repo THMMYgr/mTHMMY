@@ -61,7 +61,9 @@ public class ShoutboxFragment extends BaseFragment {
         shouts = new ArrayList<>();
         shoutAdapter = new ShoutAdapter(getContext(), shouts);
         recyclerView.setAdapter(shoutAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setReverseLayout(true);
+        recyclerView.setLayoutManager(layoutManager);
         shoutboxTask = new ShoutboxTask(this::onShoutboxTaskSarted, this::onShoutboxTaskFinished);
         shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?");
 
