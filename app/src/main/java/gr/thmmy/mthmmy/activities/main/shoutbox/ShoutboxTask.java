@@ -11,14 +11,20 @@ import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.Response;
+import timber.log.Timber;
 
 public class ShoutboxTask extends NewParseTask<ArrayList<Shout>> {
+
+    public ShoutboxTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<ArrayList<Shout>> onParseTaskFinishedListener) {
+        super(onTaskStartedListener, onParseTaskFinishedListener);
+    }
+
     @Override
     protected ArrayList<Shout> parse(Document document, Response response) throws ParseException {
         // shout container: document.select("div[class=smalltext]" && div.text().contains("Τελευταίες 75 φωνές:") η στα αγγλικα
         Element shoutboxContainer = document.select("div[style=width: 99%; height: 600px; overflow: auto;]").first();
         ArrayList<Shout> shouts = new ArrayList<>();
-        for (Element shout : shoutboxContainer.children()) {
+        for (Element shout : shoutboxContainer.select("div[style=margin: 4px;]")) {
             Element user = shout.child(0);
             Element link = user.select("a").first();
             String profileUrl = link.attr("href");
@@ -37,6 +43,6 @@ public class ShoutboxTask extends NewParseTask<ArrayList<Shout>> {
 
     @Override
     protected int getResultCode(Response response, ArrayList<Shout> data) {
-        return data.size() > 0 ? NetworkResultCodes.SUCCESSFUL : NetworkResultCodes.PERFORM_TASK_ERROR;
+        return NetworkResultCodes.SUCCESSFUL;
     }
 }

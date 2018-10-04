@@ -23,6 +23,7 @@ import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
+import gr.thmmy.mthmmy.activities.main.shoutbox.ShoutboxFragment;
 import gr.thmmy.mthmmy.activities.main.unread.UnreadFragment;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
@@ -105,6 +106,9 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                     fragmentTransaction.commit();
                     return true;
                 case R.id.action_shoutbox:
+                    ShoutboxFragment shoutboxFragment = ShoutboxFragment.newInstance(4);
+                    fragmentTransaction.replace(R.id.fragment_container, shoutboxFragment);
+                    fragmentTransaction.commit();
                     return true;
                 default:
                     return false;

@@ -54,6 +54,16 @@ public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutV
     public void onBindViewHolder(@NonNull ShoutViewHolder holder, int position) {
         Shout currentShout = shouts.get(position);
         holder.author.setText(currentShout.getShouter());
+        holder.author.setOnClickListener(view -> {
+            Intent intent = new Intent(context, ProfileActivity.class);
+            Bundle extras = new Bundle();
+            extras.putString(BUNDLE_PROFILE_URL, shouts.get(holder.getAdapterPosition()).getShouterProfileURL());
+            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+            extras.putString(BUNDLE_PROFILE_USERNAME, "");
+            intent.putExtras(extras);
+            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        });
         holder.dateTime.setText(currentShout.getDate());
         holder.shoutContent.setClickable(true);
         holder.shoutContent.setWebViewClient(new LinkLauncher());
