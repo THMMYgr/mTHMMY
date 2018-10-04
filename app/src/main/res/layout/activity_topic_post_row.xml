@@ -198,7 +198,8 @@
                     android:gravity="start"
                     android:text=""
                     android:textColor="@color/accent"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    tools:text="date"/>
 
                 <TextView
                     android:id="@+id/post_number"
