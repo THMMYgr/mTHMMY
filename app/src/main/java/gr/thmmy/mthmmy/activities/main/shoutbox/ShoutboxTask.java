@@ -2,11 +2,11 @@ package gr.thmmy.mthmmy.activities.main.shoutbox;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.model.Shout;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
@@ -37,6 +37,6 @@ public class ShoutboxTask extends NewParseTask<ArrayList<Shout>> {
 
     @Override
     protected int getResultCode(Response response, ArrayList<Shout> data) {
-        return 0;
+        return data.size() > 0 ? NetworkResultCodes.SUCCESSFUL : NetworkResultCodes.PERFORM_TASK_ERROR;
     }
 }
