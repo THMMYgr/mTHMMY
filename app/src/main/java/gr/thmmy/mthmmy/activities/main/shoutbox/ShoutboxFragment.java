@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 
 import java.util.ArrayList;
 
@@ -13,12 +15,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
+import gr.thmmy.mthmmy.editorview.EditorView;
+import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Shout;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
-public class ShoutboxFragment extends BaseFragment {
+public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.EmojiKeyboardOwner {
 
     private static final String TAG = "ShoutboxFragment";
 
@@ -27,6 +31,8 @@ public class ShoutboxFragment extends BaseFragment {
     private ShoutAdapter shoutAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ArrayList<Shout> shouts;
+    private EmojiKeyboard emojiKeyboard;
+    private EditorView editorView;
 
     public static ShoutboxFragment newInstance(int sectionNumber) {
         ShoutboxFragment fragment = new ShoutboxFragment();
@@ -74,6 +80,27 @@ public class ShoutboxFragment extends BaseFragment {
             shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?");
         });
 
+        emojiKeyboard = rootView.findViewById(R.id.emoji_keyboard);
+        editorView = rootView.findViewById(R.id.edior_view);
+        editorView.setEmojiKeyboardOwner(this);
+        InputConnection ic = editorView.onCreateInputConnection(new EditorInfo());
+        setEmojiKeyboardInputConnection(ic);
+
         return rootView;
+    }
+
+    @Override
+    public void setEmojiKeyboardVisible(boolean visible) {
+        emojiKeyboard.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public boolean isEmojiKeyboardVisible() {
+        return emojiKeyboard.getVisibility() == View.VISIBLE;
+    }
+
+    @Override
+    public void setEmojiKeyboardInputConnection(InputConnection ic) {
+        emojiKeyboard.setInputConnection(ic);
     }
 }
