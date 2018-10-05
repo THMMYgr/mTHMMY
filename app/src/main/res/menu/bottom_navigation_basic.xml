@@ -9,13 +9,4 @@
         android:id="@+id/action_forum"
         android:icon="@drawable/ic_forum_white_24dp"
         android:title="@string/forum" />
-
-    <item
-        android:id="@+id/action_unread"
-        android:icon="@drawable/ic_fiber_new_white_24dp"
-        android:title="@string/unread" />
-    <item
-        android:id="@+id/action_shoutbox"
-        android:icon="@drawable/ic_announcement"
-        android:title="@string/shoutbox" />
 </menu>

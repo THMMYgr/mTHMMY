@@ -57,6 +57,7 @@ public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutV
         Shout currentShout = shouts[position];
         holder.author.setText(currentShout.getShouter());
         if (currentShout.isMemberOfTheMonth()) holder.author.setTextColor(context.getResources().getColor(R.color.member_of_the_month));
+        else holder.author.setTextColor(context.getResources().getColor(R.color.accent));
         holder.author.setOnClickListener(view -> {
             Intent intent = new Intent(context, ProfileActivity.class);
             Bundle extras = new Bundle();

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -86,6 +88,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         initialFragmentTransaction.commit();
 
         bottomNavigation = findViewById(R.id.main_bottom_navigation);
+        if (sessionManager.isLoggedIn()) bottomNavigation.inflateMenu(R.menu.bottom_navigation_logged_in);
         bottomNavigation.setOnNavigationItemSelectedListener(menuItem -> {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             switch (menuItem.getItemId()) {
@@ -236,6 +239,12 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             sectionsPagerAdapter.removeFragment(2);
         else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2)
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
+        if (!sessionManager.isLoggedIn() && bottomNavigation.getMenu().size() > 2) {
+            bottomNavigation.getMenu().removeItem(R.id.action_shoutbox);
+            bottomNavigation.getMenu().removeItem(R.id.action_unread);
+        } else if (sessionManager.isLoggedIn() && bottomNavigation.getMenu().size() < 4) {
+            bottomNavigation.inflateMenu(R.menu.bottom_navigation_logged_in);
+        }
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
 

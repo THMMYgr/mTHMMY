@@ -30,6 +30,6 @@
         android:background="@color/primary"
         app:itemIconTint="@color/bottom_navigation_selector"
         app:itemTextColor="@color/bottom_navigation_selector"
-        app:menu="@menu/bottom_navigation"
+        app:menu="@menu/bottom_navigation_basic"
         app:labelVisibilityMode="labeled"/>
 </RelativeLayout>

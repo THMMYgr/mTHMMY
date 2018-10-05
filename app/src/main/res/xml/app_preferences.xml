@@ -3,7 +3,7 @@
 
     <androidx.preference.PreferenceCategory android:title="@string/pref_category_app">
 
-        <android.support.v7.preference.ListPreference
+        <ListPreference
             android:defaultValue="0"
             android:dialogTitle="@string/pref_app_main_default_tab_dialog_title"
             android:entries="@array/pref_app_main_default_tab_entries"
@@ -22,12 +22,12 @@
             android:summary="@string/pref_summary_notifications_enable"
             android:title="@string/pref_title_notifications_enable" />-->
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="pref_notification_vibration_enable_key"
             android:title="@string/pref_title_notification_vibration_enable" />
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="pref_notification_led_enable_key"
             android:summary="@string/pref_summary_notification_led_enable"
@@ -44,7 +44,7 @@
         android:key="pref_category_posting_key"
         android:title="@string/pref_category_posting">
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="pref_posting_app_signature_enable_key"
             android:summary="@string/pref_summary_posting_app_signature_enable"
@@ -56,7 +56,7 @@
         android:key="pref_category_uploading_key"
         android:title="@string/pref_category_uploading">
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="pref_uploading_app_signature_enable_key"
             android:summary="@string/pref_summary_uploading_app_signature_enable"
