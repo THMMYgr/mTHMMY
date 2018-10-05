@@ -29,6 +29,7 @@ public class ShoutboxTask extends NewParseTask<Shoutbox> {
             Element link = user.select("a").first();
             String profileUrl = link.attr("href");
             String profileName = link.text();
+            boolean memberOfTheMonth = link.attr("style").contains("#EA00FF");
 
             Element date = shout.child(1);
             String dateString = date.text();
@@ -36,7 +37,7 @@ public class ShoutboxTask extends NewParseTask<Shoutbox> {
             Element content = shout.child(2);
             String shoutContent = "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" +
                     ParseHelpers.youtubeEmbeddedFix(content);
-            shouts.add(new Shout(profileName, profileUrl, dateString, shoutContent));
+            shouts.add(new Shout(profileName, profileUrl, dateString, shoutContent, memberOfTheMonth));
         }
 
         Element shoutboxForm = document.select("form[name=tp-shoutbox]").first();
