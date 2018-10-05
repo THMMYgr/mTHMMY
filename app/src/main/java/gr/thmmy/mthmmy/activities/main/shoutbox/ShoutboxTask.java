@@ -6,21 +6,21 @@ import org.jsoup.nodes.Element;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.model.Shout;
+import gr.thmmy.mthmmy.model.Shoutbox;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.Response;
-import timber.log.Timber;
 
-public class ShoutboxTask extends NewParseTask<ArrayList<Shout>> {
+public class ShoutboxTask extends NewParseTask<Shoutbox> {
 
-    public ShoutboxTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<ArrayList<Shout>> onParseTaskFinishedListener) {
+    public ShoutboxTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Shoutbox> onParseTaskFinishedListener) {
         super(onTaskStartedListener, onParseTaskFinishedListener);
     }
 
     @Override
-    protected ArrayList<Shout> parse(Document document, Response response) throws ParseException {
+    protected Shoutbox parse(Document document, Response response) throws ParseException {
         // shout container: document.select("div[class=smalltext]" && div.text().contains("Τελευταίες 75 φωνές:") η στα αγγλικα
         Element shoutboxContainer = document.select("div[style=width: 99%; height: 600px; overflow: auto;]").first();
         ArrayList<Shout> shouts = new ArrayList<>();
@@ -38,11 +38,18 @@ public class ShoutboxTask extends NewParseTask<ArrayList<Shout>> {
                     ParseHelpers.youtubeEmbeddedFix(content);
             shouts.add(new Shout(profileName, profileUrl, dateString, shoutContent));
         }
-        return shouts;
+
+        Element shoutboxForm = document.select("form[name=tp-shoutbox]").first();
+        String formUrl = shoutboxForm.attr("action");
+        String sc = shoutboxForm.select("input[name=sc]").first().attr("value");
+        String shoutName = shoutboxForm.select("input[name=tp-shout-name]").first().attr("value");
+        String shoutSend = shoutboxForm.select("input[name=shout_send]").first().attr("value");
+        String shoutUrl = shoutboxForm.select("input[name=tp-shout-url]").first().attr("value");
+        return new Shoutbox(shouts.toArray(new Shout[0]), sc, formUrl, shoutName, shoutSend, shoutUrl);
     }
 
     @Override
-    protected int getResultCode(Response response, ArrayList<Shout> data) {
+    protected int getResultCode(Response response, Shoutbox data) {
         return NetworkResultCodes.SUCCESSFUL;
     }
 }

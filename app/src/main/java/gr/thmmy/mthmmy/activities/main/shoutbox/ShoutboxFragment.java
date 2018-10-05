@@ -4,10 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-
-import java.util.ArrayList;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +16,7 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.editorview.EditorView;
 import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Shout;
+import gr.thmmy.mthmmy.model.Shoutbox;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -30,9 +29,9 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
     private ShoutboxTask shoutboxTask;
     private ShoutAdapter shoutAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private ArrayList<Shout> shouts;
     private EmojiKeyboard emojiKeyboard;
     private EditorView editorView;
+    private Shoutbox shoutbox;
 
     public static ShoutboxFragment newInstance(int sectionNumber) {
         ShoutboxFragment fragment = new ShoutboxFragment();
@@ -47,13 +46,34 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         progressBar.setVisibility(View.VISIBLE);
     }
 
-    private void onShoutboxTaskFinished(int resultCode, ArrayList<Shout> shouts) {
+    private void onSendShoutTaskStarted() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void onSendShoutTaskFinished(int resultCode, Void ignored) {
+        editorView.setAlpha(1f);
+        editorView.setEnabled(true);
+        progressBar.setVisibility(View.INVISIBLE);
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            editorView.getEditText().getText().clear();
+            shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
+            shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?action=forum");
+        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+            Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void onShoutboxTaskFinished(int resultCode, Shoutbox shoutbox) {
         progressBar.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(false);
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            this.shouts.clear();
-            this.shouts.addAll(shouts);
+            shoutAdapter.setShouts(shoutbox.getShouts());
             shoutAdapter.notifyDataSetChanged();
+            this.shoutbox = shoutbox;
+        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+            Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "Failed to retrieve shoutbox, please contact mthmmy developer team", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -64,27 +84,38 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
 
         progressBar = rootView.findViewById(R.id.progressBar);
         CustomRecyclerView recyclerView = rootView.findViewById(R.id.shoutbox_recyclerview);
-        shouts = new ArrayList<>();
-        shoutAdapter = new ShoutAdapter(getContext(), shouts);
+        shoutAdapter = new ShoutAdapter(getContext(), new Shout[0]);
         recyclerView.setAdapter(shoutAdapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
         shoutboxTask = new ShoutboxTask(this::onShoutboxTaskSarted, this::onShoutboxTaskFinished);
-        shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?");
+        shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?action=forum");
 
         swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
-            shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?");
+            shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?action=forum");
         });
 
         emojiKeyboard = rootView.findViewById(R.id.emoji_keyboard);
         editorView = rootView.findViewById(R.id.edior_view);
         editorView.setEmojiKeyboardOwner(this);
-        InputConnection ic = editorView.onCreateInputConnection(new EditorInfo());
+        InputConnection ic = editorView.getInputConnection();
         setEmojiKeyboardInputConnection(ic);
+        editorView.setOnSubmitListener(view -> {
+            if (editorView.getText().toString().isEmpty()) {
+                editorView.setError("Required");
+                return;
+            }
+            editorView.setAlpha(0.5f);
+            editorView.setEnabled(false);
+            setEmojiKeyboardVisible(false);
+            new SendShoutTask(this::onSendShoutTaskStarted, this::onSendShoutTaskFinished)
+                    .execute(shoutbox.getSendShoutUrl(), editorView.getText().toString(), shoutbox.getSc(),
+                            shoutbox.getShoutName(), shoutbox.getShoutSend(), shoutbox.getShoutUrl());
+        });
 
         return rootView;
     }

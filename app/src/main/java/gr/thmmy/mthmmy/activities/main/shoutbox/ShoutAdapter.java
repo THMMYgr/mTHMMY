@@ -14,8 +14,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
@@ -35,10 +33,14 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutViewHolder> {
     private Context context;
-    private ArrayList<Shout> shouts;
+    private Shout[] shouts;
 
-    public ShoutAdapter(Context context, ArrayList<Shout> shouts) {
+    public ShoutAdapter(Context context, Shout[] shouts) {
         this.context = context;
+        this.shouts = shouts;
+    }
+
+    public void setShouts(Shout[] shouts) {
         this.shouts = shouts;
     }
 
@@ -52,12 +54,12 @@ public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutV
 
     @Override
     public void onBindViewHolder(@NonNull ShoutViewHolder holder, int position) {
-        Shout currentShout = shouts.get(position);
+        Shout currentShout = shouts[position];
         holder.author.setText(currentShout.getShouter());
         holder.author.setOnClickListener(view -> {
             Intent intent = new Intent(context, ProfileActivity.class);
             Bundle extras = new Bundle();
-            extras.putString(BUNDLE_PROFILE_URL, shouts.get(holder.getAdapterPosition()).getShouterProfileURL());
+            extras.putString(BUNDLE_PROFILE_URL, shouts[holder.getAdapterPosition()].getShouterProfileURL());
             extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
             extras.putString(BUNDLE_PROFILE_USERNAME, "");
             intent.putExtras(extras);
@@ -73,7 +75,7 @@ public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutV
 
     @Override
     public int getItemCount() {
-        return shouts.size();
+        return shouts.length;
     }
 
     static class ShoutViewHolder extends CustomRecyclerView.ViewHolder {
