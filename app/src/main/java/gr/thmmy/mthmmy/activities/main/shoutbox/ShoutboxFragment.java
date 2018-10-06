@@ -94,6 +94,7 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
 
         swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
+        swipeRefreshLayout.setColorSchemeResources(R.color.accent);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
             shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?action=forum");
@@ -105,6 +106,7 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         InputConnection ic = editorView.getInputConnection();
         setEmojiKeyboardInputConnection(ic);
         editorView.setOnSubmitListener(view -> {
+            if (shoutbox == null) return;
             if (editorView.getText().toString().isEmpty()) {
                 editorView.setError("Required");
                 return;
