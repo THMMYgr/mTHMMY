@@ -180,8 +180,6 @@ public class SummaryFragment extends Fragment {
 
             if (profileSummaryRow.contains("@") &&
                     (profileSummaryRow.contains("Email") || profileSummaryRow.contains("E-mail"))) {
-                Timber.d("mpika");
-                Timber.d(profileSummaryRow);
                 String email = profileSummaryRow.substring(profileSummaryRow.indexOf(":</b> ") + 6);
                 profileSummaryRow = profileSummaryRow.replace(email,
                         "<a href=\"mailto:" + email + "\">" + email + "</a>");

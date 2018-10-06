@@ -22,7 +22,7 @@ public class Poll extends TopicItem {
         this.showOptionsUrl = showOptionsUrl;
     }
 
-    public int totalVotes() {
+    private int totalVotes() {
         int sum = 0;
         for (Entry entry : entries) {
             sum += entry.votes;

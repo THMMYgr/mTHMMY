@@ -17,8 +17,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,11 +43,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -94,7 +98,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private TopicViewModel viewModel;
 
     /**
-     * @param context   the context of the {@link RecyclerView}
+     * @param context    the context of the {@link RecyclerView}
      * @param topicItems List of {@link Post} objects to use
      */
     TopicAdapter(TopicActivity context, List<TopicItem> topicItems) {
@@ -170,7 +174,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (poll.getAvailableVoteCount() > 1) {
                 for (Poll.Entry entry : entries) {
                     CheckBox checkBox = new CheckBox(context);
-                    checkBox.setText(entry.getEntryName());
+                    checkBox.setMovementMethod(LinkMovementMethod.getInstance());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        checkBox.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
+                    } else {
+                        //noinspection deprecation
+                        checkBox.setText(Html.fromHtml(entry.getEntryName()));
+                    }
                     checkBox.setTextColor(context.getResources().getColor(R.color.primary_text));
                     holder.optionsLayout.addView(checkBox);
                 }
@@ -181,7 +191,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 for (int i = 0; i < entries.length; i++) {
                     RadioButton radioButton = new RadioButton(context);
                     radioButton.setId(i);
-                    radioButton.setText(entries[i].getEntryName());
+                    radioButton.setMovementMethod(LinkMovementMethod.getInstance());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        radioButton.setText(Html.fromHtml(entries[i].getEntryName(), Html.FROM_HTML_MODE_LEGACY));
+                    } else {
+                        //noinspection deprecation
+                        radioButton.setText(Html.fromHtml(entries[i].getEntryName()));
+                    }
                     radioButton.setTextColor(context.getResources().getColor(R.color.primary_text));
                     radioGroup.addView(radioButton);
                 }
@@ -206,7 +222,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 yAxisRight.setEnabled(false);
 
                 XAxis xAxis = holder.voteChart.getXAxis();
-                xAxis.setValueFormatter((value, axis) -> entries[(int) value].getEntryName());
+                xAxis.setValueFormatter((value, axis) -> Html.fromHtml(entries[(int) value].getEntryName()).toString());
                 xAxis.setTextColor(context.getResources().getColor(R.color.primary_text));
                 xAxis.setGranularity(1f);
                 xAxis.setDrawGridLines(false);
@@ -752,7 +768,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final AppCompatButton removeVotesButton, showPollResultsButton, hidePollResultsButton;
         final HorizontalBarChart voteChart;
 
-        public PollViewHolder(View itemView) {
+        PollViewHolder(View itemView) {
             super(itemView);
 
             question = itemView.findViewById(R.id.question_textview);
