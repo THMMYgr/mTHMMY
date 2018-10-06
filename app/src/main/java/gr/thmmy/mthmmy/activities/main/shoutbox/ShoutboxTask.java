@@ -21,8 +21,8 @@ public class ShoutboxTask extends NewParseTask<Shoutbox> {
 
     @Override
     protected Shoutbox parse(Document document, Response response) throws ParseException {
-        // shout container: document.select("div[class=smalltext]" && div.text().contains("Τελευταίες 75 φωνές:") η στα αγγλικα
-        Element shoutboxContainer = document.select("div[style=width: 99%; height: 600px; overflow: auto;]").first();
+        // fragment_shoutbox_shout_row container: document.select("div[class=smalltext]" && div.text().contains("Τελευταίες 75 φωνές:") η στα αγγλικα
+        Element shoutboxContainer = document.select("table.windowbg").first();
         ArrayList<Shout> shouts = new ArrayList<>();
         for (Element shout : shoutboxContainer.select("div[style=margin: 4px;]")) {
             Element user = shout.child(0);
@@ -35,6 +35,7 @@ public class ShoutboxTask extends NewParseTask<Shoutbox> {
             String dateString = date.text();
 
             Element content = shout.child(2);
+            content.removeAttr("style");
             String shoutContent = "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" +
                     ParseHelpers.youtubeEmbeddedFix(content);
             shouts.add(new Shout(profileName, profileUrl, dateString, shoutContent, memberOfTheMonth));

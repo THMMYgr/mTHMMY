@@ -17,6 +17,7 @@ import gr.thmmy.mthmmy.editorview.EditorView;
 import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Shout;
 import gr.thmmy.mthmmy.model.Shoutbox;
+import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -57,7 +58,7 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             editorView.getEditText().getText().clear();
             shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
-            shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?action=forum");
+            shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();
         }
@@ -90,14 +91,14 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         layoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
         shoutboxTask = new ShoutboxTask(this::onShoutboxTaskSarted, this::onShoutboxTaskFinished);
-        shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?action=forum");
+        shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
 
         swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
         swipeRefreshLayout.setColorSchemeResources(R.color.accent);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
-            shoutboxTask.execute("https://www.thmmy.gr/smf/index.php?action=forum");
+            shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
         });
 
         emojiKeyboard = rootView.findViewById(R.id.emoji_keyboard);

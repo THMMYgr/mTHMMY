@@ -48,7 +48,7 @@ public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutV
     @Override
     public ShoutViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.shout, parent, false);
+                .inflate(R.layout.fragment_shoutbox_shout_row, parent, false);
         return new ShoutViewHolder(view);
     }
 
