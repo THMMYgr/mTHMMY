@@ -173,16 +173,21 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.errorTooManySelected.setVisibility(View.GONE);
             if (poll.getAvailableVoteCount() > 1) {
                 for (Poll.Entry entry : entries) {
+                    LinearLayout container = new LinearLayout(context);
+                    container.setOrientation(LinearLayout.HORIZONTAL);
                     CheckBox checkBox = new CheckBox(context);
-                    checkBox.setMovementMethod(LinkMovementMethod.getInstance());
+                    TextView label = new TextView(context);
+                    label.setMovementMethod(LinkMovementMethod.getInstance());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        checkBox.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
+                        label.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
                     } else {
                         //noinspection deprecation
-                        checkBox.setText(Html.fromHtml(entry.getEntryName()));
+                        label.setText(Html.fromHtml(entry.getEntryName()));
                     }
                     checkBox.setTextColor(context.getResources().getColor(R.color.primary_text));
-                    holder.optionsLayout.addView(checkBox);
+                    container.addView(checkBox);
+                    container.addView(label);
+                    holder.optionsLayout.addView(container);
                 }
                 holder.voteChart.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
@@ -215,7 +220,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 data.setColor(context.getResources().getColor(R.color.accent));
 
                 YAxis yAxisLeft = holder.voteChart.getAxisLeft();
-                yAxisLeft.setGranularity(1f);
+                yAxisLeft.setGranularity(1);
                 yAxisLeft.setTextColor(context.getResources().getColor(R.color.primary_text));
                 yAxisLeft.setAxisMinimum(0);
                 YAxis yAxisRight = holder.voteChart.getAxisRight();
@@ -225,6 +230,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 xAxis.setValueFormatter((value, axis) -> Html.fromHtml(entries[(int) value].getEntryName()).toString());
                 xAxis.setTextColor(context.getResources().getColor(R.color.primary_text));
                 xAxis.setGranularity(1f);
+                xAxis.setLabelCount(entries.length, true);
                 xAxis.setDrawGridLines(false);
                 xAxis.setDrawAxisLine(false);
                 xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
