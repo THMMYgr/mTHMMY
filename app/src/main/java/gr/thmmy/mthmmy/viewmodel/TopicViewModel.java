@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.TimerTask;
 
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
@@ -144,7 +146,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (optionsLayout.getChildAt(0) instanceof RadioGroup) {
             RadioGroup optionsRadioGroup = (RadioGroup) optionsLayout.getChildAt(0);
             votes.add(optionsRadioGroup.getCheckedRadioButtonId());
-        } else if (optionsLayout.getChildAt(0) instanceof CheckBox) {
+        } else if (optionsLayout.getChildAt(0) instanceof LinearLayout) {
             for (int i = 0; i < optionsLayout.getChildCount(); i++) {
                 LinearLayout container = (LinearLayout) optionsLayout.getChildAt(i);
                 if (((CheckBox) container.getChildAt(0)).isChecked())

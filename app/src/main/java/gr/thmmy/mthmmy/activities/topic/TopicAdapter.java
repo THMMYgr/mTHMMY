@@ -263,7 +263,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.submitButton.setOnClickListener(v -> {
                     if (!viewModel.submitVote(holder.optionsLayout)) {
                         holder.errorTooManySelected.setText(context.getResources()
-                                .getQuantityText(R.plurals.error_too_many_checked, poll.getAvailableVoteCount()));
+                                .getQuantityString(R.plurals.error_too_many_checked, poll.getAvailableVoteCount(),
+                                        poll.getAvailableVoteCount()));
                         holder.errorTooManySelected.setVisibility(View.VISIBLE);
                     }
                 });
