@@ -69,6 +69,7 @@ public class Changelog {
             JSONObject jsonObject = new JSONObject(loadJSONFromAssets(context));
             JSONArray jsonArray = jsonObject.getJSONArray("changelogs");
 
+            boolean currentVersionFound = false;
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObjectInner = jsonArray.getJSONObject(i);
                 int versionCode = jsonObjectInner.getInt("version_code");
@@ -125,9 +126,12 @@ public class Changelog {
                         changeText.setText(spannable);
                         changeListView.addView(changeText);
                     }
+                    currentVersionFound = true;
                     break;
                 }
             }
+            if(!currentVersionFound)
+                return null;
         } catch (JSONException exception) {
             Timber.e(exception, "Couldn't read changelog json from assets");
         }

@@ -101,7 +101,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
         if (Changelog.getLaunchType(this) == Changelog.LAUNCH_TYPE.FIRST_LAUNCH_AFTER_UPDATE) {
             AlertDialog dialog = Changelog.getChangelogDialog(this);
-            dialog.show();
+            if(dialog!=null)
+                dialog.show();
         }
     }
 

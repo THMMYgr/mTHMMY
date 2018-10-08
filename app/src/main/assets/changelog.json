@@ -1,9 +1,9 @@
 {
   "changelogs": [
     {
-      "version_code": 13,
-      "version": "5.0.0",
-      "release_date": "Someday in september.... hopefully",
+      "version_code": 14,
+      "version": "1.5.0",
+      "release_date": "Someday in October.... hopefully",
       "video": "Maybe someday",
       "prelude": "May be useful sometimes.. like a text above the actual change list",
       "change_list": [
@@ -49,12 +49,12 @@
         },{
           "change": "bug",
           "title": "Many bugs.",
-          "description": "We fixed a ton of other bugs, so the app is now like 36.2% more bug free."
+          "description": "We fixed a ton of other bugs, so the app is now like 36.21% more bug free."
         },
         {
           "change": "improvement",
-          "title": "Much cutter icons in boards.",
-          "description": "Sticky icon changed to much the overall greatness of the forum, also a dot was added. Don't you just love dots?"
+          "title": "Much cuter icons in boards.",
+          "description": "Sticky icon changed to match the overall greatness of the forum, also a dot was added. Don't you just love dots?"
         },
         {
           "change": "improvement",
