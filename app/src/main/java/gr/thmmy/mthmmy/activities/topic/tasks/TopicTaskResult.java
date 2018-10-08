@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import java.util.ArrayList;
 
-import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.TopicItem;
 
 public class TopicTaskResult {

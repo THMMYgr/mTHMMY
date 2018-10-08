@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentTransaction;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 
-public class SettingsActivity extends BaseActivity {
+public class SettingsActivity extends BaseActivity  {
     public static final String DEFAULT_HOME_TAB = "pref_app_main_default_tab_key";
     public static final String NOTIFICATION_LED_KEY = "pref_notification_led_enable_key";
     public static final String NOTIFICATION_VIBRATION_KEY = "pref_notification_vibration_enable_key";

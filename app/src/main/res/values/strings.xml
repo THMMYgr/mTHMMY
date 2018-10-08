@@ -152,8 +152,6 @@
     <string name="pref_app_main_default_tab_dialog_title">Default home tab</string>
 
     <string name="pref_category_notifications">Notifications</string>
-    <!--<string name="pref_title_notifications_enable">New posts notification</string>
-    <string name="pref_summary_notifications_enable">Toggle notifications state</string>-->
     <string name="pref_title_notification_vibration_enable">Vibration</string>
     <string name="pref_title_notification_led_enable">Notifications led</string>
     <string name="pref_summary_notification_led_enable">Enables/disables the notifications led (if the device has one)</string>
@@ -167,6 +165,14 @@
     <string name="pref_category_uploading">Uploading</string>
     <string name="pref_title_uploading_app_signature_enable">App signature</string>
     <string name="pref_summary_uploading_app_signature_enable">Appends an \"uploaded from mTHMMY\" message to the descriptions of your uploads</string>
+
+    <string name="pref_category_privacy">Privacy</string>
+    <string name="pref_privacy_crashlytics_enable_key">pref_privacy_crashlytics_enable_key</string>
+    <string name="pref_title_privacy_crashlytics_enable">Crash data reports</string>
+    <string name="pref_summary_privacy_crashlytics_enable">Automatically send us anonymized reports of errors and crashes</string>
+    <string name="pref_privacy_analytics_enable_key">pref_privacy_analytics_enable_key</string>
+    <string name="pref_title_privacy_analytics_enable">Analytics data reports</string>
+    <string name="pref_summary_privacy_analytics_enable">Automatically send us anonymized data for analytical purposes</string>
 
     <!-- EditorView -->
     <string name="black">Black</string>

@@ -226,4 +226,13 @@ public class NotificationService extends FirebaseMessagingService {
     }
 
 
+    /**
+     * Called if InstanceID token is updated. Note that this is called when the InstanceID token
+     * is initially generated so this is where you would retrieve the token.
+     */
+    @Override
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+        Timber.i("InstanceID token updated (onNewToken)");
+    }
 }

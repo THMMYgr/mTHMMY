@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import timber.log.Timber;
-
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner
  * classes). It can be used to resolve a page's language and state or fix embedded videos html code.
