@@ -43,13 +43,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.HorizontalBarChart;
-import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -177,6 +175,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     container.setOrientation(LinearLayout.HORIZONTAL);
                     CheckBox checkBox = new CheckBox(context);
                     TextView label = new TextView(context);
+                    label.setTextColor(context.getResources().getColor(R.color.primary_text));
                     label.setMovementMethod(LinkMovementMethod.getInstance());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         label.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
@@ -230,7 +229,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 xAxis.setValueFormatter((value, axis) -> Html.fromHtml(entries[(int) value].getEntryName()).toString());
                 xAxis.setTextColor(context.getResources().getColor(R.color.primary_text));
                 xAxis.setGranularity(1f);
-                xAxis.setLabelCount(entries.length, true);
+                xAxis.setLabelCount(entries.length);
                 xAxis.setDrawGridLines(false);
                 xAxis.setDrawAxisLine(false);
                 xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
