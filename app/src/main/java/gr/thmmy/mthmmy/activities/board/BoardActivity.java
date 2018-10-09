@@ -104,7 +104,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         else {
             newTopicFAB.setOnClickListener(view -> {
                 if (sessionManager.isLoggedIn()) {
-                    //TODO create topic
                     if (newTopicUrl != null) {
                         Intent intent = new Intent(this, CreateContentActivity.class);
                         intent.putExtra(CreateContentActivity.EXTRA_NEW_TOPIC_URL, newTopicUrl);
@@ -195,6 +194,12 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         @Override   //TODO should throw ParseException
         public void parse(Document boardPage) throws ParseException {
+            tempSubboards.addAll(parsedSubBoards);
+            tempTopics.addAll(parsedTopics);
+            //Removes loading item
+            if (isLoadingMore) {
+                if (tempTopics.size() > 0) tempTopics.remove(tempTopics.size() - 1);
+            }
             parsedTitle = boardPage.select("div.nav a.nav").last().text();
 
             //Finds number of pages
@@ -308,7 +313,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         @Override
         protected void postExecution(ResultCode result) {
-            //TODO if (result == ResultCode.SUCCESS)...
             if (result == ResultCode.SUCCESS) {
                 if (boardTitle == null || Objects.equals(boardTitle, "")
                         || !Objects.equals(boardTitle, parsedTitle)) {
@@ -317,10 +321,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
                 }
 
-                //Removes loading item
-                if (isLoadingMore) {
-                    if (parsedTopics.size() > 0) parsedTopics.remove(parsedTopics.size() - 1);
-                }
+                Timber.d("topix " + tempTopics);
 
                 parsedTopics.clear();
                 parsedSubBoards.clear();
