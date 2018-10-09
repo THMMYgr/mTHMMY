@@ -10,12 +10,10 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.TimerTask;
 
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
-import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
+import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditResult;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;

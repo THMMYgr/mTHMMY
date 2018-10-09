@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -37,7 +36,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
@@ -60,7 +58,6 @@ import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
 
 /**

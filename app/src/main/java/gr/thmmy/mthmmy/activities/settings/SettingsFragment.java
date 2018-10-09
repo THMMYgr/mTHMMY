@@ -13,21 +13,27 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
+import timber.log.Timber;
 
-public class SettingsFragment extends PreferenceFragmentCompat {
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.UPLOADING_APP_SIGNATURE_ENABLE_KEY;
+
+public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String ARG_IS_LOGGED_IN = "selectedRingtoneKey";
 
     //Preferences xml keys
-    private static final String DEFAULT_HOME_TAB = "pref_app_main_default_tab_key";
     private static final String SELECTED_NOTIFICATIONS_SOUND = "pref_notifications_select_sound_key";
     private static final String POSTING_CATEGORY = "pref_category_posting_key";
-    private static final String POSTING_APP_SIGNATURE_ENABLE = "pref_posting_app_signature_enable_key";
     private static final String UPLOADING_CATEGORY = "pref_category_uploading_key";
-    private static final String UPLOADING_APP_SIGNATURE_ENABLE = "pref_uploading_app_signature_enable_key";
+    public static final String PRIVACY_CRASHLYTICS_ENABLE_KEY = "pref_privacy_crashlytics_enable_key";
+    public static final String PRIVACY_ANALYTICS_ENABLE_KEY = "pref_privacy_analytics_enable_key";
 
     //SharedPreferences keys
     private static final int REQUEST_CODE_ALERT_RINGTONE = 2;
@@ -64,9 +70,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
 
-        if (args != null) {
+        if (args != null)
             isLoggedIn = args.getBoolean(ARG_IS_LOGGED_IN, false);
-        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -79,10 +96,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
-        findPreference(POSTING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
+        findPreference(POSTING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
         findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
-        findPreference(UPLOADING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
+        findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
         if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
             defaultHomeTabEntries.remove("Unread");
@@ -154,10 +171,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         this.isLoggedIn = isLoggedIn;
 
         findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
-        findPreference(POSTING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
+        findPreference(POSTING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
         findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
-        findPreference(UPLOADING_APP_SIGNATURE_ENABLE).setVisible(isLoggedIn);
+        findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
         if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
             defaultHomeTabEntries.remove("Unread");
@@ -172,5 +189,25 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         tmpCs = defaultHomeTabValues.toArray(new CharSequence[defaultHomeTabValues.size()]);
         ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntryValues(tmpCs);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        boolean enabled;
+        if (key.equals(getString(R.string.pref_privacy_crashlytics_enable_key))) {
+            enabled = sharedPreferences.getBoolean(key, false);
+            if(enabled)
+                Timber.i("Crashlytics collection will be enabled after restarting.");
+            else
+                Timber.i("Crashlytics collection will be disabled after restarting.");
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This change will take effect once you restart the app.", Toast.LENGTH_SHORT).show();
+        } else if (key.equals(getString(R.string.pref_privacy_analytics_enable_key))) {
+            enabled = sharedPreferences.getBoolean(key, false);
+            BaseApplication.getInstance().firebaseAnalyticsCollection(enabled);
+            if(enabled)
+                Timber.i("Analytics collection enabled.");
+            else
+                Timber.i("Analytics collection disabled.");
+        }
     }
 }

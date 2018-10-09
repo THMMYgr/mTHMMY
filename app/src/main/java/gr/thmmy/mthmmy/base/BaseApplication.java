@@ -39,6 +39,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import timber.log.Timber;
 
+import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SETTINGS_SHARED_PREFS;
+
 public class BaseApplication extends Application {
     private static BaseApplication baseApplication; //BaseApplication singleton
 
@@ -49,11 +51,10 @@ public class BaseApplication extends Application {
     private OkHttpClient client;
     private SessionManager sessionManager;
 
-    //Shared Preferences
-    private final String SHARED_PREFS_NAME = "ThmmySharedPrefs";
+    private final String SHARED_PREFS = "ThmmySharedPrefs";
 
     //Display Metrics
-    private static float dpHeight, dpWidth;
+    private static float dpWidth;
 
     public static BaseApplication getInstance() {
         return baseApplication;
@@ -64,22 +65,35 @@ public class BaseApplication extends Application {
         super.onCreate();
         baseApplication = this; //init singleton
 
-        // Set up Crashlytics, disabled for debug builds
-        Crashlytics crashlyticsKit = new Crashlytics.Builder()
-                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-                .build();
-        // Initialize Fabric with the debug-disabled crashlytics.
-        Fabric.with(this, crashlyticsKit);
-        // Initialize timber
+        // Initialize Timber
         if (BuildConfig.DEBUG)
             Timber.plant(new Timber.DebugTree());
         else
             Timber.plant(new CrashReportingTree());
 
-        // Analytics init
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        //Shared Preferences
+        SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences settingsSharedPrefs = getSharedPreferences(SETTINGS_SHARED_PREFS, Context.MODE_PRIVATE);
 
-        SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+        // Set up Crashlytics, disabled for debug builds
+        if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false)) {
+            Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                    .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                    .build();
+            // Initialize Fabric with the debug-disabled Crashlytics.
+            Fabric.with(this, crashlyticsKit);
+            Timber.i("Starting app with Crashlytics enabled.");
+        } else
+            Timber.i("Starting app with Crashlytics disabled.");
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        boolean enableAnalytics = settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_analytics_enable_key), false);
+        firebaseAnalytics.setAnalyticsCollectionEnabled(enableAnalytics);
+        if(enableAnalytics)
+            Timber.i("Starting app with Analytics enabled.");
+        else
+            Timber.i("Starting app with Analytics disabled.");
+
         SharedPrefsCookiePersistor sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(getApplicationContext());
         PersistentCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
         client = new OkHttpClient.Builder()
@@ -137,7 +151,6 @@ public class BaseApplication extends Application {
         });
 
         DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
-        dpHeight = displayMetrics.heightPixels / displayMetrics.density;
         dpWidth = displayMetrics.widthPixels / displayMetrics.density;
     }
 
@@ -145,18 +158,19 @@ public class BaseApplication extends Application {
         firebaseAnalytics.logEvent(event, params);
     }
 
-    //Getters
+    public void firebaseAnalyticsCollection(boolean enabled) {
+        firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
+        if(!enabled)
+            firebaseAnalytics.resetAnalyticsData();
+    }
 
+    //Getters
     public OkHttpClient getClient() {
         return client;
     }
 
     public SessionManager getSessionManager() {
         return sessionManager;
-    }
-
-    public float getDpHeight() {
-        return dpHeight;
     }
 
     public float getDpWidth() {

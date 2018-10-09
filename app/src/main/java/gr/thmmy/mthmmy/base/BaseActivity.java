@@ -301,26 +301,24 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withSelectionListEnabledForSingleProfile(false)
                 .withHeaderBackground(R.color.primary)
                 .addProfiles(profileDrawerItem)
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        if (sessionManager.isLoggedIn()) {
-                            Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
-                            Bundle extras = new Bundle();
-                            extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
-                            if (!sessionManager.hasAvatar())
-                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
-                            else
-                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, sessionManager.getAvatarLink());
-                            extras.putString(BUNDLE_PROFILE_USERNAME, sessionManager.getUsername());
-                            intent.putExtras(extras);
-                            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                            return false;
-                        }
-                        return true;
+                .withOnAccountHeaderListener((view, profile, currentProfile) -> {
+                    if (sessionManager.isLoggedIn()) {
+                        Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
+                        if (!sessionManager.hasAvatar())
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                        else
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, sessionManager.getAvatarLink());
+                        extras.putString(BUNDLE_PROFILE_USERNAME, sessionManager.getUsername());
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        return false;
+                    } else
+                        startLoginActivity();
+                    return true;
 
-                    }
                 })
                 .build();
 
@@ -360,12 +358,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                             }
                         } else if (drawerItem.equals(LOG_ID)) {
                             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
-                            {
-                                Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
-                                startActivity(intent);
-                                finish();
-                                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                            } else
+                                startLoginActivity();
+                            else
                                 new LogoutTask().execute();
                         } else if (drawerItem.equals(ABOUT_ID)) {
                             if (!(BaseActivity.this instanceof AboutActivity)) {
@@ -533,18 +527,15 @@ public abstract class BaseActivity extends AppCompatActivity {
         } else {
             thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
         }
-        thisPageBookmarkImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (thisPageBookmark.matchExists(boardsBookmarked)) {
-                    thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
-                    Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
-                } else {
-                    thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
-                    Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
-                }
-                toggleBoardToBookmarks(thisPageBookmark);
+        thisPageBookmarkImageButton.setOnClickListener(view -> {
+            if (thisPageBookmark.matchExists(boardsBookmarked)) {
+                thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
+                Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
+            } else {
+                thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
+                Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
             }
+            toggleBoardToBookmarks(thisPageBookmark);
         });
     }
 
@@ -742,5 +733,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     //----------------------------------MISC----------------------
     protected void setMainActivity(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
+    }
+
+    private void startLoginActivity(){
+        Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
     }
 }
