@@ -4,11 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.widget.Toast;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
+import androidx.viewpager.widget.ViewPager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
@@ -28,6 +26,7 @@ import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
 import gr.thmmy.mthmmy.activities.main.shoutbox.ShoutboxFragment;
 import gr.thmmy.mthmmy.activities.main.unread.UnreadFragment;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
+import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
@@ -53,7 +52,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     private static final String DRAWER_INTRO = "DRAWER_INTRO";
     private long mBackPressed;
     private SectionsPagerAdapter sectionsPagerAdapter;
-    private BottomNavigationView bottomNavigation;
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,46 +79,33 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         sectionsPagerAdapter.addFragment(RecentFragment.newInstance(1), "RECENT");
         sectionsPagerAdapter.addFragment(ForumFragment.newInstance(2), "FORUM");
-        if (sessionManager.isLoggedIn())
+        if (sessionManager.isLoggedIn()) {
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
+            sectionsPagerAdapter.addFragment(ShoutboxFragment.newInstance(4), "SHOUTBOX");
+        }
 
-        FragmentTransaction initialFragmentTransaction = getSupportFragmentManager().beginTransaction();
-        RecentFragment initialRecentFragment = RecentFragment.newInstance(1);
-        initialFragmentTransaction.add(R.id.fragment_container, initialRecentFragment);
-        initialFragmentTransaction.commit();
-
-        bottomNavigation = findViewById(R.id.main_bottom_navigation);
-        if (sessionManager.isLoggedIn()) bottomNavigation.inflateMenu(R.menu.bottom_navigation_logged_in);
-        bottomNavigation.setOnNavigationItemSelectedListener(menuItem -> {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            switch (menuItem.getItemId()) {
-                case R.id.action_recent:
-                    fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    RecentFragment recentFragment = RecentFragment.newInstance(1);
-                    fragmentTransaction.replace(R.id.fragment_container, recentFragment);
-                    fragmentTransaction.commit();
-                    return true;
-                case R.id.action_forum:
-                    ForumFragment forumFragment = ForumFragment.newInstance(2);
-                    fragmentTransaction.replace(R.id.fragment_container, forumFragment);
-                    fragmentTransaction.commit();
-                    return true;
-                case R.id.action_unread:
-                    UnreadFragment unreadFragment = UnreadFragment.newInstance(3);
-                    fragmentTransaction.replace(R.id.fragment_container, unreadFragment);
-                    fragmentTransaction.commit();
-                    return true;
-                case R.id.action_shoutbox:
-                    ShoutboxFragment shoutboxFragment = ShoutboxFragment.newInstance(4);
-                    fragmentTransaction.replace(R.id.fragment_container, shoutboxFragment);
-                    fragmentTransaction.commit();
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        //Set up the ViewPager with the sections adapter.
+        viewPager = findViewById(R.id.container);
+        viewPager.setAdapter(sectionsPagerAdapter);
+        tabLayout = findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int preferredTab = Integer.parseInt(sharedPrefs.getString(SettingsActivity.DEFAULT_HOME_TAB, "0"));
+        if ((preferredTab != 3 && preferredTab != 4) || sessionManager.isLoggedIn()) {
+            tabLayout.getTabAt(preferredTab).select();
+        }
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            if (i == 0) {
+                tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_access_time_white_24dp));
+            } else if (i == 1) {
+                tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_forum_white_24dp));
+            }else if (i == 2) {
+                tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
+            } else if (i == 3) {
+                tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_announcement));
+            }
+        }
 
         setMainActivity(this);
     }
@@ -209,6 +196,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             fragmentList.remove(position);
             fragmentTitleList.remove(position);
             notifyDataSetChanged();
+            if (viewPager.getCurrentItem() == position)
+                viewPager.setCurrentItem(position - 1);
         }
 
         @Override
@@ -235,15 +224,15 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     }
 
     public void updateTabs() {
-        if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3)
+        if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 4) {
+            sectionsPagerAdapter.removeFragment(3);
             sectionsPagerAdapter.removeFragment(2);
-        else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2)
+        }
+        else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2) {
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
-        if (!sessionManager.isLoggedIn() && bottomNavigation.getMenu().size() > 2) {
-            bottomNavigation.getMenu().removeItem(R.id.action_shoutbox);
-            bottomNavigation.getMenu().removeItem(R.id.action_unread);
-        } else if (sessionManager.isLoggedIn() && bottomNavigation.getMenu().size() < 4) {
-            bottomNavigation.inflateMenu(R.menu.bottom_navigation_logged_in);
+            sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(4), "SHOUTBOX");
+            tabLayout.getTabAt(3).setIcon(R.drawable.ic_fiber_new_white_24dp);
+            tabLayout.getTabAt(4).setIcon(R.drawable.ic_announcement);
         }
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
