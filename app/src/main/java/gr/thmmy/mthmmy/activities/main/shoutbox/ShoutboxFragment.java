@@ -1,16 +1,17 @@
 package gr.thmmy.mthmmy.activities.main.shoutbox;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.editorview.EditorView;
@@ -29,7 +30,6 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
     private MaterialProgressBar progressBar;
     private ShoutboxTask shoutboxTask;
     private ShoutAdapter shoutAdapter;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private EmojiKeyboard emojiKeyboard;
     private EditorView editorView;
     private Shoutbox shoutbox;
@@ -66,7 +66,6 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
 
     private void onShoutboxTaskFinished(int resultCode, Shoutbox shoutbox) {
         progressBar.setVisibility(View.INVISIBLE);
-        swipeRefreshLayout.setRefreshing(false);
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             shoutAdapter.setShouts(shoutbox.getShouts());
             shoutAdapter.notifyDataSetChanged();
@@ -90,16 +89,15 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setOnTouchListener((view, motionEvent) -> {
+            editorView.setMarkdownVisible(false);
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(editorView.getWindowToken(), 0);
+            return false;
+        });
+
         shoutboxTask = new ShoutboxTask(this::onShoutboxTaskSarted, this::onShoutboxTaskFinished);
         shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
-
-        swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
-        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
-        swipeRefreshLayout.setColorSchemeResources(R.color.accent);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
-            shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
-        });
 
         emojiKeyboard = rootView.findViewById(R.id.emoji_keyboard);
         editorView = rootView.findViewById(R.id.edior_view);
@@ -119,6 +117,13 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
                     .execute(shoutbox.getSendShoutUrl(), editorView.getText().toString(), shoutbox.getSc(),
                             shoutbox.getShoutName(), shoutbox.getShoutSend(), shoutbox.getShoutUrl());
         });
+        editorView.setMarkdownVisible(false);
+        editorView.setOnTouchListener((view, motionEvent) -> {
+            editorView.setMarkdownVisible(true);
+            return false;
+        });
+        editorView.setMarkdownVisible(false);
+        editorView.showMarkdownOnfocus();
 
         return rootView;
     }

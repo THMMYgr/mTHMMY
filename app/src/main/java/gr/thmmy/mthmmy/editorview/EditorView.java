@@ -6,12 +6,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -26,8 +20,15 @@ import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.Objects;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 
 public class EditorView extends LinearLayout {
@@ -273,6 +274,17 @@ public class EditorView extends LinearLayout {
         });
 
         submitButton = findViewById(R.id.submit_button);
+    }
+
+    public void setMarkdownVisible(boolean visible) {
+        findViewById(R.id.buttons_recyclerview).setVisibility(visible ? VISIBLE : GONE);
+    }
+
+    public void showMarkdownOnfocus() {
+        edittextWrapper.setOnClickListener(view -> setMarkdownVisible(true));
+        editText.setOnClickListener(view -> setMarkdownVisible(true));
+        edittextWrapper.setOnFocusChangeListener((view, b) -> setMarkdownVisible(b));
+        editText.setOnFocusChangeListener((view, b) -> setMarkdownVisible(b));
     }
 
     public TextInputEditText getEditText() {
