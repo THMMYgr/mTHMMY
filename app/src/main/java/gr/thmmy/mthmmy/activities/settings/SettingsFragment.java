@@ -32,8 +32,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     private static final String SELECTED_NOTIFICATIONS_SOUND = "pref_notifications_select_sound_key";
     private static final String POSTING_CATEGORY = "pref_category_posting_key";
     private static final String UPLOADING_CATEGORY = "pref_category_uploading_key";
-    public static final String PRIVACY_CRASHLYTICS_ENABLE_KEY = "pref_privacy_crashlytics_enable_key";
-    public static final String PRIVACY_ANALYTICS_ENABLE_KEY = "pref_privacy_analytics_enable_key";
 
     //SharedPreferences keys
     private static final int REQUEST_CODE_ALERT_RINGTONE = 2;

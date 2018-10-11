@@ -3,8 +3,10 @@ package gr.thmmy.mthmmy.activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
+import android.view.ActionMode;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -77,28 +79,26 @@ public class LoginActivity extends BaseActivity {
         });
 
         //Guest Button Action
-        btnGuest.setOnClickListener(new View.OnClickListener() {
+        btnGuest.setOnClickListener(view -> {
+            //Session data update
+            sessionManager.guestLogin();
 
-            public void onClick(View view) {
-                //Session data update
-                sessionManager.guestLogin();
-
-                //Go to main
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
-            }
+            //Go to main
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
         });
     }
 
     @Override
     public void onBackPressed() {
-        // Disable going back to the MainActivity
-        moveTaskToBack(true);
+        super.onBackPressed();
         if (loginTask != null && loginTask.getStatus() == AsyncTask.Status.RUNNING) {
             loginTask.cancel(true);
         }
+        if(!isTaskRoot())
+            overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
     private void onLoginFailed() {

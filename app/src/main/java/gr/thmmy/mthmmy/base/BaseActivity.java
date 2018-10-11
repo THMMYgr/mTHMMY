@@ -35,8 +35,6 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -329,53 +327,53 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withDrawerWidthDp((int) BaseApplication.getInstance().getDpWidth() / 2)
                 .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
                 .withAccountHeader(accountHeader)
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem.equals(HOME_ID)) {
-                            if (!(BaseActivity.this instanceof MainActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, MainActivity.class);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(DOWNLOADS_ID)) {
-                            if (!(BaseActivity.this instanceof DownloadsActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
-                                Bundle extras = new Bundle();
-                                extras.putString(BUNDLE_DOWNLOADS_URL, "");
-                                extras.putString(BUNDLE_DOWNLOADS_TITLE, null);
-                                intent.putExtras(extras);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(UPLOAD_ID)) {
-                            if (!(BaseActivity.this instanceof UploadActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(BOOKMARKS_ID)) {
-                            if (!(BaseActivity.this instanceof BookmarkActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, BookmarkActivity.class);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(LOG_ID)) {
-                            if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
-                                startLoginActivity();
-                            else
-                                new LogoutTask().execute();
-                        } else if (drawerItem.equals(ABOUT_ID)) {
-                            if (!(BaseActivity.this instanceof AboutActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(SETTINGS_ID)) {
-                            if (!(BaseActivity.this instanceof SettingsActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, SettingsActivity.class);
-                                startActivity(intent);
-                            }
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+                    if (drawerItem.equals(HOME_ID)) {
+                        if (!(BaseActivity.this instanceof MainActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+                            startActivity(intent);
                         }
-
-                        drawer.closeDrawer();
-                        return true;
+                    } else if (drawerItem.equals(DOWNLOADS_ID)) {
+                        if (!(BaseActivity.this instanceof DownloadsActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
+                            Bundle extras = new Bundle();
+                            extras.putString(BUNDLE_DOWNLOADS_URL, "");
+                            extras.putString(BUNDLE_DOWNLOADS_TITLE, null);
+                            intent.putExtras(extras);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(UPLOAD_ID)) {
+                        if (!(BaseActivity.this instanceof UploadActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(BOOKMARKS_ID)) {
+                        if (!(BaseActivity.this instanceof BookmarkActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, BookmarkActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(LOG_ID)) {
+                        if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
+                            startLoginActivity();
+                        else
+                            new LogoutTask().execute();
+                    } else if (drawerItem.equals(ABOUT_ID)) {
+                        if (!(BaseActivity.this instanceof AboutActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(SETTINGS_ID)) {
+                        if (!(BaseActivity.this instanceof SettingsActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, SettingsActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(intent);
+                        }
                     }
+
+                    drawer.closeDrawer();
+                    return true;
                 });
 
         if (sessionManager.isLoggedIn())
@@ -388,12 +386,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (!(BaseActivity.this instanceof MainActivity))
             drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
 
-        drawer.setOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
-            @Override
-            public boolean onNavigationClickListener(View clickedView) {
-                onBackPressed();
-                return true;
-            }
+        drawer.setOnDrawerNavigationListener(clickedView -> {
+            onBackPressed();
+            return true;
         });
     }
 
@@ -696,36 +691,25 @@ public abstract class BaseActivity extends AppCompatActivity {
         Button cancelButton = view.findViewById(R.id.cancel);
         Button openButton = view.findViewById(R.id.open);
         Button downloadButton = view.findViewById(R.id.download);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        openButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            try {
+                String fileName = thmmyFile.getFilename();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", new File(SAVE_DIR, fileName));
+                intent.setDataAndType(fileUri, getMimeType(fileName));
+                BaseActivity.this.startActivity(intent);
+            } catch (Exception e) {
+                Timber.e(e, "Couldn't open downloaded file...");
+                Toast.makeText(getBaseContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
             }
-        });
-        openButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                try {
-                    String fileName = thmmyFile.getFilename();
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), getPackageName() + ".provider", new File(SAVE_DIR, fileName));
-                    intent.setDataAndType(fileUri, getMimeType(fileName));
-                    BaseActivity.this.startActivity(intent);
-                } catch (Exception e) {
-                    Timber.e(e, "Couldn't open downloaded file...");
-                    Toast.makeText(getBaseContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
-                }
 
-            }
         });
-        downloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                DownloadHelper.enqueueDownload(thmmyFile);
-            }
+        downloadButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            DownloadHelper.enqueueDownload(thmmyFile);
         });
         dialog.show();
     }
@@ -738,7 +722,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     private void startLoginActivity(){
         Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
         startActivity(intent);
-        finish();
         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
     }
 }

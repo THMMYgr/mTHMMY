@@ -113,11 +113,12 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity" />
+                android:value=".activities.upload.UploadActivity" />
         </activity>
         <activity
             android:name=".activities.bookmarks.BookmarkActivity"
             android:parentActivityName=".activities.main.MainActivity"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -126,6 +127,7 @@
         <activity
             android:name=".activities.settings.SettingsActivity"
             android:parentActivityName=".activities.main.MainActivity"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.PreferenceTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
