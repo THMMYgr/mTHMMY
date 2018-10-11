@@ -49,6 +49,7 @@ import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
+import gr.thmmy.mthmmy.activities.shoutbox.ShoutboxActivity;
 import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
@@ -145,6 +146,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected static final int LOG_ID = 4;
     protected static final int ABOUT_ID = 5;
     protected static final int SETTINGS_ID = 6;
+    protected static final int SHOUTBOX_ID = 7;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
@@ -159,7 +161,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
-        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem;
+        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem, shoutboxItem;
         IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, uploadIcon, uploadIconSelected, settingsIcon,
                 settingsIconSelected, bookmarksIcon, bookmarksIconSelected, aboutIcon, aboutIconSelected;
 
@@ -230,6 +232,15 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withIcon(homeIcon)
                 .withSelectedIcon(homeIconSelected);
 
+        shoutboxItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(SHOUTBOX_ID)
+                .withName(R.string.shoutbox)
+                .withIcon(R.drawable.ic_announcement)
+                .withIconColor(primaryColor)
+                .withSelectedIconColor(selectedSecondaryColor);
 
         if (sessionManager.isLoggedIn()) //When logged in
         {
@@ -301,26 +312,23 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withSelectionListEnabledForSingleProfile(false)
                 .withHeaderBackground(R.color.primary)
                 .addProfiles(profileDrawerItem)
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        if (sessionManager.isLoggedIn()) {
-                            Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
-                            Bundle extras = new Bundle();
-                            extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
-                            if (!sessionManager.hasAvatar())
-                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
-                            else
-                                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, sessionManager.getAvatarLink());
-                            extras.putString(BUNDLE_PROFILE_USERNAME, sessionManager.getUsername());
-                            intent.putExtras(extras);
-                            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                            return false;
-                        }
-                        return true;
-
+                .withOnAccountHeaderListener((view, profile, currentProfile) -> {
+                    if (sessionManager.isLoggedIn()) {
+                        Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
+                        if (!sessionManager.hasAvatar())
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+                        else
+                            extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, sessionManager.getAvatarLink());
+                        extras.putString(BUNDLE_PROFILE_USERNAME, sessionManager.getUsername());
+                        intent.putExtras(extras);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        return false;
                     }
+                    return true;
+
                 })
                 .build();
 
@@ -331,63 +339,65 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withDrawerWidthDp((int) BaseApplication.getInstance().getDpWidth() / 2)
                 .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
                 .withAccountHeader(accountHeader)
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem.equals(HOME_ID)) {
-                            if (!(BaseActivity.this instanceof MainActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, MainActivity.class);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(DOWNLOADS_ID)) {
-                            if (!(BaseActivity.this instanceof DownloadsActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
-                                Bundle extras = new Bundle();
-                                extras.putString(BUNDLE_DOWNLOADS_URL, "");
-                                extras.putString(BUNDLE_DOWNLOADS_TITLE, null);
-                                intent.putExtras(extras);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(UPLOAD_ID)) {
-                            if (!(BaseActivity.this instanceof UploadActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(BOOKMARKS_ID)) {
-                            if (!(BaseActivity.this instanceof BookmarkActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, BookmarkActivity.class);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(LOG_ID)) {
-                            if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
-                            {
-                                Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
-                                startActivity(intent);
-                                finish();
-                                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                            } else
-                                new LogoutTask().execute();
-                        } else if (drawerItem.equals(ABOUT_ID)) {
-                            if (!(BaseActivity.this instanceof AboutActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
-                                startActivity(intent);
-                            }
-                        } else if (drawerItem.equals(SETTINGS_ID)) {
-                            if (!(BaseActivity.this instanceof SettingsActivity)) {
-                                Intent intent = new Intent(BaseActivity.this, SettingsActivity.class);
-                                startActivity(intent);
-                            }
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+                    if (drawerItem.equals(HOME_ID)) {
+                        if (!(BaseActivity.this instanceof MainActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+                            startActivity(intent);
                         }
-
-                        drawer.closeDrawer();
-                        return true;
+                    } else if (drawerItem.equals(SHOUTBOX_ID)) {
+                        if (!(BaseActivity.this instanceof ShoutboxActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, ShoutboxActivity.class);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(DOWNLOADS_ID)) {
+                        if (!(BaseActivity.this instanceof DownloadsActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
+                            Bundle extras = new Bundle();
+                            extras.putString(BUNDLE_DOWNLOADS_URL, "");
+                            extras.putString(BUNDLE_DOWNLOADS_TITLE, null);
+                            intent.putExtras(extras);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(UPLOAD_ID)) {
+                        if (!(BaseActivity.this instanceof UploadActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(BOOKMARKS_ID)) {
+                        if (!(BaseActivity.this instanceof BookmarkActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, BookmarkActivity.class);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(LOG_ID)) {
+                        if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
+                        {
+                            Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                            overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                        } else
+                            new LogoutTask().execute();
+                    } else if (drawerItem.equals(ABOUT_ID)) {
+                        if (!(BaseActivity.this instanceof AboutActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
+                            startActivity(intent);
+                        }
+                    } else if (drawerItem.equals(SETTINGS_ID)) {
+                        if (!(BaseActivity.this instanceof SettingsActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, SettingsActivity.class);
+                            startActivity(intent);
+                        }
                     }
+
+                    drawer.closeDrawer();
+                    return true;
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, uploadItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, shoutboxItem, bookmarksItem, downloadsItem, uploadItem, settingsItem, loginLogoutItem, aboutItem);
         else
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, shoutboxItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
 
         drawer = drawerBuilder.build();
 

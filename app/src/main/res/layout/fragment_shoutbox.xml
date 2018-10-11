@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,33 +16,12 @@
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal" />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <gr.thmmy.mthmmy.utils.CustomRecyclerView
+        android:id="@+id/shoutbox_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <gr.thmmy.mthmmy.utils.CustomRecyclerView
-            android:id="@+id/shoutbox_recyclerview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:listitem="@layout/fragment_shoutbox_shout_row" />
-
-        <TextView
-            android:id="@+id/refresh_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="top"
-            android:layout_marginTop="4dp"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
-            android:background="@drawable/refresh_label_background"
-            android:text="@string/refresh_button"
-            android:textColor="@color/primary_text" />
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_weight="1"
+        tools:listitem="@layout/fragment_shoutbox_shout_row" />
 
     <gr.thmmy.mthmmy.editorview.EditorView
         android:id="@+id/edior_view"

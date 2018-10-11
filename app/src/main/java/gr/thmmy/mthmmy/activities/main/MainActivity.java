@@ -23,7 +23,6 @@ import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
-import gr.thmmy.mthmmy.activities.main.shoutbox.ShoutboxFragment;
 import gr.thmmy.mthmmy.activities.main.unread.UnreadFragment;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
@@ -79,10 +78,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         sectionsPagerAdapter.addFragment(RecentFragment.newInstance(1), "RECENT");
         sectionsPagerAdapter.addFragment(ForumFragment.newInstance(2), "FORUM");
-        if (sessionManager.isLoggedIn()) {
+        if (sessionManager.isLoggedIn())
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
-            sectionsPagerAdapter.addFragment(ShoutboxFragment.newInstance(4), "SHOUTBOX");
-        }
 
         //Set up the ViewPager with the sections adapter.
         viewPager = findViewById(R.id.container);
@@ -102,8 +99,6 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                 tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_forum_white_24dp));
             }else if (i == 2) {
                 tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
-            } else if (i == 3) {
-                tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_announcement));
             }
         }
 
@@ -224,15 +219,12 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     }
 
     public void updateTabs() {
-        if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 4) {
-            sectionsPagerAdapter.removeFragment(3);
+        if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3) {
             sectionsPagerAdapter.removeFragment(2);
         }
         else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2) {
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
-            sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(4), "SHOUTBOX");
             tabLayout.getTabAt(3).setIcon(R.drawable.ic_fiber_new_white_24dp);
-            tabLayout.getTabAt(4).setIcon(R.drawable.ic_announcement);
         }
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------

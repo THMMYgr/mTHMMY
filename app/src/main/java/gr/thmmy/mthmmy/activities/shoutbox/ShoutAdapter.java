@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.main.shoutbox;
+package gr.thmmy.mthmmy.activities.shoutbox;
 
 import android.annotation.TargetApi;
 import android.content.Context;

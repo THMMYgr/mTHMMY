@@ -40,7 +40,7 @@ tasks.whenTaskAdded { task ->
         task.getDependsOn().add({
             def inputFile = new File("app/google-services.json")
             def json = new JsonSlurper().parseText(inputFile.text)
-            if(json.project_info.project_id != "mthmmy-release-3aef0")
+            if (json.project_info.project_id != "mthmmy-release-3aef0")
                 throw new GradleException('Please supply the correct google-services.json for release or manually change the id above!')
         })
     }
@@ -77,6 +77,7 @@ dependencies {
     implementation 'net.gotev:uploadservice-okhttp:3.4.2'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
 }
 
 apply plugin: 'com.google.gms.google-services'

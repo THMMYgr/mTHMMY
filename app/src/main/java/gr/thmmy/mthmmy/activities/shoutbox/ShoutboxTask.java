@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.main.shoutbox;
+package gr.thmmy.mthmmy.activities.shoutbox;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
