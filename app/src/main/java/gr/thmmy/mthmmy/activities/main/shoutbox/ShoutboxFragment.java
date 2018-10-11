@@ -90,7 +90,7 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         layoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setOnTouchListener((view, motionEvent) -> {
-            editorView.setMarkdownVisible(false);
+            editorView.hideMarkdown();
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(editorView.getWindowToken(), 0);
             return false;
@@ -117,9 +117,9 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
                     .execute(shoutbox.getSendShoutUrl(), editorView.getText().toString(), shoutbox.getSc(),
                             shoutbox.getShoutName(), shoutbox.getShoutSend(), shoutbox.getShoutUrl());
         });
-        editorView.setMarkdownVisible(false);
+        editorView.hideMarkdown();
         editorView.setOnTouchListener((view, motionEvent) -> {
-            editorView.setMarkdownVisible(true);
+            editorView.showMarkdown();
             return false;
         });
         editorView.setMarkdownVisible(false);
