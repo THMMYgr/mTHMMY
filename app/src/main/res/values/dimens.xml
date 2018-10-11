@@ -11,4 +11,5 @@
     <dimen name="big_text">24sp</dimen>
     <dimen name="editor_format_button_size">24dp</dimen>
     <dimen name="editor_format_button_margin_between">6dp</dimen>
+    <dimen name="refresh_label_border_radius">12dp</dimen>
 </resources>

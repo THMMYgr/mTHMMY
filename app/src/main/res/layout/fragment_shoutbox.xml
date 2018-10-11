@@ -17,12 +17,33 @@
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal" />
 
-    <gr.thmmy.mthmmy.utils.CustomRecyclerView
-        android:id="@+id/shoutbox_recyclerview"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        tools:listitem="@layout/fragment_shoutbox_shout_row" />
+        android:layout_weight="1">
+
+        <gr.thmmy.mthmmy.utils.CustomRecyclerView
+            android:id="@+id/shoutbox_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/fragment_shoutbox_shout_row" />
+
+        <TextView
+            android:id="@+id/refresh_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="top"
+            android:layout_marginTop="4dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:background="@drawable/refresh_label_background"
+            android:text="@string/refresh_button"
+            android:textColor="@color/primary_text" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <gr.thmmy.mthmmy.editorview.EditorView
         android:id="@+id/edior_view"
@@ -30,10 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:paddingTop="8dp"
-        app:layout_anchor="@id/shoutbox_recyclerview"
-        app:layout_anchorGravity="bottom"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareLinearBehavior" />
+        android:paddingTop="8dp" />
 
     <gr.thmmy.mthmmy.editorview.EmojiKeyboard
         android:id="@+id/emoji_keyboard"

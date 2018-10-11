@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.main.shoutbox;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,11 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.editorview.EditorView;
@@ -29,11 +33,13 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
     private static final String TAG = "ShoutboxFragment";
 
     private MaterialProgressBar progressBar;
+    private TextView refreshLabel;
     private ShoutboxTask shoutboxTask;
     private ShoutAdapter shoutAdapter;
     private EmojiKeyboard emojiKeyboard;
     private EditorView editorView;
     private Shoutbox shoutbox;
+    private ValueAnimator animator;
 
     public static ShoutboxFragment newInstance(int sectionNumber) {
         ShoutboxFragment fragment = new ShoutboxFragment();
@@ -46,6 +52,7 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
 
     private void onShoutboxTaskSarted() {
         Timber.i("Starting shoutbox task...");
+        hideRefreshLabel();
         progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -58,6 +65,7 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         editorView.setAlpha(1f);
         editorView.setEnabled(true);
         progressBar.setVisibility(View.INVISIBLE);
+        showRefreshLabel();
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             Timber.i("Shout was sent successfully");
             editorView.getEditText().getText().clear();
@@ -90,6 +98,12 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_shoutbox, container, false);
 
+        refreshLabel = rootView.findViewById(R.id.refresh_label);
+        refreshLabel.setOnClickListener(v -> {
+            shoutboxTask = new ShoutboxTask(this::onShoutboxTaskSarted, this::onShoutboxTaskFinished);
+            shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
+        });
+
         progressBar = rootView.findViewById(R.id.progressBar);
         CustomRecyclerView recyclerView = rootView.findViewById(R.id.shoutbox_recyclerview);
         shoutAdapter = new ShoutAdapter(getContext(), new Shout[0]);
@@ -102,6 +116,16 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(editorView.getWindowToken(), 0);
             return false;
+        });
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) {
+                    showRefreshLabel();
+                } else {
+                    hideRefreshLabel();
+                }
+            }
         });
 
         shoutboxTask = new ShoutboxTask(this::onShoutboxTaskSarted, this::onShoutboxTaskFinished);
@@ -134,6 +158,32 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         editorView.showMarkdownOnfocus();
 
         return rootView;
+    }
+
+    private void hideRefreshLabel() {
+        if (refreshLabel.getVisibility() == View.GONE) return;
+        if (animator != null) animator.cancel();
+        animator = getRefreshLabelAnimation();
+        animator.start();
+    }
+
+    private void showRefreshLabel() {
+        if (refreshLabel.getVisibility() == View.VISIBLE) return;
+        if (animator != null) animator.cancel();
+        animator = getRefreshLabelAnimation();
+        animator.reverse();
+    }
+
+    private ValueAnimator getRefreshLabelAnimation() {
+        ValueAnimator animator = ValueAnimator.ofFloat(-200, 0);
+        animator.addUpdateListener(valueAnimator -> {
+            if (((Float) valueAnimator.getAnimatedValue()).intValue() == 1) refreshLabel.setVisibility(View.VISIBLE);
+            if (((Float) valueAnimator.getAnimatedValue()).intValue() == -199) refreshLabel.setVisibility(View.GONE);
+            refreshLabel.setTranslationY((float) valueAnimator.getAnimatedValue());
+        });
+        animator.setInterpolator(new FastOutSlowInInterpolator());
+        animator.setDuration(200);
+        return animator;
     }
 
     @Override
