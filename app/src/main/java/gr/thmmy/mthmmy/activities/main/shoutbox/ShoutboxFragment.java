@@ -22,6 +22,7 @@ import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import timber.log.Timber;
 
 public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.EmojiKeyboardOwner {
 
@@ -44,10 +45,12 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
     }
 
     private void onShoutboxTaskSarted() {
+        Timber.i("Starting shoutbox task...");
         progressBar.setVisibility(View.VISIBLE);
     }
 
     private void onSendShoutTaskStarted() {
+        Timber.i("Start sending a shout...");
         progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -56,10 +59,12 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
         editorView.setEnabled(true);
         progressBar.setVisibility(View.INVISIBLE);
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            Timber.i("Shout was sent successfully");
             editorView.getEditText().getText().clear();
             shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
             shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+            Timber.w("Failed to send shout");
             Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();
         }
     }
@@ -67,12 +72,15 @@ public class ShoutboxFragment extends BaseFragment implements EmojiKeyboard.Emoj
     private void onShoutboxTaskFinished(int resultCode, Shoutbox shoutbox) {
         progressBar.setVisibility(View.INVISIBLE);
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            Timber.i("Shoutbox loaded successfully");
             shoutAdapter.setShouts(shoutbox.getShouts());
             shoutAdapter.notifyDataSetChanged();
             this.shoutbox = shoutbox;
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+            Timber.w("Failed to retreive shoutbox due to network error");
             Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();
         } else {
+            Timber.wtf("Failed to retreive shoutbox due to unknown error");
             Toast.makeText(getContext(), "Failed to retrieve shoutbox, please contact mthmmy developer team", Toast.LENGTH_LONG).show();
         }
     }
