@@ -3,6 +3,9 @@ package gr.thmmy.mthmmy.activities.shoutbox;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputConnection;
@@ -34,7 +37,7 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
     private EmojiKeyboard emojiKeyboard;
     private EditorView editorView;
 
-    private ShoutboxViewModel mViewModel;
+    private ShoutboxViewModel shoutboxViewModel;
 
     public static ShoutboxFragment newInstance() {
         return new ShoutboxFragment();
@@ -45,6 +48,7 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_shoutbox, container, false);
+        setHasOptionsMenu(true);
 
         progressBar = rootView.findViewById(R.id.progressBar);
         CustomRecyclerView recyclerView = rootView.findViewById(R.id.shoutbox_recyclerview);
@@ -66,12 +70,12 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
         InputConnection ic = editorView.getInputConnection();
         setEmojiKeyboardInputConnection(ic);
         editorView.setOnSubmitListener(view -> {
-            if (mViewModel.getShoutboxMutableLiveData().getValue() == null) return;
+            if (shoutboxViewModel.getShoutboxMutableLiveData().getValue() == null) return;
             if (editorView.getText().toString().isEmpty()) {
                 editorView.setError("Required");
                 return;
             }
-            mViewModel.sendShout(editorView.getText().toString());
+            shoutboxViewModel.sendShout(editorView.getText().toString());
         });
         editorView.hideMarkdown();
         editorView.setOnTouchListener((view, motionEvent) -> {
@@ -85,22 +89,37 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.shoutbox_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_refresh) {
+            shoutboxViewModel.loadShoutbox();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(ShoutboxViewModel.class);
-        mViewModel.getShoutboxMutableLiveData().observe(this, shoutbox -> {
+        shoutboxViewModel = ViewModelProviders.of(this).get(ShoutboxViewModel.class);
+        shoutboxViewModel.getShoutboxMutableLiveData().observe(this, shoutbox -> {
             if (shoutbox != null) {
                 Timber.i("Shoutbox loaded successfully");
                 shoutAdapter.setShouts(shoutbox.getShouts());
                 shoutAdapter.notifyDataSetChanged();
             }
         });
-        mViewModel.setOnShoutboxTaskStarted(this::onShoutboxTaskSarted);
-        mViewModel.setOnShoutboxTaskFinished(this::onShoutboxTaskFinished);
-        mViewModel.setOnSendShoutTaskStarted(this::onSendShoutTaskStarted);
-        mViewModel.setOnSendShoutTaskFinished(this::onSendShoutTaskFinished);
+        shoutboxViewModel.setOnShoutboxTaskStarted(this::onShoutboxTaskSarted);
+        shoutboxViewModel.setOnShoutboxTaskFinished(this::onShoutboxTaskFinished);
+        shoutboxViewModel.setOnSendShoutTaskStarted(this::onSendShoutTaskStarted);
+        shoutboxViewModel.setOnSendShoutTaskFinished(this::onSendShoutTaskFinished);
 
-        mViewModel.loadShoutbox();
+        shoutboxViewModel.loadShoutbox();
     }
 
     private void onShoutboxTaskSarted() {
@@ -134,7 +153,7 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
     private void onShoutboxTaskFinished(int resultCode, Shoutbox shoutbox) {
         progressBar.setVisibility(View.INVISIBLE);
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            mViewModel.setShoutbox(shoutbox);
+            shoutboxViewModel.setShoutbox(shoutbox);
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Timber.w("Failed to retreive shoutbox due to network error");
             Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();

@@ -20,7 +20,7 @@
     <string name="forum">Forum</string>
     <string name="unread">Unread</string>
     <string name="shoutbox">Shoutbox</string>
-    <string name="refresh_button">REFRESH</string>
+    <string name="refresh">Refresh</string>
 
     <!--Login Activity-->
     <string name="thmmy_img_description">thmmy.gr</string>
