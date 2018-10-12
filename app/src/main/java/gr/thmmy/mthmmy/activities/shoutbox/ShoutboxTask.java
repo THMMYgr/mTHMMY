@@ -46,7 +46,10 @@ public class ShoutboxTask extends NewParseTask<Shoutbox> {
         String sc = shoutboxForm.select("input[name=sc]").first().attr("value");
         String shoutName = shoutboxForm.select("input[name=tp-shout-name]").first().attr("value");
         // TODO: make shout send nullable and disable shouting
-        String shoutSend = shoutboxForm.select("input[name=shout_send]").first().attr("value");
+        Element shoutSendInput = shoutboxForm.select("input[name=shout_send]").first();
+        String shoutSend = null;
+        if (shoutSendInput != null)
+            shoutSend = shoutSendInput.attr("value");
         String shoutUrl = shoutboxForm.select("input[name=tp-shout-url]").first().attr("value");
         return new Shoutbox(shouts.toArray(new Shout[0]), sc, formUrl, shoutName, shoutSend, shoutUrl);
     }

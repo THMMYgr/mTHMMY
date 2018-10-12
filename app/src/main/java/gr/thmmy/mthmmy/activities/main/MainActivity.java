@@ -224,7 +224,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         }
         else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2) {
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
-            tabLayout.getTabAt(3).setIcon(R.drawable.ic_fiber_new_white_24dp);
+            tabLayout.getTabAt(2).setIcon(R.drawable.ic_fiber_new_white_24dp);
         }
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------

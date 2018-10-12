@@ -154,6 +154,8 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
         progressBar.setVisibility(View.INVISIBLE);
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             shoutboxViewModel.setShoutbox(shoutbox);
+            if (shoutbox.getShoutSend() != null)
+                editorView.setVisibility(View.VISIBLE);
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Timber.w("Failed to retreive shoutbox due to network error");
             Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();
