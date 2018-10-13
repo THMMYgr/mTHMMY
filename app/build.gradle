@@ -25,7 +25,7 @@ android {
             def date = new Date().format('ddMMyy_HHmmss')
             archivesBaseName = archivesBaseName + "-$date"
             // Disable fabric build ID generation for debug builds
-            ext.enableCrashlytics = false;
+            ext.enableCrashlytics = false
         }
     }
 
@@ -58,7 +58,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.firebase:firebase-messaging:17.3.3'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     implementation 'org.jsoup:jsoup:1.10.3' //TODO: Warning: upgrading from 1.10.3 will break stuff!

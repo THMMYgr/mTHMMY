@@ -156,7 +156,7 @@ public class NotificationService extends FirebaseMessagingService {
             int k1 = postNotification.getTopicId();
             int k2 = postNotification.getBoardId();
             notificationId = -(((k1+k2)*(k1+k2+1))/2+k2);
-            contentText = "New post in " + postNotification.getTopicTitle();
+            contentText = "New post in \"" + postNotification.getTopicTitle() + "\"";
         }
 
         int newPostsCount = 1;
@@ -221,16 +221,17 @@ public class NotificationService extends FirebaseMessagingService {
                             .setGroup(GROUP_KEY)
                             .setAutoCancel(true)
                             .setStyle(new NotificationCompat.InboxStyle()
-                            .setSummaryText("New Posts"))
+                                    .setSummaryText("New Posts"))
                             .setDefaults(Notification.DEFAULT_ALL);
         }
-
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Since Android Oreo notification channel is needed.
-        if (buildVersion >= Build.VERSION_CODES.O)
-            notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
+        if (buildVersion >= Build.VERSION_CODES.O){
+            if (notificationManager.getNotificationChannel(CHANNEL_ID) == null)
+                notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
+        }
 
         notificationManager.notify(NEW_POST_TAG, notificationId, notificationBuilder.build());
 
