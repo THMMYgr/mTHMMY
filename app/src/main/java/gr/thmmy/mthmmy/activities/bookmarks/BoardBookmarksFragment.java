@@ -90,7 +90,7 @@ public class BoardBookmarksFragment extends Fragment {
             for (final Bookmark bookmarkedBoard : boardBookmarks) {
                 if (bookmarkedBoard != null && bookmarkedBoard.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
-                            R.layout.fragment_bookmarks_board_row, bookmarksLinearView, false);
+                            R.layout.fragment_bookmarks_row, bookmarksLinearView, false);
                     row.setOnClickListener(view -> {
                         Activity activity = getActivity();
                         if (activity instanceof BookmarkActivity){

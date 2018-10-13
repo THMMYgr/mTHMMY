@@ -50,19 +50,20 @@ public class NotificationService extends FirebaseMessagingService {
                 int userId = BaseApplication.getInstance().getSessionManager().getUserId();
                 //Don't notify me if the sender is me!
                 if (Integer.parseInt(json.getString("posterId")) != userId) {
-                    int topicId = Integer.parseInt(json.getString("topicId"));
-                    int postId = Integer.parseInt(json.getString("postId"));
-                    String topicTitle = json.getString("topicTitle");
-                    String poster = json.getString("poster");
                     int boardId = -1;
                     String boardTitle = null;
                     if(remoteMessage.getFrom().contains("b")){
                         Timber.i("FCM BOARD type message detected.");
+                        //TODO: return early and don't create notification if the user is also subscribed to this topicId
                         boardId = Integer.parseInt(json.getString("boardId"));
                         boardTitle = json.getString("boardTitle");
                     }
                     else
                         Timber.i("FCM TOPIC type message detected.");
+                    int topicId = Integer.parseInt(json.getString("topicId"));
+                    int postId = Integer.parseInt(json.getString("postId"));
+                    String topicTitle = json.getString("topicTitle");
+                    String poster = json.getString("poster");
 
                     sendNotification(new PostNotification(postId, topicId, topicTitle, poster, boardId, boardTitle));
                 } else
