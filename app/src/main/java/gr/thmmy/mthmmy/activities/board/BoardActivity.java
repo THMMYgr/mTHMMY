@@ -10,7 +10,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -94,7 +93,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        thisPageBookmark = new Bookmark(boardTitle, "b" + ThmmyPage.getBoardId(boardUrl), true);
+        thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), true);
         setBoardBookmark(findViewById(R.id.bookmark));
         createDrawer();
 
@@ -318,7 +317,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         || !Objects.equals(boardTitle, parsedTitle)) {
                     boardTitle = parsedTitle;
                     toolbar.setTitle(boardTitle);
-                    thisPageBookmark = new Bookmark(boardTitle, "b" + ThmmyPage.getBoardId(boardUrl), true);
+                    thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), true);
+                    setBoardBookmark(findViewById(R.id.bookmark));
                 }
 
                 parsedTopics.clear();

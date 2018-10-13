@@ -575,10 +575,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (boardsBookmarked == null) return;
         if (bookmark.matchExists(boardsBookmarked)) {
             boardsBookmarked.remove(bookmark.findIndex(boardsBookmarked));
-            FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("b" + bookmark.getId());
         } else {
-            boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), false));
-            FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
+            boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), true));
+            FirebaseMessaging.getInstance().subscribeToTopic("b" + bookmark.getId());
         }
         updateBoardBookmarks();
     }
@@ -630,9 +630,9 @@ public abstract class BaseActivity extends AppCompatActivity {
             updateBoardBookmarks();
 
             if (boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).isNotificationsEnabled())
-                FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
+                FirebaseMessaging.getInstance().subscribeToTopic("b" + bookmark.getId());
             else
-                FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
+                FirebaseMessaging.getInstance().unsubscribeFromTopic("b" + bookmark.getId());
 
             return boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).isNotificationsEnabled();
         } else
