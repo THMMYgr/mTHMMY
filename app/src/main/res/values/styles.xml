@@ -1,7 +1,6 @@
 <resources>
-
-    <!-- Dark application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <!-- Base Theme to also be inherited in v21 -->
+    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -21,10 +20,15 @@
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
+    <!-- Dark application theme. -->
+    <style name="AppTheme" parent="BaseAppTheme"/>
+
+    <style name="BaseAppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+    <style name="AppTheme.NoActionBar" parent="BaseAppTheme.NoActionBar"/>
 
     <style name="AppTheme.PreferenceTheme" parent="AppTheme.NoActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
@@ -32,7 +36,7 @@
     </style>
 
     <style name="PopupMenuStyle">
-        <item name="android:popupBackground">@color/primary</item>
+        <item name="android:popupBackground">@color/primary_light</item>
         <item name="android:textAppearanceLargePopupMenu">@color/accent</item>
         <item name="android:textAppearanceSmallPopupMenu">@color/accent</item>
     </style>
@@ -46,12 +50,16 @@
         <item name="android:textColor">@color/primary_text</item>
     </style>
 
-    <style name="PopupMenuItem.TopItem" parent="PopupMenuItem" >
+    <style name="PopupMenuItem.TopItem" parent="PopupMenuItem">
         <item name="android:paddingTop">8dp</item>
     </style>
 
-    <style name="PopupMenuItem.BottomItem" parent="PopupMenuItem" >
+    <style name="PopupMenuItem.BottomItem" parent="PopupMenuItem">
         <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <style name="PopupWindow" parent="Widget.AppCompat.PopupWindow">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">
@@ -81,5 +89,9 @@
         <item name="colorAccent">@color/iron</item>
         <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="android:colorBackground">@color/dialog_bg_semi_transparent</item>
+    </style>
+
+    <style name="LightBackgroundColoredButton" parent="Widget.AppCompat.ImageButton">
+        <item name="colorButtonNormal">@color/primary_light</item>
     </style>
 </resources>

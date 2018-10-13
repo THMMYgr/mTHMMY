@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
@@ -36,7 +37,10 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
@@ -53,8 +57,12 @@ import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
+import gr.thmmy.mthmmy.utils.LaunchType;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
 import okhttp3.OkHttpClient;
+import ru.noties.markwon.LinkResolverDef;
+import ru.noties.markwon.Markwon;
+import ru.noties.markwon.SpannableConfiguration;
 import timber.log.Timber;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -67,8 +75,10 @@ import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
 import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
+import static gr.thmmy.mthmmy.utils.LaunchType.LAUNCH_TYPE.FIRST_LAUNCH_EVER;
+import static gr.thmmy.mthmmy.utils.LaunchType.LAUNCH_TYPE.INDETERMINATE;
 
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
     // Client & Cookies
     protected static OkHttpClient client;
 
@@ -116,6 +126,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateDrawer();
+        if(LaunchType.getLaunchType()==FIRST_LAUNCH_EVER||LaunchType.getLaunchType()== INDETERMINATE)
+            showUserConsentDialog();
     }
 
     @Override
@@ -713,6 +725,67 @@ public abstract class BaseActivity extends AppCompatActivity {
         });
         dialog.show();
     }
+
+    //----------------------------PRIVACY POLICY------------------
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_pp_accepted_key)))
+            if(!sharedPreferences.getBoolean(key, false))
+                showUserConsentDialog();
+    }
+
+    private void showUserConsentDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        builder.setTitle("User Agreement");
+        builder.setMessage(R.string.user_agreement_dialog_text);
+        builder.setPositiveButton("Yes, I want to help", (dialogInterface, i) -> FirebaseMessaging.getInstance().setAutoInitEnabled(true));
+        builder.setNegativeButton("Nope, leave me alone", (dialogInterface, i) -> FirebaseMessaging.getInstance().setAutoInitEnabled(true));
+        builder.setNeutralButton("Privacy Policy", (dialog, which) -> {/*Will be overridden below*/});
+        builder.setCancelable(false);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button button = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            button.setOnClickListener(view -> showPrivacyPolicyDialog());
+        }); // Overridden like this so it won't be dismissed when user touches this button
+        alertDialog.show();
+    }
+
+    private void showPrivacyPolicyDialog() {
+        TextView privacyPolicyTextView = new TextView(this);
+        privacyPolicyTextView.setPadding(30,20,30,20);
+        privacyPolicyTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_text));
+        SpannableConfiguration configuration = SpannableConfiguration.builder(this).linkResolver(new LinkResolverDef()).build();
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(getAssets().open("PRIVACY.md")));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append("\n");
+            }
+            Markwon.setMarkdown(privacyPolicyTextView, configuration, stringBuilder.toString());
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+            builder.setView(privacyPolicyTextView);
+            builder.setPositiveButton("Close", (dialogInterface, i) -> dialogInterface.dismiss());
+            builder.show();
+        } catch (IOException e) {
+            Timber.e(e, "Error reading Privacy Policy from assets.");
+        } catch (Exception e) {
+            Timber.e(e, "Error in Privacy Policy dialog.");
+        } finally {
+            try {
+                if(reader!=null)
+                    reader.close();
+            } catch (IOException e) {
+                Timber.e(e, "Error in Privacy Policy dialog (closing reader).");
+            }
+        }
+    }
+
+
 
     //----------------------------------MISC----------------------
     protected void setMainActivity(MainActivity mainActivity) {

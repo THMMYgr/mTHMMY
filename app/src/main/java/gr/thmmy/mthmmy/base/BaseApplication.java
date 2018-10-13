@@ -165,6 +165,10 @@ public class BaseApplication extends Application {
     }
 
     //Getters
+    public Context getContext() {
+        return getApplicationContext();
+    }
+
     public OkHttpClient getClient() {
         return client;
     }

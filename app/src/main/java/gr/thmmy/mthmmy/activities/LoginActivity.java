@@ -3,10 +3,8 @@ package gr.thmmy.mthmmy.activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
-import android.view.ActionMode;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -57,25 +55,22 @@ public class LoginActivity extends BaseActivity {
         AppCompatButton btnGuest = findViewById(R.id.btnContinueAsGuest);
 
         //Login button Click Event
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        btnLogin.setOnClickListener(view -> {
+            Timber.d("Login");
 
-            public void onClick(View view) {
-                Timber.d("Login");
+            //Get username and password strings
+            username = inputUsername.getText().toString().trim();
+            password = inputPassword.getText().toString().trim();
 
-                //Get username and password strings
-                username = inputUsername.getText().toString().trim();
-                password = inputPassword.getText().toString().trim();
-
-                //Check for empty data in the form
-                if (!validate()) {
-                    onLoginFailed();
-                    return;
-                }
-
-                //Login user
-                loginTask = new LoginTask();
-                loginTask.execute(username, password);
+            //Check for empty data in the form
+            if (!validate()) {
+                onLoginFailed();
+                return;
             }
+
+            //Login user
+            loginTask = new LoginTask();
+            loginTask.execute(username, password);
         });
 
         //Guest Button Action

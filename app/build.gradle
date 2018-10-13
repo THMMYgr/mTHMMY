@@ -73,6 +73,7 @@ dependencies {
     implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'//TODO: deprecated!
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
     implementation 'com.jakewharton.timber:timber:4.7.0'
+    implementation "ru.noties:markwon:2.0.0"
     implementation 'net.gotev:uploadservice:3.4.2'
     implementation 'net.gotev:uploadservice-okhttp:3.4.2'
     implementation 'android.arch.lifecycle:extensions:1.1.1'
