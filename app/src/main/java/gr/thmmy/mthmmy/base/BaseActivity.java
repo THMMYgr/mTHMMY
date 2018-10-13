@@ -86,8 +86,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected static SessionManager sessionManager;
 
     //Bookmarks
-    private static final String BOOKMARKS_SHARED_PREFS = "bookmarksSharedPrefs";
-    private static final String BOOKMARKED_TOPICS_KEY = "bookmarkedTopicsKey";
+    public static final String BOOKMARKS_SHARED_PREFS = "bookmarksSharedPrefs";
+    public static final String BOOKMARKED_TOPICS_KEY = "bookmarkedTopicsKey";
     private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
     protected Bookmark thisPageBookmark;
     private MenuItem thisPageBookmarkMenuButton;
@@ -559,9 +559,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         String tmpString = bookmarksFile.getString(BOOKMARKED_TOPICS_KEY, null);
         if (tmpString != null)
             topicsBookmarked = Bookmark.arrayFromString(tmpString);
-        else {
+        else
             topicsBookmarked = new ArrayList<>();
-        }
 
         tmpString = bookmarksFile.getString(BOOKMARKED_BOARDS_KEY, null);
         if (tmpString != null)

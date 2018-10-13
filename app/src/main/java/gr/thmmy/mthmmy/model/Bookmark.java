@@ -45,6 +45,18 @@ public class Bookmark implements java.io.Serializable {
         return false;
     }
 
+    public static boolean matchExistsById(ArrayList<Bookmark> array, int id) {
+        if (array != null && !array.isEmpty()) {
+            for (Bookmark bookmark : array) {
+                if (bookmark != null) {
+                    if (Objects.equals(Integer.parseInt(bookmark.getId()), id))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public int findIndex(ArrayList<Bookmark> array) {
         if (array != null && !array.isEmpty()) {
             for (int i = 0; i < array.size(); ++i) {

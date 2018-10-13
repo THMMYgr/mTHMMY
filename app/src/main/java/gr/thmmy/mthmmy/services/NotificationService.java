@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.PostNotification;
 import timber.log.Timber;
 
@@ -35,6 +36,9 @@ import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SELECTED_RING
 import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SETTINGS_SHARED_PREFS;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKED_TOPICS_KEY;
+import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKS_SHARED_PREFS;
+import static gr.thmmy.mthmmy.model.Bookmark.matchExistsById;
 
 public class NotificationService extends FirebaseMessagingService {
     private static final int buildVersion = Build.VERSION.SDK_INT;
@@ -52,15 +56,25 @@ public class NotificationService extends FirebaseMessagingService {
                 if (Integer.parseInt(json.getString("posterId")) != userId) {
                     int boardId = -1;
                     String boardTitle = null;
+                    int topicId = Integer.parseInt(json.getString("topicId"));
                     if(remoteMessage.getFrom().contains("b")){
                         Timber.i("FCM BOARD type message detected.");
-                        //TODO: return early and don't create notification if the user is also subscribed to this topicId
+
+                        SharedPreferences bookmarksFile = getSharedPreferences(BOOKMARKS_SHARED_PREFS, Context.MODE_PRIVATE);
+                        String tmpString = bookmarksFile.getString(BOOKMARKED_TOPICS_KEY, null);
+                        if (tmpString != null){
+                            if(matchExistsById(Bookmark.arrayFromString(tmpString), topicId)){
+                                Timber.i("Board notification suppressed (already subscribed to topic).");
+                                return;
+                            }
+                        }
+
                         boardId = Integer.parseInt(json.getString("boardId"));
                         boardTitle = json.getString("boardTitle");
                     }
                     else
                         Timber.i("FCM TOPIC type message detected.");
-                    int topicId = Integer.parseInt(json.getString("topicId"));
+
                     int postId = Integer.parseInt(json.getString("postId"));
                     String topicTitle = json.getString("topicTitle");
                     String poster = json.getString("poster");
