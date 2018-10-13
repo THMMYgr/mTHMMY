@@ -94,7 +94,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
+        thisPageBookmark = new Bookmark(boardTitle, "b" + ThmmyPage.getBoardId(boardUrl), true);
         setBoardBookmark(findViewById(R.id.bookmark));
         createDrawer();
 

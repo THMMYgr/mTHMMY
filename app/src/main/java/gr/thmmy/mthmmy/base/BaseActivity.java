@@ -635,7 +635,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
 
             return boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).isNotificationsEnabled();
-        }
+        } else
+            Timber.w("No bookmark match exists!");
         return false;
     }
 //-------------------------------------------BOOKMARKS END------------------------------------------
