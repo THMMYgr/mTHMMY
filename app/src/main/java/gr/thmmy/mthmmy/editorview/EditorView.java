@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ScrollView;
@@ -210,26 +211,33 @@ public class EditorView extends LinearLayout {
                         linkText.getEditText().setText(
                                 editText.getText().toString().substring(editText.getSelectionStart(), editText.getSelectionEnd()));
                     }
-                    new AlertDialog.Builder(context, R.style.AppTheme_Dark_Dialog)
+                    AlertDialog linkDialog = new AlertDialog.Builder(context, R.style.AppTheme_Dark_Dialog)
                             .setTitle(R.string.dialog_create_link_title)
                             .setView(dialogBody)
-                            .setPositiveButton(R.string.ok, (dialog, which) -> {
-                                if (TextUtils.isEmpty(Objects.requireNonNull(linkUrl.getEditText()).getText().toString())) {
-                                    linkUrl.setError(context.getString(R.string.input_field_required));
-                                    return;
-                                }
-                                if (TextUtils.isEmpty(Objects.requireNonNull(linkText.getEditText()).getText().toString())) {
-                                    linkUrl.setError(context.getString(R.string.input_field_required));
-                                    return;
-                                }
-
-                                if (hadTextSelection) editText.getText().delete(start, end);
-                                getText().insert(editText.getSelectionStart(), "[url=" +
-                                        Objects.requireNonNull(linkUrl.getEditText()).getText().toString() + "]" +
-                                        Objects.requireNonNull(linkText.getEditText()).getText().toString() + "[/url]");
-                            })
+                            .setPositiveButton(R.string.ok, null)
                             .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                            .show();
+                            .create();
+                    linkDialog.setOnShowListener(dialogInterface -> {
+                        Button button = linkDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                        button.setOnClickListener(view12 -> {
+                            if (TextUtils.isEmpty(Objects.requireNonNull(linkUrl.getEditText()).getText().toString())) {
+                                linkUrl.setError(context.getString(R.string.input_field_required));
+                                return;
+                            }
+
+                            if (hadTextSelection) editText.getText().delete(start, end);
+                            if (!TextUtils.isEmpty(linkText.getEditText().getText())) {
+                                getText().insert(editText.getSelectionStart(), "[url=" +
+                                        linkUrl.getEditText().getText().toString() + "]" +
+                                        linkText.getEditText().getText().toString() + "[/url]");
+                            }
+                            else
+                                getText().insert(editText.getSelectionStart(), "[url]" +
+                                        linkUrl.getEditText().getText().toString() + "[/url]");
+                            linkDialog.dismiss();
+                        });
+                    });
+                    linkDialog.show();
                     break;
                 }
                 case R.drawable.ic_format_quote: {
