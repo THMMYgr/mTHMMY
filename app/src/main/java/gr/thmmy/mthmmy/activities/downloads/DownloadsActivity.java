@@ -4,13 +4,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -55,7 +53,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     private MaterialProgressBar progressBar;
     private RecyclerView recyclerView;
     private DownloadsAdapter downloadsAdapter;
-    private FloatingActionButton uploadFAB;
+    //private FloatingActionButton uploadFAB;
 
     private ParseDownloadPageTask parseDownloadPageTask;
     private int numberOfPages = -1;
@@ -121,9 +119,9 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             }
         });
 
-        uploadFAB = findViewById(R.id.download_fab);
-        uploadFAB.setEnabled(false);
-        uploadFAB.hide();
+//        uploadFAB = findViewById(R.id.upload_fab);
+//        uploadFAB.setEnabled(false);
+//        uploadFAB.hide();
 
         parseDownloadPageTask = new ParseDownloadPageTask();
         parseDownloadPageTask.execute(downloadsUrl);
@@ -206,7 +204,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
-            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(false);
+            //if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(false);
         }
 
         @Override
@@ -304,7 +302,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                 toolbar.setTitle(downloadsTitle);
 
             ++pagesLoaded;
-            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(true);
+            //if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             downloadsAdapter.notifyDataSetChanged();
             isLoadingMore = false;

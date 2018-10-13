@@ -156,9 +156,9 @@ public class TopicParser {
 
         ArrayList<TopicItem> parsedPostsList = new ArrayList<>();
 
-        Poll poll = findPoll(topic);
-        if (poll != null)
-            parsedPostsList.add(poll);
+//        Poll poll = findPoll(topic);
+//        if (poll != null)
+//            parsedPostsList.add(poll);
 
         Elements postRows;
 

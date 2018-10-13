@@ -256,14 +256,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                     .withName(R.string.downloads)
                     .withIcon(downloadsIcon)
                     .withSelectedIcon(downloadsIconSelected);
-            uploadItem = new PrimaryDrawerItem()
-                    .withTextColor(primaryColor)
-                    .withSelectedColor(selectedPrimaryColor)
-                    .withSelectedTextColor(selectedSecondaryColor)
-                    .withIdentifier(UPLOAD_ID)
-                    .withName(R.string.upload)
-                    .withIcon(uploadIcon)
-                    .withSelectedIcon(uploadIconSelected);
+//            uploadItem = new PrimaryDrawerItem()
+//                    .withTextColor(primaryColor)
+//                    .withSelectedColor(selectedPrimaryColor)
+//                    .withSelectedTextColor(selectedSecondaryColor)
+//                    .withIdentifier(UPLOAD_ID)
+//                    .withName(R.string.upload)
+//                    .withIcon(uploadIcon)
+//                    .withSelectedIcon(uploadIconSelected);
         } else
             loginLogoutItem = new PrimaryDrawerItem()
                     .withTextColor(primaryColor)
@@ -387,7 +387,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, uploadItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
         else
             drawerBuilder.addDrawerItems(homeItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
 
@@ -415,9 +415,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 if (!drawer.getDrawerItems().contains(downloadsItem)) {
                     drawer.addItemAtPosition(downloadsItem, 2);
                 }
-                if (!drawer.getDrawerItems().contains(uploadItem)) {
-                    drawer.addItemAtPosition(uploadItem, 3);
-                }
+//                if (!drawer.getDrawerItems().contains(uploadItem)) {
+//                    drawer.addItemAtPosition(uploadItem, 3);
+//                }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());
                 if (sessionManager.hasAvatar())
