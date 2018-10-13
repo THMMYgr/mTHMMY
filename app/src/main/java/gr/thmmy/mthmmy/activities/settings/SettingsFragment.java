@@ -96,8 +96,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
         findPreference(POSTING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
-        findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
-        findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
+        //findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
+        //findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
         if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
             defaultHomeTabEntries.remove("Unread");
@@ -171,8 +171,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
         findPreference(POSTING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
-        findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
-        findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
+        //findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
+        //findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
         if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
             defaultHomeTabEntries.remove("Unread");

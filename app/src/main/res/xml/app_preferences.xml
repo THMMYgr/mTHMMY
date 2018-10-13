@@ -38,7 +38,7 @@
             android:summary="@string/pref_summary_posting_app_signature_enable" />
     </android.support.v7.preference.PreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory
+    <!--<android.support.v7.preference.PreferenceCategory
         android:key="pref_category_uploading_key"
         android:title="@string/pref_category_uploading">
         <android.support.v7.preference.SwitchPreferenceCompat
@@ -46,7 +46,7 @@
             android:key="pref_uploading_app_signature_enable_key"
             android:title="@string/pref_title_uploading_app_signature_enable"
             android:summary="@string/pref_summary_uploading_app_signature_enable" />
-    </android.support.v7.preference.PreferenceCategory>
+    </android.support.v7.preference.PreferenceCategory>-->
 
     <android.support.v7.preference.PreferenceCategory
         android:key="pref_category_privacy_key"

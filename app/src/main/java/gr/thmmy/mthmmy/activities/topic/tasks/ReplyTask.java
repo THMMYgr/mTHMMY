@@ -32,7 +32,7 @@ public class ReplyTask extends AsyncTask<String, Void, Posting.REPLY_STATUS> {
     @Override
     protected Posting.REPLY_STATUS doInBackground(String... args) {
         final String sentFrommTHMMY = includeAppSignature
-                ? "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy]mTHMMY[/url][/i][/size][/right]"
+                ? "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy]mTHMMY[/url]  [/i][/size][/right]"
                 : "";
         RequestBody postBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)

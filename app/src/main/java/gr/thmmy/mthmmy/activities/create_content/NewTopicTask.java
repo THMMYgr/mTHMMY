@@ -52,7 +52,7 @@ public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
             createTopicUrl = document.select("form").first().attr("action");
 
             final String appSignature = "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/" +
-                    "details?id=gr.thmmy.mthmmy]mTHMMY[/url][/i][/size][/right]";
+                    "details?id=gr.thmmy.mthmmy]mTHMMY[/url]  [/i][/size][/right]";
 
             RequestBody postBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
