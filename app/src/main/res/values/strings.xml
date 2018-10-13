@@ -14,7 +14,6 @@
     <string name="info">Info</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="pref_pp_accepted_key">pref_pp_accepted</string>
     <string name="user_agreement_dialog_text">"To use mTHMMY you have to agree to our Privacy Policy by choosing one of the buttons below. Choose \"Yes, I want to help\", if you consent to the collection of anonymized data that will help us improve the app. Otherwise, choose \"Nope, leave me alone\". You can change your preferences any time through the app's Settings.</string>
 
     <!--Login Activity-->

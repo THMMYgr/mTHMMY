@@ -78,7 +78,7 @@ import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 import static gr.thmmy.mthmmy.utils.LaunchType.LAUNCH_TYPE.FIRST_LAUNCH_EVER;
 import static gr.thmmy.mthmmy.utils.LaunchType.LAUNCH_TYPE.INDETERMINATE;
 
-public abstract class BaseActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
+public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies
     protected static OkHttpClient client;
 
@@ -117,9 +117,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SharedPr
         }
 
         BaseViewModel baseViewModel = ViewModelProviders.of(this).get(BaseViewModel.class);
-        baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> {
-            setTopicBookmark(thisPageBookmarkMenuButton);
-        });
+        baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> setTopicBookmark(thisPageBookmarkMenuButton));
     }
 
     @Override
@@ -577,7 +575,11 @@ public abstract class BaseActivity extends AppCompatActivity implements SharedPr
         if (boardsBookmarked == null) return;
         if (bookmark.matchExists(boardsBookmarked)) {
             boardsBookmarked.remove(bookmark.findIndex(boardsBookmarked));
-        } else boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), false));
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
+        } else {
+            boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), false));
+            FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
+        }
         updateBoardBookmarks();
     }
 
@@ -617,13 +619,22 @@ public abstract class BaseActivity extends AppCompatActivity implements SharedPr
             topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).toggleNotificationsEnabled();
             updateTopicBookmarks();
 
-            if (topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled()) {
+            if (topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled())
                 FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
-            } else {
+            else
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
-            }
 
             return topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled();
+        } else  if (bookmark.matchExists(boardsBookmarked)) {
+            boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).toggleNotificationsEnabled();
+            updateBoardBookmarks();
+
+            if (boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).isNotificationsEnabled())
+                FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
+            else
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
+
+            return boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).isNotificationsEnabled();
         }
         return false;
     }
@@ -727,14 +738,6 @@ public abstract class BaseActivity extends AppCompatActivity implements SharedPr
     }
 
     //----------------------------PRIVACY POLICY------------------
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_pp_accepted_key)))
-            if(!sharedPreferences.getBoolean(key, false))
-                showUserConsentDialog();
-    }
-
     private void showUserConsentDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
         builder.setTitle("User Agreement");
@@ -784,8 +787,6 @@ public abstract class BaseActivity extends AppCompatActivity implements SharedPr
             }
         }
     }
-
-
 
     //----------------------------------MISC----------------------
     protected void setMainActivity(MainActivity mainActivity) {

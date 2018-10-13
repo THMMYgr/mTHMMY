@@ -84,20 +84,26 @@ public class BookmarkActivity extends BaseActivity {
         return true;
     }
 
-    public void onBoardInteractionListener(String interactionType, Bookmark bookmarkedBoard) {
-        if (interactionType.equals(BoardBookmarksFragment.INTERACTION_CLICK_BOARD_BOOKMARK)) {
-            Intent intent = new Intent(BookmarkActivity.this, BoardActivity.class);
-            Bundle extras = new Bundle();
-            extras.putString(BUNDLE_BOARD_URL, "https://www.thmmy.gr/smf/index.php?board="
-                    + bookmarkedBoard.getId() + ".0");
-            extras.putString(BUNDLE_BOARD_TITLE, bookmarkedBoard.getTitle());
-            intent.putExtras(extras);
-            startActivity(intent);
-            finish();
-        } else if (interactionType.equals(BoardBookmarksFragment.INTERACTION_REMOVE_BOARD_BOOKMARK)) {
-            removeBookmark(bookmarkedBoard);
-            Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+    public boolean onBoardInteractionListener(String interactionType, Bookmark bookmarkedBoard) {
+        switch (interactionType) {
+            case BoardBookmarksFragment.INTERACTION_CLICK_BOARD_BOOKMARK:
+                Intent intent = new Intent(BookmarkActivity.this, BoardActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_BOARD_URL, "https://www.thmmy.gr/smf/index.php?board="
+                        + bookmarkedBoard.getId() + ".0");
+                extras.putString(BUNDLE_BOARD_TITLE, bookmarkedBoard.getTitle());
+                intent.putExtras(extras);
+                startActivity(intent);
+                finish();
+                break;
+            case BoardBookmarksFragment.INTERACTION_TOGGLE_BOARD_NOTIFICATION:
+                return toggleNotification(bookmarkedBoard);
+            case BoardBookmarksFragment.INTERACTION_REMOVE_BOARD_BOOKMARK:
+                removeBookmark(bookmarkedBoard);
+                Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                break;
         }
+        return true;
     }
 
     /**

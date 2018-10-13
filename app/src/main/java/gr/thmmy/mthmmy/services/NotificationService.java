@@ -54,9 +54,19 @@ public class NotificationService extends FirebaseMessagingService {
                     int postId = Integer.parseInt(json.getString("postId"));
                     String topicTitle = json.getString("topicTitle");
                     String poster = json.getString("poster");
-                    sendNotification(new PostNotification(postId, topicId, topicTitle, poster));
+                    int boardId = -1;
+                    String boardTitle = null;
+                    if(remoteMessage.getFrom().contains("b")){
+                        Timber.i("FCM BOARD type message detected.");
+                        boardId = Integer.parseInt(json.getString("boardId"));
+                        boardTitle = json.getString("boardTitle");
+                    }
+                    else
+                        Timber.i("FCM TOPIC type message detected.");
+
+                    sendNotification(new PostNotification(postId, topicId, topicTitle, poster, boardId, boardTitle));
                 } else
-                    Timber.v("Notification suppressed (own userID).");
+                    Timber.i("Notification suppressed (own userID).");
             } catch (JSONException e) {
                 Timber.e(e, "JSON Exception");
             }
@@ -77,6 +87,8 @@ public class NotificationService extends FirebaseMessagingService {
      */
     private void sendNotification(PostNotification postNotification) {
         Timber.i("Creating a notification...");
+
+        boolean isTopicNotification = postNotification.getBoardId() == -1;
 
         //Reads notifications preferences
         SharedPreferences settingsFile = getSharedPreferences(SETTINGS_SHARED_PREFS, Context.MODE_PRIVATE);
@@ -118,15 +130,30 @@ public class NotificationService extends FirebaseMessagingService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, requestCode++, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
-        final int topicId = postNotification.getTopicId();
-        String contentText = "New post by " + postNotification.getPoster();
+        int notificationId;
+        String contentText;
+        if(isTopicNotification){
+            notificationId = postNotification.getTopicId();
+            contentText = "New post by " + postNotification.getPoster();
+        }
+        else{
+            // Using Cantor pairing function (plus the minus sign) for id uniqueness
+            int k1 = postNotification.getTopicId();
+            int k2 = postNotification.getBoardId();
+            notificationId = -(((k1+k2)*(k1+k2+1))/2+k2);
+            contentText = "New post in " + postNotification.getTopicTitle();
+        }
+
         int newPostsCount = 1;
 
         if (buildVersion >= Build.VERSION_CODES.M) {
-            Notification existingNotification = getActiveNotification(topicId);
+            Notification existingNotification = getActiveNotification(notificationId);
             if (existingNotification != null) {
                 newPostsCount = existingNotification.extras.getInt(NEW_POSTS_COUNT) + 1;
-                contentText = newPostsCount + " new posts";
+                if(isTopicNotification)
+                    contentText = newPostsCount + " new posts";
+                else
+                    contentText = newPostsCount + " new posts in " + postNotification.getTopicTitle();
             }
         }
 
@@ -136,12 +163,17 @@ public class NotificationService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_notification)
-                        .setContentTitle(postNotification.getTopicTitle())
                         .setContentText(contentText)
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent)
                         .setGroup(GROUP_KEY)
                         .addExtras(notificationExtras);
+
+        if(isTopicNotification)
+            notificationBuilder.setContentTitle(postNotification.getTopicTitle());
+
+        else
+            notificationBuilder.setContentTitle(postNotification.getBoardTitle());
 
         //Applies user's notifications preferences
         if (notificationDefaultValues != -1) {
@@ -162,7 +194,7 @@ public class NotificationService extends FirebaseMessagingService {
 
         boolean createSummaryNotification = false;
         if (buildVersion >= Build.VERSION_CODES.M)
-            createSummaryNotification = otherNotificationsExist(topicId);
+            createSummaryNotification = otherNotificationsExist(notificationId);
 
 
         NotificationCompat.Builder summaryNotificationBuilder = null;
@@ -174,7 +206,7 @@ public class NotificationService extends FirebaseMessagingService {
                             .setGroup(GROUP_KEY)
                             .setAutoCancel(true)
                             .setStyle(new NotificationCompat.InboxStyle()
-                                    .setSummaryText("New Posts"))
+                            .setSummaryText("New Posts"))
                             .setDefaults(Notification.DEFAULT_ALL);
         }
 
@@ -185,7 +217,7 @@ public class NotificationService extends FirebaseMessagingService {
         if (buildVersion >= Build.VERSION_CODES.O)
             notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
 
-        notificationManager.notify(NEW_POST_TAG, topicId, notificationBuilder.build());
+        notificationManager.notify(NEW_POST_TAG, notificationId, notificationBuilder.build());
 
         if (createSummaryNotification)
             notificationManager.notify(SUMMARY_TAG, 0, summaryNotificationBuilder.build());

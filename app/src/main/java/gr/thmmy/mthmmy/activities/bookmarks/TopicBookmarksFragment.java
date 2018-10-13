@@ -62,17 +62,15 @@ public class TopicBookmarksFragment extends Fragment {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             notificationsEnabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_on, null);
-        } else {
+        else
             notificationsEnabledButtonImage = VectorDrawableCompat.create(getResources(), R.drawable.ic_notification_on, null);
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             notificationsDisabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_off, null);
-        } else {
+        else
             notificationsDisabledButtonImage = VectorDrawableCompat.create(getResources(), R.drawable.ic_notification_off, null);
-        }
     }
 
     @Override
@@ -88,13 +86,10 @@ public class TopicBookmarksFragment extends Fragment {
                 if (bookmarkedTopic != null && bookmarkedTopic.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
                             R.layout.fragment_bookmarks_topic_row, bookmarksLinearView, false);
-                    row.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Activity activity = getActivity();
-                            if (activity instanceof BookmarkActivity) {
-                                ((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_CLICK_TOPIC_BOOKMARK, bookmarkedTopic);
-                            }
+                    row.setOnClickListener(view -> {
+                        Activity activity = getActivity();
+                        if (activity instanceof BookmarkActivity) {
+                            ((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_CLICK_TOPIC_BOOKMARK, bookmarkedTopic);
                         }
                     });
                     ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmarkedTopic.getTitle());
@@ -104,32 +99,26 @@ public class TopicBookmarksFragment extends Fragment {
                         notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
                     }
 
-                    notificationsEnabledButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Activity activity = getActivity();
-                            if (activity instanceof BookmarkActivity) {
-                                if (((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_TOGGLE_TOPIC_NOTIFICATION, bookmarkedTopic)) {
-                                    notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
-                                } else {
-                                    notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
-                                }
+                    notificationsEnabledButton.setOnClickListener(view -> {
+                        Activity activity = getActivity();
+                        if (activity instanceof BookmarkActivity) {
+                            if (((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_TOGGLE_TOPIC_NOTIFICATION, bookmarkedTopic)) {
+                                notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
+                            } else {
+                                notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
                             }
                         }
                     });
-                    (row.findViewById(R.id.remove_bookmark)).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Activity activity = getActivity();
-                            if (activity instanceof BookmarkActivity) {
-                                ((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_REMOVE_TOPIC_BOOKMARK, bookmarkedTopic);
-                                topicBookmarks.remove(bookmarkedTopic);
-                            }
-                            row.setVisibility(View.GONE);
+                    (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
+                        Activity activity = getActivity();
+                        if (activity instanceof BookmarkActivity) {
+                            ((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_REMOVE_TOPIC_BOOKMARK, bookmarkedTopic);
+                            topicBookmarks.remove(bookmarkedTopic);
+                        }
+                        row.setVisibility(View.GONE);
 
-                            if (topicBookmarks.isEmpty()){
-                                bookmarksLinearView.addView(bookmarksListEmptyMessage());
-                            }
+                        if (topicBookmarks.isEmpty()){
+                            bookmarksLinearView.addView(bookmarksListEmptyMessage());
                         }
                     });
                     bookmarksLinearView.addView(row);

@@ -2,13 +2,16 @@ package gr.thmmy.mthmmy.activities.bookmarks;
 
 import android.app.Activity;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -27,9 +30,13 @@ public class BoardBookmarksFragment extends Fragment {
     protected static final String ARG_BOARD_BOOKMARKS = "BOARD_BOOKMARKS";
 
     public static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
+    public static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
     public static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
 
     ArrayList<Bookmark> boardBookmarks = null;
+
+    private static Drawable notificationsEnabledButtonImage;
+    private static Drawable notificationsDisabledButtonImage;
 
     // Required empty public constructor
     public BoardBookmarksFragment() {
@@ -59,6 +66,16 @@ public class BoardBookmarksFragment extends Fragment {
                 boardBookmarks = Bookmark.arrayFromString(bundledBoardBookmarks);
             }
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            notificationsEnabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_on, null);
+        else
+            notificationsEnabledButtonImage = VectorDrawableCompat.create(getResources(), R.drawable.ic_notification_on, null);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            notificationsDisabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_off, null);
+        else
+            notificationsDisabledButtonImage = VectorDrawableCompat.create(getResources(), R.drawable.ic_notification_off, null);
     }
 
     @Override
@@ -74,29 +91,40 @@ public class BoardBookmarksFragment extends Fragment {
                 if (bookmarkedBoard != null && bookmarkedBoard.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
                             R.layout.fragment_bookmarks_board_row, bookmarksLinearView, false);
-                    row.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Activity activity = getActivity();
-                            if (activity instanceof BookmarkActivity){
-                                ((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_CLICK_BOARD_BOOKMARK, bookmarkedBoard);
-                            }
+                    row.setOnClickListener(view -> {
+                        Activity activity = getActivity();
+                        if (activity instanceof BookmarkActivity){
+                            ((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_CLICK_BOARD_BOOKMARK, bookmarkedBoard);
                         }
                     });
                     ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmarkedBoard.getTitle());
-                    (row.findViewById(R.id.remove_bookmark)).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Activity activity = getActivity();
-                            if (activity instanceof BookmarkActivity){
-                                ((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_REMOVE_BOARD_BOOKMARK, bookmarkedBoard);
-                                boardBookmarks.remove(bookmarkedBoard);
-                            }
-                            row.setVisibility(View.GONE);
 
-                            if (boardBookmarks.isEmpty()){
-                                bookmarksLinearView.addView(bookmarksListEmptyMessage());
+                    final ImageButton notificationsEnabledButton = row.findViewById(R.id.toggle_notification);
+                    if (!bookmarkedBoard.isNotificationsEnabled()) {
+                        notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
+                    }
+
+                    notificationsEnabledButton.setOnClickListener(view -> {
+                        Activity activity = getActivity();
+                        if (activity instanceof BookmarkActivity) {
+                            if (((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_TOGGLE_BOARD_NOTIFICATION, bookmarkedBoard)) {
+                                notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
+                            } else {
+                                notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
                             }
+                        }
+                    });
+
+                    (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
+                        Activity activity = getActivity();
+                        if (activity instanceof BookmarkActivity){
+                            ((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_REMOVE_BOARD_BOOKMARK, bookmarkedBoard);
+                            boardBookmarks.remove(bookmarkedBoard);
+                        }
+                        row.setVisibility(View.GONE);
+
+                        if (boardBookmarks.isEmpty()){
+                            bookmarksLinearView.addView(bookmarksListEmptyMessage());
                         }
                     });
                     bookmarksLinearView.addView(row);

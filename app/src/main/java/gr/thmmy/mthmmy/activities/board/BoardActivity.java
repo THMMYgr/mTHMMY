@@ -95,7 +95,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
-        setBoardBookmark((ImageButton) findViewById(R.id.bookmark));
+        setBoardBookmark(findViewById(R.id.bookmark));
         createDrawer();
 
         progressBar = findViewById(R.id.progressBar);
@@ -167,7 +167,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
     @Override
     public void onResume() {
         super.onResume();
-        refreshBoardBookmark((ImageButton) findViewById(R.id.bookmark));
+        refreshBoardBookmark(findViewById(R.id.bookmark));
     }
 
     @Override
@@ -318,10 +318,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         || !Objects.equals(boardTitle, parsedTitle)) {
                     boardTitle = parsedTitle;
                     toolbar.setTitle(boardTitle);
-                    thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
+                    thisPageBookmark = new Bookmark(boardTitle, "b" + ThmmyPage.getBoardId(boardUrl), true);
                 }
-
-                Timber.d("topix " + tempTopics);
 
                 parsedTopics.clear();
                 parsedSubBoards.clear();
