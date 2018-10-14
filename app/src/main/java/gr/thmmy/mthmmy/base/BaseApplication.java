@@ -68,8 +68,6 @@ public class BaseApplication extends Application {
         // Initialize Timber
         if (BuildConfig.DEBUG)
             Timber.plant(new Timber.DebugTree());
-        else
-            Timber.plant(new CrashReportingTree());
 
         //Shared Preferences
         SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
@@ -82,6 +80,7 @@ public class BaseApplication extends Application {
                     .build();
             // Initialize Fabric with the debug-disabled Crashlytics.
             Fabric.with(this, crashlyticsKit);
+            Timber.plant(new CrashReportingTree());
             Timber.i("Starting app with Crashlytics enabled.");
         } else
             Timber.i("Starting app with Crashlytics disabled.");
