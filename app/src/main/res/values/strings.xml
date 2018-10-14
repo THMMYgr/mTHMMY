@@ -89,6 +89,7 @@
     <string name="open_source">Open Source</string>
     <string name="open_source_text">The source code of mTHMMY can be found on Github (https://github.com/ThmmyNoLife/mTHMMY) along with further details of how one can contribute.</string>
     <string name="trollPic">You should see a funny pic!</string>
+    <string name="privacy_policy">Privacy policy</string>
 
     <!--Bookmarks-->
     <string name="remove_bookmark">Remove</string>

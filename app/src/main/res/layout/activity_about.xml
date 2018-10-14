@@ -128,13 +128,35 @@
                 android:text="@string/the_mit_libraries"
                 android:textColor="@color/accent" />
 
+            <TextView
+                android:id="@+id/privacy_policy_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/mit_libs"
+                android:layout_marginTop="20dp"
+                android:text="@string/privacy_policy"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/accent"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/privacy_policy_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/contact_header"
+                android:autoLink="email|web"
+                android:text="@string/contact_text"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/iron" />
 
             <TextView
                 android:id="@+id/contact_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/mit_libs"
+                android:layout_below="@+id/privacy_policy_header"
                 android:layout_marginTop="20dp"
                 android:text="@string/contact"
                 android:textAppearance="?android:attr/textAppearanceMedium"

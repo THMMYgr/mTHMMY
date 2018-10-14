@@ -754,7 +754,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private void showPrivacyPolicyDialog() {
+    protected void showPrivacyPolicyDialog() {
         TextView privacyPolicyTextView = new TextView(this);
         privacyPolicyTextView.setPadding(30,20,30,20);
         privacyPolicyTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_text));
