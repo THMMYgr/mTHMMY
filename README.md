@@ -3,7 +3,7 @@
 [![API](https://img.shields.io/badge/API-19%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=19)
 [![Discord Channel](https://img.shields.io/badge/discord-public@mTHMMY-738bd7.svg?style=flat)][discord-server]
 
-![alt text](app\src\main\res\mipmap-xhdpi\ic_launcher.png "mTHMMY")
+![mTHMMY logo](app/src/main/res/mipmap-xhdpi/ic_launcher.png)
 
 A mobile app for [thmmy.gr](https://www.thmmy.gr).
 
