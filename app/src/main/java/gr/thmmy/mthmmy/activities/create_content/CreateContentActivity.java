@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TextInputLayout;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
@@ -55,14 +56,24 @@ public class CreateContentActivity extends BaseActivity implements NewTopicTask.
 
         contentEditor = findViewById(R.id.main_content_editorview);
         contentEditor.setEmojiKeyboard(emojiKeyboard);
+        emojiKeyboard.registerEmojiInputField(contentEditor);
         contentEditor.setOnSubmitListener(v -> {
             if (newTopicUrl != null) {
+                if (TextUtils.isEmpty(subjectInput.getEditText().getText())) {
+                    subjectInput.setError("Required");
+                    return;
+                }
+                if (TextUtils.isEmpty(contentEditor.getText())) {
+                    contentEditor.setError("Required");
+                    return;
+                }
                 boolean includeAppSignature = true;
                 SessionManager sessionManager = BaseActivity.getSessionManager();
                 if (sessionManager.isLoggedIn()) {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
                     includeAppSignature = prefs.getBoolean(SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY, true);
                 }
+                emojiKeyboard.setVisibility(View.GONE);
 
                 new NewTopicTask(this, includeAppSignature).execute(newTopicUrl, subjectInput.getEditText().getText().toString(),
                         contentEditor.getText().toString());
