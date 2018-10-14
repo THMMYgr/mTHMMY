@@ -27,7 +27,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -67,8 +66,7 @@ import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
  * key {@link #BUNDLE_TOPIC_TITLE} for faster title rendering.
  */
 @SuppressWarnings("unchecked")
-public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFocusChangeListener,
-        EmojiKeyboard.EmojiKeyboardOwner {
+public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFocusChangeListener {
     //Activity's variables
     /**
      * The key to use when putting topic's url String to {@link TopicActivity}'s Bundle.
@@ -180,7 +178,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 getApplicationContext(), topicPageUrl);
 
         recyclerView.setLayoutManager(layoutManager);
-        topicAdapter = new TopicAdapter(this, topicItems);
+        topicAdapter = new TopicAdapter(this, emojiKeyboard, topicItems);
         recyclerView.setAdapter(topicAdapter);
 
         replyFAB = findViewById(R.id.topic_fab);
@@ -269,16 +267,6 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             return;
         } else if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
-            if (viewModel.isEditingPost()) {
-                TopicAdapter.EditMessageViewHolder vh = (TopicAdapter.EditMessageViewHolder)
-                        recyclerView.findViewHolderForAdapterPosition(viewModel.getPostBeingEditedPosition());
-                vh.editEditor.updateEmojiKeyboardVisibility();
-            }
-            if (viewModel.isWritingReply()) {
-                TopicAdapter.QuickReplyViewHolder vh = (TopicAdapter.QuickReplyViewHolder)
-                        recyclerView.findViewHolderForAdapterPosition(viewModel.postCount());
-                vh.replyEditor.updateEmojiKeyboardVisibility();
-            }
             return;
         } else if (viewModel.isWritingReply()) {
             topicItems.remove(topicItems.size() - 1);
@@ -317,21 +305,6 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     public void onPostFocusChange(int position) {
         recyclerView.scrollToPosition(position);
-    }
-
-    @Override
-    public void setEmojiKeyboardVisible(boolean visible) {
-        emojiKeyboard.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public boolean isEmojiKeyboardVisible() {
-        return emojiKeyboard.getVisibility() == View.VISIBLE;
-    }
-
-    @Override
-    public void setEmojiKeyboardInputConnection(InputConnection ic) {
-        emojiKeyboard.setInputConnection(ic);
     }
 
     //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------

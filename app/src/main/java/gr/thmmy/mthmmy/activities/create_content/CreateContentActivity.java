@@ -8,7 +8,6 @@ import android.support.design.widget.TextInputLayout;
 import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
 import gr.thmmy.mthmmy.R;
@@ -20,8 +19,7 @@ import gr.thmmy.mthmmy.session.SessionManager;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
-public class CreateContentActivity extends BaseActivity implements EmojiKeyboard.EmojiKeyboardOwner,
-        NewTopicTask.NewTopicTaskCallbacks {
+public class CreateContentActivity extends BaseActivity implements NewTopicTask.NewTopicTaskCallbacks {
 
     public final static String EXTRA_NEW_TOPIC_URL = "new-topic-extra";
 
@@ -56,8 +54,7 @@ public class CreateContentActivity extends BaseActivity implements EmojiKeyboard
         subjectInput.getEditText().setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         contentEditor = findViewById(R.id.main_content_editorview);
-        setEmojiKeyboardInputConnection(contentEditor.getInputConnection());
-        contentEditor.setEmojiKeyboardOwner(this);
+        contentEditor.setEmojiKeyboard(emojiKeyboard);
         contentEditor.setOnSubmitListener(v -> {
             if (newTopicUrl != null) {
                 boolean includeAppSignature = true;
@@ -72,27 +69,10 @@ public class CreateContentActivity extends BaseActivity implements EmojiKeyboard
             }
         });
     }
-
-    @Override
-    public void setEmojiKeyboardVisible(boolean visible) {
-        emojiKeyboard.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public boolean isEmojiKeyboardVisible() {
-        return emojiKeyboard.getVisibility() == View.VISIBLE;
-    }
-
-    @Override
-    public void setEmojiKeyboardInputConnection(InputConnection ic) {
-        emojiKeyboard.setInputConnection(ic);
-    }
-
     @Override
     public void onBackPressed() {
         if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
-            contentEditor.updateEmojiKeyboardVisibility();
         } else {
             super.onBackPressed();
         }

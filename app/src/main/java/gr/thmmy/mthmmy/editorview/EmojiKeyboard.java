@@ -12,9 +12,11 @@ import android.view.MotionEvent;
 import android.view.inputmethod.InputConnection;
 import android.widget.LinearLayout;
 
+import java.util.HashSet;
+
 import gr.thmmy.mthmmy.R;
 
-public class EmojiKeyboard extends LinearLayout {
+public class EmojiKeyboard extends LinearLayout implements IEmojiKeyboard {
 
     // TODO: Sort emojis in a way that makes sense
     private final Emoji[] emojis = {new Emoji(R.drawable.emoji_smiley, ":)"),
@@ -134,7 +136,9 @@ public class EmojiKeyboard extends LinearLayout {
             new Emoji(R.drawable.emoji_smurf, "^smurf^")
     };
 
-    InputConnection inputConnection;
+    private InputConnection inputConnection;
+    private HashSet<EmojiInputField> emojiInputFields = new HashSet<>();
+    private Context context;
 
     public EmojiKeyboard(Context context) {
         this(context, null, 0);
@@ -150,6 +154,7 @@ public class EmojiKeyboard extends LinearLayout {
     }
 
     public void init(Context context, AttributeSet attrs) {
+        this.context = context;
         LayoutInflater.from(context).inflate(R.layout.emoji_keyboard, this, true);
         setOrientation(VERTICAL);
         setBackgroundColor(getResources().getColor(R.color.primary));
@@ -195,14 +200,43 @@ public class EmojiKeyboard extends LinearLayout {
         });
     }
 
+    @Override
+    public void hide() {
+        setVisibility(GONE);
+    }
+
+    @Override
+    public void registerEmojiInputField(EmojiInputField emojiInputField) {
+        emojiInputFields.add(emojiInputField);
+    }
+
     public void setInputConnection(InputConnection inputConnection) {
         this.inputConnection = inputConnection;
     }
 
-    public interface EmojiKeyboardOwner {
-        void setEmojiKeyboardVisible(boolean visible);
-        boolean isEmojiKeyboardVisible();
-        void setEmojiKeyboardInputConnection(InputConnection ic);
+    @Override
+    public boolean onEmojiButtonToggle() {
+        if (getVisibility() == VISIBLE) setVisibility(GONE);
+        else setVisibility(VISIBLE);
+        return getVisibility() == VISIBLE;
+    }
+
+    @Override
+    public void onEmojiInputFieldFocused(EmojiInputField emojiInputField) {
+        setInputConnection(emojiInputField.getInputConnection());
+    }
+
+    @Override
+    public void setVisibility(int visibility) {
+        //notify input fields
+        for (EmojiInputField emojiInputField : emojiInputFields)
+            emojiInputField.onKeyboardVisibilityChange(visibility == VISIBLE);
+        super.setVisibility(visibility);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return getVisibility() == VISIBLE;
     }
 
     class Emoji {

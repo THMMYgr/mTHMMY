@@ -31,7 +31,7 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 
-public class EditorView extends LinearLayout {
+public class EditorView extends LinearLayout implements EmojiInputField {
 
     private SparseArray<String> colors = new SparseArray<>();
 
@@ -39,7 +39,7 @@ public class EditorView extends LinearLayout {
     private TextInputEditText editText;
     private AppCompatImageButton emojiButton;
     private AppCompatImageButton submitButton;
-    private EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner;
+    private IEmojiKeyboard emojiKeyboard;
 
     public EditorView(Context context) {
         super(context);
@@ -63,6 +63,22 @@ public class EditorView extends LinearLayout {
 
         edittextWrapper = findViewById(R.id.editor_edittext_wrapper);
         editText = findViewById(R.id.editor_edittext);
+        editText.setOnFocusChangeListener((view, focused) -> {
+            if (focused) emojiKeyboard.onEmojiInputFieldFocused(EditorView.this);
+        });
+        edittextWrapper.setOnFocusChangeListener((view, focused) -> {
+            if (focused) emojiKeyboard.onEmojiInputFieldFocused(EditorView.this);
+        });
+        editText.setOnClickListener(view -> {
+            if (!emojiKeyboard.isVisible()) {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+            } else {
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+                requestEditTextFocus();
+            }
+        });
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.EditorView, 0, 0);
         try {
@@ -78,11 +94,6 @@ public class EditorView extends LinearLayout {
         }
 
         emojiButton = findViewById(R.id.emoji_keyboard_button);
-
-        editText.setOnTouchListener((v, event) -> {
-            if (emojiKeyboardOwner.isEmojiKeyboardVisible()) return true;
-            return false;
-        });
 
         colors.append(R.id.black, "black");
         colors.append(R.id.red, "red");
@@ -267,20 +278,26 @@ public class EditorView extends LinearLayout {
 
         emojiButton.setOnClickListener(view -> {
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            assert imm != null;
-            if (emojiKeyboardOwner.isEmojiKeyboardVisible()) {
+            //cache selection. For some reason it gets reset sometimes
+            int selectionStart = editText.getSelectionStart();
+            int selectionEnd = editText.getSelectionStart();
+            if (emojiKeyboard.onEmojiButtonToggle()) {
+                //prevent system keyboard from appearing when clicking the edittext
+                editText.setTextIsSelectable(true);
+                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+            }
+            else {
                 editText.requestFocus();
                 imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-                emojiButton.setImageResource(R.drawable.ic_tag_faces_24dp);
-            } else {
-                imm.hideSoftInputFromWindow(getWindowToken(), 0);
-                view.clearFocus();
-                emojiButton.setImageResource(R.drawable.ic_keyboard_24dp);
             }
-            emojiKeyboardOwner.setEmojiKeyboardVisible(!emojiKeyboardOwner.isEmojiKeyboardVisible());
+            editText.setSelection(selectionStart, selectionEnd);
         });
 
         submitButton = findViewById(R.id.submit_button);
+    }
+
+    public void setEmojiKeyboard(IEmojiKeyboard emojiKeyboard) {
+        this.emojiKeyboard = emojiKeyboard;
     }
 
     public TextInputEditText getEditText() {
@@ -307,18 +324,22 @@ public class EditorView extends LinearLayout {
         submitButton.setOnClickListener(onSubmitListener);
     }
 
-    public void setEmojiKeyboardOwner(EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner) {
-        this.emojiKeyboardOwner = emojiKeyboardOwner;
+    public boolean requestEditTextFocus() {
+        emojiKeyboard.onEmojiInputFieldFocused(EditorView.this);
+        return editText.requestFocus();
     }
 
+    @Override
+    public void onKeyboardVisibilityChange(boolean visible) {
+        if (visible) {
+            emojiButton.setImageResource(R.drawable.ic_keyboard_24dp);
+        } else {
+            emojiButton.setImageResource(R.drawable.ic_tag_faces_24dp);
+        }
+    }
+
+    @Override
     public InputConnection getInputConnection() {
         return editText.onCreateInputConnection(new EditorInfo());
-    }
-
-    public void updateEmojiKeyboardVisibility() {
-        if (emojiKeyboardOwner.isEmojiKeyboardVisible())
-            emojiButton.setImageResource(R.drawable.ic_keyboard_24dp);
-        else
-            emojiButton.setImageResource(R.drawable.ic_tag_faces_24dp);
     }
 }

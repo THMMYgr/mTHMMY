@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -59,7 +58,7 @@ import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.editorview.EditorView;
-import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
+import gr.thmmy.mthmmy.editorview.IEmojiKeyboard;
 import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
@@ -91,7 +90,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static int THUMBNAIL_SIZE;
     private final Context context;
     private final OnPostFocusChangeListener postFocusListener;
-    private final EmojiKeyboard.EmojiKeyboardOwner emojiKeyboardOwner;
+    private final IEmojiKeyboard emojiKeyboard;
     private final List<TopicItem> topicItems;
     private TopicViewModel viewModel;
 
@@ -99,11 +98,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * @param context    the context of the {@link RecyclerView}
      * @param topicItems List of {@link Post} objects to use
      */
-    TopicAdapter(TopicActivity context, List<TopicItem> topicItems) {
+    TopicAdapter(TopicActivity context, IEmojiKeyboard emojiKeyboard, List<TopicItem> topicItems) {
         this.context = context;
         this.topicItems = topicItems;
         this.postFocusListener = context;
-        this.emojiKeyboardOwner = context;
+        this.emojiKeyboard = emojiKeyboard;
 
         viewModel = ViewModelProviders.of(context).get(TopicViewModel.class);
 
@@ -590,15 +589,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.quickReplySubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
                 holder.quickReplySubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
-                holder.replyEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
-                InputConnection ic = holder.replyEditor.getInputConnection();
-                emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
-                holder.replyEditor.updateEmojiKeyboardVisibility();
-                holder.replyEditor.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
-                    InputConnection ic12 = holder.replyEditor.getInputConnection();
-                    emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic12);
-                    holder.replyEditor.updateEmojiKeyboardVisibility();
-                });
+                holder.replyEditor.setEmojiKeyboard(emojiKeyboard);
+                holder.replyEditor.requestEditTextFocus();
+                emojiKeyboard.registerEmojiInputField(holder.replyEditor);
 
                 holder.replyEditor.setText(viewModel.getBuildedQuotes());
                 holder.replyEditor.setOnSubmitListener(view -> {
@@ -611,7 +604,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     holder.itemView.setAlpha(0.5f);
                     holder.itemView.setEnabled(false);
-                    emojiKeyboardOwner.setEmojiKeyboardVisible(false);
+                    emojiKeyboard.hide();
 
                     viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
                             holder.replyEditor.getText().toString());
@@ -641,18 +634,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.editSubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
                 holder.editSubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
-                holder.editEditor.setEmojiKeyboardOwner(emojiKeyboardOwner);
-                InputConnection ic = holder.editEditor.getInputConnection();
-                emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic);
-                holder.editEditor.updateEmojiKeyboardVisibility();
+                holder.editEditor.setEmojiKeyboard(emojiKeyboard);
+                holder.editEditor.requestEditTextFocus();
+                emojiKeyboard.registerEmojiInputField(holder.editEditor);
                 holder.editEditor.setText(viewModel.getPostBeingEditedText());
-                holder.editEditor.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
-                    if (hasFocus) {
-                        InputConnection ic1 = holder.editEditor.getInputConnection();
-                        emojiKeyboardOwner.setEmojiKeyboardInputConnection(ic1);
-                        holder.editEditor.updateEmojiKeyboardVisibility();
-                    }
-                });
                 holder.editEditor.setOnSubmitListener(view -> {
                     if (holder.editSubject.getText().toString().isEmpty()) return;
                     if (holder.editEditor.getText().toString().isEmpty()) {
@@ -663,7 +648,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     holder.itemView.setAlpha(0.5f);
                     holder.itemView.setEnabled(false);
-                    emojiKeyboardOwner.setEmojiKeyboardVisible(false);
+                    emojiKeyboard.hide();
 
                     viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editEditor.getText().toString());
                 });
