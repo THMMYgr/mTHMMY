@@ -241,6 +241,22 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withIcon(homeIcon)
                 .withSelectedIcon(homeIconSelected);
 
+        downloadsItem = new PrimaryDrawerItem() // Don't put it in the if below
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(DOWNLOADS_ID)
+                .withName(R.string.downloads)
+                .withIcon(downloadsIcon)
+                .withSelectedIcon(downloadsIconSelected);
+//            uploadItem = new PrimaryDrawerItem()
+//                    .withTextColor(primaryColor)
+//                    .withSelectedColor(selectedPrimaryColor)
+//                    .withSelectedTextColor(selectedSecondaryColor)
+//                    .withIdentifier(UPLOAD_ID)
+//                    .withName(R.string.upload)
+//                    .withIcon(uploadIcon)
+//                    .withSelectedIcon(uploadIconSelected);
 
         if (sessionManager.isLoggedIn()) //When logged in
         {
@@ -251,22 +267,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                     .withName(R.string.logout)
                     .withIcon(logoutIcon)
                     .withSelectable(false);
-            downloadsItem = new PrimaryDrawerItem()
-                    .withTextColor(primaryColor)
-                    .withSelectedColor(selectedPrimaryColor)
-                    .withSelectedTextColor(selectedSecondaryColor)
-                    .withIdentifier(DOWNLOADS_ID)
-                    .withName(R.string.downloads)
-                    .withIcon(downloadsIcon)
-                    .withSelectedIcon(downloadsIconSelected);
-//            uploadItem = new PrimaryDrawerItem()
-//                    .withTextColor(primaryColor)
-//                    .withSelectedColor(selectedPrimaryColor)
-//                    .withSelectedTextColor(selectedSecondaryColor)
-//                    .withIdentifier(UPLOAD_ID)
-//                    .withName(R.string.upload)
-//                    .withIcon(uploadIcon)
-//                    .withSelectedIcon(uploadIconSelected);
         } else
             loginLogoutItem = new PrimaryDrawerItem()
                     .withTextColor(primaryColor)
@@ -410,16 +410,16 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 drawer.removeItem(DOWNLOADS_ID);
-                drawer.removeItem(UPLOAD_ID);
+//                drawer.removeItem(UPLOAD_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername());
                 setDefaultAvatar();
             } else {
                 if (!drawer.getDrawerItems().contains(downloadsItem)) {
-                    drawer.addItemAtPosition(downloadsItem, 2);
+                    drawer.addItemAtPosition(downloadsItem, 3);
                 }
 //                if (!drawer.getDrawerItems().contains(uploadItem)) {
-//                    drawer.addItemAtPosition(uploadItem, 3);
+//                    drawer.addItemAtPosition(uploadItem, 4);
 //                }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());

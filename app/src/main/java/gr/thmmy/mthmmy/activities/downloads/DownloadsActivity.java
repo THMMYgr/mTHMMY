@@ -127,29 +127,29 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         parseDownloadPageTask.execute(downloadsUrl);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflates the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.downloads_menu, menu);
-        super.onCreateOptionsMenu(menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.menu_upload:
-                Intent intent = new Intent(DownloadsActivity.this, UploadActivity.class);
-                Bundle extras = new Bundle();
-                extras.putString(BUNDLE_UPLOAD_CATEGORY, downloadsNav);
-                intent.putExtras(extras);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflates the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.downloads_menu, menu);
+//        super.onCreateOptionsMenu(menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle presses on the action bar items
+//        switch (item.getItemId()) {
+//            case R.id.menu_upload:
+//                Intent intent = new Intent(DownloadsActivity.this, UploadActivity.class);
+//                Bundle extras = new Bundle();
+//                extras.putString(BUNDLE_UPLOAD_CATEGORY, downloadsNav);
+//                intent.putExtras(extras);
+//                startActivity(intent);
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
     @Override
     public void onLoadMore() {
