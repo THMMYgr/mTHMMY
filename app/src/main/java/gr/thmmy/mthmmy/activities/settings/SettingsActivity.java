@@ -42,8 +42,7 @@ public class SettingsActivity extends BaseActivity  {
     protected void onResume() {
         drawer.setSelection(SETTINGS_ID);
         super.onResume();
-        if (preferenceFragment != null) {
+        if (preferenceFragment != null)
             preferenceFragment.updateUserLoginState(sessionManager.isLoggedIn());
-        }
     }
 }

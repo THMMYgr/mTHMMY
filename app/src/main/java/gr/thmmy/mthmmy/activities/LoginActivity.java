@@ -46,7 +46,7 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        PreferenceManager.setDefaultValues(this, R.xml.app_preferences, false);
+        PreferenceManager.setDefaultValues(this, R.xml.app_preferences_user, false);
 
         //Variables initialization
         inputUsername = findViewById(R.id.username);

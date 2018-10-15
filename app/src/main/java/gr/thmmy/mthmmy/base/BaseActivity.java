@@ -56,7 +56,6 @@ import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
-import gr.thmmy.mthmmy.utils.LaunchType;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
 import okhttp3.OkHttpClient;
 import ru.noties.markwon.LinkResolverDef;
@@ -74,8 +73,6 @@ import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
 import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
-import static gr.thmmy.mthmmy.utils.LaunchType.LAUNCH_TYPE.FIRST_LAUNCH_EVER;
-import static gr.thmmy.mthmmy.utils.LaunchType.LAUNCH_TYPE.INDETERMINATE;
 
 public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies

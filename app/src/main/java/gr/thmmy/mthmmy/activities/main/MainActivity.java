@@ -58,7 +58,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         redirectToActivityFromIntent(intentFilter);
         setContentView(R.layout.activity_main);
 
-        PreferenceManager.setDefaultValues(this, R.xml.app_preferences, false);
+        PreferenceManager.setDefaultValues(this, R.xml.app_preferences_user, false);
 
         if (sessionManager.isLoginScreenDefault()) {
             //Go to login

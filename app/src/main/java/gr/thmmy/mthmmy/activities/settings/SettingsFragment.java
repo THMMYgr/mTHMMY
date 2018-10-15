@@ -22,9 +22,12 @@ import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private enum PREFS_TYPE {
+        NOT_SET, USER, GUEST
+    }
+
     public static final String ARG_IS_LOGGED_IN = "selectedRingtoneKey";
 
     //Preferences xml keys
@@ -40,6 +43,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
     private SharedPreferences settingsFile;
 
+    private PREFS_TYPE prefs_type = PREFS_TYPE.NOT_SET;
     private boolean isLoggedIn = false;
     private ArrayList<String> defaultHomeTabEntries = new ArrayList<>();
     private ArrayList<String> defaultHomeTabValues = new ArrayList<>();
@@ -85,8 +89,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
-        // Load the Preferences from the XML file
-        addPreferencesFromResource(R.xml.app_preferences);
+        isLoggedIn = BaseApplication.getInstance().getSessionManager().isLoggedIn();    //Ensures it stays updated
+        // Add the Preferences from the XML file if needed
+        if(isLoggedIn&&(prefs_type==PREFS_TYPE.GUEST||prefs_type==PREFS_TYPE.NOT_SET)){
+            prefs_type = PREFS_TYPE.USER;
+            addPreferencesFromResource(R.xml.app_preferences_user);
+
+        }
+        else if(!isLoggedIn&&(prefs_type==PREFS_TYPE.USER||prefs_type==PREFS_TYPE.NOT_SET)){
+            prefs_type = PREFS_TYPE.GUEST;
+            addPreferencesFromResource(R.xml.app_preferences_guest);
+        }
     }
 
     @Override
@@ -152,24 +165,33 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     }
 
     private void updatePreferenceVisibility(){
-        findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
-        findPreference(POSTING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
-        //findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
-        //findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
-
-        if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
-            defaultHomeTabEntries.remove("Unread");
-            defaultHomeTabValues.remove("2");
-        } else if (isLoggedIn && !defaultHomeTabEntries.contains("Unread")) {
-            defaultHomeTabEntries.add("Unread");
-            defaultHomeTabValues.add("2");
+        boolean updateHomeTabs=false;
+        if(isLoggedIn&& prefs_type==PREFS_TYPE.GUEST) {
+            prefs_type = PREFS_TYPE.USER;
+            setPreferencesFromResource(R.xml.app_preferences_user, getPreferenceScreen().getKey());
+            if(!defaultHomeTabEntries.contains("Unread")){
+                defaultHomeTabEntries.add("Unread");
+                defaultHomeTabValues.add("2");
+                updateHomeTabs=true;
+            }
+        }
+        else if(!isLoggedIn&&prefs_type==PREFS_TYPE.USER){
+            prefs_type = PREFS_TYPE.GUEST;
+            setPreferencesFromResource(R.xml.app_preferences_guest,getPreferenceScreen().getKey());
+            if(defaultHomeTabEntries.contains("Unread")){
+                defaultHomeTabEntries.remove("Unread");
+                defaultHomeTabValues.remove("2");
+                updateHomeTabs=true;
+            }
         }
 
-        CharSequence[] tmpCs = defaultHomeTabEntries.toArray(new CharSequence[defaultHomeTabEntries.size()]);
-        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntries(tmpCs);
+        if(updateHomeTabs){
+            CharSequence[] tmpCs = defaultHomeTabEntries.toArray(new CharSequence[defaultHomeTabEntries.size()]);
+            ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntries(tmpCs);
 
-        tmpCs = defaultHomeTabValues.toArray(new CharSequence[defaultHomeTabValues.size()]);
-        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntryValues(tmpCs);
+            tmpCs = defaultHomeTabValues.toArray(new CharSequence[defaultHomeTabValues.size()]);
+            ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntryValues(tmpCs);
+        }
     }
 
     @Override
