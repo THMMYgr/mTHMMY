@@ -18,7 +18,6 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
-import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.session.SessionManager.BANNED_USER;
 import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
