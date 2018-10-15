@@ -50,7 +50,8 @@ public class BaseApplication extends Application {
     private OkHttpClient client;
     private SessionManager sessionManager;
 
-    private final String SHARED_PREFS = "ThmmySharedPrefs";
+    //TODO: maybe use PreferenceManager.getDefaultSharedPreferences here as well?
+    private static final String SHARED_PREFS = "ThmmySharedPrefs";
 
     //Display Metrics
     private static float dpWidth;

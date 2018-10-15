@@ -90,6 +90,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
     protected Bookmark thisPageBookmark;
     private MenuItem thisPageBookmarkMenuButton;
+    private SharedPreferences sharedPreferences;
     private SharedPreferences bookmarksFile;
     private ArrayList<Bookmark> topicsBookmarked;
     private ArrayList<Bookmark> boardsBookmarked;
@@ -99,10 +100,14 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected Drawer drawer;
 
     private MainActivity mainActivity;
+    private boolean isMainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        isMainActivity = this instanceof MainActivity;
+
         if (client == null)
             client = BaseApplication.getInstance().getClient(); //must check every time - e.g.
 
@@ -115,6 +120,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             loadSavedBookmarks();
         }
 
+        sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(this);
+
         BaseViewModel baseViewModel = ViewModelProviders.of(this).get(BaseViewModel.class);
         baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> setTopicBookmark(thisPageBookmarkMenuButton));
     }
@@ -123,7 +130,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateDrawer();
-        if(LaunchType.getLaunchType()==FIRST_LAUNCH_EVER||LaunchType.getLaunchType()== INDETERMINATE)
+        if(!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key),false))
             showUserConsentDialog();
     }
 
@@ -338,7 +345,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withAccountHeader(accountHeader)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
                     if (drawerItem.equals(HOME_ID)) {
-                        if (!(BaseActivity.this instanceof MainActivity)) {
+                        if (!isMainActivity) {
                             Intent intent = new Intent(BaseActivity.this, MainActivity.class);
                             startActivity(intent);
                         }
@@ -392,7 +399,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         drawer = drawerBuilder.build();
 
-        if (!(BaseActivity.this instanceof MainActivity))
+        if (!isMainActivity)
             drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
 
         drawer.setOnDrawerNavigationListener(clickedView -> {
@@ -742,11 +749,15 @@ public abstract class BaseActivity extends AppCompatActivity {
         builder.setTitle("User Agreement");
         builder.setMessage(R.string.user_agreement_dialog_text);
         builder.setPositiveButton("Yes, I want to help", (dialogInterface, i) -> {
+            addUserConsent();
             FirebaseMessaging.getInstance().setAutoInitEnabled(true);
             BaseApplication.getInstance().startFirebaseCrashlyticsCollection();
             BaseApplication.getInstance().setFirebaseAnalyticsCollection(true);
         });
-        builder.setNegativeButton("Nope, leave me alone", (dialogInterface, i) -> FirebaseMessaging.getInstance().setAutoInitEnabled(true));
+        builder.setNegativeButton("Nope, leave me alone", (dialogInterface, i) -> {
+            addUserConsent();
+            FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+        });
         builder.setNeutralButton("Privacy Policy", (dialog, which) -> {/*Will be overridden below*/});
         builder.setCancelable(false);
         AlertDialog alertDialog = builder.create();
@@ -789,6 +800,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                 Timber.e(e, "Error in Privacy Policy dialog (closing reader).");
             }
         }
+    }
+
+    private void addUserConsent (){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(getString(R.string.user_consent_shared_preference_key), true).apply();
     }
 
     //----------------------------------MISC----------------------
