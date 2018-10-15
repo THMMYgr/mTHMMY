@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
@@ -39,8 +40,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SETTINGS_SHARED_PREFS;
-
 public class BaseApplication extends Application {
     private static BaseApplication baseApplication; //BaseApplication singleton
 
@@ -71,18 +70,11 @@ public class BaseApplication extends Application {
 
         //Shared Preferences
         SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        SharedPreferences settingsSharedPrefs = getSharedPreferences(SETTINGS_SHARED_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences settingsSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        // Set up Crashlytics, disabled for debug builds
-        if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false)) {
-            Crashlytics crashlyticsKit = new Crashlytics.Builder()
-                    .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-                    .build();
-            // Initialize Fabric with the debug-disabled Crashlytics.
-            Fabric.with(this, crashlyticsKit);
-            Timber.plant(new CrashReportingTree());
-            Timber.i("Starting app with Crashlytics enabled.");
-        } else
+        if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false))
+            startFirebaseCrashlyticsCollection();
+        else
             Timber.i("Starting app with Crashlytics disabled.");
 
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -153,16 +145,6 @@ public class BaseApplication extends Application {
         dpWidth = displayMetrics.widthPixels / displayMetrics.density;
     }
 
-    public void logFirebaseAnalyticsEvent(String event, Bundle params) {
-        firebaseAnalytics.logEvent(event, params);
-    }
-
-    public void firebaseAnalyticsCollection(boolean enabled) {
-        firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
-        if(!enabled)
-            firebaseAnalytics.resetAnalyticsData();
-    }
-
     //Getters
     public Context getContext() {
         return getApplicationContext();
@@ -178,5 +160,33 @@ public class BaseApplication extends Application {
 
     public float getDpWidth() {
         return dpWidth;
+    }
+
+
+    //--------------------Firebase--------------------
+
+    public void logFirebaseAnalyticsEvent(String event, Bundle params) {
+        firebaseAnalytics.logEvent(event, params);
+    }
+
+    public void setFirebaseAnalyticsCollection(boolean enabled) {
+        firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
+        if(!enabled)
+            firebaseAnalytics.resetAnalyticsData();
+    }
+
+    // Set up Crashlytics, disabled for debug builds
+    public void startFirebaseCrashlyticsCollection() {
+        if(!Fabric.isInitialized()){
+            Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                    .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                    .build();
+            // Initialize Fabric with the debug-disabled Crashlytics.
+            Fabric.with(this, crashlyticsKit);
+            Timber.plant(new CrashReportingTree());
+            Timber.i("Crashlytics enabled.");
+        }
+        else
+            Timber.i("Crashlytics were already initialized for this app session.");
     }
 }

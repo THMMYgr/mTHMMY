@@ -1,6 +1,6 @@
 # Add project specific ProGuard rules here.
 # By default, the flags in this file are appended to flags specified
-# in C:\Users\Ragnar\AppData\Local\Android\Sdk/tools/proguard/proguard-android.txt
+# in sdk/tools/proguard/proguard-android.txt
 # You can edit the include path and order by changing the proguardFiles
 # directive in build.gradle.
 #
@@ -43,3 +43,7 @@
 
 # JSoup
 -keep class org.jsoup.**
+
+# Markwon
+-keep class com.caverock.androidsvg.** { *; }
+-dontwarn com.caverock.androidsvg.**

@@ -51,7 +51,6 @@ import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
-import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
@@ -352,11 +351,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                             intent.putExtras(extras);
                             startActivity(intent);
                         }
-                    } else if (drawerItem.equals(UPLOAD_ID)) {
-                        if (!(BaseActivity.this instanceof UploadActivity)) {
-                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
-                            startActivity(intent);
-                        }
+//                    } else if (drawerItem.equals(UPLOAD_ID)) {
+//                        if (!(BaseActivity.this instanceof UploadActivity)) {
+//                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
+//                            startActivity(intent);
+//                        }
                     } else if (drawerItem.equals(BOOKMARKS_ID)) {
                         if (!(BaseActivity.this instanceof BookmarkActivity)) {
                             Intent intent = new Intent(BaseActivity.this, BookmarkActivity.class);
@@ -742,7 +741,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
         builder.setTitle("User Agreement");
         builder.setMessage(R.string.user_agreement_dialog_text);
-        builder.setPositiveButton("Yes, I want to help", (dialogInterface, i) -> FirebaseMessaging.getInstance().setAutoInitEnabled(true));
+        builder.setPositiveButton("Yes, I want to help", (dialogInterface, i) -> {
+            FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+            BaseApplication.getInstance().startFirebaseCrashlyticsCollection();
+            BaseApplication.getInstance().setFirebaseAnalyticsCollection(true);
+        });
         builder.setNegativeButton("Nope, leave me alone", (dialogInterface, i) -> FirebaseMessaging.getInstance().setAutoInitEnabled(true));
         builder.setNeutralButton("Privacy Policy", (dialog, which) -> {/*Will be overridden below*/});
         builder.setCancelable(false);

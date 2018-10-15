@@ -23,7 +23,6 @@ import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.POSTING_APP_SIGNATURE_ENABLE_KEY;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.UPLOADING_APP_SIGNATURE_ENABLE_KEY;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String ARG_IS_LOGGED_IN = "selectedRingtoneKey";
@@ -93,25 +92,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
-        findPreference(POSTING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
-
-        //findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
-        //findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
-
-        if (!isLoggedIn && defaultHomeTabEntries.contains("Unread")) {
-            defaultHomeTabEntries.remove("Unread");
-            defaultHomeTabValues.remove("2");
-        } else if (isLoggedIn && !defaultHomeTabEntries.contains("Unread")) {
-            defaultHomeTabEntries.add("Unread");
-            defaultHomeTabValues.add("2");
-        }
-
-        CharSequence[] tmpCs = defaultHomeTabEntries.toArray(new CharSequence[defaultHomeTabEntries.size()]);
-        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntries(tmpCs);
-
-        tmpCs = defaultHomeTabValues.toArray(new CharSequence[defaultHomeTabValues.size()]);
-        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntryValues(tmpCs);
+        updatePreferenceVisibility();
     }
 
     @Override
@@ -167,10 +148,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
     public void updateUserLoginState(boolean isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
+        updatePreferenceVisibility();
+    }
 
+    private void updatePreferenceVisibility(){
         findPreference(POSTING_CATEGORY).setVisible(isLoggedIn);
         findPreference(POSTING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
-
         //findPreference(UPLOADING_CATEGORY).setVisible(isLoggedIn);
         //findPreference(UPLOADING_APP_SIGNATURE_ENABLE_KEY).setVisible(isLoggedIn);
 
@@ -195,13 +178,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         if (key.equals(getString(R.string.pref_privacy_crashlytics_enable_key))) {
             enabled = sharedPreferences.getBoolean(key, false);
             if(enabled)
-                Timber.i("Crashlytics collection will be enabled after restarting.");
-            else
+                BaseApplication.getInstance().startFirebaseCrashlyticsCollection();
+            else {
                 Timber.i("Crashlytics collection will be disabled after restarting.");
-            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This change will take effect once you restart the app.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This change will take effect once you restart the app.", Toast.LENGTH_SHORT).show();
+            }
         } else if (key.equals(getString(R.string.pref_privacy_analytics_enable_key))) {
             enabled = sharedPreferences.getBoolean(key, false);
-            BaseApplication.getInstance().firebaseAnalyticsCollection(enabled);
+            BaseApplication.getInstance().setFirebaseAnalyticsCollection(enabled);
             if(enabled)
                 Timber.i("Analytics collection enabled.");
             else
