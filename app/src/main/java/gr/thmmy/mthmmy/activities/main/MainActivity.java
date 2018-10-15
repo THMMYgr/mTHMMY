@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.main;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.preference.PreferenceManager;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
@@ -42,6 +45,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
     //-----------------------------------------CLASS VARIABLES------------------------------------------
     private static final int TIME_INTERVAL = 2000;
+    private SharedPreferences sharedPrefs;
+    private static final String DRAWER_INTRO = "DRAWER_INTRO";
     private long mBackPressed;
     private SectionsPagerAdapter sectionsPagerAdapter;
     private ViewPager viewPager;
@@ -53,9 +58,12 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         redirectToActivityFromIntent(intentFilter);
         setContentView(R.layout.activity_main);
 
+        PreferenceManager.setDefaultValues(this, R.xml.app_preferences_user, false);
+
         if (sessionManager.isLoginScreenDefault()) {
             //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.putExtra("REDIRECT", true);
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
@@ -71,13 +79,18 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         if (sessionManager.isLoggedIn())
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
 
-
         //Set up the ViewPager with the sections adapter.
         viewPager = findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int preferredTab = Integer.parseInt(sharedPrefs.getString(DEFAULT_HOME_TAB, "0"));
+        if (preferredTab != 3 || sessionManager.isLoggedIn()) {
+            tabLayout.getTabAt(preferredTab).select();
+        }
 
         setMainActivity(this);
     }
@@ -92,6 +105,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     protected void onResume() {
         drawer.setSelection(HOME_ID);
+        if(!sharedPrefs.getBoolean(DRAWER_INTRO, false)){
+            drawer.openDrawer();
+            sharedPrefs.edit().putBoolean(DRAWER_INTRO, true).apply();
+        }
         updateTabs();
         super.onResume();
     }

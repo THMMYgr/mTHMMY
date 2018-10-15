@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/topic_row_linear"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -18,6 +20,18 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/topic_unread_dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/fa_circle"
+            android:textColor="@color/accent"
+            android:visibility="invisible"
+            android:layout_marginEnd="6dp"
+            android:textSize="9sp"
+            tools:ignore="SmallSp" />
+
+        <TextView
             android:id="@+id/topic_subject"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -34,7 +48,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:contentDescription="@string/child_board_button"
-            android:src="@drawable/ic_arrow_drop_down" />
+            app:srcCompat="@drawable/ic_arrow_drop_down_accent_24dp" />
     </LinearLayout>
 
     <LinearLayout

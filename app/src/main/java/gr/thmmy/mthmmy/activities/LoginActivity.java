@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -11,10 +12,12 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
-import timber.log.Timber;
+import gr.thmmy.mthmmy.base.BaseApplication;
 
 import static gr.thmmy.mthmmy.session.SessionManager.BANNED_USER;
 import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
@@ -36,11 +39,16 @@ public class LoginActivity extends BaseActivity {
     /* --Graphics End-- */
 
     private LoginTask loginTask;
+    private boolean initialRedirect;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        initialRedirect = getIntent().getBooleanExtra("REDIRECT", false);
+
+        PreferenceManager.setDefaultValues(this, R.xml.app_preferences_user, false);
 
         //Variables initialization
         inputUsername = findViewById(R.id.username);
@@ -49,50 +57,44 @@ public class LoginActivity extends BaseActivity {
         AppCompatButton btnGuest = findViewById(R.id.btnContinueAsGuest);
 
         //Login button Click Event
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        btnLogin.setOnClickListener(view -> {
 
-            public void onClick(View view) {
-                Timber.d("Login");
+            //Get username and password strings
+            username = inputUsername.getText().toString().trim();
+            password = inputPassword.getText().toString().trim();
 
-                //Get username and password strings
-                username = inputUsername.getText().toString().trim();
-                password = inputPassword.getText().toString().trim();
-
-                //Check for empty data in the form
-                if (!validate()) {
-                    onLoginFailed();
-                    return;
-                }
-
-                //Login user
-                loginTask = new LoginTask();
-                loginTask.execute(username, password);
+            //Check for empty data in the form
+            if (!validate()) {
+                onLoginFailed();
+                return;
             }
+
+            //Login user
+            loginTask = new LoginTask();
+            loginTask.execute(username, password);
         });
 
         //Guest Button Action
-        btnGuest.setOnClickListener(new View.OnClickListener() {
+        btnGuest.setOnClickListener(view -> {
+            //Session data update
+            sessionManager.guestLogin();
 
-            public void onClick(View view) {
-                //Session data update
-                sessionManager.guestLogin();
-
-                //Go to main
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
-            }
+            //Go to main
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
         });
     }
 
     @Override
     public void onBackPressed() {
-        // Disable going back to the MainActivity
-        moveTaskToBack(true);
+        super.onBackPressed();
         if (loginTask != null && loginTask.getStatus() == AsyncTask.Status.RUNNING) {
             loginTask.cancel(true);
         }
+        if(!isTaskRoot())
+            overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
     private void onLoginFailed() {
@@ -160,9 +162,13 @@ public class LoginActivity extends BaseActivity {
                     Toast.makeText(getApplicationContext(),
                             "Welcome, " + sessionManager.getUsername() + "!", Toast.LENGTH_LONG)
                             .show();
-                    //Go to main
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
+                    BaseApplication.getInstance().logFirebaseAnalyticsEvent(FirebaseAnalytics.Event.LOGIN, null);
+                    if(initialRedirect){
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    } else
+                        onBackPressed();
+
                     finish();
                     overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                     break;

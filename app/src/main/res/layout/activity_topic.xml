@@ -1,51 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:fitsSystemWindows="true"
     tools:context=".activities.topic.TopicActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/appbar_padding_top"
-        android:theme="@style/ToolbarTheme">
+        android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:contentInsetStartWithNavigation="0dp"
-            app:popupTheme="@style/ToolbarTheme">
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/appbar_padding_top"
+            android:theme="@style/ToolbarTheme">
 
-            <TextView
-                android:id="@+id/toolbar_title"
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                />
-        </android.support.v7.widget.Toolbar>
-    </android.support.design.widget.AppBarLayout>
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:contentInsetStartWithNavigation="0dp"
+                app:popupTheme="@style/ToolbarTheme">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/topic_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="top|start"
-        android:background="@color/background"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:clipToPadding="false"
-        android:scrollbars="none"
-        tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    </android.support.v7.widget.RecyclerView>
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/white" />
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/topic_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/emoji_keyboard"
+            android:layout_below="@id/appbar"
+            android:layout_gravity="top|start"
+            android:clipToPadding="false"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:scrollbars="none"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity" />
+
+        <gr.thmmy.mthmmy.editorview.EmojiKeyboard
+            android:id="@+id/emoji_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/error_textview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/appbar"
+            android:layout_gravity="top|start"
+            android:gravity="center"
+            android:text="@string/network_error_retry_prompt"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:visibility="gone" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/bottom_navigation_bar"
@@ -63,7 +87,7 @@
             android:layout_weight="0.8"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/button_first"
-            app:srcCompat="@drawable/page_first"/>
+            app:srcCompat="@drawable/page_first" />
 
         <ImageButton
             android:id="@+id/page_previous_button"
@@ -72,7 +96,7 @@
             android:layout_weight="0.8"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/button_previous"
-            app:srcCompat="@drawable/page_previous"/>
+            app:srcCompat="@drawable/page_previous" />
 
         <TextView
             android:id="@+id/page_indicator"
@@ -84,7 +108,7 @@
             android:hint="@string/button_page"
             android:maxLines="1"
             android:textColor="@color/white"
-            android:textSize="22sp"/>
+            android:textSize="22sp" />
 
         <ImageButton
             android:id="@+id/page_next_button"
@@ -93,7 +117,7 @@
             android:layout_weight="0.8"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/button_next"
-            app:srcCompat="@drawable/page_next"/>
+            app:srcCompat="@drawable/page_next" />
 
         <ImageButton
             android:id="@+id/page_last_button"
@@ -102,7 +126,7 @@
             android:layout_weight="0.8"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/button_last"
-            app:srcCompat="@drawable/page_last"/>
+            app:srcCompat="@drawable/page_last" />
     </LinearLayout>
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
@@ -115,7 +139,7 @@
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|center"
         app:mpb_indeterminateTint="@color/accent"
-        app:mpb_progressStyle="horizontal"/>
+        app:mpb_progressStyle="horizontal" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/topic_fab"
@@ -125,7 +149,7 @@
         android:layout_marginBottom="50dp"
         android:layout_marginEnd="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
-        app:srcCompat="@drawable/ic_reply"/>
+        app:srcCompat="@drawable/ic_reply" />
 </android.support.design.widget.CoordinatorLayout>
 
 

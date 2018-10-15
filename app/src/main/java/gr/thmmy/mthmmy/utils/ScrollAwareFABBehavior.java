@@ -4,13 +4,14 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 
 /**
  * Extends FloatingActionButton's behavior so the button will hide when scrolling down and show
- * otherwise.
+ * otherwise. It also lifts the {@link FloatingActionButton} when a {@link Snackbar} is shown.
  */
 @SuppressWarnings("unused")
 public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingActionButton> {
@@ -47,5 +48,17 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
                 || (!target.canScrollVertically(-1) && dyConsumed == 0 && dyUnconsumed < -50))) {
             child.show();
         }
+    }
+
+    @Override
+    public boolean layoutDependsOn(CoordinatorLayout parent, FloatingActionButton child, View dependency) {
+        return dependency instanceof Snackbar.SnackbarLayout;
+    }
+
+    @Override
+    public boolean onDependentViewChanged(CoordinatorLayout parent, FloatingActionButton child, View dependency) {
+        float translationY = Math.min(0, dependency.getTranslationY() - dependency.getHeight());
+        child.setTranslationY(translationY);
+        return true;
     }
 }

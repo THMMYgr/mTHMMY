@@ -5,6 +5,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner
@@ -165,5 +167,22 @@ public class ParseHelpers {
             ++tmp_counter;
         }
         return fixed;
+    }
+
+    /**
+     * Method that extracts the base URL from a topic's page URL. For example a topic with url similar to
+     * "https://www.thmmy.gr/smf/index.php?topic=1.15;topicseen" or
+     * "https://www.thmmy.gr/smf/index.php?topic=1.msg1#msg1"
+     * has the base url "https://www.thmmy.gr/smf/index.php?topic=1"
+     *
+     * @param topicURL a topic's page URL
+     * @return the base URL of the given topic
+     */
+    public static String getBaseURL(String topicURL) {
+        String forumUrl = "https://www.thmmy.gr/smf/index.php?";
+        Matcher baseUrlMatcher = Pattern.compile("topic=[0-9]+").matcher(topicURL);
+        if (baseUrlMatcher.find())
+            return forumUrl + topicURL.substring(baseUrlMatcher.start(), baseUrlMatcher.end());
+        else return "";
     }
 }

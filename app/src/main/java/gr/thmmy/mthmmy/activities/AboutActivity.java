@@ -6,6 +6,9 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebView;
@@ -80,6 +83,13 @@ public class AboutActivity extends BaseActivity {
                 }
             });
         }
+
+        TextView privacyPolicy = findViewById(R.id.privacy_policy_header);
+        privacyPolicy.setMovementMethod(new LinkMovementMethod());
+        SpannableString spannableString = new SpannableString(privacyPolicy.getText());
+        spannableString.setSpan(new UnderlineSpan(), 0, spannableString.length(), 0);
+        privacyPolicy.setText(spannableString);
+        privacyPolicy.setOnClickListener(view -> showPrivacyPolicyDialog());
 
     }
 

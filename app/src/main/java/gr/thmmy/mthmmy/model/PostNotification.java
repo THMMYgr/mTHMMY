@@ -8,10 +8,12 @@ package gr.thmmy.mthmmy.model;
  * </p>.
  */
 public class PostNotification {
-    final int postId;
-    final int topicId;
-    final String topicTitle;
-    final String poster;
+    private final int postId;
+    private final int topicId;
+    private final String topicTitle;
+    private final String poster;
+    private final int boardId;
+    private final String boardTitle;
 
     // Suppresses default constructor
     @SuppressWarnings("unused")
@@ -20,6 +22,8 @@ public class PostNotification {
         this.topicId = -1;
         this.topicTitle = null;
         this.poster = null;
+        this.boardId = -1;
+        this.boardTitle = null;
     }
 
     /**
@@ -30,12 +34,17 @@ public class PostNotification {
      * @param topicId         this post's topicId
      * @param topicTitle          this post's topicTitle
      * @param poster         username of this post's author
+     * @param boardId         one of this post's boardIds (-1 if it is a topic notification)
+     * @param boardTitle         one of this post's boardTitles (null if it is a topic notification)
      */
-    public PostNotification(int postId, int topicId, String topicTitle, String poster) {
+    public PostNotification(int postId, int topicId, String topicTitle, String poster, int boardId, String boardTitle) {
         this.postId = postId;
         this.topicId = topicId;
         this.topicTitle = topicTitle;
         this.poster = poster;
+        this.boardId = boardId;
+        this.boardTitle = boardTitle;
+
     }
 
     /**
@@ -72,6 +81,24 @@ public class PostNotification {
      */
     public String getPoster() {
         return poster;
+    }
+
+    /**
+     * Gets this post's boardId.
+     *
+     * @return this post's boardId
+     */
+    public int getBoardId() {
+        return boardId;
+    }
+
+    /**
+     * Gets this post's boardTitle.
+     *
+     * @return this post's boardTitle
+     */
+    public String getBoardTitle() {
+        return boardTitle;
     }
 }
 

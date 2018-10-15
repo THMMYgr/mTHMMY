@@ -1,13 +1,14 @@
 package gr.thmmy.mthmmy.activities.downloads;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Download;
@@ -31,6 +33,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
+import static gr.thmmy.mthmmy.activities.upload.UploadActivity.BUNDLE_UPLOAD_CATEGORY;
+
 public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.OnLoadMoreListener {
     /**
      * The key to use when putting download's url String to {@link DownloadsActivity}'s Bundle.
@@ -42,13 +46,14 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     public static final String BUNDLE_DOWNLOADS_TITLE = "DOWNLOADS_TITLE";
     private static final String downloadsIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl;";
     private String downloadsUrl;
+    private String downloadsNav;
     private String downloadsTitle;
     private final ArrayList<Download> parsedDownloads = new ArrayList<>();
 
     private MaterialProgressBar progressBar;
     private RecyclerView recyclerView;
     private DownloadsAdapter downloadsAdapter;
-    private FloatingActionButton uploadFAB;
+    //private FloatingActionButton uploadFAB;
 
     private ParseDownloadPageTask parseDownloadPageTask;
     private int numberOfPages = -1;
@@ -68,7 +73,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         if (downloadsUrl != null && !Objects.equals(downloadsUrl, "")) {
             ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(downloadsUrl));
             if (!target.is(ThmmyPage.PageCategory.DOWNLOADS)) {
-                Timber.e("Bundle came with a non downloads url!\nUrl:\n%s" , downloadsUrl);
+                Timber.e("Bundle came with a non downloads url!\nUrl:\n%s", downloadsUrl);
                 Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -114,13 +119,37 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             }
         });
 
-        uploadFAB = findViewById(R.id.download_fab);
-        uploadFAB.setEnabled(false);
-        uploadFAB.hide();
+//        uploadFAB = findViewById(R.id.upload_fab);
+//        uploadFAB.setEnabled(false);
+//        uploadFAB.hide();
 
         parseDownloadPageTask = new ParseDownloadPageTask();
         parseDownloadPageTask.execute(downloadsUrl);
     }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflates the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.downloads_menu, menu);
+//        super.onCreateOptionsMenu(menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle presses on the action bar items
+//        switch (item.getItemId()) {
+//            case R.id.menu_upload:
+//                Intent intent = new Intent(DownloadsActivity.this, UploadActivity.class);
+//                Bundle extras = new Bundle();
+//                extras.putString(BUNDLE_UPLOAD_CATEGORY, downloadsNav);
+//                intent.putExtras(extras);
+//                startActivity(intent);
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
     @Override
     public void onLoadMore() {
@@ -165,7 +194,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
      * data. {@link ParseTask#postExecution(ResultCode) postExecution} method calls {@link RecyclerView#swapAdapter}
      * to build graphics.
      * <p>
-     * <p>Calling TopicTask's {@link ParseTask#execute execute} method needs to have profile's url
+     * <p>Calling TopicTask's {@link ParseTask#execute execute} method needs to have download's page url
      * as String parameter!</p>
      */
     private class ParseDownloadPageTask extends ParseTask {
@@ -175,18 +204,22 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
-            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(false);
+            //if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(false);
         }
 
         @Override
         protected void parse(Document downloadPage) throws ParseException {
-            try{
+            try {
+                Element downloadsNavElement = downloadPage.select("div.nav").first();
+                downloadsNav = downloadsNavElement.text();
+
                 if (downloadsTitle == null || Objects.equals(downloadsTitle, ""))
-                    downloadsTitle = downloadPage.select("div.nav>b>a.nav").last().text();
+                    downloadsTitle = downloadsNavElement.select("b>a.nav").last().text();
 
                 //Removes loading item
                 if (isLoadingMore) {
-                    if (parsedDownloads.size() > 0) parsedDownloads.remove(parsedDownloads.size() - 1);
+                    if (parsedDownloads.size() > 0)
+                        parsedDownloads.remove(parsedDownloads.size() - 1);
                 }
 
                 if (ThmmyPage.resolvePageCategory(Uri.parse(url)).is(ThmmyPage.PageCategory.DOWNLOADS_CATEGORY))
@@ -231,15 +264,15 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                     }
                 } else {
                     download = new Download(type,
-                    rows.select("b>a").first().attr("href"),
-                    rows.select("b>a").first().text(),
-                    rows.select("div.smalltext:not(:has(a))").text(),
-                    rows.select("span:not(:has(a))").first().text(),
-                    false,
-                    rows.select("span:has(a)").first().text());
+                            rows.select("b>a").first().attr("href"),
+                            rows.select("b>a").first().text(),
+                            rows.select("div.smalltext:not(:has(a))").text(),
+                            rows.select("span:not(:has(a))").first().text(),
+                            false,
+                            rows.select("span:has(a)").first().text());
                     parsedDownloads.add(download);
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
                 throw new ParseException("Parsing failed (DownloadsActivity)");
             }
         }
@@ -269,7 +302,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                 toolbar.setTitle(downloadsTitle);
 
             ++pagesLoaded;
-            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(true);
+            //if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             downloadsAdapter.notifyDataSetChanged();
             isLoadingMore = false;

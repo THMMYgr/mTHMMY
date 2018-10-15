@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.main.unread;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,14 +22,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
-import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
+import okhttp3.Response;
 import timber.log.Timber;
 
 /**
@@ -42,13 +46,14 @@ import timber.log.Timber;
 
 public class UnreadFragment extends BaseFragment {
     private static final String TAG = "UnreadFragment";
-    // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
 
     private MaterialProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout;
     private UnreadAdapter unreadAdapter;
 
     private List<TopicSummary> topicSummaries;
+    private int numberOfPages = 0;
+    private int loadedPages = 0;
 
     private UnreadTask unreadTask;
     private MarkReadTask markReadTask;
@@ -82,7 +87,8 @@ public class UnreadFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (topicSummaries.isEmpty()) {
-            unreadTask = new UnreadTask();
+            unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
+            assert SessionManager.unreadUrl != null;
             unreadTask.execute(SessionManager.unreadUrl.toString());
         }
         markReadTask = new MarkReadTask();
@@ -91,7 +97,7 @@ public class UnreadFragment extends BaseFragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_unread, container, false);
@@ -99,16 +105,13 @@ public class UnreadFragment extends BaseFragment {
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = rootView.findViewById(R.id.progressBar);
-            unreadAdapter = new UnreadAdapter(getActivity(), topicSummaries,
-                    fragmentInteractionListener, new UnreadAdapter.MarkReadInteractionListener() {
-                @Override
-                public void onMarkReadInteraction(String markReadLinkUrl) {
-                    if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                        markReadTask = new MarkReadTask();
-                        markReadTask.execute(markReadLinkUrl);
-                    }
-                }
-            });
+            unreadAdapter = new UnreadAdapter(topicSummaries,
+                    fragmentInteractionListener, markReadLinkUrl -> {
+                        if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                            markReadTask = new MarkReadTask();
+                            markReadTask.execute(markReadLinkUrl);
+                        }
+                    });
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -122,15 +125,15 @@ public class UnreadFragment extends BaseFragment {
             swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
-                    new SwipeRefreshLayout.OnRefreshListener() {
-                        @Override
-                        public void onRefresh() {
-                            if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                                unreadTask = new UnreadTask();
-                                unreadTask.execute(SessionManager.unreadUrl.toString());
-                            }
+                    () -> {
+                        if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                            topicSummaries.clear();
+                            numberOfPages = 0;
+                            loadedPages = 0;
+                            unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
+                            assert SessionManager.unreadUrl != null;
+                            unreadTask.execute(SessionManager.unreadUrl.toString());
                         }
-
                     }
             );
         }
@@ -152,16 +155,45 @@ public class UnreadFragment extends BaseFragment {
     }
 
     //---------------------------------------ASYNC TASK-----------------------------------
-    private class UnreadTask extends ParseTask {
-        protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+
+    private void onUnreadTaskStarted() {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+    }
+
+    private void onUnreadTaskFinished(int resultCode, Void data) {
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            unreadAdapter.notifyDataSetChanged();
+
+            ++loadedPages;
+            if (loadedPages < numberOfPages) {
+                unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
+                assert SessionManager.unreadUrl != null;
+                unreadTask.execute(SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
+            }
+            else {
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+        else{
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            swipeRefreshLayout.setRefreshing(false);
+            if (resultCode == NetworkResultCodes.NETWORK_ERROR)
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class UnreadTask extends NewParseTask<Void> {
+
+        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Void> onParseTaskFinishedListener) {
+            super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        public void parse(Document document) throws ParseException {
+        protected Void parse(Document document, Response response) throws ParseException {
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
             if (!unread.isEmpty()) {
-                topicSummaries.clear();
+                //topicSummaries.clear();
                 for (Element row : unread) {
                     Elements information = row.select("td");
                     String link = information.last().select("a").first().attr("href");
@@ -178,7 +210,7 @@ public class UnreadFragment extends BaseFragment {
                             dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
                         dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
                     } else {
-                        dateTime=dateTime.substring(0,dateTime.lastIndexOf(":"));
+                        dateTime = dateTime.substring(0, dateTime.lastIndexOf(":"));
                     }
                     if (!dateTime.contains(",")) {
                         dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
@@ -186,9 +218,26 @@ public class UnreadFragment extends BaseFragment {
 
                     topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
-                Element markRead = document.select("table:not(.bordercolor):not([width])").select("a")
-                        .first();
-                if (markRead != null)
+                Element topBar = document.select("table:not(.bordercolor):not(#bodyarea):has(td.middletext)").first();
+
+                Element pagesElement = null, markRead = null;
+                if (topBar != null) {
+                    pagesElement = topBar.select("td.middletext").first();
+
+                    markRead = document.select("table:not(.bordercolor):not([width])").select("a")
+                            .first();
+                }
+
+                if (numberOfPages == 0 && pagesElement != null) {
+                    Elements pages = pagesElement.select("a");
+                    if (!pages.isEmpty()) {
+                        numberOfPages = Integer.parseInt(pages.last().text());
+                    } else {
+                        numberOfPages = 1;
+                    }
+                }
+
+                if (markRead != null && loadedPages == numberOfPages - 1)
                     topicSummaries.add(new TopicSummary(markRead.attr("href"), markRead.text(), null,
                             null));
             } else {
@@ -201,15 +250,12 @@ public class UnreadFragment extends BaseFragment {
                 }
                 topicSummaries.add(new TopicSummary(null, null, null, message));
             }
+            return null;
         }
 
         @Override
-        protected void postExecution(ParseTask.ResultCode result) {
-            if (result == ResultCode.SUCCESS)
-                unreadAdapter.notifyDataSetChanged();
-
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            swipeRefreshLayout.setRefreshing(false);
+        protected int getResultCode(Response response, Void data) {
+            return NetworkResultCodes.SUCCESSFUL;
         }
     }
 
@@ -253,7 +299,8 @@ public class UnreadFragment extends BaseFragment {
                         , "Fatal error!\n Task aborted...", Toast.LENGTH_LONG).show();
             } else {
                 if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                    unreadTask = new UnreadTask();
+                    unreadTask = new UnreadTask(UnreadFragment.this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskFinished);
+                    assert SessionManager.unreadUrl != null;
                     unreadTask.execute(SessionManager.unreadUrl.toString());
                 }
             }

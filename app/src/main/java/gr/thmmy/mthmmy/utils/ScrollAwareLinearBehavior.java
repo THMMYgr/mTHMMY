@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
@@ -13,7 +14,9 @@ import android.view.ViewPropertyAnimator;
 /**
  * Extends LinearLayout's behavior. Used for bottom navigation bar.
  * <p>When a nested ScrollView is scrolled down, the view will disappear.
- * When the ScrollView is scrolled back up, the view will reappear.</p>
+ * When the ScrollView is scrolled back up, the view will reappear. It also pushes the
+ * {@link android.widget.LinearLayout} up when a {@link Snackbar} is shown
+ * </p>
  */
 @SuppressWarnings("unused")
 public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> {
@@ -110,5 +113,17 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
         });
 
         animator.start();
+    }
+
+    @Override
+    public boolean layoutDependsOn(CoordinatorLayout parent, View child, View dependency) {
+        return dependency instanceof Snackbar.SnackbarLayout;
+    }
+
+    @Override
+    public boolean onDependentViewChanged(CoordinatorLayout parent, View child, View dependency) {
+        float translationY = Math.min(0, dependency.getTranslationY() - dependency.getHeight());
+        child.setTranslationY(translationY);
+        return true;
     }
 }

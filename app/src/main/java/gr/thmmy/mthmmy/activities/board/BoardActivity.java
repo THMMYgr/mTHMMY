@@ -1,14 +1,15 @@
 package gr.thmmy.mthmmy.activities.board;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.create_content.CreateContentActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Bookmark;
@@ -51,6 +54,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
     private String boardUrl;
     private String boardTitle;
     private String parsedTitle;
+    private String newTopicUrl;
 
     private int numberOfPages = -1;
     private int pagesLoaded = 0;
@@ -89,43 +93,36 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
-        setBoardBookmark((ImageButton) findViewById(R.id.bookmark));
+        thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), true);
+        setBoardBookmark(findViewById(R.id.bookmark));
         createDrawer();
 
         progressBar = findViewById(R.id.progressBar);
         newTopicFAB = findViewById(R.id.board_fab);
-        newTopicFAB.setEnabled(false);
-        newTopicFAB.hide();
-        /*if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
+        if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
         else {
-            newTopicFAB.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (sessionManager.isLoggedIn()) {
-                        //TODO PM
-                    } else {
-                        new AlertDialog.Builder(BoardActivity.this)
-                                .setMessage("You need to be logged in to create a new topic!")
-                                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        Intent intent = new Intent(BoardActivity.this, LoginActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                                    }
-                                })
-                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                    }
-                                })
-                                .show();
+            newTopicFAB.setOnClickListener(view -> {
+                if (sessionManager.isLoggedIn()) {
+                    if (newTopicUrl != null) {
+                        Intent intent = new Intent(this, CreateContentActivity.class);
+                        intent.putExtra(CreateContentActivity.EXTRA_NEW_TOPIC_URL, newTopicUrl);
+                        startActivity(intent);
                     }
+                } else {
+                    new AlertDialog.Builder(BoardActivity.this)
+                            .setMessage("You need to be logged in to create a new topic!")
+                            .setPositiveButton("Login", (dialogInterface, i) -> {
+                                Intent intent = new Intent(BoardActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                                finish();
+                                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                            })
+                            .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                            })
+                            .show();
                 }
             });
-        }*/
+        }
 
         boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
         RecyclerView mainContent = findViewById(R.id.board_recycler_view);
@@ -156,7 +153,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
     @Override
     public void onLoadMore() {
-        if (pagesLoaded < numberOfPages) {
+        if (pagesLoaded < numberOfPages && parsedTopics.get(parsedTopics.size() - 1) != null) {
             parsedTopics.add(null);
             boardAdapter.notifyItemInserted(parsedSubBoards.size() + parsedTopics.size());
 
@@ -169,7 +166,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
     @Override
     public void onResume() {
         super.onResume();
-        refreshBoardBookmark((ImageButton) findViewById(R.id.bookmark));
+        refreshBoardBookmark(findViewById(R.id.bookmark));
     }
 
     @Override
@@ -185,6 +182,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
      * parameter!</p>
      */
     private class BoardTask extends ParseTask {
+        ArrayList<Board> tempSubboards = new ArrayList<>();
+        ArrayList<Topic> tempTopics = new ArrayList<>();
+
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -193,12 +193,14 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         @Override   //TODO should throw ParseException
         public void parse(Document boardPage) throws ParseException {
-            parsedTitle = boardPage.select("div.nav a.nav").last().text();
-
+            tempSubboards.addAll(parsedSubBoards);
+            tempTopics.addAll(parsedTopics);
             //Removes loading item
             if (isLoadingMore) {
-                if (parsedTopics.size() > 0) parsedTopics.remove(parsedTopics.size() - 1);
+                if (tempTopics.size() > 0) tempTopics.remove(tempTopics.size() - 1);
             }
+            parsedTitle = boardPage.select("div.nav a.nav").last().text();
+
             //Finds number of pages
             if (numberOfPages == -1) {
                 numberOfPages = 1;
@@ -215,6 +217,13 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     //It just means this board has only one page of topics.
                 }
             }
+
+            //Finds the url needed to create a new topic
+            Element newTopicButton = boardPage.select("a:has(img[alt=Start new topic])").first();
+            if (newTopicButton == null)
+                newTopicButton = boardPage.select("a:has(img[alt=Νέο θέμα])").first();
+            if (newTopicButton != null) newTopicUrl = newTopicButton.attr("href");
+
             { //Finds sub boards
                 Elements subBoardRows = boardPage.select("div.tborder>table>tbody>tr");
                 if (subBoardRows != null && !subBoardRows.isEmpty()) {
@@ -254,7 +263,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                     }
                                 }
                             }
-                            parsedSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
+                            tempSubboards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
                         }
                     }
                 }
@@ -265,7 +274,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     for (Element topicRow : topicRows) {
                         if (!Objects.equals(topicRow.className(), "titlebg")) {
                             String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
-                            boolean pLocked = false, pSticky = false;
+                            boolean pLocked = false, pSticky = false, pUnread = false;
                             Elements topicColumns = topicRow.select(">td");
                             {
                                 Element column = topicColumns.get(2);
@@ -276,6 +285,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                     pSticky = true;
                                 if (column.select("img[id^=lockicon]").first() != null)
                                     pLocked = true;
+                                if (column.select("a[id^=newicon]").first() != null)
+                                    pUnread = true;
                             }
                             pStartedBy = topicColumns.get(3).text();
                             pStats = "Replies " + topicColumns.get(4).text() + ", Views " + topicColumns.get(5).text();
@@ -284,13 +295,15 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             if (pLastPost.contains("by")) {
                                 pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
                                         "\n" + pLastPost.substring(pLastPost.indexOf("by"));
-                            } else {
+                            } else if (pLastPost.contains("από")) {
                                 pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
                                         "\n" + pLastPost.substring(pLastPost.indexOf("από"));
+                            } else {
+                                Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
                             }
                             pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
-                            parsedTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
-                                    pStats, pLocked, pSticky));
+                            tempTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
+                                    pStats, pLocked, pSticky, pUnread));
                         }
                     }
                 }
@@ -299,19 +312,27 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         @Override
         protected void postExecution(ResultCode result) {
-            //TODO if (result == ResultCode.SUCCESS)...
-            if (boardTitle == null || Objects.equals(boardTitle, "")
-                    || !Objects.equals(boardTitle, parsedTitle)) {
-                boardTitle = parsedTitle;
-                toolbar.setTitle(boardTitle);
-                thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), false);
+            if (result == ResultCode.SUCCESS) {
+                if (boardTitle == null || Objects.equals(boardTitle, "")
+                        || !Objects.equals(boardTitle, parsedTitle)) {
+                    boardTitle = parsedTitle;
+                    toolbar.setTitle(boardTitle);
+                    thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), true);
+                    setBoardBookmark(findViewById(R.id.bookmark));
+                }
+
+                parsedTopics.clear();
+                parsedSubBoards.clear();
+                parsedTopics.addAll(tempTopics);
+                parsedSubBoards.addAll(tempSubboards);
+                boardAdapter.notifyDataSetChanged();
+
+                //Parse was successful
+                ++pagesLoaded;
+                if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);
             }
 
-            //Parse was successful
-            ++pagesLoaded;
-            if (newTopicFAB.getVisibility() != View.GONE) newTopicFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
-            boardAdapter.notifyDataSetChanged();
             isLoadingMore = false;
         }
     }

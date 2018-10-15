@@ -5,13 +5,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -19,7 +24,9 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
+import net.gotev.uploadservice.UploadService;
+import net.gotev.uploadservice.okhttp.OkHttpStack;
+
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -27,25 +34,27 @@ import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CrashReportingTree;
+import io.fabric.sdk.android.Fabric;
 import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import timber.log.Timber;
 
 public class BaseApplication extends Application {
     private static BaseApplication baseApplication; //BaseApplication singleton
 
-    // Client & SessionManager
+    //Firebase Analytics
+    private FirebaseAnalytics firebaseAnalytics;
+
+    //Client & SessionManager
     private OkHttpClient client;
     private SessionManager sessionManager;
 
-    //Shared Preferences
-    private final String SHARED_PREFS_NAME = "ThmmySharedPrefs";
+    //TODO: maybe use PreferenceManager.getDefaultSharedPreferences here as well?
+    private static final String SHARED_PREFS = "ThmmySharedPrefs";
 
     //Display Metrics
-    private static float dpHeight, dpWidth;
+    private static float dpWidth;
 
     public static BaseApplication getInstance() {
         return baseApplication;
@@ -56,32 +65,43 @@ public class BaseApplication extends Application {
         super.onCreate();
         baseApplication = this; //init singleton
 
-        if (BuildConfig.DEBUG) {
+        // Initialize Timber
+        if (BuildConfig.DEBUG)
             Timber.plant(new Timber.DebugTree());
-        } else {
-            Timber.plant(new CrashReportingTree());
-        }
 
-        SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+        //Shared Preferences
+        SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences settingsSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false))
+            startFirebaseCrashlyticsCollection();
+        else
+            Timber.i("Starting app with Crashlytics disabled.");
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        boolean enableAnalytics = settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_analytics_enable_key), false);
+        firebaseAnalytics.setAnalyticsCollectionEnabled(enableAnalytics);
+        if(enableAnalytics)
+            Timber.i("Starting app with Analytics enabled.");
+        else
+            Timber.i("Starting app with Analytics disabled.");
+
         SharedPrefsCookiePersistor sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(getApplicationContext());
         PersistentCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
         client = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request();
-                        HttpUrl oldUrl = chain.request().url();
-                        if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")) {
-                            if (!oldUrl.toString().contains("theme=4")) {
-                                //Probably works but needs more testing:
-                                HttpUrl newUrl = oldUrl.newBuilder().addQueryParameter("theme", "4").build();
-                                request = request.newBuilder().url(newUrl).build();
-                            }
+                .addInterceptor(chain -> {
+                    Request request = chain.request();
+                    HttpUrl oldUrl = chain.request().url();
+                    if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")) {
+                        if (!oldUrl.toString().contains("theme=4")) {
+                            //Probably works but needs more testing:
+                            HttpUrl newUrl = oldUrl.newBuilder().addQueryParameter("theme", "4").build();
+                            request = request.newBuilder().url(newUrl).build();
                         }
-                        return chain.proceed(request);
-
                     }
+                    return chain.proceed(request);
+
                 })
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
@@ -93,6 +113,10 @@ public class BaseApplication extends Application {
                 .build();
 
         Picasso.setSingletonInstance(picasso);  //All following Picasso (with Picasso.with(Context context) requests will use this Picasso object
+
+        //Sets up upload service
+        UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
+        UploadService.HTTP_STACK = new OkHttpStack(client);
 
         //Initialize and create the image loader logic
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -119,8 +143,12 @@ public class BaseApplication extends Application {
         });
 
         DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
-        dpHeight = displayMetrics.heightPixels / displayMetrics.density;
         dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+    }
+
+    //Getters
+    public Context getContext() {
+        return getApplicationContext();
     }
 
     public OkHttpClient getClient() {
@@ -131,11 +159,35 @@ public class BaseApplication extends Application {
         return sessionManager;
     }
 
-    public float getDpHeight() {
-        return dpHeight;
-    }
-
     public float getDpWidth() {
         return dpWidth;
+    }
+
+
+    //--------------------Firebase--------------------
+
+    public void logFirebaseAnalyticsEvent(String event, Bundle params) {
+        firebaseAnalytics.logEvent(event, params);
+    }
+
+    public void setFirebaseAnalyticsCollection(boolean enabled) {
+        firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
+        if(!enabled)
+            firebaseAnalytics.resetAnalyticsData();
+    }
+
+    // Set up Crashlytics, disabled for debug builds
+    public void startFirebaseCrashlyticsCollection() {
+        if(!Fabric.isInitialized()){
+            Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                    .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                    .build();
+            // Initialize Fabric with the debug-disabled Crashlytics.
+            Fabric.with(this, crashlyticsKit);
+            Timber.plant(new CrashReportingTree());
+            Timber.i("Crashlytics enabled.");
+        }
+        else
+            Timber.i("Crashlytics were already initialized for this app session.");
     }
 }

@@ -147,10 +147,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
             if (boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1)) {
                 subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
-                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
             } else {
                 subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
-                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
             subBoardViewHolder.showHideExpandable.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -158,10 +158,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1);
                     if (visible) {
                         subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
-                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                     } else {
                         subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
-                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                     }
                     boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition() - 1, !visible);
                 }
@@ -208,10 +208,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (topicExpandableVisibility.get(topicViewHolder.getAdapterPosition() - parsedSubBoards
                     .size() - 2)) {
                 topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
-                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
             } else {
                 topicViewHolder.topicExpandable.setVisibility(View.GONE);
-                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
             topicViewHolder.showHideExpandable.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -220,10 +220,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             getAdapterPosition() - parsedSubBoards.size() - 2);
                     if (visible) {
                         topicViewHolder.topicExpandable.setVisibility(View.GONE);
-                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down);
+                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                     } else {
                         topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
-                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up);
+                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                     }
                     topicExpandableVisibility.set(topicViewHolder.getAdapterPosition() -
                             parsedSubBoards.size() - 2, !visible);
@@ -231,12 +231,18 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
             topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()
                     , "fonts/fontawesome-webfont.ttf"));
+            topicViewHolder.topicUnreadDot.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/fontawesome-webfont.ttf"));
+            if (topic.isUnread())
+                topicViewHolder.topicUnreadDot.setVisibility(View.VISIBLE);
+            else {
+                topicViewHolder.topicUnreadDot.setVisibility(View.GONE);
+            }
             String lockedSticky = topic.getSubject();
             if (topic.isLocked())
                 lockedSticky += " " + context.getResources().getString(R.string.fa_lock);
             if (topic.isSticky()) {
                 //topicViewHolder.topicSubject.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_pin, 0);
-                lockedSticky += " " + context.getResources().getString(R.string.fa_sticky);
+                lockedSticky += " " + context.getResources().getString(R.string.fa_thumbtack);
             }
             topicViewHolder.topicSubject.setText(lockedSticky);
             topicViewHolder.topicStartedBy.setText(context.getString(R.string.topic_started_by, topic.getStarter()));
@@ -287,7 +293,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static class TopicViewHolder extends RecyclerView.ViewHolder {
         final LinearLayout topicRow, topicExpandable;
-        final TextView topicSubject, topicStartedBy, topicStats, topicLastPost;
+        final TextView topicSubject, topicStartedBy, topicStats, topicLastPost, topicUnreadDot;
         final ImageButton showHideExpandable;
 
         TopicViewHolder(View topic) {
@@ -295,6 +301,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicRow = topic.findViewById(R.id.topic_row_linear);
             topicExpandable = topic.findViewById(R.id.topic_expandable);
             showHideExpandable = topic.findViewById(R.id.topic_expand_collapse_button);
+            topicUnreadDot = topic.findViewById(R.id.topic_unread_dot);
             topicSubject = topic.findViewById(R.id.topic_subject);
             topicStartedBy = topic.findViewById(R.id.topic_started_by);
             topicStats = topic.findViewById(R.id.topic_stats);

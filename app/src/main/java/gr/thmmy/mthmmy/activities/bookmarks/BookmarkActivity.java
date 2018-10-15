@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.bookmarks;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -63,39 +62,48 @@ public class BookmarkActivity extends BaseActivity {
         super.onResume();
     }
 
-    public boolean onTopicInteractionListener(String interactionType, Bookmark bookmarkedTopic){
-        if (interactionType.equals(TopicBookmarksFragment.INTERACTION_CLICK_TOPIC_BOOKMARK)){
-            Intent intent = new Intent(BookmarkActivity.this, TopicActivity.class);
-            Bundle extras = new Bundle();
-            extras.putString(BUNDLE_TOPIC_URL, "https://www.thmmy.gr/smf/index.php?topic="
-                    + bookmarkedTopic.getId() + "." + 2147483647);
-            extras.putString(BUNDLE_TOPIC_TITLE, bookmarkedTopic.getTitle());
-            intent.putExtras(extras);
-            startActivity(intent);
-            finish();
-        } else if (interactionType.equals(TopicBookmarksFragment.INTERACTION_TOGGLE_TOPIC_NOTIFICATION)) {
-            return toggleNotification(bookmarkedTopic);
-        } else if (interactionType.equals(TopicBookmarksFragment.INTERACTION_REMOVE_TOPIC_BOOKMARK)){
-            removeBookmark(bookmarkedTopic);
-            Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+    public boolean onTopicInteractionListener(String interactionType, Bookmark bookmarkedTopic) {
+        switch (interactionType) {
+            case TopicBookmarksFragment.INTERACTION_CLICK_TOPIC_BOOKMARK:
+                Intent intent = new Intent(BookmarkActivity.this, TopicActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_TOPIC_URL, "https://www.thmmy.gr/smf/index.php?topic="
+                        + bookmarkedTopic.getId() + "." + 2147483647);
+                extras.putString(BUNDLE_TOPIC_TITLE, bookmarkedTopic.getTitle());
+                intent.putExtras(extras);
+                startActivity(intent);
+                finish();
+                break;
+            case TopicBookmarksFragment.INTERACTION_TOGGLE_TOPIC_NOTIFICATION:
+                return toggleNotification(bookmarkedTopic);
+            case TopicBookmarksFragment.INTERACTION_REMOVE_TOPIC_BOOKMARK:
+                removeBookmark(bookmarkedTopic);
+                Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                break;
         }
         return true;
     }
 
-    public void onBoardInteractionListener(String interactionType, Bookmark bookmarkedBoard){
-        if (interactionType.equals(BoardBookmarksFragment.INTERACTION_CLICK_BOARD_BOOKMARK)){
-            Intent intent = new Intent(BookmarkActivity.this, BoardActivity.class);
-            Bundle extras = new Bundle();
-            extras.putString(BUNDLE_BOARD_URL, "https://www.thmmy.gr/smf/index.php?board="
-                    + bookmarkedBoard.getId() + ".0");
-            extras.putString(BUNDLE_BOARD_TITLE, bookmarkedBoard.getTitle());
-            intent.putExtras(extras);
-            startActivity(intent);
-            finish();
-        } else if (interactionType.equals(BoardBookmarksFragment.INTERACTION_REMOVE_BOARD_BOOKMARK)){
-            removeBookmark(bookmarkedBoard);
-            Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+    public boolean onBoardInteractionListener(String interactionType, Bookmark bookmarkedBoard) {
+        switch (interactionType) {
+            case BoardBookmarksFragment.INTERACTION_CLICK_BOARD_BOOKMARK:
+                Intent intent = new Intent(BookmarkActivity.this, BoardActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_BOARD_URL, "https://www.thmmy.gr/smf/index.php?board="
+                        + bookmarkedBoard.getId() + ".0");
+                extras.putString(BUNDLE_BOARD_TITLE, bookmarkedBoard.getTitle());
+                intent.putExtras(extras);
+                startActivity(intent);
+                finish();
+                break;
+            case BoardBookmarksFragment.INTERACTION_TOGGLE_BOARD_NOTIFICATION:
+                return toggleNotification(bookmarkedBoard);
+            case BoardBookmarksFragment.INTERACTION_REMOVE_BOARD_BOOKMARK:
+                removeBookmark(bookmarkedBoard);
+                Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                break;
         }
+        return true;
     }
 
     /**

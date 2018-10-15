@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_angry_f0"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_angry_f1"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_angry_f2"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_angry_f3"
+android:duration="100" />
+
+</animation-list>

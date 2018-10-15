@@ -1,43 +1,65 @@
+import groovy.json.JsonSlurper
+
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
-
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
         applicationId "gr.thmmy.mthmmy"
         minSdkVersion 19
-        targetSdkVersion 27
-        versionCode 13
-        versionName "1.4.1"
+        targetSdkVersion 28
+        versionCode 14
+        versionName "1.5.0"
         archivesBaseName = "mTHMMY-v$versionName"
     }
 
     buildTypes {
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             def date = new Date().format('ddMMyy_HHmmss')
             archivesBaseName = archivesBaseName + "-$date"
+            // Disable fabric build ID generation for debug builds
+            ext.enableCrashlytics = false
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name.contains("assembleRelease")) {
+        task.getDependsOn().add({
+            def inputFile = new File("app/google-services.json")
+            def json = new JsonSlurper().parseText(inputFile.text)
+            if(json.project_info.project_id != "mthmmy-release-3aef0")
+                throw new GradleException('Please supply the correct google-services.json for release or manually change the id above!')
+        })
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:cardview-v7:27.1.1'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
-    implementation 'com.google.firebase:firebase-core:16.0.1'
-    implementation 'com.google.firebase:firebase-messaging:17.0.0'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.4'
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.android.support:preference-v7:28.0.0'
+    implementation 'com.android.support:preference-v14:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+    implementation 'com.google.firebase:firebase-messaging:17.3.3'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     implementation 'org.jsoup:jsoup:1.10.3' //TODO: Warning: upgrading from 1.10.3 will break stuff!
@@ -48,10 +70,14 @@ dependencies {
     }
     implementation 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
     implementation 'com.mikepenz:google-material-typeface:3.0.1.2.original@aar'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.15'
     implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'//TODO: deprecated!
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
-    implementation 'com.jakewharton.timber:timber:4.7.0'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation "ru.noties:markwon:2.0.0"
+    implementation 'net.gotev:uploadservice:3.4.2'
+    implementation 'net.gotev:uploadservice-okhttp:3.4.2'
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

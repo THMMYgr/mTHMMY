@@ -11,11 +11,11 @@ import timber.log.Timber;
 /**
  * This is a utility class containing a collection of static methods to help with topic replying.
  */
-class Posting {
+public class Posting {
     /**
      * {@link REPLY_STATUS} enum defines the different possible outcomes of a topic reply request.
      */
-    enum REPLY_STATUS {
+    public enum REPLY_STATUS {
         /**
          * The request was successful
          */
@@ -54,7 +54,7 @@ class Posting {
      * @return a {@link REPLY_STATUS} that describes the response status
      * @throws IOException method relies to {@link org.jsoup.Jsoup#parse(String)}
      */
-    static REPLY_STATUS replyStatus(Response response) throws IOException {
+    public static REPLY_STATUS replyStatus(Response response) throws IOException {
         if (response.code() == 404) return REPLY_STATUS.NOT_FOUND;
         if (response.code() < 200 || response.code() >= 400) return REPLY_STATUS.OTHER_ERROR;
         String finalUrl = response.request().url().toString();

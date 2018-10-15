@@ -5,6 +5,7 @@ import android.graphics.Color;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import java.net.MalformedURLException;
@@ -13,9 +14,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
+import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
 
@@ -28,7 +34,11 @@ import timber.log.Timber;
  * <li>{@link #parseTopicNumberOfPages(Document, int, ParseHelpers.Language)}</li>
  * <li>{@link #parseTopic(Document, ParseHelpers.Language)}</li>
  */
-class TopicParser {
+public class TopicParser {
+    private static Pattern mentionsPattern = Pattern.
+            compile("<div class=\"quoteheader\">\\n\\s+?<a href=.+?>(Quote from|Παράθεση από): "
+                    + BaseActivity.getSessionManager().getUsername());
+
     //User colors
     private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
     private static final int USER_COLOR_RED = Color.parseColor("#F44336");
@@ -48,7 +58,7 @@ class TopicParser {
      * @return String containing html with the usernames of users
      * @see org.jsoup.Jsoup Jsoup
      */
-    static String parseUsersViewingThisTopic(Document topic, ParseHelpers.Language language) {
+    public static String parseUsersViewingThisTopic(Document topic, ParseHelpers.Language language) {
         if (language.is(ParseHelpers.Language.GREEK))
             return topic.select("td:containsOwn(διαβάζουν αυτό το θέμα)").first().html();
         return topic.select("td:containsOwn(are viewing this topic)").first().html();
@@ -64,7 +74,7 @@ class TopicParser {
      * @return int containing parsed topic's current page
      * @see org.jsoup.Jsoup Jsoup
      */
-    static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
+    public static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
         int parsedPage = 1;
 
         if (language.is(ParseHelpers.Language.GREEK)) {
@@ -102,7 +112,7 @@ class TopicParser {
      * @return int containing the number of pages
      * @see org.jsoup.Jsoup Jsoup
      */
-    static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
+    public static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
         int returnPages = 1;
 
         if (language.is(ParseHelpers.Language.GREEK)) {
@@ -140,10 +150,16 @@ class TopicParser {
      * @return {@link ArrayList} of {@link Post}s
      * @see org.jsoup.Jsoup Jsoup
      */
-    static ArrayList<Post> parseTopic(Document topic, ParseHelpers.Language language) {
+    public static ArrayList<TopicItem> parseTopic(Document topic, ParseHelpers.Language language) {
         //Method's variables
         final int NO_INDEX = -1;
-        ArrayList<Post> parsedPostsList = new ArrayList<>();
+
+        ArrayList<TopicItem> parsedPostsList = new ArrayList<>();
+
+//        Poll poll = findPoll(topic);
+//        if (poll != null)
+//            parsedPostsList.add(poll);
+
         Elements postRows;
 
         //Each row is a post
@@ -156,9 +172,10 @@ class TopicParser {
         for (Element thisRow : postRows) {
             //Variables for Post constructor
             String p_userName, p_thumbnailURL, p_subject, p_post, p_postDate, p_profileURL, p_rank,
-                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate, p_postURL;
+                    p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate,
+                    p_postURL, p_deletePostURL, p_editPostURL;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
-            boolean p_isDeleted = false;
+            boolean p_isDeleted = false, p_isUserMentionedInPost = false;
             ArrayList<ThmmyFile> p_attachedFiles;
 
             //Initialize variables
@@ -172,6 +189,8 @@ class TopicParser {
             p_userColor = USER_COLOR_YELLOW;
             p_attachedFiles = new ArrayList<>();
             p_postLastEditDate = null;
+            p_deletePostURL = null;
+            p_editPostURL = null;
 
             //Language independent parsing
             //Finds thumbnail url
@@ -185,7 +204,7 @@ class TopicParser {
             p_subject = thisRow.select("div[id^=subject_]").first().select("a").first().text();
 
             //Finds post's link
-            p_postURL = thisRow.select("div[id^=subject_]").first().select("a").first() .attr("href");
+            p_postURL = thisRow.select("div[id^=subject_]").first().select("a").first().attr("href");
 
             //Finds post's text
             p_post = ParseHelpers.youtubeEmbeddedFix(thisRow.select("div").select(".post").first());
@@ -201,11 +220,11 @@ class TopicParser {
             if (postIndex != null) {
                 String tmp = postIndex.attr("name");
                 p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
-            } else{
+            } else {
                 postIndex = thisRow.select("div[id^=subject]").first();
                 if (postIndex == null)
                     p_postIndex = NO_INDEX;
-                else{
+                else {
                     String tmp = postIndex.attr("id");
                     p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("subject") + 8));
                 }
@@ -231,6 +250,16 @@ class TopicParser {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
                 }
+
+                //Finds post delete url
+                Element postDelete = thisRow.select("a:has(img[alt='Διαγραφή'])").first();
+                if (postDelete != null) {
+                    p_deletePostURL = postDelete.attr("href");
+                }
+
+                Element postEdit = thisRow.select("a:has(img[alt='Αλλαγή'])").first();
+                if (postEdit != null)
+                    p_editPostURL = postEdit.attr("href");
 
                 //Finds post's submit date
                 Element postDate = thisRow.select("div.smalltext:matches(στις:)").first();
@@ -290,6 +319,18 @@ class TopicParser {
                 } else {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
+                }
+
+                //Finds post delete url
+                Element postDelete = thisRow.select("a:has(img[alt='Remove message'])").first();
+                if (postDelete != null) {
+                    p_deletePostURL = postDelete.attr("href");
+                }
+
+                //Finds post modify url
+                Element postEdit = thisRow.select("a:has(img[alt='Modify message'])").first();
+                if (postEdit != null) {
+                    p_editPostURL = postEdit.attr("href");
                 }
 
                 //Finds post's submit date
@@ -412,19 +453,108 @@ class TopicParser {
                         p_personalText = p_personalText.replace("\n", "").replace("\r", "").trim();
                     }
                 }
+
+                //Checks post for mentions of this user (if the user is logged in)
+                if (BaseActivity.getSessionManager().isLoggedIn() &&
+                        mentionsPattern.matcher(p_post).find()) {
+                    p_isUserMentionedInPost = true;
+                }
+
                 //Add new post in postsList, extended information needed
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
-                        , p_attachedFiles, p_postLastEditDate, p_postURL));
+                        , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL
+                        , p_isUserMentionedInPost, Post.TYPE_POST));
 
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
-                parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
-                        , p_postNum, p_postDate, p_userColor, p_attachedFiles, p_postLastEditDate, p_postURL));
+                parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post
+                        , p_postIndex, p_postNum, p_postDate, p_userColor, p_attachedFiles
+                        , p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL
+                        , p_isUserMentionedInPost, Post.TYPE_POST));
             }
         }
         return parsedPostsList;
+    }
+
+    private static Poll findPoll(Document topic) {
+        Pattern integerPattern = Pattern.compile("[0-9]+");
+        Element table = topic.select("table.tborder").first();
+        try {
+            String question;
+            ArrayList<Poll.Entry> entries = new ArrayList<>();
+            int availableVoteCount = 0;
+            String pollFormUrl = null, sc = null, removeVoteUrl = null, showVoteResultsUrl = null,
+                    showOptionsUrl = null;
+
+            Element pollColumn = table.select("tr[class=windowbg]").first().child(1);
+            question = pollColumn.ownText().trim();
+            Element form = pollColumn.select("form").first();
+
+            if (form != null) {
+                // poll in vote mode
+                pollFormUrl = form.attr("action");
+                sc = form.select("input[name=sc]").first().attr("value");
+
+                List<Node> possibleEntriesRows = form.select("td:has(input[id^=options])").first().childNodes();
+                for (Node possibleEntry : possibleEntriesRows) {
+                    String possibleEntryHtml = possibleEntry.outerHtml();
+                    if (!possibleEntryHtml.equals(" ") && !possibleEntryHtml.equals("<br>") && !possibleEntryHtml.startsWith("<input")) {
+                        entries.add(new Poll.Entry(possibleEntryHtml.trim()));
+                    }
+                }
+
+                Elements formTableRows = form.select("tbody>tr");
+                Elements links;
+
+                if (formTableRows.size() == 3) {
+                    String prompt = formTableRows.first().child(0).text().trim();
+                    Matcher integerMatcher = integerPattern.matcher(prompt);
+                    if (integerMatcher.find()) {
+                        availableVoteCount = Integer.parseInt(prompt.substring(integerMatcher.start(), integerMatcher.end()));
+                    }
+                    links = formTableRows.get(1).child(1).select("a");
+                } else {
+                    availableVoteCount = 1;
+                    links = formTableRows.first().child(1).select("a");
+                }
+
+                if (links != null && links.size() > 0) {
+                    showVoteResultsUrl = links.first().attr("href");
+                }
+            } else {
+                // poll in results mode
+                Elements entryRows = pollColumn.select("table[cellspacing] tr");
+                for (Element entryRow : entryRows) {
+                    Elements entryColumns = entryRow.select("td");
+                    String optionName = entryColumns.first().html();
+                    String voteCountDescription = entryColumns.last().text();
+                    Matcher integerMatcher = integerPattern.matcher(voteCountDescription);
+                    int voteCount = 0;
+                    if (integerMatcher.find()) {
+                        voteCount = Integer.parseInt(voteCountDescription.substring(integerMatcher.start(),
+                                integerMatcher.end()));
+                    }
+
+                    entries.add(0, new Poll.Entry(optionName, voteCount));
+                }
+
+                Elements links = pollColumn.child(0).child(0).child(0).child(1).select("a");
+                if (links != null && links.size() > 0) {
+                    if (links.first().text().equals("Remove Vote") || links.first().text().equals("Αφαίρεση ψήφου"))
+                        removeVoteUrl = links.first().attr("href");
+                    else if (links.first().text().equals("Voting options") || links.first().text().equals("Επιλογές ψηφοφορίας"))
+                        showOptionsUrl = links.first().attr("href");
+                }
+            }
+            return new Poll(question, entries.toArray(new Poll.Entry[0]), availableVoteCount,
+                    pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl, showOptionsUrl);
+        } catch (Exception e) {
+            Timber.v(e, "Could not parse a poll");
+        }
+
+        return null;
     }
 
     /**

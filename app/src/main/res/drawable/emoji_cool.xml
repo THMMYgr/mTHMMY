@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:oneshot="false" >
+<item
+android:drawable="@drawable/emoji_cool_f0"
+android:duration="1000" />
+<item
+android:drawable="@drawable/emoji_cool_f1"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f2"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f3"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f4"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f5"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f6"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f7"
+android:duration="750" />
+<item
+android:drawable="@drawable/emoji_cool_f8"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f9"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f10"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f11"
+android:duration="50" />
+<item
+android:drawable="@drawable/emoji_cool_f12"
+android:duration="100" />
+<item
+android:drawable="@drawable/emoji_cool_f13"
+android:duration="50" />
+
+</animation-list>

@@ -16,12 +16,35 @@
     <color name="background">#323232</color>
     <color name="card_background">#3C3F41</color>
     <color name="divider">#8B8B8B</color>
-    <!--<color name="link_color">#FFC107</color>-->
     <color name="link_color">#FF9800</color>
+    <color name="mention_color">#FAA61A</color>
 
     <color name="white">#FFFFFF</color>
     <color name="iron">#CCCCCC</color>
     <color name="card_expand_text_color">#E7E7E7</color>
     <color name="dialog_bg_semi_transparent">#D926A69A</color>
+    <color name="dialog_bg_semi_transparent_dark">#D92B2B2B</color>
     <color name="member_of_the_month">#E91E63</color>
+    <color name="topic_post_icon">@color/primary_text</color>
+
+    <color name="red">#FF0000</color>
+    <color name="maroon">#800000</color>
+    <color name="brown">#A52A2A</color>
+    <color name="orange">#FFA500</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="olive">#808000</color>
+    <color name="green">#008000</color>
+    <color name="purple">#800080</color>
+    <color name="fuchsia">#FF00FF</color>
+    <color name="pink">#FFC0CB</color>
+    <color name="beige">#F5F5DC</color>
+    <color name="lime">#00FF00</color>
+    <color name="lime_green">#32CD32</color>
+    <color name="teal">#008080</color>
+    <color name="aqua">#00FFFF</color>
+    <color name="blue">#0000FF</color>
+    <color name="navy">#000080</color>
+    <color name="black">#000000</color>
+    <color name="grey">#808080</color>
+    <color name="silver">#C0C0C0</color>
 </resources>
