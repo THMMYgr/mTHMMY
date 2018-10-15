@@ -59,11 +59,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public SettingsFragment() {
         defaultHomeTabEntries.add("Recent");
         defaultHomeTabEntries.add("Forum");
-        defaultHomeTabEntries.add("Unread");
 
         defaultHomeTabValues.add("0");
         defaultHomeTabValues.add("1");
-        defaultHomeTabValues.add("2");
+
+        if(isLoggedIn = BaseApplication.getInstance().getSessionManager().isLoggedIn()){
+            defaultHomeTabEntries.add("Unread");
+            defaultHomeTabValues.add("2");
+        }
     }
 
     @Override
@@ -94,7 +97,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         if(isLoggedIn&&(prefs_type==PREFS_TYPE.GUEST||prefs_type==PREFS_TYPE.NOT_SET)){
             prefs_type = PREFS_TYPE.USER;
             addPreferencesFromResource(R.xml.app_preferences_user);
-
         }
         else if(!isLoggedIn&&(prefs_type==PREFS_TYPE.USER||prefs_type==PREFS_TYPE.NOT_SET)){
             prefs_type = PREFS_TYPE.GUEST;
@@ -165,14 +167,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     }
 
     private void updatePreferenceVisibility(){
-        boolean updateHomeTabs=false;
         if(isLoggedIn&& prefs_type==PREFS_TYPE.GUEST) {
             prefs_type = PREFS_TYPE.USER;
             setPreferencesFromResource(R.xml.app_preferences_user, getPreferenceScreen().getKey());
             if(!defaultHomeTabEntries.contains("Unread")){
                 defaultHomeTabEntries.add("Unread");
                 defaultHomeTabValues.add("2");
-                updateHomeTabs=true;
             }
         }
         else if(!isLoggedIn&&prefs_type==PREFS_TYPE.USER){
@@ -181,17 +181,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             if(defaultHomeTabEntries.contains("Unread")){
                 defaultHomeTabEntries.remove("Unread");
                 defaultHomeTabValues.remove("2");
-                updateHomeTabs=true;
             }
         }
 
-        if(updateHomeTabs){
-            CharSequence[] tmpCs = defaultHomeTabEntries.toArray(new CharSequence[defaultHomeTabEntries.size()]);
-            ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntries(tmpCs);
+        CharSequence[] tmpCs = defaultHomeTabEntries.toArray(new CharSequence[defaultHomeTabEntries.size()]);
+        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntries(tmpCs);
 
-            tmpCs = defaultHomeTabValues.toArray(new CharSequence[defaultHomeTabValues.size()]);
-            ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntryValues(tmpCs);
-        }
+        tmpCs = defaultHomeTabValues.toArray(new CharSequence[defaultHomeTabValues.size()]);
+        ((ListPreference) findPreference(DEFAULT_HOME_TAB)).setEntryValues(tmpCs);
     }
 
     @Override
