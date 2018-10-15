@@ -750,10 +750,12 @@ public abstract class BaseActivity extends AppCompatActivity {
             FirebaseMessaging.getInstance().setAutoInitEnabled(true);
             BaseApplication.getInstance().startFirebaseCrashlyticsCollection();
             BaseApplication.getInstance().setFirebaseAnalyticsCollection(true);
+            setUserDataShareEnabled(true);
         });
         builder.setNegativeButton("Nope, leave me alone", (dialogInterface, i) -> {
             addUserConsent();
             FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+            setUserDataShareEnabled(false);
         });
         builder.setNeutralButton("Privacy Policy", (dialog, which) -> {/*Will be overridden below*/});
         builder.setCancelable(false);
@@ -799,9 +801,15 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    private void addUserConsent (){
+    private void addUserConsent(){
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.user_consent_shared_preference_key), true).apply();
+    }
+
+    private void setUserDataShareEnabled(boolean enabled){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), enabled).apply();
+        editor.putBoolean(getString(R.string.pref_privacy_analytics_enable_key), enabled).apply();
     }
 
     //----------------------------------MISC----------------------
