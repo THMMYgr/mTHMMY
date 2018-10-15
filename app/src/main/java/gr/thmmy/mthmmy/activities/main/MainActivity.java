@@ -63,6 +63,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         if (sessionManager.isLoginScreenDefault()) {
             //Go to login
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.putExtra("REDIRECT", true);
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);

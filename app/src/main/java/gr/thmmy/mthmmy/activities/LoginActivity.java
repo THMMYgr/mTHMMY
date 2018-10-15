@@ -40,11 +40,14 @@ public class LoginActivity extends BaseActivity {
     /* --Graphics End-- */
 
     private LoginTask loginTask;
+    private boolean initialRedirect;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        initialRedirect = getIntent().getBooleanExtra("REDIRECT", false);
 
         PreferenceManager.setDefaultValues(this, R.xml.app_preferences_user, false);
 
@@ -56,7 +59,6 @@ public class LoginActivity extends BaseActivity {
 
         //Login button Click Event
         btnLogin.setOnClickListener(view -> {
-            Timber.d("Login");
 
             //Get username and password strings
             username = inputUsername.getText().toString().trim();
@@ -162,9 +164,12 @@ public class LoginActivity extends BaseActivity {
                             "Welcome, " + sessionManager.getUsername() + "!", Toast.LENGTH_LONG)
                             .show();
                     BaseApplication.getInstance().logFirebaseAnalyticsEvent(FirebaseAnalytics.Event.LOGIN, null);
-                    //Go to main
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
+                    if(initialRedirect){
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    } else
+                        onBackPressed();
+
                     finish();
                     overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                     break;
