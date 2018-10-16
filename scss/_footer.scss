@@ -1,0 +1,64 @@
+// Styling for the footer
+footer {
+    padding: 25px 0;
+    text-align: center;
+    color: $theme-tertiary;
+    background-color: $theme-secondary;
+    p {
+        font-size: 12px;
+        margin: 0;
+    }
+    ul {
+        margin-bottom: 0;
+        li {
+            a {
+                font-size: 12px;
+                color: fade-out(white, .7);
+                &:hover,
+                &:focus,
+                &:active,
+                &.active {
+                    text-decoration: none;
+                }
+            }
+        }
+        &.list-social {
+            margin-bottom: 25px;
+            li {
+                a {
+                    font-size: 40px;
+                    line-height: 80px;
+                    display: block;
+                    width: 80px;
+                    height: 80px;
+                    color: white;
+                    border-radius: 100%;
+                }
+                &.social-discord {
+                    a {
+                        background-color: $social-discord;
+                        &:hover {
+                            background-color: darken($social-discord, 5%);
+                        }
+                    }
+                }
+                &.social-github {
+                    a {
+                        background-color: $social-github;
+                        &:hover {
+                            background-color: darken($social-github, 5%);
+                        }
+                    }
+                }
+                &.social-mail {
+                    a {
+                        background-color: $social-mail;
+                        &:hover {
+                            background-color: darken($social-mail, 5%);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

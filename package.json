@@ -1,0 +1,24 @@
+{
+    "title": "mTHMMY",
+    "name": "mthmmy",
+    "version": "0.1.0",
+    "description": "Landing page for mTHMMY.",
+    "private": true,
+    "author": "Thmmy No Life",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ThmmyNoLife/thmmynolife.github.io.git"
+    },
+    "bugs": {
+        "url": "https://github.com/ThmmyNoLife/thmmynolife.github.io/issues",
+        "email": "thmmynolife@gmail.com"
+    },
+    "devDependencies": {
+        "browser-sync": "^2.26.0",
+        "gulp": "^3.9.1",
+        "gulp-autoprefixer": "6.0.0",
+        "gulp-clean-css": "3.10.0",
+        "gulp-rename": "1.4.0",
+        "gulp-sass": "4.0.1"
+    }
+}
