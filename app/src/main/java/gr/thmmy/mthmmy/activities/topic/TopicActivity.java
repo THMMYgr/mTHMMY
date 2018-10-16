@@ -542,8 +542,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     default:
                         Timber.w("Post reply unsuccessful");
                         Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
-                        recyclerView.getChildAt(topicItems.size() - 1).setAlpha(1);
-                        recyclerView.getChildAt(topicItems.size() - 1).setEnabled(true);
+                        recyclerView.getChildAt(recyclerView.getChildCount() - 1).setAlpha(1f);
+                        recyclerView.getChildAt(recyclerView.getChildCount() - 1).setEnabled(true);
                 }
             }
         });
