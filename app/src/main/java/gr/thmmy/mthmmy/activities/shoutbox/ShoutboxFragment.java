@@ -8,7 +8,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -29,7 +28,7 @@ import gr.thmmy.mthmmy.viewmodel.ShoutboxViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
-public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKeyboardOwner {
+public class ShoutboxFragment extends Fragment {
 
     private MaterialProgressBar progressBar;
     private ShoutboxTask shoutboxTask;
@@ -66,9 +65,8 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
 
         emojiKeyboard = rootView.findViewById(R.id.emoji_keyboard);
         editorView = rootView.findViewById(R.id.edior_view);
-        editorView.setEmojiKeyboardOwner(this);
-        InputConnection ic = editorView.getInputConnection();
-        setEmojiKeyboardInputConnection(ic);
+        editorView.setEmojiKeyboard(emojiKeyboard);
+        emojiKeyboard.registerEmojiInputField(editorView);
         editorView.setOnSubmitListener(view -> {
             if (shoutboxViewModel.getShoutboxMutableLiveData().getValue() == null) return;
             if (editorView.getText().toString().isEmpty()) {
@@ -131,7 +129,7 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
         Timber.i("Start sending a shout...");
         editorView.setAlpha(0.5f);
         editorView.setEnabled(false);
-        setEmojiKeyboardVisible(false);
+        emojiKeyboard.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
@@ -163,20 +161,5 @@ public class ShoutboxFragment extends Fragment implements EmojiKeyboard.EmojiKey
             Timber.wtf("Failed to retreive shoutbox due to unknown error");
             Toast.makeText(getContext(), "Failed to retrieve shoutbox, please contact mthmmy developer team", Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    public void setEmojiKeyboardVisible(boolean visible) {
-        emojiKeyboard.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public boolean isEmojiKeyboardVisible() {
-        return emojiKeyboard.getVisibility() == View.VISIBLE;
-    }
-
-    @Override
-    public void setEmojiKeyboardInputConnection(InputConnection ic) {
-        emojiKeyboard.setInputConnection(ic);
     }
 }
