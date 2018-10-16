@@ -2,7 +2,7 @@ package gr.thmmy.mthmmy.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.v7.widget.AppCompatSpinner;
+import androidx.appcompat.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;

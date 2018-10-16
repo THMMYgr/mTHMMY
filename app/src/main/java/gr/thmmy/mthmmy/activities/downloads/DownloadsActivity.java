@@ -1,14 +1,8 @@
 package gr.thmmy.mthmmy.activities.downloads;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -19,8 +13,10 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Download;
@@ -32,8 +28,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.activities.upload.UploadActivity.BUNDLE_UPLOAD_CATEGORY;
 
 public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.OnLoadMoreListener {
     /**

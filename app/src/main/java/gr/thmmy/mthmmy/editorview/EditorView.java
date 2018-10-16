@@ -1,23 +1,20 @@
 package gr.thmmy.mthmmy.editorview;
 
+import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
@@ -27,12 +24,21 @@ import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.Objects;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 
 public class EditorView extends LinearLayout implements EmojiInputField {
 
+    private static final int ANIMATION_DURATION = 100;
     private SparseArray<String> colors = new SparseArray<>();
 
     private TextInputLayout edittextWrapper;
@@ -40,6 +46,7 @@ public class EditorView extends LinearLayout implements EmojiInputField {
     private AppCompatImageButton emojiButton;
     private AppCompatImageButton submitButton;
     private IEmojiKeyboard emojiKeyboard;
+    private RecyclerView formatButtonsRecyclerview;
 
     public EditorView(Context context) {
         super(context);
@@ -61,6 +68,7 @@ public class EditorView extends LinearLayout implements EmojiInputField {
         LayoutInflater.from(context).inflate(R.layout.editor_view, this, true);
         setOrientation(VERTICAL);
 
+        formatButtonsRecyclerview = findViewById(R.id.buttons_recyclerview);
         edittextWrapper = findViewById(R.id.editor_edittext_wrapper);
         editText = findViewById(R.id.editor_edittext);
         editText.setOnFocusChangeListener((view, focused) -> {
@@ -79,6 +87,7 @@ public class EditorView extends LinearLayout implements EmojiInputField {
                 requestEditTextFocus();
             }
         });
+        editText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.EditorView, 0, 0);
         try {
@@ -110,7 +119,6 @@ public class EditorView extends LinearLayout implements EmojiInputField {
         colors.append(R.id.maroon, "maroon");
         colors.append(R.id.lime_green, "limegreen");
 
-        RecyclerView formatButtonsRecyclerview = findViewById(R.id.buttons_recyclerview);
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float itemWidth = getResources().getDimension(R.dimen.editor_format_button_size) +
                 getResources().getDimension(R.dimen.editor_format_button_margin_between);
@@ -298,6 +306,93 @@ public class EditorView extends LinearLayout implements EmojiInputField {
 
     public void setEmojiKeyboard(IEmojiKeyboard emojiKeyboard) {
         this.emojiKeyboard = emojiKeyboard;
+    }
+
+    public void setMarkdownVisible(boolean visible) {
+        formatButtonsRecyclerview.setVisibility(visible ? VISIBLE : GONE);
+    }
+
+    public void showMarkdownOnfocus() {
+        edittextWrapper.setOnClickListener(view -> {
+            showMarkdown();
+        });
+        editText.setOnClickListener(view -> {
+            showMarkdown();
+        });
+        edittextWrapper.setOnFocusChangeListener((view, b) -> {
+            if (b) showMarkdown();
+            else hideMarkdown();
+        });
+        editText.setOnFocusChangeListener((view, b) -> {
+            if (b) showMarkdown();
+            else hideMarkdown();
+        });
+    }
+
+    /**
+     * Animates the hiding of the markdown options.
+     *
+     */
+    public void hideMarkdown() {
+        if (formatButtonsRecyclerview.getVisibility() == GONE) return;
+        ViewPropertyAnimator animator = formatButtonsRecyclerview.animate()
+                .translationY(formatButtonsRecyclerview.getHeight())
+                .setInterpolator(new FastOutSlowInInterpolator())
+                .setDuration(ANIMATION_DURATION);
+
+        animator.setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                formatButtonsRecyclerview.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+            }
+        });
+
+        animator.start();
+    }
+
+    /**
+     * Animates the showing of the markdown options.
+     *
+     */
+    public void showMarkdown() {
+        if (formatButtonsRecyclerview.getVisibility() == VISIBLE) return;
+        ViewPropertyAnimator animator = formatButtonsRecyclerview.animate()
+                .translationY(0)
+                .setInterpolator(new FastOutSlowInInterpolator())
+                .setDuration(ANIMATION_DURATION);
+
+        animator.setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                formatButtonsRecyclerview.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+            }
+        });
+
+        animator.start();
     }
 
     public TextInputEditText getEditText() {

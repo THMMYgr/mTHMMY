@@ -2,7 +2,7 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,12 +11,13 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.content.res.AppCompatResources;
-import android.support.v7.widget.AppCompatButton;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -81,7 +82,7 @@ import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
 import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
 
 /**
- * Custom {@link android.support.v7.widget.RecyclerView.Adapter} used for topics.
+ * Custom {@link RecyclerView.Adapter} used for topics.
  */
 class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**

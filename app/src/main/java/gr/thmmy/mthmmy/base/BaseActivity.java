@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.base;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,14 +10,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
@@ -43,6 +35,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
@@ -51,6 +51,7 @@ import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
+import gr.thmmy.mthmmy.activities.shoutbox.ShoutboxActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
@@ -156,6 +157,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected static final int LOG_ID = 4;
     protected static final int ABOUT_ID = 5;
     protected static final int SETTINGS_ID = 6;
+    protected static final int SHOUTBOX_ID = 7;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
@@ -170,7 +172,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
-        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem;
+        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem, shoutboxItem;
         IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, uploadIcon, uploadIconSelected, settingsIcon,
                 settingsIconSelected, bookmarksIcon, bookmarksIconSelected, aboutIcon, aboutIconSelected;
 
@@ -257,6 +259,16 @@ public abstract class BaseActivity extends AppCompatActivity {
 //                    .withName(R.string.upload)
 //                    .withIcon(uploadIcon)
 //                    .withSelectedIcon(uploadIconSelected);
+
+        shoutboxItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(SHOUTBOX_ID)
+                .withName(R.string.shoutbox)
+                .withIcon(R.drawable.ic_announcement)
+                .withIconColor(primaryColor)
+                .withSelectedIconColor(selectedSecondaryColor);
 
         if (sessionManager.isLoggedIn()) //When logged in
         {
@@ -346,6 +358,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                             Intent intent = new Intent(BaseActivity.this, MainActivity.class);
                             startActivity(intent);
                         }
+                    } else if (drawerItem.equals(SHOUTBOX_ID)) {
+                        if (!(BaseActivity.this instanceof ShoutboxActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, ShoutboxActivity.class);
+                            startActivity(intent);
+                        }
                     } else if (drawerItem.equals(DOWNLOADS_ID)) {
                         if (!(BaseActivity.this instanceof DownloadsActivity)) {
                             Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
@@ -390,9 +407,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, shoutboxItem, bookmarksItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
         else
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, shoutboxItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
 
         drawer = drawerBuilder.build();
 

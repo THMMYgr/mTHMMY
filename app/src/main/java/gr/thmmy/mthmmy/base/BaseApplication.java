@@ -6,8 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
@@ -30,6 +29,7 @@ import net.gotev.uploadservice.okhttp.OkHttpStack;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;

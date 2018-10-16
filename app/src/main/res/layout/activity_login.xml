@@ -41,7 +41,7 @@
                 android:layout_weight="0.45"/>
 
             <!--  Username Label -->
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/hint_username"
                     android:inputType="textPersonName"/>
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Space
                 android:layout_width="match_parent"
@@ -59,7 +59,7 @@
                 android:layout_weight="0.16"/>
 
             <!--  Password Label -->
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:passwordToggleEnabled="true">
@@ -70,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/hint_password"
                     android:inputType="textPassword"/>
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Space
                 android:layout_width="match_parent"
@@ -78,7 +78,7 @@
                 android:layout_weight="0.5"/>
 
             <!-- Login Button -->
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="0.2"/>
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnContinueAsGuest"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
