@@ -323,6 +323,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withCompactStyle(true)
                 .withSelectionListEnabledForSingleProfile(false)
                 .withHeaderBackground(R.color.primary)
+                .withTextColor(getResources().getColor(R.color.iron))
                 .addProfiles(profileDrawerItem)
                 .withOnAccountHeaderListener((view, profile, currentProfile) -> {
                     if (sessionManager.isLoggedIn()) {
