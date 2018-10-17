@@ -75,6 +75,9 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         //Initialize drawer
         createDrawer();
 
+        tabLayout = findViewById(R.id.tabs);
+        viewPager = findViewById(R.id.container);
+
         //Create the adapter that will return a fragment for each section of the activity
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         sectionsPagerAdapter.addFragment(RecentFragment.newInstance(1), "RECENT");
@@ -83,9 +86,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
 
         //Set up the ViewPager with the sections adapter.
-        viewPager = findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
-        tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -94,13 +95,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             tabLayout.getTabAt(preferredTab).select();
         }
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            if (i == 0) {
-                tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_access_time_white_24dp));
-            } else if (i == 1) {
-                tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_forum_white_24dp));
-            }else if (i == 2) {
-                tabLayout.getTabAt(i).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
-            }
+            updateTabIcon(i);
         }
 
         setMainActivity(this);
@@ -186,6 +181,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             fragmentList.add(fragment);
             fragmentTitleList.add(title);
             notifyDataSetChanged();
+            updateTabIcon(fragmentList.size() - 1);
         }
 
         void removeFragment(int position) {
@@ -219,13 +215,26 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         }
     }
 
+    public void updateTabIcon(int position) {
+        if (position >= tabLayout.getTabCount()) return;
+        if (position == 0) {
+            tabLayout.getTabAt(0).setIcon(getResources().getDrawable(R.drawable.ic_access_time_white_24dp));
+        } else if (position == 1) {
+            tabLayout.getTabAt(1).setIcon(getResources().getDrawable(R.drawable.ic_forum_white_24dp));
+        } else if (position == 2) {
+            tabLayout.getTabAt(2).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
+        }
+    }
+
+
     public void updateTabs() {
         if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3) {
             sectionsPagerAdapter.removeFragment(2);
-        }
-        else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2) {
+        } else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2) {
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
-            tabLayout.getTabAt(2).setIcon(R.drawable.ic_fiber_new_white_24dp);
+        }
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            updateTabIcon(i);
         }
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
