@@ -117,16 +117,18 @@ public class SessionManager {
                 setPersistentCookieSession();   //Store cookies
 
                 //Edit SharedPreferences, save session's data
+                SharedPreferences.Editor editor = sharedPrefs.edit();
                 setLoginScreenAsDefault(false);
-                sharedPrefs.edit().putBoolean(LOGGED_IN, true).apply();
-                sharedPrefs.edit().putString(USERNAME, extractUserName(document)).apply();
-                sharedPrefs.edit().putInt(USER_ID, extractUserId(document)).apply();
+                editor.putBoolean(LOGGED_IN, true);
+                editor.putString(USERNAME, extractUserName(document));
+                editor.putInt(USER_ID, extractUserId(document));
                 String avatar = extractAvatarLink(document);
                 if (avatar != null) {
-                    sharedPrefs.edit().putBoolean(HAS_AVATAR, true).apply();
-                    sharedPrefs.edit().putString(AVATAR_LINK, extractAvatarLink(document)).apply();
+                    editor.putBoolean(HAS_AVATAR, true);
+                    editor.putString(AVATAR_LINK, avatar);
                 } else
-                    sharedPrefs.edit().putBoolean(HAS_AVATAR, false).apply();
+                    editor.putBoolean(HAS_AVATAR, false);
+                editor.apply();
 
 
                 sharedPrefs.edit().putString(LOGOUT_LINK, extractLogoutLink(document)).apply();
