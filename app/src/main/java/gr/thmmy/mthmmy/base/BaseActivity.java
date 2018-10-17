@@ -268,7 +268,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withName(R.string.shoutbox)
                 .withIcon(R.drawable.ic_announcement)
                 .withIconColor(primaryColor)
-                .withSelectedIconColor(selectedSecondaryColor);
+                .withSelectedIconColor(selectedSecondaryColor)
+                .withIconTintingEnabled(true);
 
         if (sessionManager.isLoggedIn()) //When logged in
         {
