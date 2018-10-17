@@ -1,6 +1,8 @@
 package gr.thmmy.mthmmy.activities;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import com.google.android.material.appbar.AppBarLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -38,6 +40,18 @@ public class AboutActivity extends BaseActivity {
         setContentView(R.layout.activity_about);
         String versionName = BuildConfig.VERSION_NAME;
 
+        boolean gitExists = true;
+
+        String commitHash = BuildConfig.COMMIT_HASH;
+        if (commitHash.length() > 8)
+            commitHash = commitHash.substring(0, 8);
+        else
+            gitExists = false;
+
+        String versionInfo = "";
+        if(gitExists)
+            versionInfo = "-" + BuildConfig.CURRENT_BRANCH + "-" + commitHash;
+
         //Initialize appbar
         appBar = findViewById(R.id.appbar);
         coordinatorLayout = findViewById(R.id.main_content);
@@ -59,14 +73,19 @@ public class AboutActivity extends BaseActivity {
         TextView tv = findViewById(R.id.version);
         if (tv != null) {
             if (BuildConfig.DEBUG)
-                tv.setText(getString(R.string.version, versionName + "-debug"));
+                tv.setText(getString(R.string.version, versionName + versionInfo));
             else
                 tv.setText(getString(R.string.version, versionName));
 
 
-            tv.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            if(BuildConfig.DEBUG && gitExists){
+                tv.setOnClickListener(view -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ThmmyNoLife/mTHMMY/commit/" + BuildConfig.COMMIT_HASH));
+                    startActivity(intent);
+                });
+            }
+            else{   // Easter Egg
+                tv.setOnClickListener(view -> {
                     if (mVersionLastPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
                         if (mVersionPressedCounter == TIMES_TO_PRESS) {
                             appBar.setVisibility(View.INVISIBLE);
@@ -81,8 +100,8 @@ public class AboutActivity extends BaseActivity {
                         mVersionLastPressedTime = System.currentTimeMillis();
                         mVersionPressedCounter = 0;
                     }
-                }
-            });
+                });
+            }
         }
 
         TextView privacyPolicy = findViewById(R.id.privacy_policy_header);

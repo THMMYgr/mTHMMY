@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurper
+import org.ajoberstar.grgit.Grgit
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
@@ -14,6 +15,8 @@ android {
         versionCode 14
         versionName "1.5.0"
         archivesBaseName = "mTHMMY-v$versionName"
+        buildConfigField "String", "CURRENT_BRANCH", "\"" + getCurrentBranch() + "\""
+        buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
     }
 
     buildTypes {
@@ -44,6 +47,28 @@ tasks.whenTaskAdded { task ->
             if (json.project_info.project_id != "mthmmy-release-3aef0")
                 throw new GradleException('Please supply the correct google-services.json for release or manually change the id above!')
         })
+    }
+}
+
+static def getCurrentBranch() {
+    try {
+        def grgit = Grgit.open()
+        def curBranch = grgit.branch.getCurrent().name
+        grgit.close()
+        return curBranch
+    } catch (Exception ignored) {
+        return ""
+    }
+}
+
+static def getCommitHash() {
+    try {
+        def grgit = Grgit.open()
+        def commitHash = grgit.head().id
+        grgit.close()
+        return commitHash
+    } catch (Exception ignored) {
+        return ""
     }
 }
 
