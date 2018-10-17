@@ -123,15 +123,11 @@ public class SessionManager {
                 editor.putString(USERNAME, extractUserName(document));
                 editor.putInt(USER_ID, extractUserId(document));
                 String avatar = extractAvatarLink(document);
-                if (avatar != null) {
-                    editor.putBoolean(HAS_AVATAR, true);
+                if (avatar != null)
                     editor.putString(AVATAR_LINK, avatar);
-                } else
-                    editor.putBoolean(HAS_AVATAR, false);
+                editor.putBoolean(HAS_AVATAR, avatar != null);
+                editor.putString(LOGOUT_LINK, extractLogoutLink(document));
                 editor.apply();
-
-
-                sharedPrefs.edit().putString(LOGOUT_LINK, extractLogoutLink(document)).apply();
 
                 return SUCCESS;
             } else {
