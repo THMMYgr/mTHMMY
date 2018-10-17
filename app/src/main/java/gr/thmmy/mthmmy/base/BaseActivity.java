@@ -408,9 +408,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, shoutboxItem, bookmarksItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, shoutboxItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
         else
-            drawerBuilder.addDrawerItems(homeItem, shoutboxItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, shoutboxItem, settingsItem, loginLogoutItem, aboutItem);
 
         drawer = drawerBuilder.build();
 
@@ -434,10 +434,10 @@ public abstract class BaseActivity extends AppCompatActivity {
                 setDefaultAvatar();
             } else {
                 if (!drawer.getDrawerItems().contains(downloadsItem)) {
-                    drawer.addItemAtPosition(downloadsItem, 3);
+                    drawer.addItemAtPosition(downloadsItem, 4);
                 }
 //                if (!drawer.getDrawerItems().contains(uploadItem)) {
-//                    drawer.addItemAtPosition(uploadItem, 4);
+//                    drawer.addItemAtPosition(uploadItem, 5);
 //                }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());
