@@ -1,8 +1,6 @@
 package gr.thmmy.mthmmy.session;
 
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
@@ -17,6 +15,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.Cookie;
 import okhttp3.FormBody;

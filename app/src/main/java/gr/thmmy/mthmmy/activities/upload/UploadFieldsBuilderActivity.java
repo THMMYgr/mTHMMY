@@ -3,9 +3,6 @@ package gr.thmmy.mthmmy.activities.upload;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -16,6 +13,9 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import gr.thmmy.mthmmy.R;
 import timber.log.Timber;
 

@@ -4,12 +4,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import com.google.android.material.textfield.TextInputLayout;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;

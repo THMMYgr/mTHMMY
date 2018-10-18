@@ -2,17 +2,18 @@ package gr.thmmy.mthmmy.activities.bookmarks;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
+
 import com.google.android.material.tabs.TabLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;

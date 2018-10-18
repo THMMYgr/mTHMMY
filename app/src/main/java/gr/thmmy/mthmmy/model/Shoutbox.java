@@ -1,8 +1,5 @@
 package gr.thmmy.mthmmy.model;
 
-import androidx.annotation.NonNull;
-import timber.log.Timber;
-
 public class Shoutbox {
     private Shout[] shouts;
     private String sc, sendShoutUrl, shoutName, shoutSend, shoutUrl;

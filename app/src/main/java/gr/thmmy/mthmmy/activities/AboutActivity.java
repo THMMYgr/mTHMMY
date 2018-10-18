@@ -4,11 +4,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import com.google.android.material.appbar.AppBarLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AlertDialog;
-
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.UnderlineSpan;
@@ -19,6 +14,11 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.material.appbar.AppBarLayout;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.drawerlayout.widget.DrawerLayout;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -50,7 +50,7 @@ public class AboutActivity extends BaseActivity {
 
         String versionInfo = "";
         if(gitExists)
-            versionInfo = "-" + BuildConfig.CURRENT_BRANCH + "-" + commitHash;
+            versionInfo = "-" + BuildConfig.CURRENT_BRANCH + "-" + commitHash + " ";
 
         //Initialize appbar
         appBar = findViewById(R.id.appbar);

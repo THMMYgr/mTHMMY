@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.viewmodel;
 
-import androidx.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -11,6 +10,7 @@ import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 
+import androidx.lifecycle.MutableLiveData;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;

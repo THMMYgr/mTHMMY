@@ -1,10 +1,11 @@
 package gr.thmmy.mthmmy.utils;
 
 import android.content.Context;
+import android.util.AttributeSet;
+
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.AttributeSet;
 
 //Custom RecyclerView, so EdgeEffect and SwipeRefresh both work
 public class CustomRecyclerView extends RecyclerView {

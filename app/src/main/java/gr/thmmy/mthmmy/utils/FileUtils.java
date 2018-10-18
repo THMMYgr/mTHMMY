@@ -1,9 +1,10 @@
 package gr.thmmy.mthmmy.utils;
 
-import androidx.annotation.NonNull;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
 
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
 

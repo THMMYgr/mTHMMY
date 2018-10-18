@@ -1,8 +1,8 @@
 package gr.thmmy.mthmmy.activities.settings;
 
 import android.os.Bundle;
-import androidx.fragment.app.FragmentTransaction;
 
+import androidx.fragment.app.FragmentTransaction;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 

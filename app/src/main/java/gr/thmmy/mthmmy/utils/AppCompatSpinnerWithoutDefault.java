@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import androidx.appcompat.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,8 @@ import android.widget.TextView;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import androidx.appcompat.widget.AppCompatSpinner;
 
 public class AppCompatSpinnerWithoutDefault extends AppCompatSpinner {
     public AppCompatSpinnerWithoutDefault(Context context) {

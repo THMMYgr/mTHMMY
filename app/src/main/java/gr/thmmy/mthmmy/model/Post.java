@@ -1,9 +1,9 @@
 package gr.thmmy.mthmmy.model;
 
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Objects;
+
+import androidx.annotation.Nullable;
 
 /**
  * Class that defines a topic's post. All member variables are declared final (thus no setters are
