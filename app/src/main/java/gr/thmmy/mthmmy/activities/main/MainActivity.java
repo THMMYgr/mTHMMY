@@ -19,6 +19,7 @@ import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.TestActivity;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
@@ -137,6 +138,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                     , Toast.LENGTH_SHORT).show();
         }
         mBackPressed = System.currentTimeMillis();
+
+        startActivity(new Intent(this, TestActivity.class));
     }
 
     @Override

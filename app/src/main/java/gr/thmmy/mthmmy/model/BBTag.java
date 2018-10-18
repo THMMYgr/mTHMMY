@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.model;
 
+import androidx.annotation.NonNull;
+
 public class BBTag {
     private int start, end;
     private String name;
@@ -7,6 +9,12 @@ public class BBTag {
     public BBTag(int start, String name) {
         this.start = start;
         this.name = name;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "start:" + start + ",end:" + end + ",name:" + name;
     }
 
     public int getStart() {
