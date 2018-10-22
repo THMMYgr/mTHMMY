@@ -13,7 +13,6 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -69,7 +68,7 @@ public class SummaryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        profileSummaryDocument = Jsoup.parse(getArguments().getString(PROFILE_DOCUMENT));
+        profileSummaryDocument = ParseHelpers.parse(getArguments().getString(PROFILE_DOCUMENT));
         parsedProfileSummaryData = new ArrayList<>();
     }
 

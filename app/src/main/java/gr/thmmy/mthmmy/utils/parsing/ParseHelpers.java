@@ -1,7 +1,9 @@
 package gr.thmmy.mthmmy.utils.parsing;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
@@ -10,7 +12,8 @@ import java.util.regex.Pattern;
 
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner
- * classes). It can be used to resolve a page's language and state or fix embedded videos html code.
+ * classes). It can be used to resolve a page's language and state or fix embedded videos html code
+ * and obfuscated emails.
  */
 public class ParseHelpers {
     /**
@@ -184,5 +187,36 @@ public class ParseHelpers {
         if (baseUrlMatcher.find())
             return forumUrl + topicURL.substring(baseUrlMatcher.start(), baseUrlMatcher.end());
         else return "";
+    }
+
+    /**
+     * Method that adds email deobfuscation functionality to Jsoup.parse.
+     * Replace Jsoup.parse with this wherever needed
+     *
+     * @param html html to parse
+     * @return a document with deobfuscated emails
+     */
+    public static Document parse(String html){
+        Document document = Jsoup.parse(html);
+        Elements obfuscatedEmails = document.select("span.__cf_email__");
+        for (Element obfuscatedEmail : obfuscatedEmails) {
+            String obfuscatedEmailStr = obfuscatedEmail.attr("data-cfemail");
+
+            //Deobfuscate
+            final StringBuilder stringBuilder = new StringBuilder();
+            final int r = Integer.parseInt(obfuscatedEmailStr.substring(0, 2), 16);
+            for (int n = 2; n < obfuscatedEmailStr.length(); n += 2) {
+                final int i = Integer.parseInt(obfuscatedEmailStr.substring(n, n + 2), 16) ^ r;
+                stringBuilder.append(Character.toString((char) i));
+            }
+
+            String deobfuscatedEmail = stringBuilder.toString();
+
+            Element parent = obfuscatedEmail.parent();
+            if (parent.is("a")&&parent.attr("href").contains("email-protection"))
+                parent.attr("href", "mailto:"+deobfuscatedEmail);
+            obfuscatedEmail.replaceWith(new TextNode(deobfuscatedEmail, ""));
+        }
+        return document;
     }
 }

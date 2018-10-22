@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -18,6 +17,7 @@ import java.util.regex.Pattern;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -109,7 +109,7 @@ public class SessionManager {
         try {
             //Make request & handle response
             Response response = client.newCall(request).execute();
-            Document document = Jsoup.parse(response.body().string());
+            Document document = ParseHelpers.parse(response.body().string());
 
             if (validateRetrievedCookies())
             {
@@ -215,7 +215,7 @@ public class SessionManager {
         try {
             //Make request & handle response
             Response response = client.newCall(request).execute();
-            Document document = Jsoup.parse(response.body().string());
+            Document document = ParseHelpers.parse(response.body().string());
 
             Elements loginButton = document.select("[value=Login]");  //Attempt to find login button
             if (!loginButton.isEmpty()) //If login button exists, logout was successful

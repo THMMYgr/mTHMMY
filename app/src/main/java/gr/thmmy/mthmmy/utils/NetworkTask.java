@@ -1,12 +1,12 @@
 package gr.thmmy.mthmmy.utils;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -49,7 +49,7 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         }
         try {
-            T data = performTask(Jsoup.parse(responseBodyString), response);
+            T data = performTask(ParseHelpers.parse(responseBodyString), response);
             int resultCode = getResultCode(response, data);
             return new Parcel<>(resultCode, data);
         } catch (ParseException pe) {

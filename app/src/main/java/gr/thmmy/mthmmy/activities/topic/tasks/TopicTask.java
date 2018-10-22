@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -61,7 +60,7 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                 .build();
         try {
             Response response = BaseApplication.getInstance().getClient().newCall(request).execute();
-            topic = Jsoup.parse(response.body().string());
+            topic = ParseHelpers.parse(response.body().string());
 
             ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 

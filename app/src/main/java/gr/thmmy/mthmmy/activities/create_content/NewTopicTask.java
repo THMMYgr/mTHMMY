@@ -2,12 +2,12 @@ package gr.thmmy.mthmmy.activities.create_content;
 
 import android.os.AsyncTask;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -44,7 +44,7 @@ public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
         String seqnum, sc, topic, createTopicUrl;
         try {
             Response response = client.newCall(request).execute();
-            document = Jsoup.parse(response.body().string());
+            document = ParseHelpers.parse(response.body().string());
 
             seqnum = document.select("input[name=seqnum]").first().attr("value");
             sc = document.select("input[name=sc]").first().attr("value");

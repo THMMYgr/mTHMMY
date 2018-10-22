@@ -38,10 +38,7 @@ import io.fabric.sdk.android.Fabric;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.utils.EmailDeobfuscator.deobfuscate;
 
 public class BaseApplication extends Application {
     private static BaseApplication baseApplication; //BaseApplication singleton
@@ -103,14 +100,7 @@ public class BaseApplication extends Application {
                             request = request.newBuilder().url(newUrl).build();
                         }
                     }
-
-                    Response response = chain.proceed(request);
-                    try {
-                        response = deobfuscate(response);
-                    } catch (Exception e) {
-                        Timber.e(e, "Email deobfuscation error.");
-                    }
-                    return response;
+                    return chain.proceed(request);
                 })
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)

@@ -26,7 +26,6 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -40,6 +39,7 @@ import javax.net.ssl.SSLHandshakeException;
 import androidx.fragment.app.Fragment;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -138,7 +138,7 @@ public class StatsFragment extends Fragment {
                     .build();
             try {
                 Response response = BaseActivity.getClient().newCall(request).execute();
-                return parseStats(Jsoup.parse(response.body().string()));
+                return parseStats(ParseHelpers.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
                 Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {

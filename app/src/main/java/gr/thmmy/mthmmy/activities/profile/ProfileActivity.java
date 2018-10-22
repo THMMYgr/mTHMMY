@@ -49,6 +49,7 @@ import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CenterVerticalSpan;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -241,7 +242,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     .build();
             try {
                 Response response = client.newCall(request).execute();
-                profilePage = Jsoup.parse(response.body().string());
+                profilePage = ParseHelpers.parse(response.body().string());
                 Elements contentsTable = profilePage.
                         select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tbody");
 

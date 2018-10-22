@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -164,7 +163,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                     .build();
             try {
                 Response response = BaseActivity.getClient().newCall(request).execute();
-                return parseLatestPosts(Jsoup.parse(response.body().string()));
+                return parseLatestPosts(ParseHelpers.parse(response.body().string()));
             } catch (SSLHandshakeException e) {
                 Timber.w("Certificate problem (please switch to unsafe connection).");
             } catch (Exception e) {
