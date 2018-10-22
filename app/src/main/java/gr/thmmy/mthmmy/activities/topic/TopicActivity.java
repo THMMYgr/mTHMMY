@@ -522,15 +522,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         String message = replyHolder.replyEditor.getText().toString();
                         Runnable addReply = () -> {
                             viewModel.setWritingReply(true);
-                            topicItems.add(Post.newQuickReply());
+                            topicItems.add(Post.newQuickReply(subject, message));
                             topicAdapter.notifyItemInserted(topicItems.size());
                             recyclerView.scrollToPosition(topicItems.size() - 1);
                             replyFAB.hide();
                             bottomNavBar.setVisibility(View.GONE);
-                            TopicAdapter.QuickReplyViewHolder newReplyHolder = (TopicAdapter.QuickReplyViewHolder)
-                                    recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
-                            newReplyHolder.quickReplySubject.setText(subject);
-                            newReplyHolder.replyEditor.setText(message);
                             AlertDialog.Builder builder = new AlertDialog.Builder(TopicActivity.this,
                                     R.style.AppCompatAlertDialogStyleAccent);
                             builder.setMessage("A new reply was posted before you completed your new post." +

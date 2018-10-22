@@ -185,6 +185,11 @@ public class Post extends TopicItem {
                 0, null, null, null, null, null, false, TYPE_QUICK_REPLY);
     }
 
+    public static Post newQuickReply(String subject, String content) {
+        return new Post(null, null, subject, content, 0, 0, null,
+                0, null, null, null, null, null, false, TYPE_QUICK_REPLY);
+    }
+
     //Getters
 
     /**

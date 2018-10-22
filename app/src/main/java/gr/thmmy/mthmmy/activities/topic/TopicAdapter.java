@@ -572,6 +572,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             } else if (currentHolder instanceof QuickReplyViewHolder) {
                 final QuickReplyViewHolder holder = (QuickReplyViewHolder) currentHolder;
+                Post reply = (Post) topicItems.get(position);
 
                 //noinspection ConstantConditions
                 Picasso.with(context)
@@ -585,7 +586,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .transform(new CircleTransform())
                         .into(holder.thumbnail);
                 holder.username.setText(getSessionManager().getUsername());
-                holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
+                if (reply.getSubject() != null) {
+                    holder.quickReplySubject.setText(reply.getSubject());
+                } else {
+                    holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
+                }
                 holder.quickReplySubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
                 holder.quickReplySubject.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
@@ -593,7 +598,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.replyEditor.requestEditTextFocus();
                 emojiKeyboard.registerEmojiInputField(holder.replyEditor);
 
-                holder.replyEditor.setText(viewModel.getBuildedQuotes());
                 holder.replyEditor.setOnSubmitListener(view -> {
                     if (holder.quickReplySubject.getText().toString().isEmpty()) return;
                     if (holder.replyEditor.getText().toString().isEmpty()) {
@@ -610,6 +614,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             holder.replyEditor.getText().toString());
                 });
                 holder.replyEditor.setOnClickListener(view -> holder.replyEditor.setError(null));
+
+                if (reply.getContent() != null) {
+                    holder.replyEditor.setText(reply.getContent());
+                } else {
+                    holder.replyEditor.setText(viewModel.getBuildedQuotes());
+                }
 
                 if (backPressHidden) {
                     holder.replyEditor.requestFocus();
