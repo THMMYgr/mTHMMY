@@ -74,7 +74,15 @@ public class BBParser {
         LinkedList<BBTag> tags = new LinkedList<>();
         Matcher bbMatcher = bbtagPattern.matcher(bb);
         while (bbMatcher.find()) {
-            String name = bbMatcher.group(1);
+            String startTag = bbMatcher.group(1);
+            int separatorIndex = startTag.indexOf('=');
+            String name, attribute = null;
+            if (separatorIndex > 0) {
+                attribute = startTag.substring(separatorIndex);
+                name = startTag.substring(0, separatorIndex);
+            } else
+                name = startTag;
+
             if (name.startsWith("/")) {
                 //closing tag
                 name = name.substring(1);
@@ -87,7 +95,7 @@ public class BBParser {
                 continue;
             }
             if (isSupported(name))
-                tags.add(new BBTag(bbMatcher.start(), name));
+                tags.add(new BBTag(bbMatcher.start(), name, attribute));
         }
         // remove parsed tags with no end tag
         for (BBTag bbTag : tags)

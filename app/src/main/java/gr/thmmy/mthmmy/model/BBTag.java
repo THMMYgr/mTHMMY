@@ -4,11 +4,17 @@ import androidx.annotation.NonNull;
 
 public class BBTag {
     private int start, end;
-    private String name;
+    private String name, attribute;
 
     public BBTag(int start, String name) {
         this.start = start;
         this.name = name;
+    }
+
+    public BBTag(int start, String name, String attribute) {
+        this.start = start;
+        this.name = name;
+        this.attribute = attribute;
     }
 
     @NonNull
@@ -39,5 +45,9 @@ public class BBTag {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getAttribute() {
+        return attribute;
     }
 }
