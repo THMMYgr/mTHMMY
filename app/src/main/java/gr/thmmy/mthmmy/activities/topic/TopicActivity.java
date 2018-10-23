@@ -528,7 +528,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                             replyFAB.hide();
                             bottomNavBar.setVisibility(View.GONE);
                             AlertDialog.Builder builder = new AlertDialog.Builder(TopicActivity.this,
-                                    R.style.AppCompatAlertDialogStyleAccent);
+                                    R.style.AppTheme_Dark_Dialog);
                             builder.setMessage("A new reply was posted before you completed your new post." +
                                     " Please review it and send your reply again")
                                     .setNeutralButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())

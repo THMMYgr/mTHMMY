@@ -586,6 +586,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .transform(new CircleTransform())
                         .into(holder.thumbnail);
                 holder.username.setText(getSessionManager().getUsername());
+                holder.itemView.setAlpha(1f);
+                holder.itemView.setEnabled(true);
                 if (reply.getSubject() != null) {
                     holder.quickReplySubject.setText(reply.getSubject());
                 } else {

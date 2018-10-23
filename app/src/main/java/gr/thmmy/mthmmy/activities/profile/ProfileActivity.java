@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.net.ssl.SSLHandshakeException;
-
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -49,9 +47,11 @@ import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CenterVerticalSpan;
 import gr.thmmy.mthmmy.utils.CircleTransform;
-import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.Parcel;
+import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
@@ -195,7 +195,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         }
 
         profileTask = new ProfileTask();
-        profileTask.execute(profileUrl); //Attempts data parsing
+        profileTask.execute(profileUrl + ";wap"); //Attempts data parsing
     }
 
     @Override
@@ -214,6 +214,11 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         startActivity(i);
     }
 
+    public void onProfileTaskStarted() {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+        if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
+    }
+
     /**
      * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing this
      * user's personal text. The {@link Document} resulting from the parse is stored for use in
@@ -223,120 +228,119 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      *
      * @see Jsoup
      */
-    public class ProfileTask extends AsyncTask<String, Void, Boolean> {
+    public class ProfileTask extends NewParseTask<Void> {
         //Class variables
         Document profilePage;
         Spannable usernameSpan;
         Boolean isOnline = false;
 
-        protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
-            if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
+        public ProfileTask() {
+            super(ProfileActivity.this::onProfileTaskStarted, null);
         }
 
-        protected Boolean doInBackground(String... profileUrl) {
-            String pageUrl = profileUrl[0] + ";wap"; //Profile's page wap url
+        @Override
+        protected Void parse(Document document, Response response) throws ParseException {
+            profilePage = document;
+            Elements contentsTable = profilePage.
+                    select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tbody");
 
-            Request request = new Request.Builder()
-                    .url(pageUrl)
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                profilePage = ParseHelpers.parse(response.body().string());
-                Elements contentsTable = profilePage.
-                        select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tbody");
+            //Finds username if missing
+            if (username == null || Objects.equals(username, "")) {
+                username = contentsTable.select("tr").first().select("td").last().text();
+            }
+            if (thumbnailUrl == null || Objects.equals(thumbnailUrl, "")) { //Maybe there is an avatar
+                Element profileAvatar = profilePage.select("img.avatar").first();
+                if (profileAvatar != null) thumbnailUrl = profileAvatar.attr("abs:src");
+            }
+            { //Finds personal text
+                Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
+                if (tmpEl != null) {
+                    personalText = tmpEl.text().trim();
+                } else {
+                    //Should never get here!
+                    //Something is wrong.
+                    Timber.e("An error occurred while trying to find profile's personal text.");
+                    personalText = null;
+                }
+            }
+            { //Finds status
+                usernameSpan = new SpannableString(getResources()
+                        .getString(R.string.fa_circle) + "  " + username);
+                usernameSpan.setSpan(new CenterVerticalSpan(), 0, 2,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                usernameSpan.setSpan(new RelativeSizeSpan(0.45f)
+                        , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-                //Finds username if missing
-                if (username == null || Objects.equals(username, "")) {
-                    username = contentsTable.select("tr").first().select("td").last().text();
-                }
-                if (thumbnailUrl == null || Objects.equals(thumbnailUrl, "")) { //Maybe there is an avatar
-                    Element profileAvatar = profilePage.select("img.avatar").first();
-                    if (profileAvatar != null) thumbnailUrl = profileAvatar.attr("abs:src");
-                }
-                { //Finds personal text
-                    Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
-                    if (tmpEl != null) {
-                        personalText = tmpEl.text().trim();
-                    } else {
-                        //Should never get here!
-                        //Something is wrong.
-                        Timber.e("An error occurred while trying to find profile's personal text.");
-                        personalText = null;
-                    }
-                }
-                { //Finds status
-                    usernameSpan = new SpannableString(getResources()
-                            .getString(R.string.fa_circle) + "  " + username);
-                    usernameSpan.setSpan(new CenterVerticalSpan(), 0, 2,
-                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    usernameSpan.setSpan(new RelativeSizeSpan(0.45f)
-                            , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                    if (contentsTable.toString().contains("Online")
-                            || contentsTable.toString().contains("Συνδεδεμένος")) {
-                        isOnline = true;
-                    } else {
-                        isOnline = false;
+                if (contentsTable.toString().contains("Online")
+                        || contentsTable.toString().contains("Συνδεδεμένος")) {
+                    isOnline = true;
+                } else {
+                    isOnline = false;
                         /*usernameSpan.setSpan(new ForegroundColorSpan(Color.GRAY)
                                 , 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
-                    }
-                    usernameSpan.setSpan(new ForegroundColorSpan(Color.parseColor("#26A69A"))
-                            , 2, usernameSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
-                return true;
-            } catch (SSLHandshakeException e) {
-                Timber.w("Certificate problem (please switch to unsafe connection).");
-            } catch (Exception e) {
-                Timber.e(e, "Exception");
+                usernameSpan.setSpan(new ForegroundColorSpan(Color.parseColor("#26A69A"))
+                        , 2, usernameSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-            return false;
+            return null;
         }
 
-        //TODO: better parse error handling (ParseException etc.)
-        protected void onPostExecute(Boolean result) {
-            if (!result) { //Parse failed!  //TODO report as ParseException?
+        @Override
+        protected void onPostExecute(Parcel<Void> parcel) {
+            int result = parcel.getResultCode();
+            if (result == NetworkResultCodes.SUCCESSFUL) {
+                //Parse was successful
+                if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(true);
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+
+                if (usernameSpan != null) {
+                    if (isOnline) {
+                        usernameView.setTextColor(Color.parseColor("#4CAF50"));
+                    } else {
+                        usernameView.setTextColor(Color.GRAY);
+                    }
+                    usernameView.setText(usernameSpan);
+                } else if (usernameView.getText() != username) usernameView.setText(username);
+                if (thumbnailUrl != null && !Objects.equals(thumbnailUrl, ""))
+                    //noinspection ConstantConditions
+                    Picasso.with(getApplicationContext())
+                            .load(thumbnailUrl)
+                            .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                            .centerCrop()
+                            .error(ResourcesCompat.getDrawable(getResources()
+                                    , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                            .placeholder(ResourcesCompat.getDrawable(getResources()
+                                    , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                            .transform(new CircleTransform())
+                            .into(thumbnailView);
+                if (personalText != null) {
+                    personalTextView.setText(personalText);
+                    personalTextView.setVisibility(View.VISIBLE);
+                }
+
+                setupViewPager(viewPager, profilePage);
+                TabLayout tabLayout = findViewById(R.id.profile_tabs);
+                tabLayout.setupWithViewPager(viewPager);
+                if (tabSelect != 0) {
+                    TabLayout.Tab tab = tabLayout.getTabAt(tabSelect);
+                    if (tab != null) tab.select();
+                }
+            } else if (result == NetworkResultCodes.NETWORK_ERROR) {
+                Timber.w("Network error while excecuting profile activity");
+                Toast.makeText(getBaseContext(), "Network error"
+                        , Toast.LENGTH_LONG).show();
+                finish();
+            } else {
                 Timber.d("Parse failed!");
                 Toast.makeText(getBaseContext(), "Fatal error!\n Aborting..."
                         , Toast.LENGTH_LONG).show();
                 finish();
             }
-            //Parse was successful
-            if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(true);
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
+        }
 
-            if (usernameSpan != null) {
-                if (isOnline) {
-                    usernameView.setTextColor(Color.parseColor("#4CAF50"));
-                } else {
-                    usernameView.setTextColor(Color.GRAY);
-                }
-                usernameView.setText(usernameSpan);
-            } else if (usernameView.getText() != username) usernameView.setText(username);
-            if (thumbnailUrl != null && !Objects.equals(thumbnailUrl, ""))
-                //noinspection ConstantConditions
-                Picasso.with(getApplicationContext())
-                        .load(thumbnailUrl)
-                        .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                        .centerCrop()
-                        .error(ResourcesCompat.getDrawable(getResources()
-                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                        .placeholder(ResourcesCompat.getDrawable(getResources()
-                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                        .transform(new CircleTransform())
-                        .into(thumbnailView);
-            if (personalText != null) {
-                personalTextView.setText(personalText);
-                personalTextView.setVisibility(View.VISIBLE);
-            }
-
-            setupViewPager(viewPager, profilePage);
-            TabLayout tabLayout = findViewById(R.id.profile_tabs);
-            tabLayout.setupWithViewPager(viewPager);
-            if (tabSelect != 0) {
-                TabLayout.Tab tab = tabLayout.getTabAt(tabSelect);
-                if (tab != null) tab.select();
-            }
+        @Override
+        protected int getResultCode(Response response, Void data) {
+            return NetworkResultCodes.SUCCESSFUL;
         }
     }
 
