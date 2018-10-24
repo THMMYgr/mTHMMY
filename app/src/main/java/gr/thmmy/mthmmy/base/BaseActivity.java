@@ -457,8 +457,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         profileDrawerItem.withIcon(new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_user)
                 .paddingDp(10)
-                .color(ContextCompat.getColor(this, R.color.primary_light))
-                .backgroundColor(ContextCompat.getColor(this, R.color.primary)));
+                .color(ContextCompat.getColor(this, R.color.iron))
+                .backgroundColor(ContextCompat.getColor(this, R.color.primary_light)));
     }
 
 //-------------------------------------------LOGOUT-------------------------------------------------

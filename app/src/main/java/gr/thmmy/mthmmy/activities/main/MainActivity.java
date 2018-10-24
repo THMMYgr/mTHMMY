@@ -139,6 +139,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
         i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
         i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
+        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(i);
     }
 
@@ -156,6 +157,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             Intent i = new Intent(MainActivity.this, TopicActivity.class);
             i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
             i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
+            i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(i);
         } else
             Timber.e("onUnreadFragmentInteraction TopicSummary came without a link");

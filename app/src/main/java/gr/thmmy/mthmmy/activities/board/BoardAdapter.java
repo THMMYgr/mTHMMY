@@ -22,7 +22,6 @@ import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Topic;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
@@ -133,17 +132,14 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     boardExpandableVisibility.add(false);
             }
 
-            subBoardViewHolder.boardRow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, BoardActivity.class);
-                    Bundle extras = new Bundle();
-                    extras.putString(BUNDLE_BOARD_URL, subBoard.getUrl());
-                    extras.putString(BUNDLE_BOARD_TITLE, subBoard.getTitle());
-                    intent.putExtras(extras);
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                }
+            subBoardViewHolder.boardRow.setOnClickListener(view -> {
+                Intent intent = new Intent(context, BoardActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_BOARD_URL, subBoard.getUrl());
+                extras.putString(BUNDLE_BOARD_TITLE, subBoard.getTitle());
+                intent.putExtras(extras);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
             });
             if (boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1)) {
                 subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
@@ -152,36 +148,30 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
                 subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
-            subBoardViewHolder.showHideExpandable.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1);
-                    if (visible) {
-                        subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
-                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
-                    } else {
-                        subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
-                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
-                    }
-                    boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition() - 1, !visible);
+            subBoardViewHolder.showHideExpandable.setOnClickListener(view -> {
+                final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1);
+                if (visible) {
+                    subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
+                    subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                } else {
+                    subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
+                    subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                 }
+                boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition() - 1, !visible);
             });
             subBoardViewHolder.boardTitle.setText(subBoard.getTitle());
             subBoardViewHolder.boardMods.setText(subBoard.getMods());
             subBoardViewHolder.boardStats.setText(subBoard.getStats());
             subBoardViewHolder.boardLastPost.setText(subBoard.getLastPost());
             if (!Objects.equals(subBoard.getLastPostUrl(), "")) {
-                subBoardViewHolder.boardLastPost.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(context, TopicActivity.class);
-                        Bundle extras = new Bundle();
-                        extras.putString(BUNDLE_TOPIC_URL, subBoard.getLastPostUrl());
-                        //Doesn't put an already ellipsized topic title in Bundle
-                        intent.putExtras(extras);
-                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
-                    }
+                subBoardViewHolder.boardLastPost.setOnClickListener(view -> {
+                    Intent intent = new Intent(context, TopicActivity.class);
+                    Bundle extras = new Bundle();
+                    extras.putString(BUNDLE_TOPIC_URL, subBoard.getLastPostUrl());
+                    //Doesn't put an already ellipsized topic title in Bundle
+                    intent.putExtras(extras);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    context.startActivity(intent);
                 });
             }
         } else if (holder instanceof TopicViewHolder) {
@@ -193,17 +183,14 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     topicExpandableVisibility.add(false);
             }
 
-            topicViewHolder.topicRow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, TopicActivity.class);
-                    Bundle extras = new Bundle();
-                    extras.putString(BUNDLE_TOPIC_URL, topic.getUrl());
-                    extras.putString(BUNDLE_TOPIC_TITLE, topic.getSubject());
-                    intent.putExtras(extras);
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                }
+            topicViewHolder.topicRow.setOnClickListener(view -> {
+                Intent intent = new Intent(context, TopicActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_TOPIC_URL, topic.getUrl());
+                extras.putString(BUNDLE_TOPIC_TITLE, topic.getSubject());
+                intent.putExtras(extras);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                context.startActivity(intent);
             });
             if (topicExpandableVisibility.get(topicViewHolder.getAdapterPosition() - parsedSubBoards
                     .size() - 2)) {
@@ -213,21 +200,18 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 topicViewHolder.topicExpandable.setVisibility(View.GONE);
                 topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
-            topicViewHolder.showHideExpandable.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final boolean visible = topicExpandableVisibility.get(topicViewHolder.
-                            getAdapterPosition() - parsedSubBoards.size() - 2);
-                    if (visible) {
-                        topicViewHolder.topicExpandable.setVisibility(View.GONE);
-                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
-                    } else {
-                        topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
-                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
-                    }
-                    topicExpandableVisibility.set(topicViewHolder.getAdapterPosition() -
-                            parsedSubBoards.size() - 2, !visible);
+            topicViewHolder.showHideExpandable.setOnClickListener(view -> {
+                final boolean visible = topicExpandableVisibility.get(topicViewHolder.
+                        getAdapterPosition() - parsedSubBoards.size() - 2);
+                if (visible) {
+                    topicViewHolder.topicExpandable.setVisibility(View.GONE);
+                    topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                } else {
+                    topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
+                    topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                 }
+                topicExpandableVisibility.set(topicViewHolder.getAdapterPosition() -
+                        parsedSubBoards.size() - 2, !visible);
             });
             topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()
                     , "fonts/fontawesome-webfont.ttf"));
@@ -248,17 +232,14 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicViewHolder.topicStartedBy.setText(context.getString(R.string.topic_started_by, topic.getStarter()));
             topicViewHolder.topicStats.setText(topic.getStats());
             topicViewHolder.topicLastPost.setText(context.getString(R.string.topic_last_post, topic.getLastPostDateAndTime()));
-            topicViewHolder.topicLastPost.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, TopicActivity.class);
-                    Bundle extras = new Bundle();
-                    extras.putString(BUNDLE_TOPIC_URL, topic.getLastPostUrl());
-                    //Doesn't put an already ellipsized topic title in Bundle
-                    intent.putExtras(extras);
-                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                }
+            topicViewHolder.topicLastPost.setOnClickListener(view -> {
+                Intent intent = new Intent(context, TopicActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(BUNDLE_TOPIC_URL, topic.getLastPostUrl());
+                //Doesn't put an already ellipsized topic title in Bundle
+                intent.putExtras(extras);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                context.startActivity(intent);
             });
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
