@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import timber.log.Timber;
+
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner
  * classes). It can be used to resolve a page's language and state or fix embedded videos html code
@@ -190,7 +192,7 @@ public class ParseHelpers {
     }
 
     /**
-     * Method that adds email deobfuscation functionality to Jsoup.parse.
+     * Method that replaces CloudFlare-obfuscated emails with deobfuscated ones
      * Replace Jsoup.parse with this wherever needed
      *
      * @param html html to parse
@@ -198,25 +200,41 @@ public class ParseHelpers {
      */
     public static Document parse(String html){
         Document document = Jsoup.parse(html);
-        Elements obfuscatedEmails = document.select("span.__cf_email__");
-        for (Element obfuscatedEmail : obfuscatedEmails) {
-            String obfuscatedEmailStr = obfuscatedEmail.attr("data-cfemail");
+        deobfuscateElements(document.select("span.__cf_email__"), true);
+        return document;
+    }
 
-            //Deobfuscate
-            final StringBuilder stringBuilder = new StringBuilder();
-            final int r = Integer.parseInt(obfuscatedEmailStr.substring(0, 2), 16);
-            for (int n = 2; n < obfuscatedEmailStr.length(); n += 2) {
-                final int i = Integer.parseInt(obfuscatedEmailStr.substring(n, n + 2), 16) ^ r;
-                stringBuilder.append(Character.toString((char) i));
-            }
+    /**
+     * Use this method instead of parse() if you are targetting specific elements
+     */
+    public static void deobfuscateElements(Elements elements, boolean found){
+        if(!found)
+            elements = elements.select("span.__cf_email__");
 
-            String deobfuscatedEmail = stringBuilder.toString();
-
-            Element parent = obfuscatedEmail.parent();
+        for (Element obfuscatedElement : elements) {
+            String deobfuscatedEmail = deobfuscateEmail(obfuscatedElement.attr("data-cfemail"));
+            Element parent = obfuscatedElement.parent();
             if (parent.is("a")&&parent.attr("href").contains("email-protection"))
                 parent.attr("href", "mailto:"+deobfuscatedEmail);
-            obfuscatedEmail.replaceWith(new TextNode(deobfuscatedEmail, ""));
+            obfuscatedElement.replaceWith(new TextNode(deobfuscatedEmail, ""));
         }
-        return document;
+    }
+
+
+    /**
+     * @param obfuscatedEmail CloudFlare-obfuscated email
+     * @return deobfuscated email
+     */
+    private static String deobfuscateEmail(String obfuscatedEmail){
+        //Deobfuscate
+        final StringBuilder stringBuilder = new StringBuilder();
+        final int r = Integer.parseInt(obfuscatedEmail.substring(0, 2), 16);
+        for (int n = 2; n < obfuscatedEmail.length(); n += 2) {
+            final int i = Integer.parseInt(obfuscatedEmail.substring(n, n + 2), 16) ^ r;
+            stringBuilder.append(Character.toString((char) i));
+        }
+
+        Timber.i("Email deobfuscated.");
+        return stringBuilder.toString();
     }
 }

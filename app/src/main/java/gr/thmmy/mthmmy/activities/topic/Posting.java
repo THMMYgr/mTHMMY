@@ -1,10 +1,10 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
-import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.Response;
 import timber.log.Timber;
 
@@ -59,7 +59,7 @@ public class Posting {
         if (response.code() < 200 || response.code() >= 400) return REPLY_STATUS.OTHER_ERROR;
         String finalUrl = response.request().url().toString();
         if (finalUrl.contains("action=post")) {
-            Document postErrorPage = ParseHelpers.parse(response.body().string());
+            Document postErrorPage = Jsoup.parse(response.body().string());
             String[] errors = postErrorPage.select("tr[id=errors] div[id=error_list]").first()
                     .toString().split("<br>");
             for (int i = 0; i < errors.length; ++i) { //TODO test
