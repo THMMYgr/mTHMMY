@@ -125,7 +125,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             });
         }
 
-        boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
+        boardAdapter = new BoardAdapter(this, parsedSubBoards, parsedTopics);
         RecyclerView mainContent = findViewById(R.id.board_recycler_view);
         mainContent.setAdapter(boardAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);

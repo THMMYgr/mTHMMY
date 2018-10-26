@@ -190,7 +190,6 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 extras.putString(BUNDLE_TOPIC_TITLE, topic.getSubject());
                 intent.putExtras(extras);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             });
             if (topicExpandableVisibility.get(topicViewHolder.getAdapterPosition() - parsedSubBoards
