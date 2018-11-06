@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.preference.PreferenceCategory android:title="@string/pref_category_app">
+    <androidx.preference.PreferenceCategory
+        android:title="@string/pref_category_app"
+        app:iconSpaceReserved="false">
         <androidx.preference.ListPreference
             android:defaultValue="0"
             android:dialogTitle="@string/pref_app_main_default_tab_dialog_title"
@@ -9,22 +12,26 @@
             android:entryValues="@array/pref_app_main_default_tab_values"
             android:key="pref_app_main_default_tab_key"
             android:title="@string/pref_title_app_main_default_tab"
-            android:summary="@string/pref_summary_app_main_default_tab" />
+            android:summary="@string/pref_summary_app_main_default_tab"
+            app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory
         android:key="pref_category_privacy_key"
-        android:title="@string/pref_category_privacy">
+        android:title="@string/pref_category_privacy"
+        app:iconSpaceReserved="false">
         <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="@string/pref_privacy_crashlytics_enable_key"
             android:title="@string/pref_title_privacy_crashlytics_enable"
-            android:summary="@string/pref_summary_privacy_crashlytics_enable" />
+            android:summary="@string/pref_summary_privacy_crashlytics_enable"
+            app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="@string/pref_privacy_analytics_enable_key"
             android:title="@string/pref_title_privacy_analytics_enable"
-            android:summary="@string/pref_summary_privacy_analytics_enable" />
+            android:summary="@string/pref_summary_privacy_analytics_enable"
+            app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>
