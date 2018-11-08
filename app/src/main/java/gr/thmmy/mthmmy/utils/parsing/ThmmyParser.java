@@ -1,11 +1,13 @@
 package gr.thmmy.mthmmy.utils.parsing;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
+import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 
 import java.nio.charset.UnsupportedCharsetException;
@@ -15,12 +17,14 @@ import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.model.BBTag;
 import gr.thmmy.mthmmy.model.HtmlTag;
+import gr.thmmy.mthmmy.utils.HTMLUtils;
 
-public class BBParser {
-    private static final String[] ALL_TAGS = {"b", "i", "u", "s", "glow", "shadow", "move", "pre", "lefter",
+public class ThmmyParser {
+    private static final String[] ALL_BB_TAGS = {"b", "i", "u", "s", "glow", "shadow", "move", "pre", "lefter",
             "center", "right", "hr", "size", "font", "color", "youtube", "flash", "img", "url"
             , "email", "ftp", "table", "tr", "td", "sup", "sub", "tt", "code", "quote", "tex", "list", "li"};
-    private static final String[] SUPPORTED_TAGS = {"b", "i", "u", "s"};
+    private static final String[] ALL_HTML_TAGS = {"b", "br", "span", "i", "div", "del", "marquee", "pre",
+            "hr", "embed", "noembed", "a", "img", "table", "tr", "td", "sup", "sub", "tt", "pre", "ul", "li"};
 
     public static SpannableStringBuilder bb2span(String bb) {
         SpannableStringBuilder builder = new SpannableStringBuilder(bb);
@@ -30,7 +34,7 @@ public class BBParser {
             stringIndices.add(i);
         }
 
-        BBTag[] tags = getTags(bb);
+        BBTag[] tags = getBBTags(bb);
         for (BBTag tag : tags) {
             int start = stringIndices.indexOf(tag.getStart());
             int end = stringIndices.indexOf(tag.getEnd());
@@ -65,7 +69,7 @@ public class BBParser {
         return builder;
     }
 
-    public static SpannableStringBuilder html2span(String html) {
+    public static SpannableStringBuilder html2span(Context context, String html) {
         SpannableStringBuilder builder = new SpannableStringBuilder(html);
         // store the original indices of the string
         LinkedList<Integer> stringIndices = new LinkedList<>();
@@ -78,10 +82,35 @@ public class BBParser {
             int start = stringIndices.indexOf(tag.getStart());
             int end = stringIndices.indexOf(tag.getEnd());
             int startTagLength = tag.getName().length() + 2;
+            if (tag.getAttributeKey() != null) {
+                startTagLength += tag.getAttributeKey().length() + tag.getAttributeValue().length() + 4;
+            }
             int endTagLength = tag.getName().length() + 3;
 
-            switch (tag.getName()) {
-
+            if (isHtmlTagSupported(tag.getName(), tag.getAttributeKey(), tag.getAttributeValue())) {
+                switch (tag.getName()) {
+                    case "b":
+                        builder.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        break;
+                    case "i":
+                        builder.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        break;
+                    case "span":
+                        if (tag.getAttributeKey().equals("style") && tag.getAttributeValue().equals("text-decoration: underline;")) {
+                            builder.setSpan(new UnderlineSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        break;
+                    case "del":
+                        builder.setSpan(new StrikethroughSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        break;
+                    case "a":
+                        URLSpan urlSpan = new URLSpan(tag.getAttributeValue());
+                        builder.setSpan(urlSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        HTMLUtils.makeLinkClickable(context, builder, urlSpan);
+                        break;
+                    default:
+                        throw new UnsupportedCharsetException("Tag not supported");
+                }
             }
 
             //remove starting and ending tag and and do the same changes in the list
@@ -97,7 +126,7 @@ public class BBParser {
         return builder;
     }
 
-    public static BBTag[] getTags(String bb) {
+    public static BBTag[] getBBTags(String bb) {
         Pattern bbtagPattern = Pattern.compile("\\[(.+?)\\]");
 
         LinkedList<BBTag> tags = new LinkedList<>();
@@ -123,7 +152,7 @@ public class BBParser {
                 }
                 continue;
             }
-            if (isSupported(name))
+            if (isBBTagSupported(name))
                 tags.add(new BBTag(bbMatcher.start(), name, attribute));
         }
         // remove parsed tags with no end tag
@@ -145,8 +174,8 @@ public class BBParser {
             if (separatorIndex > 0) {
                 String fullAttribute = startTag.substring(separatorIndex);
                 int equalsIndex = fullAttribute.indexOf('=');
-                attribute = fullAttribute.substring(0, equalsIndex);
-                attributeValue = fullAttribute.substring(equalsIndex);
+                attribute = fullAttribute.substring(1, equalsIndex);
+                attributeValue = fullAttribute.substring(equalsIndex + 2, fullAttribute.length() - 1);
                 name = startTag.substring(0, separatorIndex);
             } else
                 name = startTag;
@@ -162,7 +191,7 @@ public class BBParser {
                 }
                 continue;
             }
-            if (isHtmlTagSupported(name, attribute, attributeValue))
+            if (isHtmlTag(name))
                 tags.add(new HtmlTag(htmlMatcher.start(), name, attribute, attributeValue));
         }
         // remove parsed tags with no end tag
@@ -173,12 +202,20 @@ public class BBParser {
     }
 
     private static boolean isHtmlTagSupported(String name, String attribute, String attributeValue) {
+        return name.equals("b") || name.equals("i") || name.equals("span") || name.equals("del") || name.equals("a");
+    }
+
+    public static boolean isBBTagSupported(String name) {
+        return name.equals("b") || name.equals("i") || name.equals("u") || name.equals("s");
+    }
+
+    public static boolean isHtmlTag(String tagName) {
+        for (String tag : ALL_HTML_TAGS)
+            if (TextUtils.equals(tag, tagName)) return true;
         return false;
     }
 
-    public static boolean isSupported(String tagName) {
-        for (String tag : SUPPORTED_TAGS)
-            if (TextUtils.equals(tag, tagName)) return true;
-        return false;
+    public static boolean containsHtml(String s) {
+        return getHtmlTags(s).length > 0;
     }
 }

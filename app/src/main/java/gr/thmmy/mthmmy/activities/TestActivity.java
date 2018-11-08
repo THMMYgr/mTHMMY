@@ -2,8 +2,7 @@ package gr.thmmy.mthmmy.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.utils.parsing.BBParser;
-import timber.log.Timber;
+import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
@@ -17,7 +16,7 @@ public class TestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_test);
 
         String bb = "[b]An [i]elep[u]hant[/i][/b] swi[/u]ms in [s]the[/s] tree";
-        SpannableStringBuilder result = BBParser.bb2span(bb);
+        SpannableStringBuilder result = ThmmyParser.bb2span(bb);
 
         TextView bbRaw = findViewById(R.id.bb_raw);
         TextView bb2Text = findViewById(R.id.bb2text);
