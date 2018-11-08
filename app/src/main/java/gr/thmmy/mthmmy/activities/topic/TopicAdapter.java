@@ -65,6 +65,7 @@ import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
@@ -165,9 +166,34 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Poll poll = (Poll) topicItems.get(position);
             Poll.Entry[] entries = poll.getEntries();
             PollViewHolder holder = (PollViewHolder) currentHolder;
+
+            boolean pollSupported = true;
+            for (Poll.Entry entry : entries) {
+                if (ThmmyParser.containsHtml(entry.getEntryName())) pollSupported = false;
+                break;
+            }
+            if (ThmmyParser.containsHtml(poll.getQuestion())) pollSupported = false;
+            if (!pollSupported) {
+                holder.optionsLayout.setVisibility(View.GONE);
+                holder.voteChart.setVisibility(View.GONE);
+                holder.removeVotesButton.setVisibility(View.GONE);
+                holder.showPollResultsButton.setVisibility(View.GONE);
+                holder.hidePollResultsButton.setVisibility(View.GONE);
+                // use the submit vote button to open poll on browser
+                holder.submitButton.setText("Open in browser");
+                holder.submitButton.setOnClickListener(v -> {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(viewModel.getTopicUrl()));
+                    context.startActivity(browserIntent);
+                });
+                holder.submitButton.setVisibility(View.VISIBLE);
+                // put a warning instead of a question
+                holder.question.setText("This topic contains a poll that is not supported in mthmmy");
+                return;
+            }
+
             holder.question.setText(poll.getQuestion());
             holder.optionsLayout.removeAllViews();
-            holder.errorTooManySelected.setVisibility(View.GONE);
+            holder.errorTextview.setVisibility(View.GONE);
             if (poll.getAvailableVoteCount() > 1) {
                 for (Poll.Entry entry : entries) {
                     LinearLayout container = new LinearLayout(context);
@@ -182,6 +208,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         //noinspection deprecation
                         label.setText(Html.fromHtml(entry.getEntryName()));
                     }
+                    label.setText(ThmmyParser.html2span(context, entry.getEntryName()));
                     checkBox.setTextColor(context.getResources().getColor(R.color.primary_text));
                     container.addView(checkBox);
                     container.addView(label);
@@ -201,6 +228,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         //noinspection deprecation
                         radioButton.setText(Html.fromHtml(entries[i].getEntryName()));
                     }
+                    radioButton.setText(ThmmyParser.html2span(context, entries[i].getEntryName()));
                     radioButton.setTextColor(context.getResources().getColor(R.color.primary_text));
                     radioGroup.addView(radioButton);
                 }
@@ -260,10 +288,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (poll.getPollFormUrl() != null) {
                 holder.submitButton.setOnClickListener(v -> {
                     if (!viewModel.submitVote(holder.optionsLayout)) {
-                        holder.errorTooManySelected.setText(context.getResources()
+                        holder.errorTextview.setText(context.getResources()
                                 .getQuantityString(R.plurals.error_too_many_checked, poll.getAvailableVoteCount(),
                                         poll.getAvailableVoteCount()));
-                        holder.errorTooManySelected.setVisibility(View.VISIBLE);
+                        holder.errorTextview.setVisibility(View.VISIBLE);
                     }
                 });
                 holder.submitButton.setVisibility(View.VISIBLE);
@@ -765,7 +793,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class PollViewHolder extends RecyclerView.ViewHolder {
-        final TextView question, errorTooManySelected;
+        final TextView question, errorTextview;
         final LinearLayout optionsLayout;
         final AppCompatButton submitButton;
         final AppCompatButton removeVotesButton, showPollResultsButton, hidePollResultsButton;
@@ -780,7 +808,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             removeVotesButton = itemView.findViewById(R.id.remove_vote_button);
             showPollResultsButton = itemView.findViewById(R.id.show_poll_results_button);
             hidePollResultsButton = itemView.findViewById(R.id.show_poll_options_button);
-            errorTooManySelected = itemView.findViewById(R.id.error_too_many_checked);
+            errorTextview = itemView.findViewById(R.id.error_too_many_checked);
             voteChart = itemView.findViewById(R.id.vote_chart);
         }
     }
