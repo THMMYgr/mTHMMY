@@ -65,8 +65,8 @@ import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CircleTransform;
-import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
 

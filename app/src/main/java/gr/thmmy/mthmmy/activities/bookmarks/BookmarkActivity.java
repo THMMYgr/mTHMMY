@@ -74,7 +74,6 @@ public class BookmarkActivity extends BaseActivity {
                 extras.putString(BUNDLE_TOPIC_TITLE, bookmarkedTopic.getTitle());
                 intent.putExtras(extras);
                 startActivity(intent);
-                finish();
                 break;
             case TopicBookmarksFragment.INTERACTION_TOGGLE_TOPIC_NOTIFICATION:
                 return toggleNotification(bookmarkedTopic);
@@ -96,7 +95,6 @@ public class BookmarkActivity extends BaseActivity {
                 extras.putString(BUNDLE_BOARD_TITLE, bookmarkedBoard.getTitle());
                 intent.putExtras(extras);
                 startActivity(intent);
-                finish();
                 break;
             case BoardBookmarksFragment.INTERACTION_TOGGLE_BOARD_NOTIFICATION:
                 return toggleNotification(bookmarkedBoard);

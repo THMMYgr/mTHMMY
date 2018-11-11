@@ -197,9 +197,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             tempSubboards.addAll(parsedSubBoards);
             tempTopics.addAll(parsedTopics);
             //Removes loading item
-            if (isLoadingMore) {
-                if (tempTopics.size() > 0) tempTopics.remove(tempTopics.size() - 1);
-            }
+            if (isLoadingMore && tempTopics.size() > 0)
+                tempTopics.remove(tempTopics.size() - 1);
+
             parsedTitle = boardPage.select("div.nav a.nav").last().text();
 
             //Finds number of pages

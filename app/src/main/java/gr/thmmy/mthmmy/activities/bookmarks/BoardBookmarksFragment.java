@@ -26,21 +26,20 @@ import gr.thmmy.mthmmy.model.Bookmark;
  * create an instance of this fragment.
  */
 public class BoardBookmarksFragment extends Fragment {
-    protected static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
-    protected static final String ARG_BOARD_BOOKMARKS = "BOARD_BOOKMARKS";
+    private static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
+    private static final String ARG_BOARD_BOOKMARKS = "BOARD_BOOKMARKS";
 
-    public static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
-    public static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
-    public static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
+    static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
+    static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
+    static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
 
-    ArrayList<Bookmark> boardBookmarks = null;
+    private ArrayList<Bookmark> boardBookmarks = null;
 
     private static Drawable notificationsEnabledButtonImage;
     private static Drawable notificationsDisabledButtonImage;
 
     // Required empty public constructor
-    public BoardBookmarksFragment() {
-    }
+    public BoardBookmarksFragment() { }
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -130,10 +129,8 @@ public class BoardBookmarksFragment extends Fragment {
                     bookmarksLinearView.addView(row);
                 }
             }
-        } else {
-
+        } else
             bookmarksLinearView.addView(bookmarksListEmptyMessage());
-        }
 
         return rootView;
     }
@@ -146,9 +143,9 @@ public class BoardBookmarksFragment extends Fragment {
         emptyBookmarksCategory.setLayoutParams(params);
         emptyBookmarksCategory.setText(getString(R.string.empty_board_bookmarks));
         emptyBookmarksCategory.setTypeface(emptyBookmarksCategory.getTypeface(), Typeface.BOLD);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             emptyBookmarksCategory.setTextColor(this.getContext().getColor(R.color.primary_text));
-        } else {
+        else {
             //noinspection deprecation
             emptyBookmarksCategory.setTextColor(this.getContext().getResources().getColor(R.color.primary_text));
         }
