@@ -200,22 +200,27 @@ public class ParseHelpers {
      */
     public static Document parse(String html){
         Document document = Jsoup.parse(html);
-        deobfuscateElements(document.select("span.__cf_email__"), true);
+        deobfuscateElements(document.select("span.__cf_email__,a.__cf_email__"), true);
         return document;
     }
 
     /**
-     * Use this method instead of parse() if you are targetting specific elements
+     * Use this method instead of parse() if you are targeting specific elements
      */
     public static void deobfuscateElements(Elements elements, boolean found){
         if(!found)
-            elements = elements.select("span.__cf_email__");
+            elements = elements.select("span.__cf_email__,a.__cf_email__");
 
         for (Element obfuscatedElement : elements) {
             String deobfuscatedEmail = deobfuscateEmail(obfuscatedElement.attr("data-cfemail"));
-            Element parent = obfuscatedElement.parent();
-            if (parent.is("a")&&parent.attr("href").contains("email-protection"))
-                parent.attr("href", "mailto:"+deobfuscatedEmail);
+            if(obfuscatedElement.is("span")){
+                Element parent = obfuscatedElement.parent();
+                if (parent.is("a")&&parent.attr("href").contains("email-protection"))
+                    parent.attr("href", "mailto:"+deobfuscatedEmail);
+            }
+            else if (obfuscatedElement.attr("href").contains("email-protection"))
+                obfuscatedElement.attr("href", "mailto:"+deobfuscatedEmail);
+
             obfuscatedElement.replaceWith(new TextNode(deobfuscatedEmail, ""));
         }
     }

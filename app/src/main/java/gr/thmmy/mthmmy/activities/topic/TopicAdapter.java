@@ -184,7 +184,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 });
                 holder.submitButton.setVisibility(View.VISIBLE);
                 // put a warning instead of a question
-                holder.question.setText("This topic contains a poll that is not supported in mthmmy");
+                holder.question.setText("This topic contains a poll that is not supported in mTHMMY");
                 return;
             }
 
@@ -788,6 +788,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             hidePollResultsButton = itemView.findViewById(R.id.show_poll_options_button);
             errorTextview = itemView.findViewById(R.id.error_too_many_checked);
             voteChart = itemView.findViewById(R.id.vote_chart);
+            voteChart.setScaleEnabled(false);
+            voteChart.setTouchEnabled(false);
         }
     }
 

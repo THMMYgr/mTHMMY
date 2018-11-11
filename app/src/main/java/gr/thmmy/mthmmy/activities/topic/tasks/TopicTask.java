@@ -77,14 +77,12 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
             //Finds topic title if missing
             String topicTitle = topic.select("td[id=top_subject]").first().text();
-            if (topicTitle.contains("Topic:")) {
+            if (topicTitle.contains("Topic:"))
                 topicTitle = topicTitle.substring(topicTitle.indexOf("Topic:") + 7
                         , topicTitle.indexOf("(Read") - 2);
-            } else {
+            else
                 topicTitle = topicTitle.substring(topicTitle.indexOf("Θέμα:") + 6
                         , topicTitle.indexOf("(Αναγνώστηκε") - 2);
-                Timber.d("Parsed title: %s", topicTitle);
-            }
 
             //Finds current page's index
             int currentPageIndex = TopicParser.parseCurrentPageIndex(topic, language);
