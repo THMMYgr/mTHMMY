@@ -37,11 +37,11 @@
                     android:id="@+id/user_thumbnail"
                     android:layout_width="@dimen/profile_activity_avatar_size"
                     android:layout_height="@dimen/profile_activity_avatar_size"
+                    android:layout_marginBottom="5dp"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/post_thumbnail"
                     android:fitsSystemWindows="true"
-                    app:srcCompat="@drawable/ic_default_user_avatar"
                     app:layout_collapseMode="parallax"/>
 
                 <TextView

@@ -50,8 +50,7 @@
                         android:layout_height="@dimen/thumbnail_size"
                         android:layout_gravity="center"
                         android:adjustViewBounds="true"
-                        android:contentDescription="@string/post_thumbnail"
-                        app:srcCompat="@drawable/ic_default_user_avatar_darker" />
+                        android:contentDescription="@string/post_thumbnail" />
                 </FrameLayout>
 
                 <TextView

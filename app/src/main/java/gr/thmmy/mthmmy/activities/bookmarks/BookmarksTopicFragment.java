@@ -22,16 +22,16 @@ import gr.thmmy.mthmmy.model.Bookmark;
 
 /**
  * A {@link Fragment} subclass.
- * Use the {@link TopicBookmarksFragment#newInstance} factory method to
+ * Use the {@link BookmarksTopicFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TopicBookmarksFragment extends Fragment {
-    protected static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
-    protected static final String ARG_TOPIC_BOOKMARKS = "TOPIC_BOOKMARKS";
+public class BookmarksTopicFragment extends Fragment {
+    private static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
+    private static final String ARG_TOPIC_BOOKMARKS = "TOPIC_BOOKMARKS";
 
-    public static final String INTERACTION_CLICK_TOPIC_BOOKMARK = "CLICK_TOPIC_BOOKMARK";
-    public static final String INTERACTION_TOGGLE_TOPIC_NOTIFICATION = "TOGGLE_TOPIC_NOTIFICATION";
-    public static final String INTERACTION_REMOVE_TOPIC_BOOKMARK = "REMOVE_TOPIC_BOOKMARK";
+    static final String INTERACTION_CLICK_TOPIC_BOOKMARK = "CLICK_TOPIC_BOOKMARK";
+    static final String INTERACTION_TOGGLE_TOPIC_NOTIFICATION = "TOGGLE_TOPIC_NOTIFICATION";
+    static final String INTERACTION_REMOVE_TOPIC_BOOKMARK = "REMOVE_TOPIC_BOOKMARK";
 
     ArrayList<Bookmark> topicBookmarks = null;
 
@@ -39,7 +39,7 @@ public class TopicBookmarksFragment extends Fragment {
     private static Drawable notificationsDisabledButtonImage;
 
     // Required empty public constructor
-    public TopicBookmarksFragment() {
+    public BookmarksTopicFragment() {
     }
 
     /**
@@ -48,8 +48,8 @@ public class TopicBookmarksFragment extends Fragment {
      *
      * @return A new instance of fragment Forum.
      */
-    public static TopicBookmarksFragment newInstance(int sectionNumber, String topicBookmarks) {
-        TopicBookmarksFragment fragment = new TopicBookmarksFragment();
+    public static BookmarksTopicFragment newInstance(int sectionNumber, String topicBookmarks) {
+        BookmarksTopicFragment fragment = new BookmarksTopicFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         args.putString(ARG_TOPIC_BOOKMARKS, topicBookmarks);
@@ -93,8 +93,8 @@ public class TopicBookmarksFragment extends Fragment {
                             R.layout.fragment_bookmarks_row, bookmarksLinearView, false);
                     row.setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity) {
-                            ((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_CLICK_TOPIC_BOOKMARK, bookmarkedTopic);
+                        if (activity instanceof BookmarksActivity) {
+                            ((BookmarksActivity) activity).onTopicInteractionListener(INTERACTION_CLICK_TOPIC_BOOKMARK, bookmarkedTopic);
                         }
                     });
                     ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmarkedTopic.getTitle());
@@ -106,8 +106,8 @@ public class TopicBookmarksFragment extends Fragment {
 
                     notificationsEnabledButton.setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity) {
-                            if (((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_TOGGLE_TOPIC_NOTIFICATION, bookmarkedTopic)) {
+                        if (activity instanceof BookmarksActivity) {
+                            if (((BookmarksActivity) activity).onTopicInteractionListener(INTERACTION_TOGGLE_TOPIC_NOTIFICATION, bookmarkedTopic)) {
                                 notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
                             } else {
                                 notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
@@ -116,8 +116,8 @@ public class TopicBookmarksFragment extends Fragment {
                     });
                     (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity) {
-                            ((BookmarkActivity) activity).onTopicInteractionListener(INTERACTION_REMOVE_TOPIC_BOOKMARK, bookmarkedTopic);
+                        if (activity instanceof BookmarksActivity) {
+                            ((BookmarksActivity) activity).onTopicInteractionListener(INTERACTION_REMOVE_TOPIC_BOOKMARK, bookmarkedTopic);
                             topicBookmarks.remove(bookmarkedTopic);
                         }
                         row.setVisibility(View.GONE);

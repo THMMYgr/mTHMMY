@@ -129,6 +129,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         if (!Objects.equals(avatarUrl, ""))
             //noinspection ConstantConditions
             loadAvatar();
+        else
+            loadDefaultAvatar();
         usernameView = findViewById(R.id.profile_activity_username);
         usernameView.setTypeface(Typeface.createFromAsset(this.getAssets()
                 , "fonts/fontawesome-webfont.ttf"));
@@ -222,6 +224,19 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 .into(avatarView);
     }
 
+    private void loadDefaultAvatar(){
+        Picasso.with(this)
+                .load(R.drawable.ic_default_user_avatar)
+                .fit()
+                .centerCrop()
+                .error(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
+                        , R.drawable.ic_default_user_avatar, null)))
+                .placeholder(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
+                        , R.drawable.ic_default_user_avatar, null)))
+                .transform(new CircleTransform())
+                .into(avatarView);
+    }
+
     /**
      * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing this
      * user's personal text. The {@link Document} resulting from the parse is stored for use in
@@ -303,6 +318,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 if (avatarUrl != null && !Objects.equals(avatarUrl, ""))
                     //noinspection ConstantConditions
                     loadAvatar();
+                else
+                    loadDefaultAvatar();
                 if (personalText != null) {
                     personalTextView.setText(personalText);
                     personalTextView.setVisibility(View.VISIBLE);

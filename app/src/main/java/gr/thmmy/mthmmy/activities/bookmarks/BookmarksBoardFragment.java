@@ -22,10 +22,10 @@ import gr.thmmy.mthmmy.model.Bookmark;
 
 /**
  * A {@link Fragment} subclass.
- * Use the {@link BoardBookmarksFragment#newInstance} factory method to
+ * Use the {@link BookmarksBoardFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BoardBookmarksFragment extends Fragment {
+public class BookmarksBoardFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
     private static final String ARG_BOARD_BOOKMARKS = "BOARD_BOOKMARKS";
 
@@ -39,7 +39,7 @@ public class BoardBookmarksFragment extends Fragment {
     private static Drawable notificationsDisabledButtonImage;
 
     // Required empty public constructor
-    public BoardBookmarksFragment() { }
+    public BookmarksBoardFragment() { }
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -47,8 +47,8 @@ public class BoardBookmarksFragment extends Fragment {
      *
      * @return A new instance of fragment Forum.
      */
-    public static BoardBookmarksFragment newInstance(int sectionNumber, String boardBookmarks) {
-        BoardBookmarksFragment fragment = new BoardBookmarksFragment();
+    public static BookmarksBoardFragment newInstance(int sectionNumber, String boardBookmarks) {
+        BookmarksBoardFragment fragment = new BookmarksBoardFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         args.putString(ARG_BOARD_BOOKMARKS, boardBookmarks);
@@ -92,8 +92,8 @@ public class BoardBookmarksFragment extends Fragment {
                             R.layout.fragment_bookmarks_row, bookmarksLinearView, false);
                     row.setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity){
-                            ((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_CLICK_BOARD_BOOKMARK, bookmarkedBoard);
+                        if (activity instanceof BookmarksActivity){
+                            ((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_CLICK_BOARD_BOOKMARK, bookmarkedBoard);
                         }
                     });
                     ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmarkedBoard.getTitle());
@@ -105,8 +105,8 @@ public class BoardBookmarksFragment extends Fragment {
 
                     notificationsEnabledButton.setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity) {
-                            if (((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_TOGGLE_BOARD_NOTIFICATION, bookmarkedBoard)) {
+                        if (activity instanceof BookmarksActivity) {
+                            if (((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_TOGGLE_BOARD_NOTIFICATION, bookmarkedBoard)) {
                                 notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
                             } else {
                                 notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
@@ -116,8 +116,8 @@ public class BoardBookmarksFragment extends Fragment {
 
                     (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity){
-                            ((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_REMOVE_BOARD_BOOKMARK, bookmarkedBoard);
+                        if (activity instanceof BookmarksActivity){
+                            ((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_REMOVE_BOARD_BOOKMARK, bookmarkedBoard);
                             boardBookmarks.remove(bookmarkedBoard);
                         }
                         row.setVisibility(View.GONE);

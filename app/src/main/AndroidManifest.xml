@@ -124,7 +124,7 @@
                 android:value=".activities.upload.UploadActivity" />
         </activity>
         <activity
-            android:name=".activities.bookmarks.BookmarkActivity"
+            android:name=".activities.bookmarks.BookmarksActivity"
             android:launchMode="singleTop"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">

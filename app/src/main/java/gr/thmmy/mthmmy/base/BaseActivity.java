@@ -46,7 +46,7 @@ import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.bookmarks.BookmarkActivity;
+import gr.thmmy.mthmmy.activities.bookmarks.BookmarksActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
@@ -380,8 +380,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 //                            startActivity(intent);
 //                        }
                     } else if (drawerItem.equals(BOOKMARKS_ID)) {
-                        if (!(BaseActivity.this instanceof BookmarkActivity)) {
-                            Intent intent = new Intent(BaseActivity.this, BookmarkActivity.class);
+                        if (!(BaseActivity.this instanceof BookmarksActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, BookmarksActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(intent);
                         }
