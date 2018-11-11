@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities.shoutbox;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,12 +36,12 @@ public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutV
     private Context context;
     private Shout[] shouts;
 
-    public ShoutAdapter(Context context, Shout[] shouts) {
+    ShoutAdapter(Context context, Shout[] shouts) {
         this.context = context;
         this.shouts = shouts;
     }
 
-    public void setShouts(Shout[] shouts) {
+    void setShouts(Shout[] shouts) {
         this.shouts = shouts;
     }
 
@@ -87,10 +88,10 @@ public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutV
 
         ShoutViewHolder(@NonNull View itemView) {
             super(itemView);
-
             author = itemView.findViewById(R.id.author_textview);
             dateTime = itemView.findViewById(R.id.date_time_textview);
             shoutContent = itemView.findViewById(R.id.shout_content);
+            shoutContent.setBackgroundColor(Color.argb(1, 255, 255, 255));
         }
     }
 
