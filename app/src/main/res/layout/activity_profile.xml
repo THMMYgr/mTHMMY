@@ -41,7 +41,6 @@
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/post_thumbnail"
                     android:fitsSystemWindows="true"
-                    app:srcCompat="@drawable/ic_default_user_thumbnail_white_24dp"
                     app:layout_collapseMode="parallax"/>
 
                 <TextView

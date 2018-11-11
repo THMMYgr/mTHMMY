@@ -455,7 +455,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private void setDefaultAvatar() {
         profileDrawerItem.withIcon(new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_user)
+                .icon(FontAwesome.Icon.faw_user_circle)
                 .paddingDp(10)
                 .color(ContextCompat.getColor(this, R.color.iron))
                 .backgroundColor(ContextCompat.getColor(this, R.color.primary_light)));

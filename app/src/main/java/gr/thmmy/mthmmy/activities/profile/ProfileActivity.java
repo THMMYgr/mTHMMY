@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.mikepenz.fontawesome_typeface_library.FontAwesome;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.squareup.picasso.Picasso;
 
 import org.jsoup.Jsoup;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -133,10 +136,16 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     .load(thumbnailUrl)
                     .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                     .centerCrop()
-                    .error(ResourcesCompat.getDrawable(this.getResources()
-                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                    .placeholder(ResourcesCompat.getDrawable(this.getResources()
-                            , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                    .error(new IconicsDrawable(ProfileActivity.this)
+                            .icon(FontAwesome.Icon.faw_user_circle)
+                            .color(ContextCompat.getColor(ProfileActivity.this, R.color.iron))
+                            .backgroundColor(ContextCompat.getColor(ProfileActivity.this, R.color.primary))
+                            .sizePx(THUMBNAIL_SIZE))
+                    .placeholder(new IconicsDrawable(ProfileActivity.this)
+                            .icon(FontAwesome.Icon.faw_user_circle)
+                            .color(ContextCompat.getColor(ProfileActivity.this, R.color.iron))
+                            .backgroundColor(ContextCompat.getColor(ProfileActivity.this, R.color.primary))
+                            .sizePx(THUMBNAIL_SIZE))
                     .transform(new CircleTransform())
                     .into(thumbnailView);
         usernameView = findViewById(R.id.profile_activity_username);
@@ -307,10 +316,16 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                             .load(thumbnailUrl)
                             .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                             .centerCrop()
-                            .error(ResourcesCompat.getDrawable(getResources()
-                                    , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                            .placeholder(ResourcesCompat.getDrawable(getResources()
-                                    , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                            .error(new IconicsDrawable(ProfileActivity.this)
+                                    .icon(FontAwesome.Icon.faw_user_circle)
+                                    .color(ContextCompat.getColor(ProfileActivity.this, R.color.iron))
+                                    .backgroundColor(ContextCompat.getColor(ProfileActivity.this, R.color.primary))
+                                    .sizePx(THUMBNAIL_SIZE))
+                            .placeholder(new IconicsDrawable(ProfileActivity.this)
+                                    .icon(FontAwesome.Icon.faw_user_circle)
+                                    .color(ContextCompat.getColor(ProfileActivity.this, R.color.iron))
+                                    .backgroundColor(ContextCompat.getColor(ProfileActivity.this, R.color.primary))
+                                    .sizePx(THUMBNAIL_SIZE))
                             .transform(new CircleTransform())
                             .into(thumbnailView);
                 if (personalText != null) {

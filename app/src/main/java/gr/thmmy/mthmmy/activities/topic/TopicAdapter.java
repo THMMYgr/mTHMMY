@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -40,6 +41,8 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.mikepenz.fontawesome_typeface_library.FontAwesome;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -50,6 +53,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
@@ -317,11 +321,17 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .load(currentPost.getThumbnailURL())
                         .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                         .centerCrop()
-                        .error(ResourcesCompat.getDrawable(context.getResources()
-                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                        .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
                         .transform(new CircleTransform())
+                        .error(new IconicsDrawable(context)
+                                .icon(FontAwesome.Icon.faw_user_circle)
+                                .color(ContextCompat.getColor(context, R.color.iron))
+                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
+                                .sizeDp(THUMBNAIL_SIZE))
+                        .placeholder(new IconicsDrawable(context)
+                                .icon(FontAwesome.Icon.faw_user_circle)
+                                .color(ContextCompat.getColor(context, R.color.iron))
+                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
+                                .sizeDp(THUMBNAIL_SIZE))
                         .into(holder.thumbnail);
 
                 //Sets username,submit date, index number, subject, post's and attached files texts
@@ -607,10 +617,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .load(getSessionManager().getAvatarLink())
                         .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                         .centerCrop()
-                        .error(ResourcesCompat.getDrawable(context.getResources()
-                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                        .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                        .error(new IconicsDrawable(context)
+                                .icon(FontAwesome.Icon.faw_user_circle)
+                                .color(ContextCompat.getColor(context, R.color.iron))
+                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
+                                .sizeDp(THUMBNAIL_SIZE))
+                        .placeholder(new IconicsDrawable(context)
+                                .icon(FontAwesome.Icon.faw_user_circle)
+                                .color(ContextCompat.getColor(context, R.color.iron))
+                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
+                                .sizeDp(THUMBNAIL_SIZE))
                         .transform(new CircleTransform())
                         .into(holder.thumbnail);
                 holder.username.setText(getSessionManager().getUsername());
@@ -663,10 +679,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .load(getSessionManager().getAvatarLink())
                         .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                         .centerCrop()
-                        .error(ResourcesCompat.getDrawable(context.getResources()
-                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
-                        .placeholder(ResourcesCompat.getDrawable(context.getResources()
-                                , R.drawable.ic_default_user_thumbnail_white_24dp, null))
+                        .error(new IconicsDrawable(context)
+                                .icon(FontAwesome.Icon.faw_user_circle)
+                                .color(ContextCompat.getColor(context, R.color.iron))
+                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
+                                .sizeDp(THUMBNAIL_SIZE))
+                        .placeholder(new IconicsDrawable(context)
+                                .icon(FontAwesome.Icon.faw_user_circle)
+                                .color(ContextCompat.getColor(context, R.color.iron))
+                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
+                                .sizeDp(THUMBNAIL_SIZE))
                         .transform(new CircleTransform())
                         .into(holder.thumbnail);
                 holder.username.setText(getSessionManager().getUsername());
