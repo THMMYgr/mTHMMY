@@ -37,7 +37,7 @@ import timber.log.Timber;
 public class TopicParser {
     private static Pattern mentionsPattern = Pattern.
             compile("<div class=\"quoteheader\">\\n\\s+?<a href=.+?>(Quote from|Παράθεση από): "
-                    + BaseActivity.getSessionManager().getUsername());
+                    + BaseActivity.getSessionManager().getUsername() +"\\s(στις|on)");
 
     //User colors
     private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
