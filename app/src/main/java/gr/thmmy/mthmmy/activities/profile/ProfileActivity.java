@@ -20,8 +20,6 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.mikepenz.fontawesome_typeface_library.FontAwesome;
-import com.mikepenz.iconics.IconicsDrawable;
 import com.squareup.picasso.Picasso;
 
 import org.jsoup.Jsoup;
@@ -34,7 +32,6 @@ import java.util.List;
 import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -82,10 +79,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      * If username is not available put an empty string or leave it null.
      */
     public static final String BUNDLE_PROFILE_USERNAME = "USERNAME";
-    private static final int THUMBNAIL_SIZE = 200;
 
     private TextView usernameView;
-    private ImageView thumbnailView;
+    private ImageView avatarView;
     private TextView personalTextView;
     private MaterialProgressBar progressBar;
     private FloatingActionButton pmFAB;
@@ -94,7 +90,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     private ProfileTask profileTask;
     private String personalText;
     private String profileUrl;
-    private String thumbnailUrl;
+    private String avatarUrl;
     private String username;
     private int tabSelect;
 
@@ -111,8 +107,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         setContentView(R.layout.activity_profile);
 
         Bundle extras = getIntent().getExtras();
-        thumbnailUrl = extras.getString(BUNDLE_PROFILE_THUMBNAIL_URL);
-        if (thumbnailUrl == null) thumbnailUrl = "";
+        avatarUrl = extras.getString(BUNDLE_PROFILE_THUMBNAIL_URL);
+        if (avatarUrl == null) avatarUrl = "";
         username = extras.getString(BUNDLE_PROFILE_USERNAME);
         profileUrl = extras.getString(BUNDLE_PROFILE_URL);
 
@@ -129,25 +125,10 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         progressBar = findViewById(R.id.progressBar);
 
-        thumbnailView = findViewById(R.id.user_thumbnail);
-        if (!Objects.equals(thumbnailUrl, ""))
+        avatarView = findViewById(R.id.user_thumbnail);
+        if (!Objects.equals(avatarUrl, ""))
             //noinspection ConstantConditions
-            Picasso.with(this)
-                    .load(thumbnailUrl)
-                    .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                    .centerCrop()
-                    .error(new IconicsDrawable(ProfileActivity.this)
-                            .icon(FontAwesome.Icon.faw_user_circle)
-                            .color(ContextCompat.getColor(ProfileActivity.this, R.color.iron))
-                            .backgroundColor(ContextCompat.getColor(ProfileActivity.this, R.color.primary))
-                            .sizePx(THUMBNAIL_SIZE))
-                    .placeholder(new IconicsDrawable(ProfileActivity.this)
-                            .icon(FontAwesome.Icon.faw_user_circle)
-                            .color(ContextCompat.getColor(ProfileActivity.this, R.color.iron))
-                            .backgroundColor(ContextCompat.getColor(ProfileActivity.this, R.color.primary))
-                            .sizePx(THUMBNAIL_SIZE))
-                    .transform(new CircleTransform())
-                    .into(thumbnailView);
+            loadAvatar();
         usernameView = findViewById(R.id.profile_activity_username);
         usernameView.setTypeface(Typeface.createFromAsset(this.getAssets()
                 , "fonts/fontawesome-webfont.ttf"));
@@ -228,6 +209,19 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
     }
 
+    private void loadAvatar(){
+        Picasso.with(this)
+                .load(avatarUrl)
+                .fit()
+                .centerCrop()
+                .error(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
+                        , R.drawable.ic_default_user_avatar, null)))
+                .placeholder(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
+                        , R.drawable.ic_default_user_avatar, null)))
+                .transform(new CircleTransform())
+                .into(avatarView);
+    }
+
     /**
      * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing this
      * user's personal text. The {@link Document} resulting from the parse is stored for use in
@@ -243,7 +237,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         Spannable usernameSpan;
         Boolean isOnline = false;
 
-        public ProfileTask() {
+        ProfileTask() {
             super(ProfileActivity.this::onProfileTaskStarted, null);
         }
 
@@ -257,9 +251,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             if (username == null || Objects.equals(username, "")) {
                 username = contentsTable.select("tr").first().select("td").last().text();
             }
-            if (thumbnailUrl == null || Objects.equals(thumbnailUrl, "")) { //Maybe there is an avatar
+            if (avatarUrl == null || Objects.equals(avatarUrl, "")) { //Maybe there is an avatar
                 Element profileAvatar = profilePage.select("img.avatar").first();
-                if (profileAvatar != null) thumbnailUrl = profileAvatar.attr("abs:src");
+                if (profileAvatar != null) avatarUrl = profileAvatar.attr("abs:src");
             }
             { //Finds personal text
                 Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
@@ -280,14 +274,10 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 usernameSpan.setSpan(new RelativeSizeSpan(0.45f)
                         , 0, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-                if (contentsTable.toString().contains("Online")
-                        || contentsTable.toString().contains("Συνδεδεμένος")) {
-                    isOnline = true;
-                } else {
-                    isOnline = false;
-                        /*usernameSpan.setSpan(new ForegroundColorSpan(Color.GRAY)
-                                , 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
-                }
+                /*usernameSpan.setSpan(new ForegroundColorSpan(Color.GRAY)
+                        , 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
+                isOnline = contentsTable.toString().contains("Online")
+                        || contentsTable.toString().contains("Συνδεδεμένος");
                 usernameSpan.setSpan(new ForegroundColorSpan(Color.parseColor("#26A69A"))
                         , 2, usernameSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
@@ -310,24 +300,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     }
                     usernameView.setText(usernameSpan);
                 } else if (usernameView.getText() != username) usernameView.setText(username);
-                if (thumbnailUrl != null && !Objects.equals(thumbnailUrl, ""))
+                if (avatarUrl != null && !Objects.equals(avatarUrl, ""))
                     //noinspection ConstantConditions
-                    Picasso.with(getApplicationContext())
-                            .load(thumbnailUrl)
-                            .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                            .centerCrop()
-                            .error(new IconicsDrawable(ProfileActivity.this)
-                                    .icon(FontAwesome.Icon.faw_user_circle)
-                                    .color(ContextCompat.getColor(ProfileActivity.this, R.color.iron))
-                                    .backgroundColor(ContextCompat.getColor(ProfileActivity.this, R.color.primary))
-                                    .sizePx(THUMBNAIL_SIZE))
-                            .placeholder(new IconicsDrawable(ProfileActivity.this)
-                                    .icon(FontAwesome.Icon.faw_user_circle)
-                                    .color(ContextCompat.getColor(ProfileActivity.this, R.color.iron))
-                                    .backgroundColor(ContextCompat.getColor(ProfileActivity.this, R.color.primary))
-                                    .sizePx(THUMBNAIL_SIZE))
-                            .transform(new CircleTransform())
-                            .into(thumbnailView);
+                    loadAvatar();
                 if (personalText != null) {
                     personalTextView.setText(personalText);
                     personalTextView.setVisibility(View.VISIBLE);

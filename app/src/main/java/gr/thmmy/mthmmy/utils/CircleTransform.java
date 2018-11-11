@@ -20,11 +20,12 @@ public class CircleTransform implements Transformation {
         int y = (source.getHeight() - size) / 2;
 
         Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
-        if (squaredBitmap != source) {
+        if (squaredBitmap != source)
             source.recycle();
-        }
 
-        Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
+        // For GIF images
+        Bitmap.Config config = source.getConfig() != null ? source.getConfig() : Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = Bitmap.createBitmap(size, size, config);
 
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();

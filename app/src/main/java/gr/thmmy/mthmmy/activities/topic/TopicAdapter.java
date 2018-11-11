@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -41,8 +40,6 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.mikepenz.fontawesome_typeface_library.FontAwesome;
-import com.mikepenz.iconics.IconicsDrawable;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -53,7 +50,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
@@ -92,7 +88,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /**
      * Int that holds thumbnail's size defined in R.dimen
      */
-    private static int THUMBNAIL_SIZE;
     private final Context context;
     private final OnPostFocusChangeListener postFocusListener;
     private final IEmojiKeyboard emojiKeyboard;
@@ -110,8 +105,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.emojiKeyboard = emojiKeyboard;
 
         viewModel = ViewModelProviders.of(context).get(TopicViewModel.class);
-
-        THUMBNAIL_SIZE = (int) context.getResources().getDimension(R.dimen.thumbnail_size);
     }
 
     @Override
@@ -309,30 +302,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.post.setClickable(true);
                 holder.post.setWebViewClient(new LinkLauncher());
 
-                //Avoids errors about layout having 0 width/height
-                holder.thumbnail.setMinimumWidth(1);
-                holder.thumbnail.setMinimumHeight(1);
-                //Sets thumbnail size
-                holder.thumbnail.setMaxWidth(THUMBNAIL_SIZE);
-                holder.thumbnail.setMaxHeight(THUMBNAIL_SIZE);
-
                 //noinspection ConstantConditions
-                Picasso.with(context)
-                        .load(currentPost.getThumbnailURL())
-                        .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                        .centerCrop()
-                        .transform(new CircleTransform())
-                        .error(new IconicsDrawable(context)
-                                .icon(FontAwesome.Icon.faw_user_circle)
-                                .color(ContextCompat.getColor(context, R.color.iron))
-                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
-                                .sizeDp(THUMBNAIL_SIZE))
-                        .placeholder(new IconicsDrawable(context)
-                                .icon(FontAwesome.Icon.faw_user_circle)
-                                .color(ContextCompat.getColor(context, R.color.iron))
-                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
-                                .sizeDp(THUMBNAIL_SIZE))
-                        .into(holder.thumbnail);
+                loadAvatar(currentPost.getThumbnailURL(), holder.thumbnail);
 
                 //Sets username,submit date, index number, subject, post's and attached files texts
                 holder.username.setText(currentPost.getAuthor());
@@ -613,22 +584,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Post reply = (Post) topicItems.get(position);
 
                 //noinspection ConstantConditions
-                Picasso.with(context)
-                        .load(getSessionManager().getAvatarLink())
-                        .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                        .centerCrop()
-                        .error(new IconicsDrawable(context)
-                                .icon(FontAwesome.Icon.faw_user_circle)
-                                .color(ContextCompat.getColor(context, R.color.iron))
-                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
-                                .sizeDp(THUMBNAIL_SIZE))
-                        .placeholder(new IconicsDrawable(context)
-                                .icon(FontAwesome.Icon.faw_user_circle)
-                                .color(ContextCompat.getColor(context, R.color.iron))
-                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
-                                .sizeDp(THUMBNAIL_SIZE))
-                        .transform(new CircleTransform())
-                        .into(holder.thumbnail);
+                loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail);
+
                 holder.username.setText(getSessionManager().getUsername());
                 holder.itemView.setAlpha(1f);
                 holder.itemView.setEnabled(true);
@@ -675,22 +632,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 
                 //noinspection ConstantConditions
-                Picasso.with(context)
-                        .load(getSessionManager().getAvatarLink())
-                        .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                        .centerCrop()
-                        .error(new IconicsDrawable(context)
-                                .icon(FontAwesome.Icon.faw_user_circle)
-                                .color(ContextCompat.getColor(context, R.color.iron))
-                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
-                                .sizeDp(THUMBNAIL_SIZE))
-                        .placeholder(new IconicsDrawable(context)
-                                .icon(FontAwesome.Icon.faw_user_circle)
-                                .color(ContextCompat.getColor(context, R.color.iron))
-                                .backgroundColor(ContextCompat.getColor(context, R.color.primary_light))
-                                .sizeDp(THUMBNAIL_SIZE))
-                        .transform(new CircleTransform())
-                        .into(holder.thumbnail);
+                loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail);
+
                 holder.username.setText(getSessionManager().getUsername());
                 holder.editSubject.setText(currentPost.getSubject());
                 holder.editSubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
@@ -721,6 +664,19 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
         }
+    }
+
+    private void loadAvatar(String imageUrl, ImageView imageView){
+        Picasso.with(context)
+                .load(imageUrl)
+                .fit()
+                .centerCrop()
+                .error(Objects.requireNonNull(ResourcesCompat.getDrawable(context.getResources()
+                        , R.drawable.ic_default_user_avatar_darker, null)))
+                .placeholder(Objects.requireNonNull(ResourcesCompat.getDrawable(context.getResources()
+                        , R.drawable.ic_default_user_avatar_darker, null)))
+                .transform(new CircleTransform())
+                .into(imageView);
     }
 
     @Override

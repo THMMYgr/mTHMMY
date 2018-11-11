@@ -46,13 +46,12 @@
 
                     <ImageView
                         android:id="@+id/thumbnail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="@dimen/thumbnail_size"
+                        android:layout_height="@dimen/thumbnail_size"
                         android:layout_gravity="center"
                         android:adjustViewBounds="true"
                         android:contentDescription="@string/post_thumbnail"
-                        android:maxHeight="@dimen/thumbnail_size"
-                        android:maxWidth="@dimen/thumbnail_size" />
+                        app:srcCompat="@drawable/ic_default_user_avatar_darker" />
                 </FrameLayout>
 
                 <TextView
