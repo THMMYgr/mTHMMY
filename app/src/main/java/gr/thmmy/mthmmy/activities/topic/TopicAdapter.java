@@ -191,13 +191,16 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.question.setText(poll.getQuestion());
             holder.optionsLayout.removeAllViews();
             holder.errorTextview.setVisibility(View.GONE);
+
+            final int primaryTextColor = context.getResources().getColor(R.color.primary_text);
+
             if (poll.getAvailableVoteCount() > 1) {
                 for (Poll.Entry entry : entries) {
                     LinearLayout container = new LinearLayout(context);
                     container.setOrientation(LinearLayout.HORIZONTAL);
                     CheckBox checkBox = new CheckBox(context);
                     TextView label = new TextView(context);
-                    label.setTextColor(context.getResources().getColor(R.color.primary_text));
+                    label.setTextColor(primaryTextColor);
                     label.setMovementMethod(LinkMovementMethod.getInstance());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         label.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
@@ -206,7 +209,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         label.setText(Html.fromHtml(entry.getEntryName()));
                     }
                     label.setText(ThmmyParser.html2span(context, entry.getEntryName()));
-                    checkBox.setTextColor(context.getResources().getColor(R.color.primary_text));
+                    checkBox.setTextColor(primaryTextColor);
                     container.addView(checkBox);
                     container.addView(label);
                     holder.optionsLayout.addView(container);
@@ -226,7 +229,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         radioButton.setText(Html.fromHtml(entries[i].getEntryName()));
                     }
                     radioButton.setText(ThmmyParser.html2span(context, entries[i].getEntryName()));
-                    radioButton.setTextColor(context.getResources().getColor(R.color.primary_text));
+                    radioButton.setTextColor(primaryTextColor);
                     radioGroup.addView(radioButton);
                 }
                 holder.optionsLayout.addView(radioGroup);
@@ -239,27 +242,29 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 for (int i = 0; i < entries.length; i++) {
                     valuesToCompare.add(new BarEntry(i, entries[i].getVotes()));
                 }
-                BarDataSet data = new BarDataSet(valuesToCompare, "Vote Results");
-                data.setColor(context.getResources().getColor(R.color.accent));
+                BarDataSet dataSet = new BarDataSet(valuesToCompare, "Vote Results");
+                dataSet.setDrawValues(true);
+                dataSet.setColor(context.getResources().getColor(R.color.accent));
+                dataSet.setValueTextColor(primaryTextColor);
 
                 YAxis yAxisLeft = holder.voteChart.getAxisLeft();
                 yAxisLeft.setGranularity(1);
-                yAxisLeft.setTextColor(context.getResources().getColor(R.color.primary_text));
+                yAxisLeft.setTextColor(primaryTextColor);
                 yAxisLeft.setAxisMinimum(0);
+                yAxisLeft.setSpaceTop(30f);
                 YAxis yAxisRight = holder.voteChart.getAxisRight();
                 yAxisRight.setEnabled(false);
 
                 XAxis xAxis = holder.voteChart.getXAxis();
                 xAxis.setValueFormatter((value, axis) -> Html.fromHtml(entries[(int) value].getEntryName()).toString());
-                xAxis.setTextColor(context.getResources().getColor(R.color.primary_text));
+                xAxis.setTextColor(primaryTextColor);
                 xAxis.setGranularity(1f);
                 xAxis.setLabelCount(entries.length);
                 xAxis.setDrawGridLines(false);
                 xAxis.setDrawAxisLine(false);
-                xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                xAxis.setPosition(XAxis.XAxisPosition.TOP_INSIDE);
 
-                BarData barData = new BarData(data);
-                barData.setValueTextColor(context.getResources().getColor(R.color.accent));
+                BarData barData = new BarData(dataSet);
                 holder.voteChart.setData(barData);
                 holder.voteChart.getLegend().setEnabled(false);
                 holder.voteChart.getDescription().setEnabled(false);
@@ -790,6 +795,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             voteChart = itemView.findViewById(R.id.vote_chart);
             voteChart.setScaleEnabled(false);
             voteChart.setTouchEnabled(false);
+            voteChart.setDrawValueAboveBar(false);
         }
     }
 
