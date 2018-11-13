@@ -42,6 +42,7 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.squareup.picasso.Picasso;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -166,10 +167,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             boolean pollSupported = true;
             for (Poll.Entry entry : entries) {
-                if (ThmmyParser.containsHtml(entry.getEntryName())) pollSupported = false;
-                break;
+                if (ThmmyParser.containsHtml(entry.getEntryName())){
+                    pollSupported = false;
+                    break;
+                }
             }
-            if (ThmmyParser.containsHtml(poll.getQuestion())) pollSupported = false;
+            if (ThmmyParser.containsHtml(poll.getQuestion()))
+                pollSupported = false;
             if (!pollSupported) {
                 holder.optionsLayout.setVisibility(View.GONE);
                 holder.voteChart.setVisibility(View.GONE);
@@ -193,6 +197,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.errorTextview.setVisibility(View.GONE);
 
             final int primaryTextColor = context.getResources().getColor(R.color.primary_text);
+            final int accentColor = context.getResources().getColor(R.color.accent);
 
             if (poll.getAvailableVoteCount() > 1) {
                 for (Poll.Entry entry : entries) {
@@ -239,19 +244,21 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 //Showing results
                 holder.optionsLayout.setVisibility(View.GONE);
                 List<BarEntry> valuesToCompare = new ArrayList<>();
+                int totalVotes = 0;
                 for (int i = 0; i < entries.length; i++) {
                     valuesToCompare.add(new BarEntry(i, entries[i].getVotes()));
+                    totalVotes += entries[i].getVotes();
                 }
                 BarDataSet dataSet = new BarDataSet(valuesToCompare, "Vote Results");
                 dataSet.setDrawValues(true);
-                dataSet.setColor(context.getResources().getColor(R.color.accent));
-                dataSet.setValueTextColor(primaryTextColor);
+                dataSet.setColor(accentColor);
+                dataSet.setValueTextColor(accentColor);
 
                 YAxis yAxisLeft = holder.voteChart.getAxisLeft();
                 yAxisLeft.setGranularity(1);
                 yAxisLeft.setTextColor(primaryTextColor);
                 yAxisLeft.setAxisMinimum(0);
-                yAxisLeft.setSpaceTop(30f);
+                yAxisLeft.setSpaceTop(40f);
                 YAxis yAxisRight = holder.voteChart.getAxisRight();
                 yAxisRight.setEnabled(false);
 
@@ -265,6 +272,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 xAxis.setPosition(XAxis.XAxisPosition.TOP_INSIDE);
 
                 BarData barData = new BarData(dataSet);
+                int finalSum = totalVotes;
+                barData.setValueFormatter((value, entry, dataSetIndex, viewPortHandler) -> {
+                    DecimalFormat format = new DecimalFormat("###.#%");
+                    double percentage = ((double) value / (double) finalSum);
+                    return "" + (int) value + " (" + format.format(percentage) + ")";
+                });
                 holder.voteChart.setData(barData);
                 holder.voteChart.getLegend().setEnabled(false);
                 holder.voteChart.getDescription().setEnabled(false);
@@ -509,9 +522,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.overflowButton.setOnClickListener(view -> {
                     //Inflates the popup menu content
                     LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    if (layoutInflater == null) {
+                    if (layoutInflater == null)
                         return;
-                    }
+
                     View popUpContent = layoutInflater.inflate(R.layout.activity_topic_overflow_menu, null);
 
                     //Creates the PopupWindow
@@ -795,7 +808,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             voteChart = itemView.findViewById(R.id.vote_chart);
             voteChart.setScaleEnabled(false);
             voteChart.setTouchEnabled(false);
-            voteChart.setDrawValueAboveBar(false);
         }
     }
 

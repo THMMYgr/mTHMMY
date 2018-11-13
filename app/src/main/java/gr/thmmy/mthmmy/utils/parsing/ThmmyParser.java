@@ -162,7 +162,7 @@ public class ThmmyParser {
         return tags.toArray(new BBTag[0]);
     }
 
-    public static HtmlTag[] getHtmlTags(String html) {
+    private static HtmlTag[] getHtmlTags(String html) {
         Pattern htmlPattern = Pattern.compile("<(.+?)>");
 
         LinkedList<HtmlTag> tags = new LinkedList<>();
@@ -205,11 +205,11 @@ public class ThmmyParser {
         return name.equals("b") || name.equals("i") || name.equals("span") || name.equals("del") || name.equals("a");
     }
 
-    public static boolean isBBTagSupported(String name) {
+    private static boolean isBBTagSupported(String name) {
         return name.equals("b") || name.equals("i") || name.equals("u") || name.equals("s");
     }
 
-    public static boolean isHtmlTag(String tagName) {
+    private static boolean isHtmlTag(String tagName) {
         for (String tag : ALL_HTML_TAGS)
             if (TextUtils.equals(tag, tagName)) return true;
         return false;
