@@ -44,6 +44,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -243,6 +244,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else {
                 //Showing results
                 holder.optionsLayout.setVisibility(View.GONE);
+                Arrays.sort(entries, (p1, p2) -> p1.getVotes() - p2.getVotes());
                 List<BarEntry> valuesToCompare = new ArrayList<>();
                 int totalVotes = 0;
                 for (int i = 0; i < entries.length; i++) {
@@ -250,7 +252,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     totalVotes += entries[i].getVotes();
                 }
                 BarDataSet dataSet = new BarDataSet(valuesToCompare, "Vote Results");
-                dataSet.setDrawValues(true);
                 dataSet.setColor(accentColor);
                 dataSet.setValueTextColor(accentColor);
 
@@ -281,9 +282,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setData(barData);
                 holder.voteChart.getLegend().setEnabled(false);
                 holder.voteChart.getDescription().setEnabled(false);
-                int chartHeightdp = 10 + 30 * entries.length;
+                int chartHeightDp = 10 + 30 * entries.length;
                 DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-                holder.voteChart.setMinimumHeight((int) (chartHeightdp * (metrics.densityDpi / 160f)));
+                holder.voteChart.setMinimumHeight((int) (chartHeightDp * (metrics.densityDpi / 160f)));
                 holder.voteChart.invalidate();
                 holder.voteChart.setVisibility(View.VISIBLE);
             }
@@ -806,8 +807,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             hidePollResultsButton = itemView.findViewById(R.id.show_poll_options_button);
             errorTextview = itemView.findViewById(R.id.error_too_many_checked);
             voteChart = itemView.findViewById(R.id.vote_chart);
-            voteChart.setScaleEnabled(false);
-            voteChart.setTouchEnabled(false);
+            voteChart.setScaleYEnabled(false);
+            voteChart.setDoubleTapToZoomEnabled(false);
         }
     }
 
