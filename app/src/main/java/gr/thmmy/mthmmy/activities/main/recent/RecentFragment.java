@@ -148,6 +148,9 @@ public class RecentFragment extends BaseFragment {
             recentAdapter.notifyDataSetChanged();
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
+                    " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
 
         progressBar.setVisibility(ProgressBar.INVISIBLE);

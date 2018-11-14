@@ -92,6 +92,28 @@ public class ParseHelpers {
         }
     }
 
+    public enum Theme {
+        SCRIBBLES2,
+        SMF_DEFAULT,
+        SMFONE_BLUE,
+        HELIOS_MULTI,
+        THEME_UNKNOWN
+    }
+
+    public static Theme parseTheme(Document page) {
+        Element stylesheet = page.select("link[rel=stylesheet]").first();
+        if (stylesheet.attr("href").contains("scribbles2"))
+            return Theme.SCRIBBLES2;
+        else if (stylesheet.attr("href").contains("helios_multi"))
+            return Theme.HELIOS_MULTI;
+        else if (stylesheet.attr("href").contains("smfone"))
+            return Theme.SMFONE_BLUE;
+        else if (stylesheet.attr("href").contains("default"))
+            return Theme.SMF_DEFAULT;
+        else
+            return Theme.THEME_UNKNOWN;
+    }
+
     /**
      * An enum describing the state of a forum page by defining the types:<ul>
      * <li>{@link #UNAUTHORIZED_OR_MISSING}</li>

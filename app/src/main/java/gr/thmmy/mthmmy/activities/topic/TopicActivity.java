@@ -663,7 +663,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             progressBar.setVisibility(ProgressBar.GONE);
             switch (resultCode) {
                 case SUCCESS:
-                    Timber.i("Successfully loaded topic with URL %s", viewModel.getTopicUrl());
+                    Timber.i("Successfully loaded a topic");
                     paginationEnabled(true);
                     break;
                 case NETWORK_ERROR:

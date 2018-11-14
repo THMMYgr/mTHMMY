@@ -13,6 +13,40 @@ public class CrashReporter {
 
     private CrashReporter() {}
 
+    public static void reportForumInfo(Document document) {
+        ParseHelpers.Theme theme = ParseHelpers.parseTheme(document);
+        ParseHelpers.Language language = ParseHelpers.Language.getLanguage(document);
+        String themeKey = "forum theme", themeValue = null;
+        String languageKey = "forum language", languageValue = null;
+        switch (theme) {
+            case SCRIBBLES2:
+                themeValue = "Scribbles2";
+                break;
+            case SMF_DEFAULT:
+                themeValue = "SMF Default Theme";
+                break;
+            case SMFONE_BLUE:
+                themeValue = "SMFone_Blue";
+                break;
+            case HELIOS_MULTI:
+                themeValue = "Helios_Multi";
+                break;
+            case THEME_UNKNOWN:
+                themeValue = "Unknown theme";
+                break;
+        }
+        switch (language) {
+            case GREEK:
+                languageValue = "Greek";
+                break;
+            case ENGLISH:
+                languageValue = "English";
+                break;
+        }
+        Crashlytics.setString(themeKey, themeValue);
+        Crashlytics.setString(languageKey, languageValue);
+    }
+
     public static void reportDocument(Document document, String key) {
         String documentString = document.toString();
 
