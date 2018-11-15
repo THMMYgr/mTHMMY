@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 
 public class CrashReporter {
@@ -43,8 +44,10 @@ public class CrashReporter {
                 languageValue = "English";
                 break;
         }
+
         Crashlytics.setString(themeKey, themeValue);
         Crashlytics.setString(languageKey, languageValue);
+        Crashlytics.setBool("isLoggedIn", BaseApplication.getInstance().getSessionManager().isLoggedIn());
     }
 
     public static void reportDocument(Document document, String key) {
@@ -52,7 +55,7 @@ public class CrashReporter {
 
         ParseHelpers.Language language = ParseHelpers.Language.getLanguage(document);
         Elements postRows;
-        if (language.is(ParseHelpers.Language.GREEK))
+        if (language == ParseHelpers.Language.GREEK)
             postRows = document.select("form[id=quickModForm]>table>tbody>tr:matches(στις)");
         else
             postRows = document.select("form[id=quickModForm]>table>tbody>tr:matches(on)");

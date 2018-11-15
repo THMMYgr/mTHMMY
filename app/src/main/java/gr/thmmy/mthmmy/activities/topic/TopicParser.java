@@ -59,7 +59,7 @@ public class TopicParser {
      * @see org.jsoup.Jsoup Jsoup
      */
     public static String parseUsersViewingThisTopic(Document topic, ParseHelpers.Language language) {
-        if (language.is(ParseHelpers.Language.GREEK))
+        if (language == ParseHelpers.Language.GREEK)
             return topic.select("td:containsOwn(διαβάζουν αυτό το θέμα)").first().html();
         return topic.select("td:containsOwn(are viewing this topic)").first().html();
     }
@@ -77,7 +77,7 @@ public class TopicParser {
     public static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
         int parsedPage = 1;
 
-        if (language.is(ParseHelpers.Language.GREEK)) {
+        if (language == ParseHelpers.Language.GREEK) {
             Elements findCurrentPage = topic.select("td:contains(Σελίδες:)>b");
 
             for (Element item : findCurrentPage) {
@@ -115,7 +115,7 @@ public class TopicParser {
     public static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
         int returnPages = 1;
 
-        if (language.is(ParseHelpers.Language.GREEK)) {
+        if (language == ParseHelpers.Language.GREEK) {
             Elements pages = topic.select("td:contains(Σελίδες:)>a.navPages");
 
             if (pages.size() != 0) {
@@ -163,7 +163,7 @@ public class TopicParser {
         Elements postRows;
 
         //Each row is a post
-        if (language.is(ParseHelpers.Language.GREEK))
+        if (language == ParseHelpers.Language.GREEK)
             postRows = topic.select("form[id=quickModForm]>table>tbody>tr:matches(στις)");
         else {
             postRows = topic.select("form[id=quickModForm]>table>tbody>tr:matches(on)");
@@ -236,7 +236,7 @@ public class TopicParser {
 
             //Language dependent parsing
             Element userName;
-            if (language.is(ParseHelpers.Language.GREEK)) {
+            if (language == ParseHelpers.Language.GREEK) {
                 //Finds username and profile's url
                 userName = thisRow.select("a[title^=Εμφάνιση προφίλ του μέλους]").first();
                 if (userName == null) { //Deleted profile
@@ -388,7 +388,7 @@ public class TopicParser {
                 Element usersExtraInfo = userName.parent().nextElementSibling(); //Get sibling "div"
                 List<String> infoList = Arrays.asList(usersExtraInfo.html().split("<br>"));
 
-                if (language.is(ParseHelpers.Language.GREEK)) {
+                if (language == ParseHelpers.Language.GREEK) {
                     for (String line : infoList) {
                         if (line.contains("Μηνύματα:")) {
                             postsLineIndex = infoList.indexOf(line);

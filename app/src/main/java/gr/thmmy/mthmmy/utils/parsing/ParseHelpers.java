@@ -18,18 +18,12 @@ import timber.log.Timber;
  * and obfuscated emails.
  */
 public class ParseHelpers {
-    /**
-     * Debug Tag for logging debug output to LogCat
-     */
-    @SuppressWarnings("unused")
-    private static final String TAG = "ParseHelpers";
 
     /**
      * An enum describing a forum page's language by defining the types:<ul>
      * <li>{@link #PAGE_INCOMPLETE}</li>
      * <li>{@link #UNDEFINED_LANGUAGE}</li>
      * <li>{@link #ENGLISH}</li>
-     * <li>{@link #ENGLISH_GUEST}</li>
      * <li>{@link #GREEK}</li>
      * </ul>
      */
@@ -42,10 +36,6 @@ public class ParseHelpers {
          * Page language is english.
          */
         ENGLISH,
-        /**
-         * Page language is english and the user is guest.
-         */
-        ENGLISH_GUEST,
         /**
          * Page is incomplete. Data are not enough to determine the language.
          */
@@ -67,28 +57,12 @@ public class ParseHelpers {
             if (welcoming == null) {
                 Element welcomingGuest = page.select("div[id=myuser]").first();
                 if (welcomingGuest != null) {
-                    if (welcomingGuest.text().contains("Welcome")) return ENGLISH_GUEST;
+                    if (welcomingGuest.text().contains("Welcome")) return ENGLISH;
                 }
                 return PAGE_INCOMPLETE;
             } else if (welcoming.text().contains("Καλώς ορίσατε")) return GREEK;
             else if (welcoming.text().contains("Hey")) return ENGLISH;
             else return UNDEFINED_LANGUAGE;
-        }
-
-        /**
-         * This method defines a custom equality check for {@link Language} enums.
-         * <p>Method returns true if parameter's Target is the same as the object and in the specific
-         * cases described below, false otherwise.</p><ul>
-         * <li>{@link #ENGLISH}.is({@link #ENGLISH_GUEST}) returns true</li>
-         * <li>{@link #ENGLISH_GUEST}.is({@link #ENGLISH}) returns true</li>
-         *
-         * @param other another Language
-         * @return true if <b>enums</b> are equal, false otherwise
-         */
-        public boolean is(Language other) {
-            return this == ENGLISH && other == ENGLISH_GUEST
-                    || this == ENGLISH_GUEST && other == ENGLISH
-                    || this == other;
         }
     }
 
