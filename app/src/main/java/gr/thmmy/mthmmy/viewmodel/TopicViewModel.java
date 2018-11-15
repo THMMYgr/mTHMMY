@@ -313,6 +313,12 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     // <-------------Just getters, setters and helper methods below here---------------->
 
+    public int getTopicId() {
+        if (pageTopicId.getValue() == null)
+            throw  new NullPointerException("No page has been loaded yet!");
+        return pageTopicId.getValue();
+    }
+
 
     public void setRemoveVoteTaskStartedListener(ExternalAsyncTask.OnTaskStartedListener removeVoteTaskStartedListener) {
         this.removeVoteTaskStartedListener = removeVoteTaskStartedListener;

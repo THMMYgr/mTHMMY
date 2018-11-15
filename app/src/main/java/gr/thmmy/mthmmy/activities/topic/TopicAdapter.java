@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -632,6 +633,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.itemView.setEnabled(false);
                     emojiKeyboard.hide();
 
+                    SharedPreferences drafts = context.getSharedPreferences(context.getString(R.string.pref_topic_drafts_key),
+                            Context.MODE_PRIVATE);
+                    drafts.edit().remove(String.valueOf(viewModel.getTopicId())).apply();
+
                     viewModel.postReply(context, holder.quickReplySubject.getText().toString(),
                             holder.replyEditor.getText().toString());
                 });
@@ -639,8 +644,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 if (reply.getContent() != null) {
                     holder.replyEditor.setText(reply.getContent());
-                } else {
+                } else if (viewModel.getBuildedQuotes() != null && !viewModel.getBuildedQuotes().isEmpty()) {
                     holder.replyEditor.setText(viewModel.getBuildedQuotes());
+                } else {
+                    SharedPreferences drafts = context.getSharedPreferences(context.getString(R.string.pref_topic_drafts_key),
+                            Context.MODE_PRIVATE);
+                    holder.replyEditor.setText(drafts.getString(String.valueOf(viewModel.getTopicId()), ""));
                 }
 
                 if (backPressHidden) {

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
@@ -270,6 +271,12 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             emojiKeyboard.setVisibility(View.GONE);
             return;
         } else if (viewModel.isWritingReply()) {
+            // persist reply
+            SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
+            TopicAdapter.QuickReplyViewHolder replyHolder = (TopicAdapter.QuickReplyViewHolder)
+                    recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
+            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), replyHolder.replyEditor.getText().toString()).apply();
+
             topicItems.remove(topicItems.size() - 1);
             topicAdapter.notifyItemRemoved(topicItems.size());
             topicAdapter.setBackButtonHidden();
@@ -301,6 +308,18 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         super.onDestroy();
         recyclerView.setAdapter(null);
         viewModel.stopLoading();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // persist reply
+        if (viewModel.isWritingReply()) {
+            SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
+            TopicAdapter.QuickReplyViewHolder replyHolder = (TopicAdapter.QuickReplyViewHolder)
+                    recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
+            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), replyHolder.replyEditor.getText().toString()).apply();
+        }
     }
 
     @Override
