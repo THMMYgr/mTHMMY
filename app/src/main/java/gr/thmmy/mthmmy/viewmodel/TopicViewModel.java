@@ -116,7 +116,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     /**
-     * In contrasto to {@link TopicViewModel#reloadPage()} this method gets rid of any arguements
+     * In contrast to {@link TopicViewModel#reloadPage()} this method gets rid of any arguments
      * in the url before refreshing
      */
     public void resetPage() {
@@ -182,9 +182,9 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void postReply(Context context, String subject, String reply) {
-        if (prepareForReplyResult.getValue() == null) {
+        if (prepareForReplyResult.getValue() == null)
             throw new NullPointerException("Reply preparation was not found!");
-        }
+
         PrepareForReplyResult replyForm = prepareForReplyResult.getValue();
         boolean includeAppSignature = true;
         SessionManager sessionManager = BaseActivity.getSessionManager();
@@ -263,9 +263,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             topicItems.setValue(result.getNewPostsList());
             focusedPostIndex.setValue(result.getFocusedPostIndex());
             isUserExtraInfoVisibile.clear();
-            for (int i = 0; i < result.getNewPostsList().size(); i++) {
+            for (int i = 0; i < result.getNewPostsList().size(); i++)
                 isUserExtraInfoVisibile.add(false);
-            }
         }
         topicTaskResultCode.setValue(result.getResultCode());
     }
@@ -285,9 +284,9 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
         int oldIndicatorIndex = pageIndicatorIndex.getValue();
-        if (oldIndicatorIndex <= pageCount - step) {
+        if (oldIndicatorIndex <= pageCount - step)
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() + step);
-        } else
+        else
             pageIndicatorIndex.setValue(pageCount);
         if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) loadPageIndicated();
     }
@@ -296,9 +295,9 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
         int oldIndicatorIndex = pageIndicatorIndex.getValue();
-        if (oldIndicatorIndex > step) {
+        if (oldIndicatorIndex > step)
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() - step);
-        } else
+        else
             pageIndicatorIndex.setValue(1);
         if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) loadPageIndicated();
     }

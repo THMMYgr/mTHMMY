@@ -277,7 +277,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 int finalSum = totalVotes;
                 barData.setValueFormatter((value, entry, dataSetIndex, viewPortHandler) -> {
                     DecimalFormat format = new DecimalFormat("###.#%");
-                    double percentage = ((double) value / (double) finalSum);
+                    double percentage = 0;
+                    if(finalSum!=0)
+                        percentage = ((double) value / (double) finalSum);
                     return "" + (int) value + " (" + format.format(percentage) + ")";
                 });
                 holder.voteChart.setData(barData);
@@ -427,11 +429,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.personalText.setVisibility(View.VISIBLE);
                 } else
                     holder.personalText.setVisibility(View.GONE);
-                if (mUserColor != USER_COLOR_YELLOW) {
+                if (mUserColor != USER_COLOR_YELLOW)
                     holder.username.setTextColor(mUserColor);
-                } else {
+                else
                     holder.username.setTextColor(USER_COLOR_WHITE);
-                }
+
                 if (mNumberOfStars > 0) {
                     holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
                             , "fonts/fontawesome-webfont.ttf"));
@@ -551,9 +553,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     Drawable editStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_edit_white_24dp);
                     editPostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(editStartDrawable, null, null, null);
 
-                    if (viewModel.isEditingPost() || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals("")) {
+                    if (viewModel.isEditingPost() || currentPost.getPostEditURL() == null || currentPost.getPostEditURL().equals(""))
                         editPostButton.setVisibility(View.GONE);
-                    } else {
+                    else {
                         editPostButton.setOnClickListener(v -> {
                             viewModel.prepareForEdit(position, currentPost.getPostEditURL());
                             popUp.dismiss();
@@ -562,9 +564,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     TextView deletePostButton = popUpContent.findViewById(R.id.delete_post);
 
-                    if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals("")) {
+                    if (currentPost.getPostDeleteURL() == null || currentPost.getPostDeleteURL().equals(""))
                         deletePostButton.setVisibility(View.GONE);
-                    } else {
+                    else {
                         Drawable deleteStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_delete_white_24dp);
                         deletePostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(deleteStartDrawable, null, null, null);
                         popUpContent.findViewById(R.id.delete_post).setOnClickListener(v -> {
@@ -583,9 +585,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 });
 
                 //noinspection PointlessBooleanExpression,ConstantConditions
-                if (!BaseActivity.getSessionManager().isLoggedIn() || !viewModel.canReply()) {
+                if (!BaseActivity.getSessionManager().isLoggedIn() || !viewModel.canReply())
                     holder.quoteToggle.setVisibility(View.GONE);
-                } else {
+                else {
                     if (viewModel.getToQuoteList().contains(currentPost.getPostIndex()))
                         holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_checked_accent_24dp);
                     else
@@ -642,11 +644,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 });
                 holder.replyEditor.setOnClickListener(view -> holder.replyEditor.setError(null));
 
-                if (reply.getContent() != null) {
+                if (reply.getContent() != null)
                     holder.replyEditor.setText(reply.getContent());
-                } else if (viewModel.getBuildedQuotes() != null && !viewModel.getBuildedQuotes().isEmpty()) {
+                else if (viewModel.getBuildedQuotes() != null && !viewModel.getBuildedQuotes().isEmpty())
                     holder.replyEditor.setText(viewModel.getBuildedQuotes());
-                } else {
+                else {
                     SharedPreferences drafts = context.getSharedPreferences(context.getString(R.string.pref_topic_drafts_key),
                             Context.MODE_PRIVATE);
                     holder.replyEditor.setText(drafts.getString(String.valueOf(viewModel.getTopicId()), ""));
