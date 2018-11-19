@@ -11,9 +11,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -658,11 +660,43 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 holder.replyEditor.setText(replyText);
                 holder.replyEditor.getEditText().setSelection(holder.replyEditor.getText().length());
+                holder.replyEditor.getEditText().addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        viewModel.setCachedReply(editable);
+                    }
+                });
 
                 if (backPressHidden) {
                     holder.replyEditor.requestEditTextFocus();
                     backPressHidden = false;
                 }
+                holder.quickReplySubject.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        viewModel.setCachedSubject(editable);
+                    }
+                });
             } else if (currentHolder instanceof EditMessageViewHolder) {
                 final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 

@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -273,9 +274,9 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         } else if (viewModel.isWritingReply()) {
             // persist reply
             SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
-            TopicAdapter.QuickReplyViewHolder replyHolder = (TopicAdapter.QuickReplyViewHolder)
-                    recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
-            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), replyHolder.replyEditor.getText().toString()).apply();
+            Editable cachedReply = viewModel.getCachedReply();
+            if (cachedReply != null)
+                drafts.edit().putString(String.valueOf(viewModel.getTopicId()), cachedReply.toString()).apply();
 
             topicItems.remove(topicItems.size() - 1);
             topicAdapter.notifyItemRemoved(topicItems.size());
@@ -316,9 +317,9 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         // persist reply
         if (viewModel.isWritingReply()) {
             SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
-            TopicAdapter.QuickReplyViewHolder replyHolder = (TopicAdapter.QuickReplyViewHolder)
-                    recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
-            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), replyHolder.replyEditor.getText().toString()).apply();
+            Editable cachedReply = viewModel.getCachedReply();
+            if (cachedReply != null)
+                drafts.edit().putString(String.valueOf(viewModel.getTopicId()), cachedReply.toString()).apply();
         }
     }
 
@@ -535,13 +536,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         break;
                     case NEW_REPLY_WHILE_POSTING:
                         Timber.i("New reply while writing a reply");
-                        TopicAdapter.QuickReplyViewHolder replyHolder = (TopicAdapter.QuickReplyViewHolder)
-                                recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
-                        String subject = replyHolder.quickReplySubject.getText().toString();
-                        String message = replyHolder.replyEditor.getText().toString();
+                        Editable subject = viewModel.getCachedSubject();
+                        Editable message = viewModel.getCachedReply();
                         Runnable addReply = () -> {
                             viewModel.setWritingReply(true);
-                            topicItems.add(Post.newQuickReply(subject, message));
+                            topicItems.add(Post.newQuickReply(subject.toString(), message.toString()));
                             topicAdapter.notifyItemInserted(topicItems.size());
                             recyclerView.scrollToPosition(topicItems.size() - 1);
                             replyFAB.hide();
