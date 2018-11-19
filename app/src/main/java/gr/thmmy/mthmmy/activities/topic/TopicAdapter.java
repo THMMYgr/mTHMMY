@@ -644,15 +644,19 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 });
                 holder.replyEditor.setOnClickListener(view -> holder.replyEditor.setError(null));
 
+                String replyText = "";
+
                 if (reply.getContent() != null)
-                    holder.replyEditor.setText(reply.getContent());
-                else if (viewModel.getBuildedQuotes() != null && !viewModel.getBuildedQuotes().isEmpty())
-                    holder.replyEditor.setText(viewModel.getBuildedQuotes());
+                    replyText += reply.getContent();
                 else {
+                    if (viewModel.getBuildedQuotes() != null && !viewModel.getBuildedQuotes().isEmpty())
+                        replyText += viewModel.getBuildedQuotes();
                     SharedPreferences drafts = context.getSharedPreferences(context.getString(R.string.pref_topic_drafts_key),
                             Context.MODE_PRIVATE);
-                    holder.replyEditor.setText(drafts.getString(String.valueOf(viewModel.getTopicId()), ""));
+                    replyText += drafts.getString(String.valueOf(viewModel.getTopicId()), "");
+
                 }
+                holder.replyEditor.setText(replyText);
                 holder.replyEditor.getEditText().setSelection(holder.replyEditor.getText().length());
 
                 if (backPressHidden) {
