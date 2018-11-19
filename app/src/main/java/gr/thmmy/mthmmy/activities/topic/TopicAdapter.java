@@ -651,12 +651,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (reply.getContent() != null)
                     replyText += reply.getContent();
                 else {
-                    if (viewModel.getBuildedQuotes() != null && !viewModel.getBuildedQuotes().isEmpty())
-                        replyText += viewModel.getBuildedQuotes();
                     SharedPreferences drafts = context.getSharedPreferences(context.getString(R.string.pref_topic_drafts_key),
                             Context.MODE_PRIVATE);
                     replyText += drafts.getString(String.valueOf(viewModel.getTopicId()), "");
-
+                    if (viewModel.getBuildedQuotes() != null && !viewModel.getBuildedQuotes().isEmpty())
+                        replyText += viewModel.getBuildedQuotes();
                 }
                 holder.replyEditor.setText(replyText);
                 holder.replyEditor.getEditText().setSelection(holder.replyEditor.getText().length());

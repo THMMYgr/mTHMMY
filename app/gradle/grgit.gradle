@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.ajoberstar.grgit:grgit-core:3.0.0-rc.2'
+        classpath 'org.ajoberstar.grgit:grgit-core:3.0.0'
     }
 }
 
