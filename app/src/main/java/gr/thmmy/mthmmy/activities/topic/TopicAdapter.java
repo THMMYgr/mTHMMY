@@ -653,9 +653,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             Context.MODE_PRIVATE);
                     holder.replyEditor.setText(drafts.getString(String.valueOf(viewModel.getTopicId()), ""));
                 }
+                holder.replyEditor.getEditText().setSelection(holder.replyEditor.getText().length());
 
                 if (backPressHidden) {
-                    holder.replyEditor.requestFocus();
+                    holder.replyEditor.requestEditTextFocus();
                     backPressHidden = false;
                 }
             } else if (currentHolder instanceof EditMessageViewHolder) {
