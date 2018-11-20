@@ -672,7 +672,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        viewModel.setCachedReply(editable);
+                        ((Post) topicItems.get(holder.getAdapterPosition())).setContent(editable.toString());
                     }
                 });
 
@@ -693,7 +693,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        viewModel.setCachedSubject(editable);
+                        ((Post) topicItems.get(holder.getAdapterPosition())).setSubject(editable.toString());
                     }
                 });
             } else if (currentHolder instanceof EditMessageViewHolder) {

@@ -41,7 +41,6 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
      */
     private boolean editingPost = false;
     private boolean writingReply = false;
-    private Editable cachedSubject, cachedReply;
     /**
      * A list of {@link Post#getPostIndex()} for building quotes for replying
      */
@@ -487,21 +486,5 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (topicItems.getValue() == null)
             throw  new NullPointerException("No page has been loaded yet!");
         return topicItems.getValue().size();
-    }
-
-    public Editable getCachedSubject() {
-        return cachedSubject;
-    }
-
-    public void setCachedSubject(Editable cachedSubject) {
-        this.cachedSubject = cachedSubject;
-    }
-
-    public Editable getCachedReply() {
-        return cachedReply;
-    }
-
-    public void setCachedReply(Editable cachedReply) {
-        this.cachedReply = cachedReply;
     }
 }

@@ -23,8 +23,8 @@ public class Post extends TopicItem {
     //Standard info (exists in every post)
     private final String thumbnailUrl;
     private final String author;
-    private final String subject;
-    private final String content;
+    private String subject;
+    private String content;
     private final int postIndex;
     private final int postNumber;
     private final String postDate;
@@ -407,5 +407,13 @@ public class Post extends TopicItem {
 
     public void setPostType(int postType) {
         this.postType = postType;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 }

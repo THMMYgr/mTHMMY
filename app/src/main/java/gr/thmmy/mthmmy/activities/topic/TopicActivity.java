@@ -274,9 +274,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         } else if (viewModel.isWritingReply()) {
             // persist reply
             SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
-            Editable cachedReply = viewModel.getCachedReply();
-            if (cachedReply != null)
-                drafts.edit().putString(String.valueOf(viewModel.getTopicId()), cachedReply.toString()).apply();
+            Post reply = (Post) topicItems.get(topicItems.size() - 1);
+            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getContent()).apply();
 
             topicItems.remove(topicItems.size() - 1);
             topicAdapter.notifyItemRemoved(topicItems.size());
@@ -317,9 +316,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         // persist reply
         if (viewModel.isWritingReply()) {
             SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
-            Editable cachedReply = viewModel.getCachedReply();
-            if (cachedReply != null)
-                drafts.edit().putString(String.valueOf(viewModel.getTopicId()), cachedReply.toString()).apply();
+            Post reply = (Post) topicItems.get(topicItems.size() - 1);
+            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getContent()).apply();
         }
     }
 
@@ -536,11 +534,10 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         break;
                     case NEW_REPLY_WHILE_POSTING:
                         Timber.i("New reply while writing a reply");
-                        Editable subject = viewModel.getCachedSubject();
-                        Editable message = viewModel.getCachedReply();
+                        Post reply = (Post) topicItems.get(topicItems.size() - 1);
                         Runnable addReply = () -> {
                             viewModel.setWritingReply(true);
-                            topicItems.add(Post.newQuickReply(subject.toString(), message.toString()));
+                            topicItems.add(Post.newQuickReply(reply.getSubject(), reply.getContent()));
                             topicAdapter.notifyItemInserted(topicItems.size());
                             recyclerView.scrollToPosition(topicItems.size() - 1);
                             replyFAB.hide();
