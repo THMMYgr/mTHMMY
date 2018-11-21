@@ -103,9 +103,7 @@ public class BaseApplication extends Application {
                     }
                     return chain.proceed(request);
                 })
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
+                .callTimeout(30, TimeUnit.SECONDS)
                 .build();
         sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs,draftsPrefs);
         Picasso picasso = new Picasso.Builder(getApplicationContext())
