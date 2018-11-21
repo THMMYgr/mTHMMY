@@ -72,6 +72,7 @@ public class BaseApplication extends Application {
         //Shared Preferences
         SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         SharedPreferences settingsSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences draftsPrefs = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
 
         if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false))
             startFirebaseCrashlyticsCollection();
@@ -106,7 +107,7 @@ public class BaseApplication extends Application {
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .build();
-        sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs);
+        sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs,draftsPrefs);
         Picasso picasso = new Picasso.Builder(getApplicationContext())
                 .downloader(new OkHttp3Downloader(client))
                 .build();

@@ -57,6 +57,7 @@ public class SessionManager {
 
     //Shared Preferences & its keys
     private final SharedPreferences sharedPrefs;
+    private final SharedPreferences draftsPrefs;
     private static final String USERNAME = "Username";
     private static final String USER_ID = "UserID";
     private static final String AVATAR_LINK = "AvatarLink";
@@ -67,11 +68,12 @@ public class SessionManager {
 
     //Constructor
     public SessionManager(OkHttpClient client, PersistentCookieJar cookieJar,
-                          SharedPrefsCookiePersistor cookiePersistor, SharedPreferences sharedPrefs) {
+                          SharedPrefsCookiePersistor cookiePersistor, SharedPreferences sharedPrefs, SharedPreferences draftsPrefs) {
         this.client = client;
         this.cookiePersistor = cookiePersistor;
         this.cookieJar = cookieJar;
         this.sharedPrefs = sharedPrefs;
+        this.draftsPrefs = draftsPrefs;
     }
 
     //------------------------------------AUTH BEGINS----------------------------------------------
@@ -309,6 +311,7 @@ public class SessionManager {
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
         sharedPrefs.edit().putInt(USER_ID, -1).apply();
         sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
+        draftsPrefs.edit().clear().apply(); //Clear saved drafts
         Timber.i("Session data cleared.");
     }
 
