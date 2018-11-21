@@ -118,7 +118,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             loadSavedBookmarks();
         }
 
-        sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         BaseViewModel baseViewModel = ViewModelProviders.of(this).get(BaseViewModel.class);
         baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> setTopicBookmark(thisPageBookmarkMenuButton));
@@ -128,7 +128,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateDrawer();
-        if(!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key),false))
+        if (!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key), false))
             showUserConsentDialog();
     }
 
@@ -646,7 +646,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
 
             return topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled();
-        } else  if (bookmark.matchExists(boardsBookmarked)) {
+        } else if (bookmark.matchExists(boardsBookmarked)) {
             boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).toggleNotificationsEnabled();
             updateBoardBookmarks();
 
@@ -760,7 +760,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //----------------------------PRIVACY POLICY------------------
-    private void showUserConsentDialog(){
+    private void showUserConsentDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
         builder.setTitle("User Agreement");
         builder.setMessage(R.string.user_agreement_dialog_text);
@@ -788,7 +788,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void showPrivacyPolicyDialog() {
         TextView privacyPolicyTextView = new TextView(this);
-        privacyPolicyTextView.setPadding(30,20,30,20);
+        privacyPolicyTextView.setPadding(30, 20, 30, 20);
         privacyPolicyTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_text));
         SpannableConfiguration configuration = SpannableConfiguration.builder(this).linkResolver(new LinkResolverDef()).build();
         StringBuilder stringBuilder = new StringBuilder();
@@ -812,7 +812,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             Timber.e(e, "Error in Privacy Policy dialog.");
         } finally {
             try {
-                if(reader!=null)
+                if (reader != null)
                     reader.close();
             } catch (IOException e) {
                 Timber.e(e, "Error in Privacy Policy dialog (closing reader).");
@@ -820,12 +820,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    private void addUserConsent(){
+    private void addUserConsent() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.user_consent_shared_preference_key), true).apply();
     }
 
-    private void setUserDataShareEnabled(boolean enabled){
+    private void setUserDataShareEnabled(boolean enabled) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), enabled).apply();
         editor.putBoolean(getString(R.string.pref_privacy_analytics_enable_key), enabled).apply();
@@ -836,7 +836,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.mainActivity = mainActivity;
     }
 
-    private void startLoginActivity(){
+    private void startLoginActivity() {
         Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
