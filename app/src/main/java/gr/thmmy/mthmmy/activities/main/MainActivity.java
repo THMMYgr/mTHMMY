@@ -100,12 +100,11 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         int preferredTab = Integer.parseInt(sharedPrefs.getString(SettingsActivity.DEFAULT_HOME_TAB, "0"));
-        if ((preferredTab != 3 && preferredTab != 4) || sessionManager.isLoggedIn()) {
+        if ((preferredTab != 3 && preferredTab != 4) || sessionManager.isLoggedIn())
             tabLayout.getTabAt(preferredTab).select();
-        }
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+
+        for (int i = 0; i < tabLayout.getTabCount(); i++)
             updateTabIcon(i);
-        }
 
         setMainActivity(this);
     }
@@ -196,6 +195,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         }
 
         void removeFragment(int position) {
+            getSupportFragmentManager().beginTransaction().remove(fragmentList.get(position)).commit();
             fragmentList.remove(position);
             fragmentTitleList.remove(position);
             notifyDataSetChanged();
@@ -228,25 +228,23 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
     public void updateTabIcon(int position) {
         if (position >= tabLayout.getTabCount()) return;
-        if (position == 0) {
+        if (position == 0)
             tabLayout.getTabAt(0).setIcon(getResources().getDrawable(R.drawable.ic_access_time_white_24dp));
-        } else if (position == 1) {
+        else if (position == 1)
             tabLayout.getTabAt(1).setIcon(getResources().getDrawable(R.drawable.ic_forum_white_24dp));
-        } else if (position == 2) {
+        else if (position == 2)
             tabLayout.getTabAt(2).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
-        }
     }
 
 
     public void updateTabs() {
-        if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3) {
+        if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3)
             sectionsPagerAdapter.removeFragment(2);
-        } else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2) {
+        else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2)
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
-        }
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+
+        for (int i = 0; i < tabLayout.getTabCount(); i++)
             updateTabIcon(i);
-        }
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
 

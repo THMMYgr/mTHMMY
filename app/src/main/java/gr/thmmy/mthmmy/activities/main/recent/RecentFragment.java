@@ -114,7 +114,7 @@ public class RecentFragment extends BaseFragment {
             swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(() -> {
-                        if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING) {
+                        if (!recentTask.isRunning()) {
                             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
                             recentTask.execute(SessionManager.indexUrl.toString());
                         }
@@ -128,7 +128,7 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING)
+        if (recentTask.isRunning())
             recentTask.cancel(true);
     }
 
@@ -160,8 +160,8 @@ public class RecentFragment extends BaseFragment {
     //---------------------------------------ASYNC TASK-----------------------------------
     private class RecentTask extends NewParseTask<ArrayList<TopicSummary>> {
 
-        public RecentTask(OnTaskStartedListener onTaskStartedListener,
-                          OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
+        RecentTask(OnTaskStartedListener onTaskStartedListener,
+                   OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
             super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 

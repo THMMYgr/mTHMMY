@@ -77,4 +77,8 @@ public abstract class ExternalAsyncTask<U, V> extends AsyncTask<U, Void, V> {
     public interface OnTaskFinishedListener<V> {
         void onTaskFinished(V result);
     }
+
+    public boolean isRunning(){
+        return getStatus() == AsyncTask.Status.RUNNING;
+    }
 }

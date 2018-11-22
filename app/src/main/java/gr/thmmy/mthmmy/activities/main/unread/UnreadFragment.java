@@ -1,3 +1,4 @@
+
 package gr.thmmy.mthmmy.activities.main.unread;
 
 import android.os.AsyncTask;
@@ -59,8 +60,7 @@ public class UnreadFragment extends BaseFragment {
     private MarkReadTask markReadTask;
 
     // Required empty public constructor
-    public UnreadFragment() {
-    }
+    public UnreadFragment() {}
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -107,11 +107,11 @@ public class UnreadFragment extends BaseFragment {
             progressBar = rootView.findViewById(R.id.progressBar);
             unreadAdapter = new UnreadAdapter(topicSummaries,
                     fragmentInteractionListener, markReadLinkUrl -> {
-                        if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                            markReadTask = new MarkReadTask();
-                            markReadTask.execute(markReadLinkUrl);
-                        }
-                    });
+                if (!markReadTask.isRunning() && !unreadTask.isRunning()) {
+                    markReadTask = new MarkReadTask();
+                    markReadTask.execute(markReadLinkUrl);
+                }
+            });
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -126,8 +126,7 @@ public class UnreadFragment extends BaseFragment {
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
                     () -> {
-                        if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                            topicSummaries.clear();
+                        if (!unreadTask.isRunning()) {
                             numberOfPages = 0;
                             loadedPages = 0;
                             unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
@@ -144,10 +143,11 @@ public class UnreadFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING)
+        if (unreadTask.isRunning())
             unreadTask.cancel(true);
-        if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING)
+        if (markReadTask.isRunning())
             markReadTask.cancel(true);
+        topicSummaries.clear();
     }
 
     public interface UnreadFragmentInteractionListener extends FragmentInteractionListener {
@@ -160,11 +160,15 @@ public class UnreadFragment extends BaseFragment {
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
-    private void onUnreadTaskFinished(int resultCode, Void data) {
+    private void onUnreadTaskFinished(int resultCode,  ArrayList<TopicSummary> fetchedUnread) {
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            unreadAdapter.notifyDataSetChanged();
-
-            ++loadedPages;
+            if(fetchedUnread!=null && !fetchedUnread.isEmpty()){
+                if(loadedPages==0)
+                    topicSummaries.clear();
+                topicSummaries.addAll(fetchedUnread);
+                unreadAdapter.notifyDataSetChanged();
+            }
+            loadedPages++;
             if (loadedPages < numberOfPages) {
                 unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
                 assert SessionManager.unreadUrl != null;
@@ -186,15 +190,16 @@ public class UnreadFragment extends BaseFragment {
         }
     }
 
-    private class UnreadTask extends NewParseTask<Void> {
+    private class UnreadTask extends NewParseTask<ArrayList<TopicSummary>> {
 
-        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Void> onParseTaskFinishedListener) {
+        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
             super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        protected Void parse(Document document, Response response) throws ParseException {
+        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException {
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
+            ArrayList<TopicSummary> fetchedTopicSummaries = new ArrayList<>();
             if (!unread.isEmpty()) {
                 //topicSummaries.clear();
                 for (Element row : unread) {
@@ -210,16 +215,14 @@ public class UnreadFragment extends BaseFragment {
                     dateTime = dateTime.replace("<b>", "");
                     dateTime = dateTime.replace("</b>", "");
                     if (dateTime.contains(" am") || dateTime.contains(" pm") ||
-                            dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
+                            dateTime.contains(" πμ") || dateTime.contains(" μμ"))
                         dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
-                    } else {
+                    else
                         dateTime = dateTime.substring(0, dateTime.lastIndexOf(":"));
-                    }
-                    if (!dateTime.contains(",")) {
+                    if (!dateTime.contains(","))
                         dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
-                    }
 
-                    topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
+                    fetchedTopicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
                 Element topBar = document.select("table:not(.bordercolor):not(#bodyarea):has(td.middletext)").first();
 
@@ -233,31 +236,29 @@ public class UnreadFragment extends BaseFragment {
 
                 if (numberOfPages == 0 && pagesElement != null) {
                     Elements pages = pagesElement.select("a");
-                    if (!pages.isEmpty()) {
+                    if (!pages.isEmpty())
                         numberOfPages = Integer.parseInt(pages.last().text());
-                    } else {
+                    else
                         numberOfPages = 1;
-                    }
                 }
 
                 if (markRead != null && loadedPages == numberOfPages - 1)
-                    topicSummaries.add(new TopicSummary(markRead.attr("href"), markRead.text(), null,
+                    fetchedTopicSummaries.add(new TopicSummary(markRead.attr("href"), markRead.text(), null,
                             null));
             } else {
-                topicSummaries.clear();
                 String message = document.select("table.bordercolor[cellspacing=1]").first().text();
                 if (message.contains("No messages")) { //It's english
                     message = "No unread posts!";
                 } else { //It's greek
-                    message = "Δεν υπάρχουν μη διαβασμένα μηνύματα!";
+                    message = "Δεν υπάρχουν μη αναγνωσμένα μηνύματα!";
                 }
-                topicSummaries.add(new TopicSummary(null, null, null, message));
+                fetchedTopicSummaries.add(new TopicSummary(null, null, null, message));
             }
-            return null;
+            return fetchedTopicSummaries;
         }
 
         @Override
-        protected int getResultCode(Response response, Void data) {
+        protected int getResultCode(Response response, ArrayList<TopicSummary> data) {
             return NetworkResultCodes.SUCCESSFUL;
         }
     }
@@ -301,12 +302,19 @@ public class UnreadFragment extends BaseFragment {
                 Toast.makeText(getContext()
                         , "Fatal error!\n Task aborted...", Toast.LENGTH_LONG).show();
             } else {
-                if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                if (!unreadTask.isRunning()) {
+                    numberOfPages = 0;
+                    loadedPages = 0;
                     unreadTask = new UnreadTask(UnreadFragment.this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskFinished);
                     assert SessionManager.unreadUrl != null;
                     unreadTask.execute(SessionManager.unreadUrl.toString());
                 }
             }
+        }
+
+        //TODO: Maybe extend this task and use isRunning() from ExternalAsyncTask instead (?)
+        public boolean isRunning(){
+            return getStatus() == AsyncTask.Status.RUNNING;
         }
     }
 }
