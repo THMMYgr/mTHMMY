@@ -7,6 +7,8 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 
 public class ShoutboxActivity extends BaseActivity {
 
+    private ShoutboxFragment shoutboxFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,8 +27,9 @@ public class ShoutboxActivity extends BaseActivity {
         drawer.setSelection(SHOUTBOX_ID);
 
         if (savedInstanceState == null) {
+            shoutboxFragment = ShoutboxFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, ShoutboxFragment.newInstance())
+                    .replace(R.id.container, shoutboxFragment)
                     .commitNow();
         }
     }
@@ -35,5 +38,17 @@ public class ShoutboxActivity extends BaseActivity {
     protected void onResume() {
         drawer.setSelection(SHOUTBOX_ID);
         super.onResume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+
+        if (count == 0) {
+            if (!shoutboxFragment.onBackPressed())
+                super.onBackPressed();
+        } else {
+            getSupportFragmentManager().popBackStack();
+        }
     }
 }

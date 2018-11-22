@@ -38,7 +38,7 @@ import gr.thmmy.mthmmy.R;
 
 public class EditorView extends LinearLayout implements EmojiInputField {
 
-    private static final int ANIMATION_DURATION = 100;
+    private static final int ANIMATION_DURATION = 200;
     private SparseArray<String> colors = new SparseArray<>();
 
     private TextInputLayout edittextWrapper;
@@ -308,24 +308,32 @@ public class EditorView extends LinearLayout implements EmojiInputField {
         this.emojiKeyboard = emojiKeyboard;
     }
 
-    public void setMarkdownVisible(boolean visible) {
-        formatButtonsRecyclerview.setVisibility(visible ? VISIBLE : GONE);
-    }
-
     public void showMarkdownOnfocus() {
         edittextWrapper.setOnClickListener(view -> {
             showMarkdown();
         });
         editText.setOnClickListener(view -> {
+            if (!emojiKeyboard.isVisible()) {
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+            } else {
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+                requestEditTextFocus();
+            }
             showMarkdown();
         });
         edittextWrapper.setOnFocusChangeListener((view, b) -> {
-            if (b) showMarkdown();
-            else hideMarkdown();
+            if (b) {
+                emojiKeyboard.onEmojiInputFieldFocused(EditorView.this);
+                showMarkdown();
+            } else hideMarkdown();
         });
         editText.setOnFocusChangeListener((view, b) -> {
-            if (b) showMarkdown();
-            else hideMarkdown();
+            if (b) {
+                emojiKeyboard.onEmojiInputFieldFocused(EditorView.this);
+                showMarkdown();
+            } else hideMarkdown();
         });
     }
 

@@ -76,11 +76,6 @@ public class ShoutboxFragment extends Fragment {
             shoutboxViewModel.sendShout(editorView.getText().toString());
         });
         editorView.hideMarkdown();
-        editorView.setOnTouchListener((view, motionEvent) -> {
-            editorView.showMarkdown();
-            return false;
-        });
-        editorView.setMarkdownVisible(false);
         editorView.showMarkdownOnfocus();
 
         return rootView;
@@ -161,5 +156,16 @@ public class ShoutboxFragment extends Fragment {
             Timber.wtf("Failed to retreive shoutbox due to unknown error");
             Toast.makeText(getContext(), "Failed to retrieve shoutbox, please contact mthmmy developer team", Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * @return whether or not {@link ShoutboxFragment#onBackPressed()} consumed the event or not
+     */
+    public boolean onBackPressed() {
+        if (emojiKeyboard.isVisible()) {
+            emojiKeyboard.setVisibility(View.GONE);
+            return true;
+        }
+        return false;
     }
 }
