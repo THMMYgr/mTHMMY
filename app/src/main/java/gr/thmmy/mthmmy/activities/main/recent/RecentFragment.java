@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +20,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -55,8 +53,7 @@ public class RecentFragment extends BaseFragment {
     private RecentTask recentTask;
 
     // Required empty public constructor
-    public RecentFragment() {
-    }
+    public RecentFragment() {}
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -147,9 +144,9 @@ public class RecentFragment extends BaseFragment {
             topicSummaries.addAll(fetchedRecent);
             recentAdapter.notifyDataSetChanged();
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
-            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
+            Toast.makeText(getContext(), "Unexpected error," +
                     " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
 

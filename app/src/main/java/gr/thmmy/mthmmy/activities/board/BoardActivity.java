@@ -290,7 +290,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                     pUnread = true;
                             }
                             pStartedBy = topicColumns.get(3).text();
-                            pStats = "Replies " + topicColumns.get(4).text() + ", Views " + topicColumns.get(5).text();
+                            pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
                             pLastPost = topicColumns.last().text();
                             if (pLastPost.contains("by")) {

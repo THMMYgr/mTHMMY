@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -183,9 +182,9 @@ public class UnreadFragment extends BaseFragment {
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
-                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
             else
-                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
+                Toast.makeText(getContext(), "Unexpected error," +
                         " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
     }

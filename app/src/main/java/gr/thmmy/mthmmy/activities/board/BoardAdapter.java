@@ -90,7 +90,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return new TitlesViewHolder(subBoardTitle);
         } else if (viewType == VIEW_TYPE_SUB_BOARD) {
             View subBoard = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.activity_board_sub_board, parent, false);
+                    inflate(R.layout.activity_board_sub_board_row, parent, false);
             return new SubBoardViewHolder(subBoard);
         } else if (viewType == VIEW_TYPE_TOPIC_TITLE) {
             TextView topicTitle = new TextView(context);
@@ -111,7 +111,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return new TitlesViewHolder(topicTitle);
         } else if (viewType == VIEW_TYPE_TOPIC) {
             View topic = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.activity_board_topic, parent, false);
+                    inflate(R.layout.activity_board_topic_row, parent, false);
             return new TopicViewHolder(topic);
         } else if (viewType == VIEW_TYPE_LOADING) {
             View loading = LayoutInflater.from(parent.getContext()).
