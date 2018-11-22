@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|end"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="19dp"
                 android:background="@null"
                 android:contentDescription="@string/bookmark"
                 app:srcCompat="@drawable/ic_bookmark_false_accent_24dp"/>
