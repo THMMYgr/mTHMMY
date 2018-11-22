@@ -20,8 +20,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
             android:orientation="horizontal">
 
             <TextView
@@ -30,7 +28,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:paddingBottom="2dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="7dp"
                 android:text="@string/child_board_title"
                 android:textColor="@color/accent"
                 android:textSize="22sp" />

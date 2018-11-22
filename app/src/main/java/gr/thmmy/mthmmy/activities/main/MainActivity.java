@@ -79,6 +79,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+            return; //Avoid executing the code below
         }
 
         //Initialize drawer

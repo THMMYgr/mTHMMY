@@ -99,6 +99,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private MainActivity mainActivity;
     private boolean isMainActivity;
+    private boolean isUserConsentDialogShown;   //Needed because sometimes onResume is being called twice
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,8 +129,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateDrawer();
-        if (!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key), false))
+        if (!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key), false) && !isUserConsentDialogShown){
+            isUserConsentDialogShown=true;
             showUserConsentDialog();
+        }
     }
 
     @Override
@@ -389,7 +392,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                         if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
                             startLoginActivity();
                         else
-                            new LogoutTask().execute();
+                            new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
                     } else if (drawerItem.equals(ABOUT_ID)) {
                         if (!(BaseActivity.this instanceof AboutActivity)) {
                             Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
@@ -496,6 +499,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (mainActivity != null)
                 mainActivity.updateTabs();
             progressDialog.dismiss();
+            //TODO: Redirect to Main only for some Activities (e.g. Topic, Board, Downloads)
             //if (BaseActivity.this instanceof TopicActivity){
             Intent intent = new Intent(BaseActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
