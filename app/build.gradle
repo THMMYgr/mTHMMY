@@ -47,7 +47,14 @@ tasks.whenTaskAdded { task ->
             def inputFile = new File("app/google-services.json")
             def json = new JsonSlurper().parseText(inputFile.text)
             if (json.project_info.project_id != "mthmmy-release-3aef0")
-                throw new GradleException('Please supply the correct google-services.json for release or manually change the id above!')
+                throw new GradleException('Please supply the correct google-services.json for release (or manually change the id above)!')
+        })
+    } else if (task.name.contains("assembleDebug")) {
+        task.getDependsOn().add({
+            def inputFile = new File("app/google-services.json")
+            def json = new JsonSlurper().parseText(inputFile.text)
+            if (json.project_info.project_id == "mthmmy-release-3aef0")
+                throw new GradleException('Please replace the release google-services.json with a debug one!')
         })
     }
 }
