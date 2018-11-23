@@ -711,6 +711,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.editEditor.requestEditTextFocus();
                 emojiKeyboard.registerEmojiInputField(holder.editEditor);
                 holder.editEditor.setText(viewModel.getPostBeingEditedText());
+                holder.editEditor.getEditText().setSelection(holder.editEditor.getText().length());
                 holder.editEditor.setOnSubmitListener(view -> {
                     if (holder.editSubject.getText().toString().isEmpty()) return;
                     if (holder.editEditor.getText().toString().isEmpty()) {
@@ -727,7 +728,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 });
 
                 if (backPressHidden) {
-                    holder.editEditor.requestFocus();
+                    holder.editEditor.requestEditTextFocus();
                     backPressHidden = false;
                 }
             }
