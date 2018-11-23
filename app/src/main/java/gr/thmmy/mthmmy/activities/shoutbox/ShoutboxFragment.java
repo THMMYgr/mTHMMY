@@ -124,7 +124,8 @@ public class ShoutboxFragment extends Fragment {
         Timber.i("Start sending a shout...");
         editorView.setAlpha(0.5f);
         editorView.setEnabled(false);
-        emojiKeyboard.setVisibility(View.VISIBLE);
+        if (emojiKeyboard.isVisible())
+            emojiKeyboard.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
