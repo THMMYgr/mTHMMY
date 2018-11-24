@@ -205,23 +205,17 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             if (poll.getAvailableVoteCount() > 1) {
                 for (Poll.Entry entry : entries) {
-                    LinearLayout container = new LinearLayout(context);
-                    container.setOrientation(LinearLayout.HORIZONTAL);
                     CheckBox checkBox = new CheckBox(context);
-                    TextView label = new TextView(context);
-                    label.setTextColor(primaryTextColor);
-                    label.setMovementMethod(LinkMovementMethod.getInstance());
+                    checkBox.setTextColor(primaryTextColor);
+                    checkBox.setMovementMethod(LinkMovementMethod.getInstance());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        label.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
+                        checkBox.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
                     } else {
                         //noinspection deprecation
-                        label.setText(Html.fromHtml(entry.getEntryName()));
+                        checkBox.setText(Html.fromHtml(entry.getEntryName()));
                     }
-                    label.setText(ThmmyParser.html2span(context, entry.getEntryName()));
                     checkBox.setTextColor(primaryTextColor);
-                    container.addView(checkBox);
-                    container.addView(label);
-                    holder.optionsLayout.addView(container);
+                    holder.optionsLayout.addView(checkBox);
                 }
                 holder.voteChart.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);

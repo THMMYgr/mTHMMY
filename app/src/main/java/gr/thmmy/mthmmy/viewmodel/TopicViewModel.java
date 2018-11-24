@@ -144,10 +144,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (optionsLayout.getChildAt(0) instanceof RadioGroup) {
             RadioGroup optionsRadioGroup = (RadioGroup) optionsLayout.getChildAt(0);
             votes.add(optionsRadioGroup.getCheckedRadioButtonId());
-        } else if (optionsLayout.getChildAt(0) instanceof LinearLayout) {
+        } else if (optionsLayout.getChildAt(0) instanceof CheckBox) {
             for (int i = 0; i < optionsLayout.getChildCount(); i++) {
-                LinearLayout container = (LinearLayout) optionsLayout.getChildAt(i);
-                if (((CheckBox) container.getChildAt(0)).isChecked())
+                CheckBox checkBox = (CheckBox) optionsLayout.getChildAt(i);
+                if (checkBox.isChecked())
                     votes.add(i);
             }
         }
