@@ -16,6 +16,7 @@ import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -124,6 +125,9 @@ public class BaseApplication extends Application {
 
             builder.connectionSpecs(Arrays.asList(legacyTls, ConnectionSpec.CLEARTEXT));
         }
+
+        if (BuildConfig.DEBUG)
+            builder.addInterceptor(new OkHttpProfilerInterceptor());
 
         client = builder.build();
 
