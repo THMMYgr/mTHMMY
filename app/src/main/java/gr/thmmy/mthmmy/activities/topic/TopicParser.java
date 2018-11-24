@@ -540,7 +540,7 @@ public class TopicParser {
                     entries.add(0, new Poll.Entry(optionName, voteCount));
                 }
 
-                Elements links = pollColumn.child(0).child(0).child(0).child(1).select("a");
+                Elements links = pollColumn.select("td[style=padding-left: 15px;] > a");
                 if (links != null && links.size() > 0) {
                     if (links.first().text().equals("Remove Vote") || links.first().text().equals("Αφαίρεση ψήφου"))
                         removeVoteUrl = links.first().attr("href");
