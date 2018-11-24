@@ -185,13 +185,17 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
 
         replyFAB = findViewById(R.id.topic_fab);
         replyFAB.hide();
+        replyFAB.setTag(false);
         bottomNavBar = findViewById(R.id.bottom_navigation_bar);
-        if (!sessionManager.isLoggedIn()) replyFAB.hide();
-        else {
+        if (!sessionManager.isLoggedIn()) {
+            replyFAB.hide();
+            replyFAB.setTag(false);
+        } else {
             replyFAB.setOnClickListener(view -> {
                 if (sessionManager.isLoggedIn())
                     viewModel.prepareForReply();
             });
+            replyFAB.setTag(true);
         }
 
         //Sets bottom navigation bar
@@ -281,6 +285,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             topicAdapter.setBackButtonHidden();
             viewModel.setWritingReply(false);
             replyFAB.show();
+            replyFAB.setTag(true);
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
         } else if (viewModel.isEditingPost()) {
@@ -289,6 +294,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             topicAdapter.setBackButtonHidden();
             viewModel.setEditingPost(false);
             replyFAB.show();
+            replyFAB.setTag(true);
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
         }
@@ -522,6 +528,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         BaseApplication.getInstance().logFirebaseAnalyticsEvent("post_creation", null);
                         Timber.i("Post reply successful");
                         replyFAB.show();
+                        replyFAB.setTag(true);
                         bottomNavBar.setVisibility(View.VISIBLE);
                         viewModel.setWritingReply(false);
                         if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
@@ -540,6 +547,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                             topicAdapter.notifyItemInserted(topicItems.size());
                             recyclerView.scrollToPosition(topicItems.size() - 1);
                             replyFAB.hide();
+                            replyFAB.setTag(false);
                             bottomNavBar.setVisibility(View.GONE);
                             AlertDialog.Builder builder = new AlertDialog.Builder(TopicActivity.this,
                                     R.style.AppTheme_Dark_Dialog);
@@ -590,6 +598,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     ((Post) topicItems.get(position)).setPostType(Post.TYPE_POST);
                     topicAdapter.notifyItemChanged(position);
                     replyFAB.show();
+                    replyFAB.setTag(true);
                     bottomNavBar.setVisibility(View.VISIBLE);
                     viewModel.setEditingPost(false);
                     viewModel.reloadPage();
@@ -656,10 +665,13 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
         });
         viewModel.getReplyPageUrl().observe(this, replyPageUrl -> {
-            if (replyPageUrl == null)
+            if (replyPageUrl == null) {
                 replyFAB.hide();
-            else
+                replyFAB.setTag(false);
+            } else {
                 replyFAB.show();
+                replyFAB.setTag(true);
+            }
         });
         viewModel.getTopicItems().observe(this, postList -> {
             if (postList == null) progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -744,6 +756,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 topicAdapter.notifyItemInserted(topicItems.size());
                 recyclerView.scrollToPosition(topicItems.size() - 1);
                 replyFAB.hide();
+                replyFAB.setTag(false);
                 bottomNavBar.setVisibility(View.GONE);
             } else {
                 Timber.i("Prepare for reply unsuccessful");
@@ -759,6 +772,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 topicAdapter.notifyItemChanged(result.getPosition());
                 recyclerView.scrollToPosition(result.getPosition());
                 replyFAB.hide();
+                replyFAB.setTag(false);
                 bottomNavBar.setVisibility(View.GONE);
             } else {
                 Timber.i("Prepare for edit unsuccessful");
