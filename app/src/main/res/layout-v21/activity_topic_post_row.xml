@@ -58,7 +58,8 @@
                             android:layout_gravity="center"
                             android:adjustViewBounds="true"
                             android:contentDescription="@string/post_thumbnail"
-                            android:transitionName="user_thumbnail" />
+                            android:transitionName="user_thumbnail"
+                            app:srcCompat="@drawable/ic_default_user_avatar_darker" />
                     </FrameLayout>
 
                     <TextView

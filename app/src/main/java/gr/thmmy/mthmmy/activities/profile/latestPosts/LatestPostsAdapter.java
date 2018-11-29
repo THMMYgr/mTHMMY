@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +22,10 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
  * specified {@link LatestPostsFragment.LatestPostsFragmentInteractionListener}.
  */
 class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final int VIEW_TYPE_EMPTY = -1;
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
-    final private LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
+    private static final int VIEW_TYPE_EMPTY = -1;
+    private static final int VIEW_TYPE_ITEM = 0;
+    private static final int VIEW_TYPE_LOADING = 1;
+    private final LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
     private final ArrayList<PostSummary> parsedTopicSummaries;
 
     LatestPostsAdapter(BaseFragment.FragmentInteractionListener interactionListener,
@@ -70,19 +71,16 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             latestPostViewHolder.postTitle.setText(topic.getSubject());
             latestPostViewHolder.postDate.setText(topic.getDateTime());
+            latestPostViewHolder.post.setBackgroundColor(Color.argb(1, 255, 255, 255));
             latestPostViewHolder.post.loadDataWithBaseURL("file:///android_asset/"
                     , topic.getPost(), "text/html", "UTF-8", null);
 
-            latestPostViewHolder.latestPostsRow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (interactionListener != null) {
-                        // Notify the active callbacks interface (the activity, if the
-                        // fragment is attached to one) that a post has been selected.
-                        interactionListener.onLatestPostsFragmentInteraction(
-                                parsedTopicSummaries.get(holder.getAdapterPosition()));
-                    }
-
+            latestPostViewHolder.latestPostsRow.setOnClickListener(v -> {
+                if (interactionListener != null) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that a post has been selected.
+                    interactionListener.onLatestPostsFragmentInteraction(
+                            parsedTopicSummaries.get(holder.getAdapterPosition()));
                 }
             });
         } else if (holder instanceof LoadingViewHolder) {

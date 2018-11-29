@@ -135,7 +135,6 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
             profileLatestPostsTask.execute(profileUrl + ";sa=showPosts");
             pagesLoaded = 1;
         }
-        Timber.d("onActivityCreated");
     }
 
     @Override
@@ -193,14 +192,13 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
             //td:contains( Sorry, no matches were found)
             Elements latestPostsRows = latestPostsPage.
                     select("td:has(table:Contains(Show Posts)):not([style]) > table");
-            if (latestPostsRows.isEmpty()) {
+            if (latestPostsRows.isEmpty())
                 latestPostsRows = latestPostsPage.
                         select("td:has(table:Contains(Εμφάνιση μηνυμάτων)):not([style]) > table");
-            }
+
             //Removes loading item
-            if (isLoadingMore) {
+            if (isLoadingMore)
                 parsedTopicSummaries.remove(parsedTopicSummaries.size() - 1);
-            }
 
             if (!latestPostsRows.select("td:contains(Sorry, no matches were found)").isEmpty() ||
                     !latestPostsRows.select("td:contains(Δυστυχώς δεν βρέθηκε τίποτα)").isEmpty()){
@@ -222,10 +220,10 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                     }
                 } else {
                     Elements rowHeader = row.select("td.middletext");
-                    if (rowHeader.size() != 2) {
+                    if (rowHeader.size() != 2)
                         return false;
-                    } else {
-                        pTopicTitle = rowHeader.first().text().trim();
+                    else {
+                        pTopicTitle = rowHeader.first().text().replaceAll("\\u00a0","").trim();
                         pTopicUrl = rowHeader.first().select("a").last().attr("href");
                         pDateTime = rowHeader.last().text();
                     }
