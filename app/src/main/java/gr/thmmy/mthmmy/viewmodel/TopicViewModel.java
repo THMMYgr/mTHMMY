@@ -104,25 +104,25 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         loadUrl(topicUrl);
     }
 
-    public void reloadPageThen(Runnable runnable) {
-        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
-        Timber.i("Reloading page");
-        stopLoading();
-        currentTopicTask = new TopicTask(topicTaskObserver, result -> {
-            TopicViewModel.this.onTopicTaskCompleted(result);
-            runnable.run();
-        });
-        currentTopicTask.execute(topicUrl);
-    }
-
     /**
      * In contrast to {@link TopicViewModel#reloadPage()} this method gets rid of any arguments
      * in the url before refreshing
      */
     public void resetPage() {
         if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
-        Timber.i("Reseting page");
+        Timber.i("Resetting page");
         loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
+    }
+
+    public void resetPageThen(Runnable runnable) {
+        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        Timber.i("Resetting page");
+        stopLoading();
+        currentTopicTask = new TopicTask(topicTaskObserver, result -> {
+            TopicViewModel.this.onTopicTaskCompleted(result);
+            runnable.run();
+        });
+        currentTopicTask.execute(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
     }
 
     public void loadPageIndicated() {

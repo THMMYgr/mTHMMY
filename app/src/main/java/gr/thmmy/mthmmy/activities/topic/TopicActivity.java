@@ -540,23 +540,17 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         break;
                     case NEW_REPLY_WHILE_POSTING:
                         Timber.i("New reply while writing a reply");
-                        Post reply = (Post) topicItems.get(topicItems.size() - 1);
+
                         Runnable addReply = () -> {
-                            viewModel.setWritingReply(true);
-                            topicItems.add(Post.newQuickReply(reply.getSubject(), reply.getContent()));
-                            topicAdapter.notifyItemInserted(topicItems.size());
-                            recyclerView.scrollToPosition(topicItems.size() - 1);
-                            replyFAB.hide();
-                            replyFAB.setTag(false);
-                            bottomNavBar.setVisibility(View.GONE);
                             AlertDialog.Builder builder = new AlertDialog.Builder(TopicActivity.this,
                                     R.style.AppTheme_Dark_Dialog);
                             builder.setMessage("A new reply was posted before you completed your new post." +
                                     " Please review it and send your reply again")
                                     .setNeutralButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                     .show();
+                            viewModel.prepareForReply();
                         };
-                        viewModel.reloadPageThen(addReply);
+                        viewModel.resetPageThen(addReply);
                         break;
                     default:
                         Timber.w("Post reply unsuccessful");
