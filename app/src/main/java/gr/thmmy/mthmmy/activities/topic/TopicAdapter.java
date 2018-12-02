@@ -721,6 +721,38 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editEditor.getText().toString());
                 });
 
+                holder.editSubject.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        ((Post) topicItems.get(holder.getAdapterPosition())).setSubject(editable.toString());
+                    }
+                });
+                holder.editEditor.getEditText().addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        ((Post) topicItems.get(holder.getAdapterPosition())).setContent(editable.toString());
+                    }
+                });
                 if (backPressHidden) {
                     holder.editEditor.requestEditTextFocus();
                     backPressHidden = false;

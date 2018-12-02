@@ -531,6 +531,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         replyFAB.setTag(true);
                         bottomNavBar.setVisibility(View.VISIBLE);
                         viewModel.setWritingReply(false);
+
+                        SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key),
+                                Context.MODE_PRIVATE);
+                        drafts.edit().remove(String.valueOf(viewModel.getTopicId())).apply();
+
                         if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
                             Timber.i("Reply was posted in new page. Switching to last page.");
                             viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
@@ -540,6 +545,14 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         break;
                     case NEW_REPLY_WHILE_POSTING:
                         Timber.i("New reply while writing a reply");
+
+                        //cache reply
+                        if (viewModel.isWritingReply()) {
+                            SharedPreferences drafts2 = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
+                            Post reply = (Post) topicItems.get(topicItems.size() - 1);
+                            drafts2.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getContent()).apply();
+                            viewModel.setWritingReply(false);
+                        }
 
                         Runnable addReply = () -> {
                             AlertDialog.Builder builder = new AlertDialog.Builder(TopicActivity.this,
