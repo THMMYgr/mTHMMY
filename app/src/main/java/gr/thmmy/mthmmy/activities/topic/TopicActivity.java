@@ -278,7 +278,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             // persist reply
             SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
             Post reply = (Post) topicItems.get(topicItems.size() - 1);
-            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getContent()).apply();
+            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getBbContent()).apply();
 
             topicItems.remove(topicItems.size() - 1);
             topicAdapter.notifyItemRemoved(topicItems.size());
@@ -322,7 +322,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         if (viewModel.isWritingReply()) {
             SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
             Post reply = (Post) topicItems.get(topicItems.size() - 1);
-            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getContent()).apply();
+            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getBbContent()).apply();
         }
     }
 
@@ -550,7 +550,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         if (viewModel.isWritingReply()) {
                             SharedPreferences drafts2 = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
                             Post reply = (Post) topicItems.get(topicItems.size() - 1);
-                            drafts2.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getContent()).apply();
+                            drafts2.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getBbContent()).apply();
                             viewModel.setWritingReply(false);
                         }
 

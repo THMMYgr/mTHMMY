@@ -642,8 +642,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 String replyText = "";
 
-                if (reply.getContent() != null)
-                    replyText += reply.getContent();
+                if (reply.getBbContent() != null)
+                    replyText += reply.getBbContent();
                 else {
                     SharedPreferences drafts = context.getSharedPreferences(context.getString(R.string.pref_topic_drafts_key),
                             Context.MODE_PRIVATE);
@@ -666,7 +666,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        ((Post) topicItems.get(holder.getAdapterPosition())).setContent(editable.toString());
+                        ((Post) topicItems.get(holder.getAdapterPosition())).setBbContent(editable.toString());
                     }
                 });
 
@@ -704,7 +704,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.editEditor.setEmojiKeyboard(emojiKeyboard);
                 holder.editEditor.requestEditTextFocus();
                 emojiKeyboard.registerEmojiInputField(holder.editEditor);
-                holder.editEditor.setText(viewModel.getPostBeingEditedText());
+                if (currentPost.getBbContent() == null)
+                    holder.editEditor.setText(viewModel.getPostBeingEditedText());
+                else
+                    holder.editEditor.setText(currentPost.getBbContent());
                 holder.editEditor.getEditText().setSelection(holder.editEditor.getText().length());
                 holder.editEditor.setOnSubmitListener(view -> {
                     if (holder.editSubject.getText().toString().isEmpty()) return;
@@ -750,7 +753,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        ((Post) topicItems.get(holder.getAdapterPosition())).setContent(editable.toString());
+                        ((Post) topicItems.get(holder.getAdapterPosition())).setBbContent(editable.toString());
                     }
                 });
                 if (backPressHidden) {

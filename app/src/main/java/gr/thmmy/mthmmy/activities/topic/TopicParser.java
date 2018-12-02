@@ -461,7 +461,7 @@ public class TopicParser {
                 }
 
                 //Add new post in postsList, extended information needed
-                parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, p_postIndex
+                parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post, null, p_postIndex
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
                         , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL
@@ -470,7 +470,7 @@ public class TopicParser {
             } else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post
-                        , p_postIndex, p_postNum, p_postDate, p_userColor, p_attachedFiles
+                        , null, p_postIndex, p_postNum, p_postDate, p_userColor, p_attachedFiles
                         , p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL
                         , p_isUserMentionedInPost, Post.TYPE_POST));
             }

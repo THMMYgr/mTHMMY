@@ -25,6 +25,7 @@ public class Post extends TopicItem {
     private final String author;
     private String subject;
     private String content;
+    private String bbContent;
     private final int postIndex;
     private final int postNumber;
     private final String postDate;
@@ -49,7 +50,8 @@ public class Post extends TopicItem {
 
     // Suppresses default constructor
     @SuppressWarnings("unused")
-    private Post() {
+    private Post(String bbContent) {
+        this.bbContent = bbContent;
         thumbnailUrl = "";
         author = null;
         subject = null;
@@ -79,11 +81,11 @@ public class Post extends TopicItem {
      * Constructor for active user's posts. All variables are declared final, once assigned they
      * can not change. Parameters notated as {@link Nullable} can either pass null or empty
      * (strings/ArrayList).
-     *
-     * @param thumbnailUrl  author's thumbnail url
+     *  @param thumbnailUrl  author's thumbnail url
      * @param author        author's username
      * @param subject       post's subject
      * @param content       post itself
+     * @param bbContent
      * @param postIndex     post's index on the forum
      * @param postNumber    posts index number on this topic
      * @param postDate      date of submission
@@ -100,12 +102,13 @@ public class Post extends TopicItem {
      * @param postURL       post's URL
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
-            , int postIndex, int postNumber, String postDate, String profileURl, @Nullable String rank
+            , String bbContent, int postIndex, int postNumber, String postDate, String profileURl, @Nullable String rank
             , @Nullable String special_rank, @Nullable String gender, @Nullable String numberOfPosts
             , @Nullable String personalText, int numberOfStars, int userColor
             , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL
             , @Nullable String postDeleteURL, @Nullable String postEditURL, boolean isUserMentionedInPost
             , int postType) {
+        this.bbContent = bbContent;
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -136,11 +139,11 @@ public class Post extends TopicItem {
      * Constructor for deleted user's posts. All variables are declared final, once assigned they
      * can not change. Parameters notated as {@link Nullable} can either pass null or empty
      * (strings/ArrayList).
-     *
-     * @param thumbnailUrl  author's thumbnail url
+     *  @param thumbnailUrl  author's thumbnail url
      * @param author        author's username
      * @param subject       post's subject
      * @param content       post itself
+     * @param bbContent     post content in bb form
      * @param postIndex     post's index on the forum
      * @param postNumber    posts index number on this topic
      * @param postDate      date of submission
@@ -150,10 +153,11 @@ public class Post extends TopicItem {
      * @param postURL       post's URL
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
-            , int postIndex, int postNumber, String postDate, int userColor
+            , String bbContent, int postIndex, int postNumber, String postDate, int userColor
             , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL
             , @Nullable String postDeleteURL, @Nullable String postEditURL, boolean isUserMentionedInPost
             , int postType) {
+        this.bbContent = bbContent;
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
         else this.thumbnailUrl = thumbnailUrl;
         this.author = author;
@@ -181,12 +185,12 @@ public class Post extends TopicItem {
     }
 
     public static Post newQuickReply() {
-        return new Post(null, null, null, null, 0, 0, null,
+        return new Post(null, null, null, null, null, 0, 0, null,
                 0, null, null, null, null, null, false, TYPE_QUICK_REPLY);
     }
 
     public static Post newQuickReply(String subject, String content) {
-        return new Post(null, null, subject, content, 0, 0, null,
+        return new Post(null, null, subject, null, content, 0, 0, null,
                 0, null, null, null, null, null, false, TYPE_QUICK_REPLY);
     }
 
@@ -212,11 +216,20 @@ public class Post extends TopicItem {
         return content;
     }
 
+    public String getBbContent() {
+        return bbContent;
+    }
+
+    public void setBbContent(String bbContent) {
+        this.bbContent = bbContent;
+    }
+
     /**
      * Gets this post's author.
      *
      * @return post's author
      */
+
     @Nullable
     public String getAuthor() {
         return author;
