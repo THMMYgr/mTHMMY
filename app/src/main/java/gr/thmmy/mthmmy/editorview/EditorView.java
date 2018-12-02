@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -35,6 +36,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
+import timber.log.Timber;
 
 public class EditorView extends LinearLayout implements EmojiInputField {
 
@@ -155,6 +157,9 @@ public class EditorView extends LinearLayout implements EmojiInputField {
                     break;
                 }
                 case R.drawable.ic_format_color_text: {
+                    boolean hadTextSelection = editText.hasSelection();
+                    int selectionStart = editText.getSelectionStart();
+                    int selectionEnd = editText.getSelectionEnd();
                     PopupWindow popupWindow = new PopupWindow(view.getContext());
                     popupWindow.setHeight(LayoutParams.WRAP_CONTENT);
                     popupWindow.setWidth(LayoutParams.WRAP_CONTENT);
@@ -165,14 +170,30 @@ public class EditorView extends LinearLayout implements EmojiInputField {
                     for (int i = 0; i < colorPicker.getChildCount(); i++) {
                         TextView child = (TextView) colorPicker.getChildAt(i);
                         child.setOnClickListener(v -> {
-                            boolean hadTextSelection = editText.hasSelection();
+                            boolean hadTextSelection2 = editText.hasSelection();
                             getText().insert(editText.getSelectionStart(), "[color=" + colors.get(v.getId()) + "]");
                             getText().insert(editText.getSelectionEnd(), "[/color]");
-                            editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 8);
+                            editText.setSelection(hadTextSelection2 ? editText.getSelectionEnd() : editText.getSelectionStart() - 8);
                             popupWindow.dismiss();
                         });
                     }
                     popupWindow.showAsDropDown(view);
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... voids) {
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                Timber.e(e);
+                            }
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Void aVoid) {
+                            editText.setSelection(selectionStart, selectionEnd);
+                        }
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     break;
                 }
                 case R.drawable.ic_format_size: {
