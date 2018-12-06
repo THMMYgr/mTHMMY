@@ -14,9 +14,11 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -171,7 +173,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             boolean pollSupported = true;
             for (Poll.Entry entry : entries) {
-                if (ThmmyParser.containsHtml(entry.getEntryName())){
+                if (ThmmyParser.containsHtml(entry.getEntryName())) {
                     pollSupported = false;
                     break;
                 }
@@ -204,9 +206,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             final int accentColor = context.getResources().getColor(R.color.accent);
 
             if (poll.getAvailableVoteCount() > 1) {
+                // vote multiple options
                 for (Poll.Entry entry : entries) {
                     CheckBox checkBox = new CheckBox(context);
-                    checkBox.setTextColor(primaryTextColor);
                     checkBox.setMovementMethod(LinkMovementMethod.getInstance());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         checkBox.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
@@ -220,6 +222,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
             } else if (poll.getAvailableVoteCount() == 1) {
+                // vote single option
                 RadioGroup radioGroup = new RadioGroup(context);
                 for (int i = 0; i < entries.length; i++) {
                     RadioButton radioButton = new RadioButton(context);
@@ -238,8 +241,33 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.optionsLayout.addView(radioGroup);
                 holder.voteChart.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
+            } else if (poll.getSelectedEntryIndex() != -1) {
+                // vote already submitted but results are hidden
+                Poll.Entry[] entries1 = poll.getEntries();
+                for (int i = 0; i < entries1.length; i++) {
+                    Poll.Entry entry = entries1[i];
+                    TextView textView = new TextView(context);
+                    textView.setMovementMethod(LinkMovementMethod.getInstance());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        textView.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
+                    } else {
+                        //noinspection deprecation
+                        textView.setText(Html.fromHtml(entry.getEntryName()));
+                    }
+                    textView.setTextColor(primaryTextColor);
+                    if (poll.getSelectedEntryIndex() == i) {
+                        // apply bold to the selected entry
+                        SpannableString spanString = new SpannableString(textView.getText() + " ✓");
+                        spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
+                        textView.setText(spanString);
+                        textView.setTextColor(accentColor);
+                    }
+                    holder.optionsLayout.addView(textView);
+                }
+                holder.voteChart.setVisibility(View.GONE);
+                holder.optionsLayout.setVisibility(View.VISIBLE);
             } else {
-                //Showing results
+                // Showing results
                 holder.optionsLayout.setVisibility(View.GONE);
                 Arrays.sort(entries, (p1, p2) -> p1.getVotes() - p2.getVotes());
                 List<BarEntry> valuesToCompare = new ArrayList<>();
@@ -274,7 +302,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 barData.setValueFormatter((value, entry, dataSetIndex, viewPortHandler) -> {
                     DecimalFormat format = new DecimalFormat("###.#%");
                     double percentage = 0;
-                    if(finalSum!=0)
+                    if (finalSum != 0)
                         percentage = ((double) value / (double) finalSum);
                     return "" + (int) value + " (" + format.format(percentage) + ")";
                 });
@@ -764,7 +792,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private void loadAvatar(String imageUrl, ImageView imageView){
+    private void loadAvatar(String imageUrl, ImageView imageView) {
         Picasso.with(context)
                 .load(imageUrl)
                 .fit()

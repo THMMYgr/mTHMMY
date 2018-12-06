@@ -484,7 +484,7 @@ public class TopicParser {
         try {
             String question;
             ArrayList<Poll.Entry> entries = new ArrayList<>();
-            int availableVoteCount = 0;
+            int availableVoteCount = 0, selectedEntryIndex = -1;
             String pollFormUrl = null, sc = null, removeVoteUrl = null, showVoteResultsUrl = null,
                     showOptionsUrl = null;
 
@@ -525,19 +525,30 @@ public class TopicParser {
                 }
             } else {
                 // poll in results mode
+                boolean pollResultsHidden = false;
                 Elements entryRows = pollColumn.select("table[cellspacing] tr");
-                for (Element entryRow : entryRows) {
+                for (int i = 0; i < entryRows.size(); i++) {
+                    Element entryRow = entryRows.get(i);
                     Elements entryColumns = entryRow.select("td");
+
+                    if (entryColumns.size() < 2) pollResultsHidden = true;
+
                     String optionName = entryColumns.first().html();
-                    String voteCountDescription = entryColumns.last().text();
-                    Matcher integerMatcher = integerPattern.matcher(voteCountDescription);
                     int voteCount = 0;
-                    if (integerMatcher.find()) {
-                        voteCount = Integer.parseInt(voteCountDescription.substring(integerMatcher.start(),
-                                integerMatcher.end()));
+
+                    if (pollResultsHidden) {
+                        if (entryColumns.first().attr("style").contains("font-weight: bold;"))
+                            selectedEntryIndex = i;
+                    } else {
+                        String voteCountDescription = entryColumns.last().text();
+                        Matcher integerMatcher = integerPattern.matcher(voteCountDescription);
+                        if (integerMatcher.find()) {
+                            voteCount = Integer.parseInt(voteCountDescription.substring(integerMatcher.start(),
+                                    integerMatcher.end()));
+                        }
                     }
 
-                    entries.add(0, new Poll.Entry(optionName, voteCount));
+                    entries.add(new Poll.Entry(optionName, voteCount));
                 }
 
                 Elements links = pollColumn.select("td[style=padding-left: 15px;] > a");
@@ -549,7 +560,7 @@ public class TopicParser {
                 }
             }
             return new Poll(question, entries.toArray(new Poll.Entry[0]), availableVoteCount,
-                    pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl, showOptionsUrl);
+                    pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl, showOptionsUrl, selectedEntryIndex);
         } catch (Exception e) {
             Timber.v(e, "Could not parse a poll");
         }
