@@ -180,6 +180,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             if (ThmmyParser.containsHtml(poll.getQuestion()))
                 pollSupported = false;
+            if (entries.length > 30)
+                pollSupported = false;
             if (!pollSupported) {
                 holder.optionsLayout.setVisibility(View.GONE);
                 holder.voteChart.setVisibility(View.GONE);
