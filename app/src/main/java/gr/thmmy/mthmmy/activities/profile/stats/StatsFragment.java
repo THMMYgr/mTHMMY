@@ -105,7 +105,7 @@ public class StatsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (!haveParsed) {
             profileStatsTask = new ProfileStatsTask();
-            profileStatsTask.execute(profileUrl + ";sa=statPanel");
+            profileStatsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=statPanel");
         }
         Timber.d("onActivityCreated");
     }

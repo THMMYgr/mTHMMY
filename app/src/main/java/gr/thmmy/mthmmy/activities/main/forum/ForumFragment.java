@@ -90,7 +90,7 @@ public class ForumFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         if (categories.isEmpty()) {
             forumTask = new ForumTask(this::onForumTaskStarted, this::onForumTaskFinished);
-            forumTask.execute();
+            forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         }
         Timber.d("onActivityCreated");
@@ -114,7 +114,7 @@ public class ForumFragment extends BaseFragment {
                             forumTask.cancel(true);
                         forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
                         forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
-                        forumTask.execute();
+                        forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                 }
 
@@ -125,7 +125,7 @@ public class ForumFragment extends BaseFragment {
                             forumTask.cancel(true);
                         forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
                         forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
-                        forumTask.execute();
+                        forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                 }
             });
@@ -145,7 +145,7 @@ public class ForumFragment extends BaseFragment {
                         if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING) {
                             forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
                             //forumTask.execute(SessionManager.indexUrl.toString());
-                            forumTask.execute();
+                            forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         }
                     }
             );

@@ -118,7 +118,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 //        uploadFAB.hide();
 
         parseDownloadPageTask = new ParseDownloadPageTask();
-        parseDownloadPageTask.execute(downloadsUrl);
+        parseDownloadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, downloadsUrl);
     }
 
 //    @Override
@@ -154,9 +154,9 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             //Load data
             parseDownloadPageTask = new ParseDownloadPageTask();
             if (downloadsUrl.contains("tpstart"))
-                parseDownloadPageTask.execute(downloadsUrl.substring(0
+                parseDownloadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, downloadsUrl.substring(0
                         , downloadsUrl.lastIndexOf(";tpstart=")) + ";tpstart=" + pagesLoaded * 10);
-            else parseDownloadPageTask.execute(downloadsUrl + ";tpstart=" + pagesLoaded * 10);
+            else parseDownloadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, downloadsUrl + ";tpstart=" + pagesLoaded * 10);
         }
     }
 

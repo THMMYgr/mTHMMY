@@ -90,7 +90,7 @@ public class SummaryFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (parsedProfileSummaryData.isEmpty()) {
             summaryTask = new SummaryTask();
-            summaryTask.execute(profileSummaryDocument);
+            summaryTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileSummaryDocument);
         }
         Timber.d("onActivityCreated");
     }

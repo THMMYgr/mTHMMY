@@ -149,7 +149,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         });
 
         boardTask = new BoardTask();
-        boardTask.execute(boardUrl);
+        boardTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, boardUrl);
     }
 
     @Override

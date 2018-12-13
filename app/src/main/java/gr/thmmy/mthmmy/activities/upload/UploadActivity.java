@@ -332,7 +332,7 @@ public class UploadActivity extends BaseActivity {
         if (uploadRootCategories.isEmpty()) {
             //Parses the uploads page
             parseUploadPageTask = new ParseUploadPageTask();
-            parseUploadPageTask.execute(uploadIndexUrl);
+            parseUploadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uploadIndexUrl);
         } else {
             //Renders the already parsed data
             updateUIElements();

@@ -95,7 +95,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         stopLoading();
         topicUrl = pageUrl;
         currentTopicTask = new TopicTask(topicTaskObserver, this);
-        currentTopicTask.execute(pageUrl);
+        currentTopicTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, pageUrl);
     }
 
     public void reloadPage() {
@@ -122,7 +122,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             TopicViewModel.this.onTopicTaskCompleted(result);
             runnable.run();
         });
-        currentTopicTask.execute(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
+        currentTopicTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
     }
 
     public void loadPageIndicated() {
@@ -158,7 +158,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         SubmitVoteTask submitVoteTask = new SubmitVoteTask(votesArray);
         submitVoteTask.setOnTaskStartedListener(voteTaskStartedListener);
         submitVoteTask.setOnNetworkTaskFinishedListener(voteTaskFinishedListener);
-        submitVoteTask.execute(poll.getPollFormUrl(), poll.getSc());
+        submitVoteTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, poll.getPollFormUrl(), poll.getSc());
         return true;
     }
 
@@ -167,7 +167,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         RemoveVoteTask removeVoteTask = new RemoveVoteTask();
         removeVoteTask.setOnTaskStartedListener(removeVoteTaskStartedListener);
         removeVoteTask.setOnNetworkTaskFinishedListener(removeVoteTaskFinishedListener);
-        removeVoteTask.execute(((Poll) topicItems.getValue().get(0)).getRemoveVoteUrl());
+        removeVoteTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ((Poll) topicItems.getValue().get(0)).getRemoveVoteUrl());
     }
 
     public void prepareForReply() {
@@ -194,13 +194,13 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         }
         toQuoteList.clear();
         Timber.i("Posting reply");
-        new ReplyTask(replyFinishListener, includeAppSignature).execute(subject, reply,
+        new ReplyTask(replyFinishListener, includeAppSignature).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, subject, reply,
                 replyForm.getNumReplies(), replyForm.getSeqnum(), replyForm.getSc(), replyForm.getTopic());
     }
 
     public void deletePost(String postDeleteUrl) {
         Timber.i("Deleting post");
-        new DeleteTask(deleteTaskStartedListener, deleteTaskFinishedListener).execute(postDeleteUrl);
+        new DeleteTask(deleteTaskStartedListener, deleteTaskFinishedListener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, postDeleteUrl);
     }
 
     public void prepareForEdit(int position, String postEditURL) {
@@ -210,7 +210,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         Timber.i("Preparing for edit");
         currentPrepareForEditTask = new PrepareForEditTask(prepareForEditCallbacks, this, position,
                 replyPageUrl.getValue());
-        currentPrepareForEditTask.execute(postEditURL);
+        currentPrepareForEditTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, postEditURL);
     }
 
     public void editPost(int position, String subject, String message) {
@@ -218,7 +218,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             throw new NullPointerException("Edit preparation was not found!");
         PrepareForEditResult editResult = prepareForEditResult.getValue();
         Timber.i("Editing post");
-        new EditTask(editTaskCallbacks, position).execute(editResult.getCommitEditUrl(), message,
+        new EditTask(editTaskCallbacks, position).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, editResult.getCommitEditUrl(), message,
                 editResult.getNumReplies(), editResult.getSeqnum(), editResult.getSc(), subject, editResult.getTopic());
     }
 

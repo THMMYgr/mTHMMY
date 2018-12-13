@@ -88,7 +88,7 @@ public class UnreadFragment extends BaseFragment {
         if (topicSummaries.isEmpty()) {
             unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
             assert SessionManager.unreadUrl != null;
-            unreadTask.execute(SessionManager.unreadUrl.toString());
+            unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
         }
         markReadTask = new MarkReadTask();
         Timber.d("onActivityCreated");
@@ -108,7 +108,7 @@ public class UnreadFragment extends BaseFragment {
                     fragmentInteractionListener, markReadLinkUrl -> {
                 if (!markReadTask.isRunning() && !unreadTask.isRunning()) {
                     markReadTask = new MarkReadTask();
-                    markReadTask.execute(markReadLinkUrl);
+                    markReadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, markReadLinkUrl);
                 }
             });
 
@@ -130,7 +130,7 @@ public class UnreadFragment extends BaseFragment {
                             loadedPages = 0;
                             unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
                             assert SessionManager.unreadUrl != null;
-                            unreadTask.execute(SessionManager.unreadUrl.toString());
+                            unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
                         }
                     }
             );
@@ -171,7 +171,7 @@ public class UnreadFragment extends BaseFragment {
             if (loadedPages < numberOfPages) {
                 unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
                 assert SessionManager.unreadUrl != null;
-                unreadTask.execute(SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
+                unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
             }
             else {
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -306,7 +306,7 @@ public class UnreadFragment extends BaseFragment {
                     loadedPages = 0;
                     unreadTask = new UnreadTask(UnreadFragment.this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskFinished);
                     assert SessionManager.unreadUrl != null;
-                    unreadTask.execute(SessionManager.unreadUrl.toString());
+                    unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
                 }
             }
         }

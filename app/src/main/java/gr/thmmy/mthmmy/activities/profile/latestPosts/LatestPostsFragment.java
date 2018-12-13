@@ -122,7 +122,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
 
             //Load data
             profileLatestPostsTask = new LatestPostsTask();
-            profileLatestPostsTask.execute(profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
+            profileLatestPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
             ++pagesLoaded;
         }
     }
@@ -132,7 +132,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
         super.onActivityCreated(savedInstanceState);
         if (parsedTopicSummaries.isEmpty() && userHasPosts) {
             profileLatestPostsTask = new LatestPostsTask();
-            profileLatestPostsTask.execute(profileUrl + ";sa=showPosts");
+            profileLatestPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=showPosts");
             pagesLoaded = 1;
         }
     }

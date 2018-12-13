@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,7 +82,7 @@ public class RecentFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         if (topicSummaries.isEmpty()) {
             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
-            recentTask.execute(SessionManager.indexUrl.toString());
+            recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
 
         }
         Timber.d("onActivityCreated");
@@ -113,7 +114,7 @@ public class RecentFragment extends BaseFragment {
             swipeRefreshLayout.setOnRefreshListener(() -> {
                         if (!recentTask.isRunning()) {
                             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
-                            recentTask.execute(SessionManager.indexUrl.toString());
+                            recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
                         }
                     }
             );

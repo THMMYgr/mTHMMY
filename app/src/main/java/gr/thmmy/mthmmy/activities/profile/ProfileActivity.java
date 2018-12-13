@@ -187,7 +187,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         }
 
         profileTask = new ProfileTask();
-        profileTask.execute(profileUrl + ";wap"); //Attempts data parsing
+        profileTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";wap"); //Attempts data parsing
     }
 
     @Override
