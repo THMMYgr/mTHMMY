@@ -691,12 +691,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                        ((Post) topicItems.get(holder.getAdapterPosition())).setBbContent(charSequence.toString());
                     }
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        ((Post) topicItems.get(holder.getAdapterPosition())).setBbContent(editable.toString());
+
                     }
                 });
 
@@ -712,12 +712,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                        ((Post) topicItems.get(holder.getAdapterPosition())).setSubject(charSequence.toString());
                     }
 
                     @Override
                     public void afterTextChanged(Editable editable) {
-                        ((Post) topicItems.get(holder.getAdapterPosition())).setSubject(editable.toString());
+
                     }
                 });
             } else if (currentHolder instanceof EditMessageViewHolder) {
