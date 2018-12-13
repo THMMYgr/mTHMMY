@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -126,184 +127,244 @@ public class EditorView extends LinearLayout implements EmojiInputField {
                 getResources().getDimension(R.dimen.editor_format_button_margin_between);
         int columns = (int) Math.floor(displayMetrics.widthPixels / itemWidth);
         formatButtonsRecyclerview.setLayoutManager(new GridLayoutManager(context, columns));
-        formatButtonsRecyclerview.setAdapter(new FormatButtonsAdapter((view, drawableId) -> {
-            switch (drawableId) {
-                case R.drawable.ic_format_bold: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[b]");
-                    getText().insert(editText.getSelectionEnd(), "[/b]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 4);
-                    break;
-                }
-                case R.drawable.ic_format_italic: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[i]");
-                    getText().insert(editText.getSelectionEnd(), "[/i]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 4);
-                    break;
-                }
-                case R.drawable.ic_format_underlined: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[u]");
-                    getText().insert(editText.getSelectionEnd(), "[/u]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 4);
-                    break;
-                }
-                case R.drawable.ic_strikethrough_s: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[s]");
-                    getText().insert(editText.getSelectionEnd(), "[/s]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 4);
-                    break;
-                }
-                case R.drawable.ic_format_color_text: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    int selectionStart = editText.getSelectionStart();
-                    int selectionEnd = editText.getSelectionEnd();
-                    PopupWindow popupWindow = new PopupWindow(view.getContext());
-                    popupWindow.setHeight(LayoutParams.WRAP_CONTENT);
-                    popupWindow.setWidth(LayoutParams.WRAP_CONTENT);
-                    popupWindow.setFocusable(true);
-                    ScrollView colorPickerScrollview = (ScrollView) LayoutInflater.from(context).inflate(R.layout.editor_view_color_picker, null);
-                    LinearLayout colorPicker = (LinearLayout) colorPickerScrollview.getChildAt(0);
-                    popupWindow.setContentView(colorPickerScrollview);
-                    for (int i = 0; i < colorPicker.getChildCount(); i++) {
-                        TextView child = (TextView) colorPicker.getChildAt(i);
-                        child.setOnClickListener(v -> {
-                            boolean hadTextSelection2 = editText.hasSelection();
-                            getText().insert(editText.getSelectionStart(), "[color=" + colors.get(v.getId()) + "]");
-                            getText().insert(editText.getSelectionEnd(), "[/color]");
-                            editText.setSelection(hadTextSelection2 ? editText.getSelectionEnd() : editText.getSelectionStart() - 8);
-                            popupWindow.dismiss();
+    formatButtonsRecyclerview.setAdapter(
+        new FormatButtonsAdapter(
+            (view, drawableId) -> {
+              boolean hadTextSelection;
+              switch (drawableId) {
+                case R.drawable.ic_format_bold:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[b]");
+                  getText().insert(editText.getSelectionEnd(), "[/b]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 4);
+                  break;
+                case R.drawable.ic_format_italic:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[i]");
+                  getText().insert(editText.getSelectionEnd(), "[/i]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 4);
+                  break;
+                case R.drawable.ic_format_underlined:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[u]");
+                  getText().insert(editText.getSelectionEnd(), "[/u]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 4);
+                  break;
+                case R.drawable.ic_strikethrough_s:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[s]");
+                  getText().insert(editText.getSelectionEnd(), "[/s]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 4);
+                  break;
+                case R.drawable.ic_format_color_text:
+                  int selectionStart = editText.getSelectionStart();
+                  int selectionEnd = editText.getSelectionEnd();
+                  PopupWindow popupWindow = new PopupWindow(view.getContext());
+                  popupWindow.setHeight(LayoutParams.WRAP_CONTENT);
+                  popupWindow.setWidth(LayoutParams.WRAP_CONTENT);
+                  popupWindow.setFocusable(true);
+                  ScrollView colorPickerScrollview =
+                      (ScrollView)
+                          LayoutInflater.from(context)
+                              .inflate(R.layout.editor_view_color_picker, null);
+                  LinearLayout colorPicker = (LinearLayout) colorPickerScrollview.getChildAt(0);
+                  popupWindow.setContentView(colorPickerScrollview);
+                  for (int i = 0; i < colorPicker.getChildCount(); i++) {
+                    TextView child = (TextView) colorPicker.getChildAt(i);
+                    child.setOnClickListener(
+                        v -> {
+                          boolean hadTextSelection2 = editText.hasSelection();
+                          getText()
+                              .insert(
+                                  editText.getSelectionStart(),
+                                  "[color=" + colors.get(v.getId()) + "]");
+                          getText().insert(editText.getSelectionEnd(), "[/color]");
+                          editText.setSelection(
+                              hadTextSelection2
+                                  ? editText.getSelectionEnd()
+                                  : editText.getSelectionStart() - 8);
+                          popupWindow.dismiss();
                         });
-                    }
-                    popupWindow.showAsDropDown(view);
+                  }
+                  popupWindow.showAsDropDown(view);
+                  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                     new AsyncTask<Void, Void, Void>() {
-                        @Override
-                        protected Void doInBackground(Void... voids) {
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                Timber.e(e);
-                            }
-                            return null;
+                      @Override
+                      protected Void doInBackground(Void... voids) {
+                        try {
+                          Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                          Timber.e(e);
                         }
+                        return null;
+                      }
 
-                        @Override
-                        protected void onPostExecute(Void aVoid) {
-                            editText.setSelection(selectionStart, selectionEnd);
-                        }
+                      @Override
+                      protected void onPostExecute(Void aVoid) {
+                        editText.setSelection(selectionStart, selectionEnd);
+                      }
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    break;
-                }
-                case R.drawable.ic_format_size: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[size=10pt]");
-                    getText().insert(editText.getSelectionEnd(), "[/size]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 7);
-                    break;
-                }
-                case R.drawable.ic_text_format: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[font=Verdana]");
-                    getText().insert(editText.getSelectionEnd(), "[/font]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 7);
-                    break;
-                }
-                case R.drawable.ic_format_list_bulleted: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[list]\n[li]");
-                    getText().insert(editText.getSelectionEnd(), "[/li]\n[li][/li]\n[/list]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() - 13 : editText.getSelectionStart() - 23);
-                    break;
-                }
-                case R.drawable.ic_format_align_left: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[left]");
-                    getText().insert(editText.getSelectionEnd(), "[/left]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 7);
-                    break;
-                }
-                case R.drawable.ic_format_align_center: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[center]");
-                    getText().insert(editText.getSelectionEnd(), "[/center]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 9);
-                    break;
-                }
-                case R.drawable.ic_format_align_right: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[right]");
-                    getText().insert(editText.getSelectionEnd(), "[/right]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 8);
-                    break;
-                }
-                case R.drawable.ic_insert_link: {
-                    LinearLayout dialogBody = (LinearLayout) LayoutInflater.from(context)
-                            .inflate(R.layout.dialog_create_link, null);
-                    TextInputLayout linkUrl = dialogBody.findViewById(R.id.link_url_input);
-                    linkUrl.setOnClickListener(view1 -> linkUrl.setError(null));
-                    TextInputLayout linkText = dialogBody.findViewById(R.id.link_text_input);
-                    linkText.setOnClickListener(view2 -> linkText.setError(null));
-                    boolean hadTextSelection = editText.hasSelection();
-                    int start = editText.getSelectionStart(), end = editText.getSelectionEnd();
-                    if (editText.hasSelection()) {
-                        linkText.getEditText().setText(
-                                editText.getText().toString().substring(editText.getSelectionStart(), editText.getSelectionEnd()));
-                    }
-                    AlertDialog linkDialog = new AlertDialog.Builder(context, R.style.AppTheme_Dark_Dialog)
-                            .setTitle(R.string.dialog_create_link_title)
-                            .setView(dialogBody)
-                            .setPositiveButton(R.string.ok, null)
-                            .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                            .create();
-                    linkDialog.setOnShowListener(dialogInterface -> {
+                  }
+                  break;
+                case R.drawable.ic_format_size:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[size=10pt]");
+                  getText().insert(editText.getSelectionEnd(), "[/size]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 7);
+                  break;
+                case R.drawable.ic_text_format:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[font=Verdana]");
+                  getText().insert(editText.getSelectionEnd(), "[/font]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 7);
+                  break;
+                case R.drawable.ic_format_list_bulleted:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[list]\n[li]");
+                  getText().insert(editText.getSelectionEnd(), "[/li]\n[li][/li]\n[/list]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd() - 13
+                          : editText.getSelectionStart() - 23);
+                  break;
+                case R.drawable.ic_format_align_left:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[left]");
+                  getText().insert(editText.getSelectionEnd(), "[/left]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 7);
+                  break;
+                case R.drawable.ic_format_align_center:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[center]");
+                  getText().insert(editText.getSelectionEnd(), "[/center]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 9);
+                  break;
+                case R.drawable.ic_format_align_right:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[right]");
+                  getText().insert(editText.getSelectionEnd(), "[/right]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 8);
+                  break;
+                case R.drawable.ic_insert_link:
+                  LinearLayout dialogBody =
+                      (LinearLayout)
+                          LayoutInflater.from(context).inflate(R.layout.dialog_create_link, null);
+                  TextInputLayout linkUrl = dialogBody.findViewById(R.id.link_url_input);
+                  linkUrl.setOnClickListener(view1 -> linkUrl.setError(null));
+                  TextInputLayout linkText = dialogBody.findViewById(R.id.link_text_input);
+                  linkText.setOnClickListener(view2 -> linkText.setError(null));
+                  hadTextSelection = editText.hasSelection();
+                  int start = editText.getSelectionStart(), end = editText.getSelectionEnd();
+                  if (editText.hasSelection()) {
+                    linkText
+                        .getEditText()
+                        .setText(
+                            editText
+                                .getText()
+                                .toString()
+                                .substring(
+                                    editText.getSelectionStart(), editText.getSelectionEnd()));
+                  }
+                  AlertDialog linkDialog =
+                      new AlertDialog.Builder(context, R.style.AppTheme_Dark_Dialog)
+                          .setTitle(R.string.dialog_create_link_title)
+                          .setView(dialogBody)
+                          .setPositiveButton(R.string.ok, null)
+                          .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                          .create();
+                  linkDialog.setOnShowListener(
+                      dialogInterface -> {
                         Button button = linkDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                        button.setOnClickListener(view12 -> {
-                            if (TextUtils.isEmpty(Objects.requireNonNull(linkUrl.getEditText()).getText().toString())) {
+                        button.setOnClickListener(
+                            view12 -> {
+                              if (TextUtils.isEmpty(
+                                  Objects.requireNonNull(linkUrl.getEditText())
+                                      .getText()
+                                      .toString())) {
                                 linkUrl.setError(context.getString(R.string.input_field_required));
                                 return;
-                            }
+                              }
 
-                            if (hadTextSelection) editText.getText().delete(start, end);
-                            if (!TextUtils.isEmpty(linkText.getEditText().getText())) {
-                                getText().insert(editText.getSelectionStart(), "[url=" +
-                                        linkUrl.getEditText().getText().toString() + "]" +
-                                        linkText.getEditText().getText().toString() + "[/url]");
-                            }
-                            else
-                                getText().insert(editText.getSelectionStart(), "[url]" +
-                                        linkUrl.getEditText().getText().toString() + "[/url]");
-                            linkDialog.dismiss();
-                        });
-                    });
-                    linkDialog.show();
-                    break;
-                }
-                case R.drawable.ic_format_quote: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[quote]");
-                    getText().insert(editText.getSelectionEnd(), "[/quote]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 8);
-                    break;
-                }
-                case R.drawable.ic_code: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[code]");
-                    getText().insert(editText.getSelectionEnd(), "[/code]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 7);
-                    break;
-                }
-                case R.drawable.ic_functions: {
-                    boolean hadTextSelection = editText.hasSelection();
-                    getText().insert(editText.getSelectionStart(), "[tex]");
-                    getText().insert(editText.getSelectionEnd(), "[/tex]");
-                    editText.setSelection(hadTextSelection ? editText.getSelectionEnd() : editText.getSelectionStart() - 6);
-                    break;
-                }
-                default: throw new IllegalArgumentException("Unknown format button click");
-            }
-        }));
+                              if (hadTextSelection) editText.getText().delete(start, end);
+                              if (!TextUtils.isEmpty(linkText.getEditText().getText())) {
+                                getText()
+                                    .insert(
+                                        editText.getSelectionStart(),
+                                        "[url="
+                                            + linkUrl.getEditText().getText().toString()
+                                            + "]"
+                                            + linkText.getEditText().getText().toString()
+                                            + "[/url]");
+                              } else
+                                getText()
+                                    .insert(
+                                        editText.getSelectionStart(),
+                                        "[url]"
+                                            + linkUrl.getEditText().getText().toString()
+                                            + "[/url]");
+                              linkDialog.dismiss();
+                            });
+                      });
+                  linkDialog.show();
+                  break;
+                case R.drawable.ic_format_quote:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[quote]");
+                  getText().insert(editText.getSelectionEnd(), "[/quote]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 8);
+                  break;
+                case R.drawable.ic_code:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[code]");
+                  getText().insert(editText.getSelectionEnd(), "[/code]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 7);
+                  break;
+                case R.drawable.ic_functions:
+                  hadTextSelection = editText.hasSelection();
+                  getText().insert(editText.getSelectionStart(), "[tex]");
+                  getText().insert(editText.getSelectionEnd(), "[/tex]");
+                  editText.setSelection(
+                      hadTextSelection
+                          ? editText.getSelectionEnd()
+                          : editText.getSelectionStart() - 6);
+                  break;
+                default:
+                  throw new IllegalArgumentException("Unknown format button click");
+              }
+            }));
 
         emojiButton.setOnClickListener(view -> {
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);

@@ -110,9 +110,9 @@ public class BaseApplication extends Application {
                     }
                     return chain.proceed(request);
                 })
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS);
+                .connectTimeout(40, TimeUnit.SECONDS)
+                .writeTimeout(40, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { // Just for KitKats
             // Necessary because our servers don't have the right cipher suites.
