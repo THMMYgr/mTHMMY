@@ -95,7 +95,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         stopLoading();
         topicUrl = pageUrl;
         currentTopicTask = new TopicTask(topicTaskObserver, this);
-        currentTopicTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, pageUrl);
+        currentTopicTask.execute(pageUrl);
     }
 
     public void reloadPage() {
@@ -122,7 +122,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             TopicViewModel.this.onTopicTaskCompleted(result);
             runnable.run();
         });
-        currentTopicTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
+        currentTopicTask.execute(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
     }
 
     public void loadPageIndicated() {
@@ -210,7 +210,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         Timber.i("Preparing for edit");
         currentPrepareForEditTask = new PrepareForEditTask(prepareForEditCallbacks, this, position,
                 replyPageUrl.getValue());
-        currentPrepareForEditTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, postEditURL);
+        currentPrepareForEditTask.execute(postEditURL);
     }
 
     public void editPost(int position, String subject, String message) {

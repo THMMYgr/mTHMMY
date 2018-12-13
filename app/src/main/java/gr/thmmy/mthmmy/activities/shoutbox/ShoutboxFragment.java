@@ -138,7 +138,7 @@ public class ShoutboxFragment extends Fragment {
             Timber.i("Shout was sent successfully");
             editorView.getEditText().getText().clear();
             shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
-            shoutboxTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.shoutboxUrl.toString());
+            shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Timber.w("Failed to send shout");
             Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();

@@ -21,7 +21,7 @@ public class ShoutboxViewModel extends ViewModel {
         if (shoutboxTask != null && shoutboxTask.getStatus() == AsyncTask.Status.RUNNING)
             shoutboxTask.cancel(true);
         shoutboxTask = new ShoutboxTask(onShoutboxTaskStarted, onShoutboxTaskFinished);
-        shoutboxTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.shoutboxUrl.toString());
+        shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
     }
 
     public void sendShout(String shout) {
