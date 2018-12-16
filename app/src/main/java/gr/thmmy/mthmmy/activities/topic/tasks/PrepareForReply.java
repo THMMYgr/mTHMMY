@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 import android.os.AsyncTask;
 
 import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Selector;
 
 import java.io.IOException;
@@ -62,6 +63,7 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
             try {
                 Response response = client.newCall(request).execute();
                 String body = response.body().string();
+                body = Parser.unescapeEntities(body, false);
                 buildedQuotes.append(body.substring(body.indexOf("<quote>") + 7, body.indexOf("</quote>")));
                 buildedQuotes.append("\n\n");
             } catch (IOException | Selector.SelectorParseException e) {
