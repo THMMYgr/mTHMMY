@@ -185,6 +185,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (!pollSupported) {
                 holder.optionsLayout.setVisibility(View.GONE);
                 holder.voteChart.setVisibility(View.GONE);
+                holder.selectedEntry.setVisibility(View.GONE);
                 holder.removeVotesButton.setVisibility(View.GONE);
                 holder.showPollResultsButton.setVisibility(View.GONE);
                 holder.hidePollResultsButton.setVisibility(View.GONE);
@@ -222,6 +223,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.optionsLayout.addView(checkBox);
                 }
                 holder.voteChart.setVisibility(View.GONE);
+                holder.selectedEntry.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
             } else if (poll.getAvailableVoteCount() == 1) {
                 // vote single option
@@ -242,8 +244,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 holder.optionsLayout.addView(radioGroup);
                 holder.voteChart.setVisibility(View.GONE);
+                holder.selectedEntry.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
-            } else if (poll.getSelectedEntryIndex() != -1) {
+            } else if (poll.isPollResultsHidden()) {
                 // vote already submitted but results are hidden
                 Poll.Entry[] entries1 = poll.getEntries();
                 for (int i = 0; i < entries1.length; i++) {
@@ -267,6 +270,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.optionsLayout.addView(textView);
                 }
                 holder.voteChart.setVisibility(View.GONE);
+                holder.selectedEntry.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
             } else {
                 // Showing results
@@ -316,6 +320,12 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setMinimumHeight((int) (chartHeightDp * (metrics.densityDpi / 160f)));
                 holder.voteChart.invalidate();
                 holder.voteChart.setVisibility(View.VISIBLE);
+
+                if (poll.getSelectedEntryIndex() != -1) {
+                    holder.selectedEntry.setText("You voted \"" +
+                            poll.getEntries()[poll.getSelectedEntryIndex()].getEntryName() + "\"");
+                    holder.selectedEntry.setVisibility(View.VISIBLE);
+                }
             }
             if (poll.getRemoveVoteUrl() != null) {
                 holder.removeVotesButton.setOnClickListener(v -> viewModel.removeVote());
@@ -899,7 +909,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class PollViewHolder extends RecyclerView.ViewHolder {
-        final TextView question, errorTextview;
+        final TextView question, errorTextview, selectedEntry;
         final LinearLayout optionsLayout;
         final AppCompatButton submitButton;
         final AppCompatButton removeVotesButton, showPollResultsButton, hidePollResultsButton;
@@ -916,6 +926,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             hidePollResultsButton = itemView.findViewById(R.id.show_poll_options_button);
             errorTextview = itemView.findViewById(R.id.error_too_many_checked);
             voteChart = itemView.findViewById(R.id.vote_chart);
+            selectedEntry = itemView.findViewById(R.id.selected_entry_textview);
             voteChart.setScaleYEnabled(false);
             voteChart.setDoubleTapToZoomEnabled(false);
         }

@@ -26,6 +26,14 @@
         android:visibility="gone"/>
 
     <TextView
+        android:id="@+id/selected_entry_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/primary_text"
+        android:visibility="gone"/>
+
+    <TextView
         android:id="@+id/error_too_many_checked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

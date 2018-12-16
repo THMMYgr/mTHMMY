@@ -487,6 +487,7 @@ public class TopicParser {
             int availableVoteCount = 0, selectedEntryIndex = -1;
             String pollFormUrl = null, sc = null, removeVoteUrl = null, showVoteResultsUrl = null,
                     showOptionsUrl = null;
+            boolean pollResultsHidden = false;
 
             Element pollColumn = table.select("tr[class=windowbg]").first().child(1);
             question = pollColumn.ownText().trim();
@@ -525,21 +526,19 @@ public class TopicParser {
                 }
             } else {
                 // poll in results mode
-                boolean pollResultsHidden = false;
                 Elements entryRows = pollColumn.select("table[cellspacing] tr");
                 for (int i = 0; i < entryRows.size(); i++) {
                     Element entryRow = entryRows.get(i);
                     Elements entryColumns = entryRow.select("td");
 
-                    if (entryColumns.size() < 2) pollResultsHidden = true;
+                    if (entryColumns.first().attr("style").contains("font-weight: bold;"))
+                        selectedEntryIndex = i;
 
                     String optionName = entryColumns.first().html();
                     int voteCount = 0;
 
-                    if (pollResultsHidden) {
-                        if (entryColumns.first().attr("style").contains("font-weight: bold;"))
-                            selectedEntryIndex = i;
-                    } else {
+                    if (entryColumns.size() < 2) pollResultsHidden = true;
+                    if (!pollResultsHidden) {
                         String voteCountDescription = entryColumns.last().text();
                         Matcher integerMatcher = integerPattern.matcher(voteCountDescription);
                         if (integerMatcher.find()) {
@@ -560,7 +559,7 @@ public class TopicParser {
                 }
             }
             return new Poll(question, entries.toArray(new Poll.Entry[0]), availableVoteCount,
-                    pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl, showOptionsUrl, selectedEntryIndex);
+                    pollFormUrl, sc, removeVoteUrl, showVoteResultsUrl, showOptionsUrl, selectedEntryIndex, pollResultsHidden);
         } catch (Exception e) {
             Timber.v(e, "Could not parse a poll");
         }
