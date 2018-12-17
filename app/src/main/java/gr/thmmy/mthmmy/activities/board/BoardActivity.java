@@ -224,8 +224,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             if (newTopicButton == null)
                 newTopicButton = boardPage.select("a:has(img[alt=Νέο θέμα])").first();
             if (newTopicButton != null) newTopicUrl = newTopicButton.attr("href");
-
-            { //Finds sub boards
+            if(pagesLoaded == 0) { //Finds sub boards
                 Elements subBoardRows = boardPage.select("div.tborder>table>tbody>tr");
                 if (subBoardRows != null && !subBoardRows.isEmpty()) {
                     for (Element subBoardRow : subBoardRows) {
@@ -269,46 +268,46 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     }
                 }
             }
-            { //Finds topics
-                Elements topicRows = boardPage.select("table.bordercolor>tbody>tr");
-                if (topicRows != null && !topicRows.isEmpty()) {
-                    for (Element topicRow : topicRows) {
-                        if (!Objects.equals(topicRow.className(), "titlebg")) {
-                            String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
-                            boolean pLocked = false, pSticky = false, pUnread = false;
-                            Elements topicColumns = topicRow.select(">td");
-                            {
-                                Element column = topicColumns.get(2);
-                                Element tmp = column.select("span[id^=msg_] a").first();
-                                pTopicUrl = tmp.attr("href");
-                                pSubject = tmp.text();
-                                if (column.select("img[id^=stickyicon]").first() != null)
-                                    pSticky = true;
-                                if (column.select("img[id^=lockicon]").first() != null)
-                                    pLocked = true;
-                                if (column.select("a[id^=newicon]").first() != null)
-                                    pUnread = true;
-                            }
-                            pStartedBy = topicColumns.get(3).text();
-                            pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
-
-                            pLastPost = topicColumns.last().text();
-                            if (pLastPost.contains("by")) {
-                                pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
-                                        "\n" + pLastPost.substring(pLastPost.indexOf("by"));
-                            } else if (pLastPost.contains("από")) {
-                                pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
-                                        "\n" + pLastPost.substring(pLastPost.indexOf("από"));
-                            } else {
-                                Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
-                            }
-                            pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
-                            tempTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
-                                    pStats, pLocked, pSticky, pUnread));
+            //Finds topics
+            Elements topicRows = boardPage.select("table.bordercolor>tbody>tr");
+            if (topicRows != null && !topicRows.isEmpty()) {
+                for (Element topicRow : topicRows) {
+                    if (!Objects.equals(topicRow.className(), "titlebg")) {
+                        String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
+                        boolean pLocked = false, pSticky = false, pUnread = false;
+                        Elements topicColumns = topicRow.select(">td");
+                        {
+                            Element column = topicColumns.get(2);
+                            Element tmp = column.select("span[id^=msg_] a").first();
+                            pTopicUrl = tmp.attr("href");
+                            pSubject = tmp.text();
+                            if (column.select("img[id^=stickyicon]").first() != null)
+                                pSticky = true;
+                            if (column.select("img[id^=lockicon]").first() != null)
+                                pLocked = true;
+                            if (column.select("a[id^=newicon]").first() != null)
+                                pUnread = true;
                         }
+                        pStartedBy = topicColumns.get(3).text();
+                        pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
+
+                        pLastPost = topicColumns.last().text();
+                        if (pLastPost.contains("by")) {
+                            pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
+                                    "\n" + pLastPost.substring(pLastPost.indexOf("by"));
+                        } else if (pLastPost.contains("από")) {
+                            pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
+                                    "\n" + pLastPost.substring(pLastPost.indexOf("από"));
+                        } else {
+                            Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
+                        }
+                        pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
+                        tempTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
+                                pStats, pLocked, pSticky, pUnread));
                     }
                 }
             }
+
         }
 
         @Override
