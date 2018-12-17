@@ -1,13 +1,10 @@
 package gr.thmmy.mthmmy.session;
 
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -17,7 +14,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -37,6 +37,7 @@ public class SessionManager {
     public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum;theme=4");
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
     public static final HttpUrl unreadUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=unread;all;start=0;theme=4");
+    public static final HttpUrl shoutboxUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=tpmod;sa=shoutbox;theme=4");
     private static final String guestName = "Guest";
 
     //Response Codes
@@ -56,6 +57,7 @@ public class SessionManager {
 
     //Shared Preferences & its keys
     private final SharedPreferences sharedPrefs;
+    private final SharedPreferences draftsPrefs;
     private static final String USERNAME = "Username";
     private static final String USER_ID = "UserID";
     private static final String AVATAR_LINK = "AvatarLink";
@@ -66,11 +68,12 @@ public class SessionManager {
 
     //Constructor
     public SessionManager(OkHttpClient client, PersistentCookieJar cookieJar,
-                          SharedPrefsCookiePersistor cookiePersistor, SharedPreferences sharedPrefs) {
+                          SharedPrefsCookiePersistor cookiePersistor, SharedPreferences sharedPrefs, SharedPreferences draftsPrefs) {
         this.client = client;
         this.cookiePersistor = cookiePersistor;
         this.cookieJar = cookieJar;
         this.sharedPrefs = sharedPrefs;
+        this.draftsPrefs = draftsPrefs;
     }
 
     //------------------------------------AUTH BEGINS----------------------------------------------
@@ -108,7 +111,7 @@ public class SessionManager {
         try {
             //Make request & handle response
             Response response = client.newCall(request).execute();
-            Document document = Jsoup.parse(response.body().string());
+            Document document = ParseHelpers.parse(response.body().string());
 
             if (validateRetrievedCookies())
             {
@@ -116,19 +119,17 @@ public class SessionManager {
                 setPersistentCookieSession();   //Store cookies
 
                 //Edit SharedPreferences, save session's data
+                SharedPreferences.Editor editor = sharedPrefs.edit();
                 setLoginScreenAsDefault(false);
-                sharedPrefs.edit().putBoolean(LOGGED_IN, true).apply();
-                sharedPrefs.edit().putString(USERNAME, extractUserName(document)).apply();
-                sharedPrefs.edit().putInt(USER_ID, extractUserId(document)).apply();
+                editor.putBoolean(LOGGED_IN, true);
+                editor.putString(USERNAME, extractUserName(document));
+                editor.putInt(USER_ID, extractUserId(document));
                 String avatar = extractAvatarLink(document);
-                if (avatar != null) {
-                    sharedPrefs.edit().putBoolean(HAS_AVATAR, true).apply();
-                    sharedPrefs.edit().putString(AVATAR_LINK, extractAvatarLink(document)).apply();
-                } else
-                    sharedPrefs.edit().putBoolean(HAS_AVATAR, false).apply();
-
-
-                sharedPrefs.edit().putString(LOGOUT_LINK, extractLogoutLink(document)).apply();
+                if (avatar != null)
+                    editor.putString(AVATAR_LINK, avatar);
+                editor.putBoolean(HAS_AVATAR, avatar != null);
+                editor.putString(LOGOUT_LINK, extractLogoutLink(document));
+                editor.apply();
 
                 return SUCCESS;
             } else {
@@ -216,7 +217,7 @@ public class SessionManager {
         try {
             //Make request & handle response
             Response response = client.newCall(request).execute();
-            Document document = Jsoup.parse(response.body().string());
+            Document document = ParseHelpers.parse(response.body().string());
 
             Elements loginButton = document.select("[value=Login]");  //Attempt to find login button
             if (!loginButton.isEmpty()) //If login button exists, logout was successful
@@ -310,6 +311,7 @@ public class SessionManager {
         sharedPrefs.edit().putString(USERNAME, guestName).apply();
         sharedPrefs.edit().putInt(USER_ID, -1).apply();
         sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
+        draftsPrefs.edit().clear().apply(); //Clear saved drafts
         Timber.i("Session data cleared.");
     }
 

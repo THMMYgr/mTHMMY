@@ -2,9 +2,6 @@ package gr.thmmy.mthmmy.activities.main.forum;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
@@ -90,7 +90,7 @@ public class ForumFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         if (categories.isEmpty()) {
             forumTask = new ForumTask(this::onForumTaskStarted, this::onForumTaskFinished);
-            forumTask.execute();
+            forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         }
         Timber.d("onActivityCreated");
@@ -114,7 +114,7 @@ public class ForumFragment extends BaseFragment {
                             forumTask.cancel(true);
                         forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
                         forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
-                        forumTask.execute();
+                        forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                 }
 
@@ -125,7 +125,7 @@ public class ForumFragment extends BaseFragment {
                             forumTask.cancel(true);
                         forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
                         forumTask.setUrl(categories.get(parentPosition).getCategoryURL());
-                        forumTask.execute();
+                        forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                 }
             });
@@ -145,7 +145,7 @@ public class ForumFragment extends BaseFragment {
                         if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING) {
                             forumTask = new ForumTask(ForumFragment.this::onForumTaskStarted, ForumFragment.this::onForumTaskFinished);
                             //forumTask.execute(SessionManager.indexUrl.toString());
-                            forumTask.execute();
+                            forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         }
                     }
             );
@@ -176,6 +176,9 @@ public class ForumFragment extends BaseFragment {
             forumAdapter.notifyParentDataSetChanged(false);
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
+                    " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
 
         progressBar.setVisibility(ProgressBar.INVISIBLE);

@@ -3,18 +3,22 @@ package gr.thmmy.mthmmy.activities.main;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.preference.PreferenceManager;
 import android.widget.Toast;
+
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.preference.PreferenceManager;
+import androidx.viewpager.widget.ViewPager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
@@ -23,6 +27,7 @@ import gr.thmmy.mthmmy.activities.main.forum.ForumFragment;
 import gr.thmmy.mthmmy.activities.main.recent.RecentFragment;
 import gr.thmmy.mthmmy.activities.main.unread.UnreadFragment;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
+import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
@@ -37,7 +42,6 @@ import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWN
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
@@ -50,6 +54,14 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     private long mBackPressed;
     private SectionsPagerAdapter sectionsPagerAdapter;
     private ViewPager viewPager;
+    private TabLayout tabLayout;
+
+    //Fix for vector drawables on android <21
+    static {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +79,14 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+            return; //Avoid executing the code below
         }
 
         //Initialize drawer
         createDrawer();
+
+        tabLayout = findViewById(R.id.tabs);
+        viewPager = findViewById(R.id.container);
 
         //Create the adapter that will return a fragment for each section of the activity
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -80,17 +96,16 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
 
         //Set up the ViewPager with the sections adapter.
-        viewPager = findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
-
-        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int preferredTab = Integer.parseInt(sharedPrefs.getString(DEFAULT_HOME_TAB, "0"));
-        if (preferredTab != 3 || sessionManager.isLoggedIn()) {
+        int preferredTab = Integer.parseInt(sharedPrefs.getString(SettingsActivity.DEFAULT_HOME_TAB, "0"));
+        if ((preferredTab != 3 && preferredTab != 4) || sessionManager.isLoggedIn())
             tabLayout.getTabAt(preferredTab).select();
-        }
+
+        for (int i = 0; i < tabLayout.getTabCount(); i++)
+            updateTabIcon(i);
 
         setMainActivity(this);
     }
@@ -105,7 +120,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     protected void onResume() {
         drawer.setSelection(HOME_ID);
-        if(!sharedPrefs.getBoolean(DRAWER_INTRO, false)){
+        if (!sharedPrefs.getBoolean(DRAWER_INTRO, false)) {
             drawer.openDrawer();
             sharedPrefs.edit().putBoolean(DRAWER_INTRO, true).apply();
         }
@@ -133,6 +148,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
         i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
         i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
+        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(i);
     }
 
@@ -150,6 +166,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             Intent i = new Intent(MainActivity.this, TopicActivity.class);
             i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
             i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
+            i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(i);
         } else
             Timber.e("onUnreadFragmentInteraction TopicSummary came without a link");
@@ -161,7 +178,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages. If it becomes too memory intensive,
      * it may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * {@link FragmentStatePagerAdapter}.
      */
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> fragmentList = new ArrayList<>();
@@ -175,9 +192,11 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             fragmentList.add(fragment);
             fragmentTitleList.add(title);
             notifyDataSetChanged();
+            updateTabIcon(fragmentList.size() - 1);
         }
 
         void removeFragment(int position) {
+            getSupportFragmentManager().beginTransaction().remove(fragmentList.get(position)).commit();
             fragmentList.remove(position);
             fragmentTitleList.remove(position);
             notifyDataSetChanged();
@@ -208,11 +227,25 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         }
     }
 
+    public void updateTabIcon(int position) {
+        if (position >= tabLayout.getTabCount()) return;
+        if (position == 0)
+            tabLayout.getTabAt(0).setIcon(getResources().getDrawable(R.drawable.ic_access_time_white_24dp));
+        else if (position == 1)
+            tabLayout.getTabAt(1).setIcon(getResources().getDrawable(R.drawable.ic_forum_white_24dp));
+        else if (position == 2)
+            tabLayout.getTabAt(2).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
+    }
+
+
     public void updateTabs() {
         if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3)
             sectionsPagerAdapter.removeFragment(2);
         else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2)
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
+
+        for (int i = 0; i < tabLayout.getTabCount(); i++)
+            updateTabIcon(i);
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
 

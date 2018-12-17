@@ -2,9 +2,6 @@ package gr.thmmy.mthmmy.editorview;
 
 import android.content.Context;
 import android.os.Handler;
-import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -14,6 +11,9 @@ import android.widget.LinearLayout;
 
 import java.util.HashSet;
 
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 
 public class EmojiKeyboard extends LinearLayout implements IEmojiKeyboard {

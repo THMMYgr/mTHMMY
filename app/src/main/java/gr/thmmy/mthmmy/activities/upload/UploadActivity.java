@@ -11,11 +11,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.content.res.AppCompatResources;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.AppCompatButton;
-import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,6 +18,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
@@ -43,6 +40,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
@@ -331,7 +332,7 @@ public class UploadActivity extends BaseActivity {
         if (uploadRootCategories.isEmpty()) {
             //Parses the uploads page
             parseUploadPageTask = new ParseUploadPageTask();
-            parseUploadPageTask.execute(uploadIndexUrl);
+            parseUploadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uploadIndexUrl);
         } else {
             //Renders the already parsed data
             updateUIElements();

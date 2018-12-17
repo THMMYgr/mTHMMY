@@ -16,12 +16,21 @@
         android:id="@+id/options_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="vertical" />
 
     <com.github.mikephil.charting.charts.HorizontalBarChart
         android:id="@+id/vote_chart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/selected_entry_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/primary_text"
         android:visibility="gone"/>
 
     <TextView
@@ -41,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/remove_vote_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -49,7 +58,7 @@
             android:visibility="gone"
             android:layout_marginEnd="16dp"/>
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/show_poll_results_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,7 +66,7 @@
             android:text="@string/show_vote_results_button"
             android:visibility="gone" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/show_poll_options_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -65,7 +74,7 @@
             android:text="@string/show_vote_options_button"
             android:visibility="gone" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/submit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

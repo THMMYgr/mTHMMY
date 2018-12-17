@@ -9,7 +9,7 @@
     android:paddingStart="4dp"
     tools:ignore="SmallSp">
 
-    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -53,15 +53,13 @@
 
                         <ImageView
                             android:id="@+id/thumbnail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="@dimen/thumbnail_size"
+                            android:layout_height="@dimen/thumbnail_size"
                             android:layout_gravity="center"
                             android:adjustViewBounds="true"
                             android:contentDescription="@string/post_thumbnail"
-                            android:maxHeight="@dimen/thumbnail_size"
-                            android:maxWidth="@dimen/thumbnail_size"
-                            app:srcCompat="@drawable/ic_default_user_thumbnail_white_24dp"
-                            android:transitionName="user_thumbnail" />
+                            android:transitionName="user_thumbnail"
+                            app:srcCompat="@drawable/ic_default_user_avatar_darker" />
                     </FrameLayout>
 
                     <TextView
@@ -260,5 +258,5 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp" />
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>

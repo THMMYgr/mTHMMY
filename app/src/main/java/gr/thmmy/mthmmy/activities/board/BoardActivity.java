@@ -4,14 +4,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,6 +17,10 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.create_content.CreateContentActivity;
@@ -124,7 +125,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             });
         }
 
-        boardAdapter = new BoardAdapter(getApplicationContext(), parsedSubBoards, parsedTopics);
+        boardAdapter = new BoardAdapter(this, parsedSubBoards, parsedTopics);
         RecyclerView mainContent = findViewById(R.id.board_recycler_view);
         mainContent.setAdapter(boardAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -148,7 +149,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         });
 
         boardTask = new BoardTask();
-        boardTask.execute(boardUrl);
+        boardTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, boardUrl);
     }
 
     @Override
@@ -196,9 +197,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             tempSubboards.addAll(parsedSubBoards);
             tempTopics.addAll(parsedTopics);
             //Removes loading item
-            if (isLoadingMore) {
-                if (tempTopics.size() > 0) tempTopics.remove(tempTopics.size() - 1);
-            }
+            if (isLoadingMore && tempTopics.size() > 0)
+                tempTopics.remove(tempTopics.size() - 1);
+
             parsedTitle = boardPage.select("div.nav a.nav").last().text();
 
             //Finds number of pages
@@ -223,8 +224,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             if (newTopicButton == null)
                 newTopicButton = boardPage.select("a:has(img[alt=Νέο θέμα])").first();
             if (newTopicButton != null) newTopicUrl = newTopicButton.attr("href");
-
-            { //Finds sub boards
+            if(pagesLoaded == 0) { //Finds sub boards
                 Elements subBoardRows = boardPage.select("div.tborder>table>tbody>tr");
                 if (subBoardRows != null && !subBoardRows.isEmpty()) {
                     for (Element subBoardRow : subBoardRows) {
@@ -268,46 +268,46 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                     }
                 }
             }
-            { //Finds topics
-                Elements topicRows = boardPage.select("table.bordercolor>tbody>tr");
-                if (topicRows != null && !topicRows.isEmpty()) {
-                    for (Element topicRow : topicRows) {
-                        if (!Objects.equals(topicRow.className(), "titlebg")) {
-                            String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
-                            boolean pLocked = false, pSticky = false, pUnread = false;
-                            Elements topicColumns = topicRow.select(">td");
-                            {
-                                Element column = topicColumns.get(2);
-                                Element tmp = column.select("span[id^=msg_] a").first();
-                                pTopicUrl = tmp.attr("href");
-                                pSubject = tmp.text();
-                                if (column.select("img[id^=stickyicon]").first() != null)
-                                    pSticky = true;
-                                if (column.select("img[id^=lockicon]").first() != null)
-                                    pLocked = true;
-                                if (column.select("a[id^=newicon]").first() != null)
-                                    pUnread = true;
-                            }
-                            pStartedBy = topicColumns.get(3).text();
-                            pStats = "Replies " + topicColumns.get(4).text() + ", Views " + topicColumns.get(5).text();
-
-                            pLastPost = topicColumns.last().text();
-                            if (pLastPost.contains("by")) {
-                                pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
-                                        "\n" + pLastPost.substring(pLastPost.indexOf("by"));
-                            } else if (pLastPost.contains("από")) {
-                                pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
-                                        "\n" + pLastPost.substring(pLastPost.indexOf("από"));
-                            } else {
-                                Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
-                            }
-                            pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
-                            tempTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
-                                    pStats, pLocked, pSticky, pUnread));
+            //Finds topics
+            Elements topicRows = boardPage.select("table.bordercolor>tbody>tr");
+            if (topicRows != null && !topicRows.isEmpty()) {
+                for (Element topicRow : topicRows) {
+                    if (!Objects.equals(topicRow.className(), "titlebg")) {
+                        String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
+                        boolean pLocked = false, pSticky = false, pUnread = false;
+                        Elements topicColumns = topicRow.select(">td");
+                        {
+                            Element column = topicColumns.get(2);
+                            Element tmp = column.select("span[id^=msg_] a").first();
+                            pTopicUrl = tmp.attr("href");
+                            pSubject = tmp.text();
+                            if (column.select("img[id^=stickyicon]").first() != null)
+                                pSticky = true;
+                            if (column.select("img[id^=lockicon]").first() != null)
+                                pLocked = true;
+                            if (column.select("a[id^=newicon]").first() != null)
+                                pUnread = true;
                         }
+                        pStartedBy = topicColumns.get(3).text();
+                        pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
+
+                        pLastPost = topicColumns.last().text();
+                        if (pLastPost.contains("by")) {
+                            pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
+                                    "\n" + pLastPost.substring(pLastPost.indexOf("by"));
+                        } else if (pLastPost.contains("από")) {
+                            pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
+                                    "\n" + pLastPost.substring(pLastPost.indexOf("από"));
+                        } else {
+                            Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
+                        }
+                        pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
+                        tempTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
+                                pStats, pLocked, pSticky, pUnread));
                     }
                 }
             }
+
         }
 
         @Override

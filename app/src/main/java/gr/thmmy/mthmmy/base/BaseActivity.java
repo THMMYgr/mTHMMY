@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.base;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,14 +10,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
@@ -43,14 +35,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.bookmarks.BookmarkActivity;
+import gr.thmmy.mthmmy.activities.bookmarks.BookmarksActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
+import gr.thmmy.mthmmy.activities.shoutbox.ShoutboxActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
@@ -98,6 +99,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private MainActivity mainActivity;
     private boolean isMainActivity;
+    private boolean isUserConsentDialogShown;   //Needed because sometimes onResume is being called twice
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +119,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             loadSavedBookmarks();
         }
 
-        sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         BaseViewModel baseViewModel = ViewModelProviders.of(this).get(BaseViewModel.class);
         baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> setTopicBookmark(thisPageBookmarkMenuButton));
@@ -127,8 +129,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateDrawer();
-        if(!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key),false))
+        if (!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key), false) && !isUserConsentDialogShown){
+            isUserConsentDialogShown=true;
             showUserConsentDialog();
+        }
     }
 
     @Override
@@ -156,6 +160,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected static final int LOG_ID = 4;
     protected static final int ABOUT_ID = 5;
     protected static final int SETTINGS_ID = 6;
+    protected static final int SHOUTBOX_ID = 7;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
@@ -170,7 +175,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
-        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem;
+        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem, shoutboxItem;
         IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, uploadIcon, uploadIconSelected, settingsIcon,
                 settingsIconSelected, bookmarksIcon, bookmarksIconSelected, aboutIcon, aboutIconSelected;
 
@@ -258,6 +263,17 @@ public abstract class BaseActivity extends AppCompatActivity {
 //                    .withIcon(uploadIcon)
 //                    .withSelectedIcon(uploadIconSelected);
 
+        shoutboxItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(SHOUTBOX_ID)
+                .withName(R.string.shoutbox)
+                .withIcon(R.drawable.ic_announcement)
+                .withIconColor(primaryColor)
+                .withSelectedIconColor(selectedSecondaryColor)
+                .withIconTintingEnabled(true);
+
         if (sessionManager.isLoggedIn()) //When logged in
         {
             loginLogoutItem = new PrimaryDrawerItem()
@@ -311,6 +327,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withCompactStyle(true)
                 .withSelectionListEnabledForSingleProfile(false)
                 .withHeaderBackground(R.color.primary)
+                .withTextColor(getResources().getColor(R.color.iron))
                 .addProfiles(profileDrawerItem)
                 .withOnAccountHeaderListener((view, profile, currentProfile) -> {
                     if (sessionManager.isLoggedIn()) {
@@ -346,6 +363,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                             Intent intent = new Intent(BaseActivity.this, MainActivity.class);
                             startActivity(intent);
                         }
+                    } else if (drawerItem.equals(SHOUTBOX_ID)) {
+                        if (!(BaseActivity.this instanceof ShoutboxActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, ShoutboxActivity.class);
+                            startActivity(intent);
+                        }
                     } else if (drawerItem.equals(DOWNLOADS_ID)) {
                         if (!(BaseActivity.this instanceof DownloadsActivity)) {
                             Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
@@ -361,8 +383,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 //                            startActivity(intent);
 //                        }
                     } else if (drawerItem.equals(BOOKMARKS_ID)) {
-                        if (!(BaseActivity.this instanceof BookmarkActivity)) {
-                            Intent intent = new Intent(BaseActivity.this, BookmarkActivity.class);
+                        if (!(BaseActivity.this instanceof BookmarksActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, BookmarksActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(intent);
                         }
@@ -370,7 +392,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                         if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
                             startLoginActivity();
                         else
-                            new LogoutTask().execute();
+                            new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
                     } else if (drawerItem.equals(ABOUT_ID)) {
                         if (!(BaseActivity.this instanceof AboutActivity)) {
                             Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
@@ -390,9 +412,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, shoutboxItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
         else
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, shoutboxItem, settingsItem, loginLogoutItem, aboutItem);
 
         drawer = drawerBuilder.build();
 
@@ -416,10 +438,10 @@ public abstract class BaseActivity extends AppCompatActivity {
                 setDefaultAvatar();
             } else {
                 if (!drawer.getDrawerItems().contains(downloadsItem)) {
-                    drawer.addItemAtPosition(downloadsItem, 3);
+                    drawer.addItemAtPosition(downloadsItem, 4);
                 }
 //                if (!drawer.getDrawerItems().contains(uploadItem)) {
-//                    drawer.addItemAtPosition(uploadItem, 4);
+//                    drawer.addItemAtPosition(uploadItem, 5);
 //                }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());
@@ -438,8 +460,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         profileDrawerItem.withIcon(new IconicsDrawable(this)
                 .icon(FontAwesome.Icon.faw_user)
                 .paddingDp(10)
-                .color(ContextCompat.getColor(this, R.color.primary_light))
-                .backgroundColor(ContextCompat.getColor(this, R.color.primary)));
+                .color(ContextCompat.getColor(this, R.color.iron))
+                .backgroundColor(ContextCompat.getColor(this, R.color.primary_light)));
     }
 
 //-------------------------------------------LOGOUT-------------------------------------------------
@@ -477,6 +499,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (mainActivity != null)
                 mainActivity.updateTabs();
             progressDialog.dismiss();
+            //TODO: Redirect to Main only for some Activities (e.g. Topic, Board, Downloads)
             //if (BaseActivity.this instanceof TopicActivity){
             Intent intent = new Intent(BaseActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -627,7 +650,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
 
             return topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled();
-        } else  if (bookmark.matchExists(boardsBookmarked)) {
+        } else if (bookmark.matchExists(boardsBookmarked)) {
             boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).toggleNotificationsEnabled();
             updateBoardBookmarks();
 
@@ -741,7 +764,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //----------------------------PRIVACY POLICY------------------
-    private void showUserConsentDialog(){
+    private void showUserConsentDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
         builder.setTitle("User Agreement");
         builder.setMessage(R.string.user_agreement_dialog_text);
@@ -769,7 +792,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void showPrivacyPolicyDialog() {
         TextView privacyPolicyTextView = new TextView(this);
-        privacyPolicyTextView.setPadding(30,20,30,20);
+        privacyPolicyTextView.setPadding(30, 20, 30, 20);
         privacyPolicyTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_text));
         SpannableConfiguration configuration = SpannableConfiguration.builder(this).linkResolver(new LinkResolverDef()).build();
         StringBuilder stringBuilder = new StringBuilder();
@@ -793,7 +816,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             Timber.e(e, "Error in Privacy Policy dialog.");
         } finally {
             try {
-                if(reader!=null)
+                if (reader != null)
                     reader.close();
             } catch (IOException e) {
                 Timber.e(e, "Error in Privacy Policy dialog (closing reader).");
@@ -801,12 +824,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    private void addUserConsent(){
+    private void addUserConsent() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.user_consent_shared_preference_key), true).apply();
     }
 
-    private void setUserDataShareEnabled(boolean enabled){
+    private void setUserDataShareEnabled(boolean enabled) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), enabled).apply();
         editor.putBoolean(getString(R.string.pref_privacy_analytics_enable_key), enabled).apply();
@@ -817,7 +840,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.mainActivity = mainActivity;
     }
 
-    private void startLoginActivity(){
+    private void startLoginActivity() {
         Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);

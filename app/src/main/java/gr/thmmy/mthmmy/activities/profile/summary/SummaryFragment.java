@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -22,9 +21,12 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import androidx.fragment.app.Fragment;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
+
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.deobfuscateElements;
 
 
 /**
@@ -88,7 +90,7 @@ public class SummaryFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (parsedProfileSummaryData.isEmpty()) {
             summaryTask = new SummaryTask();
-            summaryTask.execute(profileSummaryDocument);
+            summaryTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileSummaryDocument);
         }
         Timber.d("onActivityCreated");
     }
@@ -132,6 +134,7 @@ public class SummaryFragment extends Fragment {
             //Contains all summary's rows
             Elements summaryRows = profile.select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tr");
 
+            deobfuscateElements(summaryRows, false);
             for (Element summaryRow : summaryRows) {
                 String rowText = summaryRow.text(), pHtml = "";
 

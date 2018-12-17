@@ -2,23 +2,24 @@
 
 buildscript {
     repositories {
-        jcenter()
         maven { url "https://jitpack.io" }
         maven { url "https://maven.fabric.io/public" }
         google()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'com.google.gms:google-services:4.1.0'
+        classpath 'com.google.gms:google-services:4.2.0'
         classpath 'io.fabric.tools:gradle:1.26.1'
+        classpath 'org.ajoberstar.grgit:grgit-core:3.0.0' // Also change in app/gradle/grgit.gradle
     }
 }
 
 allprojects {
     repositories {
-        jcenter()
         maven { url "https://jitpack.io" }
         maven { url "https://maven.google.com" }
+        jcenter()
     }
 }
 

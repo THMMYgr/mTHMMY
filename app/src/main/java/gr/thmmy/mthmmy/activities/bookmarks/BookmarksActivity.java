@@ -2,16 +2,18 @@ package gr.thmmy.mthmmy.activities.bookmarks;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.widget.Toast;
+
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
@@ -25,11 +27,11 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 //TODO proper handling with adapter etc.
 //TODO after clicking bookmark and then back button should return to this activity
-public class BookmarkActivity extends BaseActivity {
+public class BookmarksActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bookmark);
+        setContentView(R.layout.activity_bookmarks);
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);
@@ -45,8 +47,8 @@ public class BookmarkActivity extends BaseActivity {
 
         //Creates the adapter that will return a fragment for each section of the activity
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        sectionsPagerAdapter.addFragment(TopicBookmarksFragment.newInstance(1, Bookmark.arrayToString(getTopicsBookmarked())), "Topics");
-        sectionsPagerAdapter.addFragment(BoardBookmarksFragment.newInstance(2, Bookmark.arrayToString(getBoardsBookmarked())), "Boards");
+        sectionsPagerAdapter.addFragment(BookmarksTopicFragment.newInstance(1, Bookmark.arrayToString(getTopicsBookmarked())), "Topics");
+        sectionsPagerAdapter.addFragment(BookmarksBoardFragment.newInstance(2, Bookmark.arrayToString(getBoardsBookmarked())), "Boards");
 
         //Sets up the ViewPager with the sections adapter.
         ViewPager viewPager = findViewById(R.id.bookmarks_container);
@@ -64,21 +66,20 @@ public class BookmarkActivity extends BaseActivity {
 
     public boolean onTopicInteractionListener(String interactionType, Bookmark bookmarkedTopic) {
         switch (interactionType) {
-            case TopicBookmarksFragment.INTERACTION_CLICK_TOPIC_BOOKMARK:
-                Intent intent = new Intent(BookmarkActivity.this, TopicActivity.class);
+            case BookmarksTopicFragment.INTERACTION_CLICK_TOPIC_BOOKMARK:
+                Intent intent = new Intent(BookmarksActivity.this, TopicActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_TOPIC_URL, "https://www.thmmy.gr/smf/index.php?topic="
                         + bookmarkedTopic.getId() + "." + 2147483647);
                 extras.putString(BUNDLE_TOPIC_TITLE, bookmarkedTopic.getTitle());
                 intent.putExtras(extras);
                 startActivity(intent);
-                finish();
                 break;
-            case TopicBookmarksFragment.INTERACTION_TOGGLE_TOPIC_NOTIFICATION:
+            case BookmarksTopicFragment.INTERACTION_TOGGLE_TOPIC_NOTIFICATION:
                 return toggleNotification(bookmarkedTopic);
-            case TopicBookmarksFragment.INTERACTION_REMOVE_TOPIC_BOOKMARK:
+            case BookmarksTopicFragment.INTERACTION_REMOVE_TOPIC_BOOKMARK:
                 removeBookmark(bookmarkedTopic);
-                Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BookmarksActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
                 break;
         }
         return true;
@@ -86,21 +87,20 @@ public class BookmarkActivity extends BaseActivity {
 
     public boolean onBoardInteractionListener(String interactionType, Bookmark bookmarkedBoard) {
         switch (interactionType) {
-            case BoardBookmarksFragment.INTERACTION_CLICK_BOARD_BOOKMARK:
-                Intent intent = new Intent(BookmarkActivity.this, BoardActivity.class);
+            case BookmarksBoardFragment.INTERACTION_CLICK_BOARD_BOOKMARK:
+                Intent intent = new Intent(BookmarksActivity.this, BoardActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_BOARD_URL, "https://www.thmmy.gr/smf/index.php?board="
                         + bookmarkedBoard.getId() + ".0");
                 extras.putString(BUNDLE_BOARD_TITLE, bookmarkedBoard.getTitle());
                 intent.putExtras(extras);
                 startActivity(intent);
-                finish();
                 break;
-            case BoardBookmarksFragment.INTERACTION_TOGGLE_BOARD_NOTIFICATION:
+            case BookmarksBoardFragment.INTERACTION_TOGGLE_BOARD_NOTIFICATION:
                 return toggleNotification(bookmarkedBoard);
-            case BoardBookmarksFragment.INTERACTION_REMOVE_BOARD_BOOKMARK:
+            case BookmarksBoardFragment.INTERACTION_REMOVE_BOARD_BOOKMARK:
                 removeBookmark(bookmarkedBoard);
-                Toast.makeText(BookmarkActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BookmarksActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
                 break;
         }
         return true;
@@ -110,7 +110,7 @@ public class BookmarkActivity extends BaseActivity {
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages. If it becomes too memory intensive,
      * it may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * {@link FragmentStatePagerAdapter}.
      */
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> fragmentList = new ArrayList<>();

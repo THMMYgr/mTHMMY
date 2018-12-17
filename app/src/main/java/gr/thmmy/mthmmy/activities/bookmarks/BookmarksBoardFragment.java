@@ -5,9 +5,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,30 +14,32 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.model.Bookmark;
 
 /**
  * A {@link Fragment} subclass.
- * Use the {@link BoardBookmarksFragment#newInstance} factory method to
+ * Use the {@link BookmarksBoardFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BoardBookmarksFragment extends Fragment {
-    protected static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
-    protected static final String ARG_BOARD_BOOKMARKS = "BOARD_BOOKMARKS";
+public class BookmarksBoardFragment extends Fragment {
+    private static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
+    private static final String ARG_BOARD_BOOKMARKS = "BOARD_BOOKMARKS";
 
-    public static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
-    public static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
-    public static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
+    static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
+    static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
+    static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
 
-    ArrayList<Bookmark> boardBookmarks = null;
+    private ArrayList<Bookmark> boardBookmarks = null;
 
     private static Drawable notificationsEnabledButtonImage;
     private static Drawable notificationsDisabledButtonImage;
 
     // Required empty public constructor
-    public BoardBookmarksFragment() {
-    }
+    public BookmarksBoardFragment() { }
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -48,8 +47,8 @@ public class BoardBookmarksFragment extends Fragment {
      *
      * @return A new instance of fragment Forum.
      */
-    public static BoardBookmarksFragment newInstance(int sectionNumber, String boardBookmarks) {
-        BoardBookmarksFragment fragment = new BoardBookmarksFragment();
+    public static BookmarksBoardFragment newInstance(int sectionNumber, String boardBookmarks) {
+        BookmarksBoardFragment fragment = new BookmarksBoardFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         args.putString(ARG_BOARD_BOOKMARKS, boardBookmarks);
@@ -93,8 +92,8 @@ public class BoardBookmarksFragment extends Fragment {
                             R.layout.fragment_bookmarks_row, bookmarksLinearView, false);
                     row.setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity){
-                            ((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_CLICK_BOARD_BOOKMARK, bookmarkedBoard);
+                        if (activity instanceof BookmarksActivity){
+                            ((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_CLICK_BOARD_BOOKMARK, bookmarkedBoard);
                         }
                     });
                     ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmarkedBoard.getTitle());
@@ -106,8 +105,8 @@ public class BoardBookmarksFragment extends Fragment {
 
                     notificationsEnabledButton.setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity) {
-                            if (((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_TOGGLE_BOARD_NOTIFICATION, bookmarkedBoard)) {
+                        if (activity instanceof BookmarksActivity) {
+                            if (((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_TOGGLE_BOARD_NOTIFICATION, bookmarkedBoard)) {
                                 notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
                             } else {
                                 notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
@@ -117,8 +116,8 @@ public class BoardBookmarksFragment extends Fragment {
 
                     (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarkActivity){
-                            ((BookmarkActivity) activity).onBoardInteractionListener(INTERACTION_REMOVE_BOARD_BOOKMARK, bookmarkedBoard);
+                        if (activity instanceof BookmarksActivity){
+                            ((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_REMOVE_BOARD_BOOKMARK, bookmarkedBoard);
                             boardBookmarks.remove(bookmarkedBoard);
                         }
                         row.setVisibility(View.GONE);
@@ -130,10 +129,8 @@ public class BoardBookmarksFragment extends Fragment {
                     bookmarksLinearView.addView(row);
                 }
             }
-        } else {
-
+        } else
             bookmarksLinearView.addView(bookmarksListEmptyMessage());
-        }
 
         return rootView;
     }
@@ -146,9 +143,9 @@ public class BoardBookmarksFragment extends Fragment {
         emptyBookmarksCategory.setLayoutParams(params);
         emptyBookmarksCategory.setText(getString(R.string.empty_board_bookmarks));
         emptyBookmarksCategory.setTypeface(emptyBookmarksCategory.getTypeface(), Typeface.BOLD);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             emptyBookmarksCategory.setTextColor(this.getContext().getColor(R.color.primary_text));
-        } else {
+        else {
             //noinspection deprecation
             emptyBookmarksCategory.setTextColor(this.getContext().getResources().getColor(R.color.primary_text));
         }

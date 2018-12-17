@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.text.style.URLSpan;
 import android.view.View;
 
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
+import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 
@@ -41,7 +43,7 @@ public class HTMLUtils {
         return strBuilder;
     }
 
-    private static void makeLinkClickable(Activity activity, SpannableStringBuilder strBuilder, final URLSpan span) {
+    public static void makeLinkClickable(Context context, SpannableStringBuilder strBuilder, final URLSpan span) {
         int start = strBuilder.getSpanStart(span);
         int end = strBuilder.getSpanEnd(span);
         int flags = strBuilder.getSpanFlags(span);
@@ -50,24 +52,27 @@ public class HTMLUtils {
             public void onClick(View view) {
                 ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(span.getURL()));
                 if (target.is(ThmmyPage.PageCategory.BOARD)) {
-                    Intent intent = new Intent(activity.getApplicationContext(), BoardActivity.class);
+                    Intent intent = new Intent(context, BoardActivity.class);
                     Bundle extras = new Bundle();
                     extras.putString(BUNDLE_BOARD_URL, span.getURL());
                     extras.putString(BUNDLE_BOARD_TITLE, "");
                     intent.putExtras(extras);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    activity.getApplicationContext().startActivity(intent);
+                    context.startActivity(intent);
                 } else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
-                    Intent intent = new Intent(activity.getApplicationContext(), ProfileActivity.class);
+                    Intent intent = new Intent(context, ProfileActivity.class);
                     Bundle extras = new Bundle();
                     extras.putString(BUNDLE_PROFILE_URL, span.getURL());
                     extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                     extras.putString(BUNDLE_PROFILE_USERNAME, "");
                     intent.putExtras(extras);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                    activity.getApplicationContext().startActivity(intent);
-                } else if (target.is(ThmmyPage.PageCategory.INDEX))
-                    activity.finish();
+                    context.startActivity(intent);
+                } else if (target.is(ThmmyPage.PageCategory.INDEX)) {
+                    Intent intent = new Intent(context, MainActivity.class);
+                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                }
             }
         };
         strBuilder.setSpan(clickable, start, end, flags);

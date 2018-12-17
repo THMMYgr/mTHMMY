@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,21 +7,21 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.upload.UploadFieldsBuilderActivity">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/appbar_padding_top"
         android:theme="@style/ToolbarTheme">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:gravity="center"
             app:popupTheme="@style/ToolbarTheme" />
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -58,7 +58,7 @@
                 android:layout_marginTop="6dp"
                 android:orientation="vertical">
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/upload_fields_builder_radio_button_exams"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -67,7 +67,7 @@
                     android:text="@string/upload_fields_builder_radio_button_exams"
                     android:textColor="@color/primary_text" />
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/upload_fields_builder_radio_button_exam_solutions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
                     android:text="@string/upload_fields_builder_radio_button_exam_solutions"
                     android:textColor="@color/primary_text" />
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/upload_fields_builder_radio_button_notes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                     android:layout_marginTop="6dp"
                     android:orientation="vertical">
 
-                    <android.support.v7.widget.AppCompatRadioButton
+                    <androidx.appcompat.widget.AppCompatRadioButton
                         android:id="@+id/upload_fields_builder_radio_button_feb"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -119,7 +119,7 @@
                         android:text="@string/upload_fields_builder_radio_button_feb"
                         android:textColor="@color/primary_text" />
 
-                    <android.support.v7.widget.AppCompatRadioButton
+                    <androidx.appcompat.widget.AppCompatRadioButton
                         android:id="@+id/upload_fields_builder_radio_button_jun"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -128,7 +128,7 @@
                         android:text="@string/upload_fields_builder_radio_button_exam_jun"
                         android:textColor="@color/primary_text" />
 
-                    <android.support.v7.widget.AppCompatRadioButton
+                    <androidx.appcompat.widget.AppCompatRadioButton
                         android:id="@+id/upload_fields_builder_radio_button_sept"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -150,7 +150,7 @@
                 android:textColor="@color/accent" />
 
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
@@ -163,9 +163,9 @@
                     android:ems="4"
                     android:hint="@string/upload_fields_builder_year_hint"
                     android:inputType="number" />
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/upload_fields_builder_submit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -174,4 +174,4 @@
                 android:textColor="@color/accent" />
         </LinearLayout>
     </ScrollView>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

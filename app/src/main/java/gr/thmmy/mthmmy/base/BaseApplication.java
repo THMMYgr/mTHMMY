@@ -5,9 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
@@ -17,6 +16,7 @@ import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -27,14 +27,21 @@ import com.squareup.picasso.Picasso;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CrashReportingTree;
 import io.fabric.sdk.android.Fabric;
+import okhttp3.CipherSuite;
+import okhttp3.ConnectionSpec;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -72,6 +79,7 @@ public class BaseApplication extends Application {
         //Shared Preferences
         SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         SharedPreferences settingsSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences draftsPrefs = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
 
         if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false))
             startFirebaseCrashlyticsCollection();
@@ -81,14 +89,14 @@ public class BaseApplication extends Application {
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         boolean enableAnalytics = settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_analytics_enable_key), false);
         firebaseAnalytics.setAnalyticsCollectionEnabled(enableAnalytics);
-        if(enableAnalytics)
+        if (enableAnalytics)
             Timber.i("Starting app with Analytics enabled.");
         else
             Timber.i("Starting app with Analytics disabled.");
 
         SharedPrefsCookiePersistor sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(getApplicationContext());
         PersistentCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
-        client = new OkHttpClient.Builder()
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(chain -> {
                     Request request = chain.request();
@@ -101,13 +109,31 @@ public class BaseApplication extends Application {
                         }
                     }
                     return chain.proceed(request);
-
                 })
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .build();
-        sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs);
+                .connectTimeout(40, TimeUnit.SECONDS)
+                .writeTimeout(40, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { // Just for KitKats
+            // Necessary because our servers don't have the right cipher suites.
+            // https://github.com/square/okhttp/issues/4053
+            List<CipherSuite> cipherSuites = new ArrayList<>(ConnectionSpec.MODERN_TLS.cipherSuites());
+            cipherSuites.add(CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA);
+            cipherSuites.add(CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA);
+
+            ConnectionSpec legacyTls = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                    .cipherSuites(cipherSuites.toArray(new CipherSuite[0]))
+                    .build();
+
+            builder.connectionSpecs(Arrays.asList(legacyTls, ConnectionSpec.CLEARTEXT));
+        }
+
+        if (BuildConfig.DEBUG)
+            builder.addInterceptor(new OkHttpProfilerInterceptor());
+
+        client = builder.build();
+
+        sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs, draftsPrefs);
         Picasso picasso = new Picasso.Builder(getApplicationContext())
                 .downloader(new OkHttp3Downloader(client))
                 .build();
@@ -172,13 +198,13 @@ public class BaseApplication extends Application {
 
     public void setFirebaseAnalyticsCollection(boolean enabled) {
         firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
-        if(!enabled)
+        if (!enabled)
             firebaseAnalytics.resetAnalyticsData();
     }
 
     // Set up Crashlytics, disabled for debug builds
     public void startFirebaseCrashlyticsCollection() {
-        if(!Fabric.isInitialized()){
+        if (!Fabric.isInitialized()) {
             Crashlytics crashlyticsKit = new Crashlytics.Builder()
                     .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
                     .build();
@@ -186,8 +212,7 @@ public class BaseApplication extends Application {
             Fabric.with(this, crashlyticsKit);
             Timber.plant(new CrashReportingTree());
             Timber.i("Crashlytics enabled.");
-        }
-        else
+        } else
             Timber.i("Crashlytics were already initialized for this app session.");
     }
 }

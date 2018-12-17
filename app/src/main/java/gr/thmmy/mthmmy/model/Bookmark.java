@@ -1,10 +1,10 @@
 package gr.thmmy.mthmmy.model;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Objects;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class Bookmark implements java.io.Serializable {
     private final String title, id;

@@ -8,15 +8,15 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
@@ -28,7 +28,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         NOT_SET, USER, GUEST
     }
 
-    public static final String ARG_IS_LOGGED_IN = "selectedRingtoneKey";
+    private static final String ARG_IS_LOGGED_IN = "selectedRingtoneKey";
 
     //Preferences xml keys
     private static final String SELECTED_NOTIFICATIONS_SOUND = "pref_notifications_select_sound_key";
@@ -44,7 +44,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     private SharedPreferences settingsFile;
 
     private PREFS_TYPE prefs_type = PREFS_TYPE.NOT_SET;
-    private boolean isLoggedIn = false;
+    private boolean isLoggedIn;
     private ArrayList<String> defaultHomeTabEntries = new ArrayList<>();
     private ArrayList<String> defaultHomeTabValues = new ArrayList<>();
 
@@ -161,7 +161,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         }
     }
 
-    public void updateUserLoginState(boolean isLoggedIn) {
+    void updateUserLoginState(boolean isLoggedIn) {
         this.isLoggedIn = isLoggedIn;
         updatePreferenceVisibility();
     }

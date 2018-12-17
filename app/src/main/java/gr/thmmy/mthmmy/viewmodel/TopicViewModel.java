@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.viewmodel;
 
-import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -11,6 +10,7 @@ import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 
+import androidx.lifecycle.MutableLiveData;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
@@ -104,25 +104,25 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         loadUrl(topicUrl);
     }
 
-    public void reloadPageThen(Runnable runnable) {
+    /**
+     * In contrast to {@link TopicViewModel#reloadPage()} this method gets rid of any arguments
+     * in the url before refreshing
+     */
+    public void resetPage() {
         if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
-        Timber.i("Reloading page");
+        Timber.i("Resetting page");
+        loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
+    }
+
+    public void resetPageThen(Runnable runnable) {
+        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        Timber.i("Resetting page");
         stopLoading();
         currentTopicTask = new TopicTask(topicTaskObserver, result -> {
             TopicViewModel.this.onTopicTaskCompleted(result);
             runnable.run();
         });
-        currentTopicTask.execute(topicUrl);
-    }
-
-    /**
-     * In contrasto to {@link TopicViewModel#reloadPage()} this method gets rid of any arguements
-     * in the url before refreshing
-     */
-    public void resetPage() {
-        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
-        Timber.i("Reseting page");
-        loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
+        currentTopicTask.execute(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
     }
 
     public void loadPageIndicated() {
@@ -144,10 +144,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (optionsLayout.getChildAt(0) instanceof RadioGroup) {
             RadioGroup optionsRadioGroup = (RadioGroup) optionsLayout.getChildAt(0);
             votes.add(optionsRadioGroup.getCheckedRadioButtonId());
-        } else if (optionsLayout.getChildAt(0) instanceof LinearLayout) {
+        } else if (optionsLayout.getChildAt(0) instanceof CheckBox) {
             for (int i = 0; i < optionsLayout.getChildCount(); i++) {
-                LinearLayout container = (LinearLayout) optionsLayout.getChildAt(i);
-                if (((CheckBox) container.getChildAt(0)).isChecked())
+                CheckBox checkBox = (CheckBox) optionsLayout.getChildAt(i);
+                if (checkBox.isChecked())
                     votes.add(i);
             }
         }
@@ -158,7 +158,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         SubmitVoteTask submitVoteTask = new SubmitVoteTask(votesArray);
         submitVoteTask.setOnTaskStartedListener(voteTaskStartedListener);
         submitVoteTask.setOnNetworkTaskFinishedListener(voteTaskFinishedListener);
-        submitVoteTask.execute(poll.getPollFormUrl(), poll.getSc());
+        submitVoteTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, poll.getPollFormUrl(), poll.getSc());
         return true;
     }
 
@@ -167,7 +167,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         RemoveVoteTask removeVoteTask = new RemoveVoteTask();
         removeVoteTask.setOnTaskStartedListener(removeVoteTaskStartedListener);
         removeVoteTask.setOnNetworkTaskFinishedListener(removeVoteTaskFinishedListener);
-        removeVoteTask.execute(((Poll) topicItems.getValue().get(0)).getRemoveVoteUrl());
+        removeVoteTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ((Poll) topicItems.getValue().get(0)).getRemoveVoteUrl());
     }
 
     public void prepareForReply() {
@@ -182,9 +182,9 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void postReply(Context context, String subject, String reply) {
-        if (prepareForReplyResult.getValue() == null) {
+        if (prepareForReplyResult.getValue() == null)
             throw new NullPointerException("Reply preparation was not found!");
-        }
+
         PrepareForReplyResult replyForm = prepareForReplyResult.getValue();
         boolean includeAppSignature = true;
         SessionManager sessionManager = BaseActivity.getSessionManager();
@@ -194,13 +194,13 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         }
         toQuoteList.clear();
         Timber.i("Posting reply");
-        new ReplyTask(replyFinishListener, includeAppSignature).execute(subject, reply,
+        new ReplyTask(replyFinishListener, includeAppSignature).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, subject, reply,
                 replyForm.getNumReplies(), replyForm.getSeqnum(), replyForm.getSc(), replyForm.getTopic());
     }
 
     public void deletePost(String postDeleteUrl) {
         Timber.i("Deleting post");
-        new DeleteTask(deleteTaskStartedListener, deleteTaskFinishedListener).execute(postDeleteUrl);
+        new DeleteTask(deleteTaskStartedListener, deleteTaskFinishedListener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, postDeleteUrl);
     }
 
     public void prepareForEdit(int position, String postEditURL) {
@@ -218,7 +218,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             throw new NullPointerException("Edit preparation was not found!");
         PrepareForEditResult editResult = prepareForEditResult.getValue();
         Timber.i("Editing post");
-        new EditTask(editTaskCallbacks, position).execute(editResult.getCommitEditUrl(), message,
+        new EditTask(editTaskCallbacks, position).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, editResult.getCommitEditUrl(), message,
                 editResult.getNumReplies(), editResult.getSeqnum(), editResult.getSc(), subject, editResult.getTopic());
     }
 
@@ -263,9 +263,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             topicItems.setValue(result.getNewPostsList());
             focusedPostIndex.setValue(result.getFocusedPostIndex());
             isUserExtraInfoVisibile.clear();
-            for (int i = 0; i < result.getNewPostsList().size(); i++) {
+            for (int i = 0; i < result.getNewPostsList().size(); i++)
                 isUserExtraInfoVisibile.add(false);
-            }
         }
         topicTaskResultCode.setValue(result.getResultCode());
     }
@@ -285,9 +284,9 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
         int oldIndicatorIndex = pageIndicatorIndex.getValue();
-        if (oldIndicatorIndex <= pageCount - step) {
+        if (oldIndicatorIndex <= pageCount - step)
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() + step);
-        } else
+        else
             pageIndicatorIndex.setValue(pageCount);
         if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) loadPageIndicated();
     }
@@ -296,9 +295,9 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
         int oldIndicatorIndex = pageIndicatorIndex.getValue();
-        if (oldIndicatorIndex > step) {
+        if (oldIndicatorIndex > step)
             pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() - step);
-        } else
+        else
             pageIndicatorIndex.setValue(1);
         if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) loadPageIndicated();
     }
@@ -312,6 +311,12 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     // <-------------Just getters, setters and helper methods below here---------------->
+
+    public int getTopicId() {
+        if (pageTopicId.getValue() == null)
+            throw  new NullPointerException("No page has been loaded yet!");
+        return pageTopicId.getValue();
+    }
 
 
     public void setRemoveVoteTaskStartedListener(ExternalAsyncTask.OnTaskStartedListener removeVoteTaskStartedListener) {

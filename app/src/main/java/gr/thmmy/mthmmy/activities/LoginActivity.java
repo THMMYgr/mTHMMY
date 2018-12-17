@@ -3,8 +3,6 @@ package gr.thmmy.mthmmy.activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -14,6 +12,8 @@ import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;

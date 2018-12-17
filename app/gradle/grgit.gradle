@@ -1,0 +1,51 @@
+import org.ajoberstar.grgit.Grgit
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.ajoberstar.grgit:grgit-core:3.0.0'
+    }
+}
+
+static def getCurrentBranch() {
+    try {
+        def grgit = Grgit.open()
+        def currentBranch = grgit.branch.getCurrent().name
+        grgit.close()
+        return currentBranch
+    } catch (Exception ignored) {
+        return ""
+    }
+}
+
+static def getCommitHash() {
+    try {
+        def grgit = Grgit.open()
+        def commitHash = grgit.head().id
+        grgit.close()
+        return commitHash
+    } catch (Exception ignored) {
+        return ""
+    }
+}
+
+//Will return true if there are no uncommitted changes
+static def isClean() {
+    try {
+        def grgit = Grgit.open()
+        def isClean = grgit.status().isClean()
+        grgit.close()
+        return isClean
+    } catch (Exception ignored) {
+        return true
+    }
+}
+
+ext {
+    getCurrentBranch = this.&getCurrentBranch
+    getCommitHash = this.&getCommitHash
+    isClean = this.&isClean
+}

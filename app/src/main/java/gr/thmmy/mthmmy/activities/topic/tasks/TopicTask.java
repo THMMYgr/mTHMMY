@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -61,7 +60,7 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                 .build();
         try {
             Response response = BaseApplication.getInstance().getClient().newCall(request).execute();
-            topic = Jsoup.parse(response.body().string());
+            topic = ParseHelpers.parse(response.body().string());
 
             ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
@@ -78,14 +77,12 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
             //Finds topic title if missing
             String topicTitle = topic.select("td[id=top_subject]").first().text();
-            if (topicTitle.contains("Topic:")) {
+            if (topicTitle.contains("Topic:"))
                 topicTitle = topicTitle.substring(topicTitle.indexOf("Topic:") + 7
                         , topicTitle.indexOf("(Read") - 2);
-            } else {
+            else
                 topicTitle = topicTitle.substring(topicTitle.indexOf("Θέμα:") + 6
                         , topicTitle.indexOf("(Αναγνώστηκε") - 2);
-                Timber.d("Parsed title: %s", topicTitle);
-            }
 
             //Finds current page's index
             int currentPageIndex = TopicParser.parseCurrentPageIndex(topic, language);

@@ -2,20 +2,14 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -34,8 +28,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
@@ -183,13 +185,17 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
 
         replyFAB = findViewById(R.id.topic_fab);
         replyFAB.hide();
+        replyFAB.setTag(false);
         bottomNavBar = findViewById(R.id.bottom_navigation_bar);
-        if (!sessionManager.isLoggedIn()) replyFAB.hide();
-        else {
+        if (!sessionManager.isLoggedIn()) {
+            replyFAB.hide();
+            replyFAB.setTag(false);
+        } else {
             replyFAB.setOnClickListener(view -> {
                 if (sessionManager.isLoggedIn())
                     viewModel.prepareForReply();
             });
+            replyFAB.setTag(true);
         }
 
         //Sets bottom navigation bar
@@ -269,11 +275,17 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             emojiKeyboard.setVisibility(View.GONE);
             return;
         } else if (viewModel.isWritingReply()) {
+            // persist reply
+            SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
+            Post reply = (Post) topicItems.get(topicItems.size() - 1);
+            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getBbContent()).apply();
+
             topicItems.remove(topicItems.size() - 1);
             topicAdapter.notifyItemRemoved(topicItems.size());
             topicAdapter.setBackButtonHidden();
             viewModel.setWritingReply(false);
             replyFAB.show();
+            replyFAB.setTag(true);
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
         } else if (viewModel.isEditingPost()) {
@@ -282,6 +294,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             topicAdapter.setBackButtonHidden();
             viewModel.setEditingPost(false);
             replyFAB.show();
+            replyFAB.setTag(true);
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
         }
@@ -300,6 +313,17 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         super.onDestroy();
         recyclerView.setAdapter(null);
         viewModel.stopLoading();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // persist reply
+        if (viewModel.isWritingReply()) {
+            SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
+            Post reply = (Post) topicItems.get(topicItems.size() - 1);
+            drafts.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getBbContent()).apply();
+        }
     }
 
     @Override
@@ -504,8 +528,14 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         BaseApplication.getInstance().logFirebaseAnalyticsEvent("post_creation", null);
                         Timber.i("Post reply successful");
                         replyFAB.show();
+                        replyFAB.setTag(true);
                         bottomNavBar.setVisibility(View.VISIBLE);
                         viewModel.setWritingReply(false);
+
+                        SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key),
+                                Context.MODE_PRIVATE);
+                        drafts.edit().remove(String.valueOf(viewModel.getTopicId())).apply();
+
                         if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
                             Timber.i("Reply was posted in new page. Switching to last page.");
                             viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
@@ -515,35 +545,31 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         break;
                     case NEW_REPLY_WHILE_POSTING:
                         Timber.i("New reply while writing a reply");
-                        TopicAdapter.QuickReplyViewHolder replyHolder = (TopicAdapter.QuickReplyViewHolder)
-                                recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
-                        String subject = replyHolder.quickReplySubject.getText().toString();
-                        String message = replyHolder.replyEditor.getText().toString();
+
+                        //cache reply
+                        if (viewModel.isWritingReply()) {
+                            SharedPreferences drafts2 = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
+                            Post reply = (Post) topicItems.get(topicItems.size() - 1);
+                            drafts2.edit().putString(String.valueOf(viewModel.getTopicId()), reply.getBbContent()).apply();
+                            viewModel.setWritingReply(false);
+                        }
+
                         Runnable addReply = () -> {
-                            viewModel.setWritingReply(true);
-                            topicItems.add(Post.newQuickReply());
-                            topicAdapter.notifyItemInserted(topicItems.size());
-                            recyclerView.scrollToPosition(topicItems.size() - 1);
-                            replyFAB.hide();
-                            bottomNavBar.setVisibility(View.GONE);
-                            TopicAdapter.QuickReplyViewHolder newReplyHolder = (TopicAdapter.QuickReplyViewHolder)
-                                    recyclerView.findViewHolderForAdapterPosition(topicItems.size() - 1);
-                            newReplyHolder.quickReplySubject.setText(subject);
-                            newReplyHolder.replyEditor.setText(message);
                             AlertDialog.Builder builder = new AlertDialog.Builder(TopicActivity.this,
-                                    R.style.AppCompatAlertDialogStyleAccent);
+                                    R.style.AppTheme_Dark_Dialog);
                             builder.setMessage("A new reply was posted before you completed your new post." +
                                     " Please review it and send your reply again")
                                     .setNeutralButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss())
                                     .show();
+                            viewModel.prepareForReply();
                         };
-                        viewModel.reloadPageThen(addReply);
+                        viewModel.resetPageThen(addReply);
                         break;
                     default:
                         Timber.w("Post reply unsuccessful");
                         Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
-                        recyclerView.getChildAt(topicItems.size() - 1).setAlpha(1);
-                        recyclerView.getChildAt(topicItems.size() - 1).setEnabled(true);
+                        recyclerView.getChildAt(recyclerView.getChildCount() - 1).setAlpha(1f);
+                        recyclerView.getChildAt(recyclerView.getChildCount() - 1).setEnabled(true);
                 }
             }
         });
@@ -579,6 +605,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     ((Post) topicItems.get(position)).setPostType(Post.TYPE_POST);
                     topicAdapter.notifyItemChanged(position);
                     replyFAB.show();
+                    replyFAB.setTag(true);
                     bottomNavBar.setVisibility(View.VISIBLE);
                     viewModel.setEditingPost(false);
                     viewModel.reloadPage();
@@ -645,10 +672,13 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
         });
         viewModel.getReplyPageUrl().observe(this, replyPageUrl -> {
-            if (replyPageUrl == null)
+            if (replyPageUrl == null) {
                 replyFAB.hide();
-            else
+                replyFAB.setTag(false);
+            } else {
                 replyFAB.show();
+                replyFAB.setTag(true);
+            }
         });
         viewModel.getTopicItems().observe(this, postList -> {
             if (postList == null) progressBar.setVisibility(ProgressBar.VISIBLE);
@@ -666,7 +696,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             progressBar.setVisibility(ProgressBar.GONE);
             switch (resultCode) {
                 case SUCCESS:
-                    Timber.i("Successfully loaded topic with URL %s", viewModel.getTopicUrl());
+                    Timber.i("Successfully loaded a topic");
                     paginationEnabled(true);
                     break;
                 case NETWORK_ERROR:
@@ -733,6 +763,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 topicAdapter.notifyItemInserted(topicItems.size());
                 recyclerView.scrollToPosition(topicItems.size() - 1);
                 replyFAB.hide();
+                replyFAB.setTag(false);
                 bottomNavBar.setVisibility(View.GONE);
             } else {
                 Timber.i("Prepare for reply unsuccessful");
@@ -748,6 +779,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 topicAdapter.notifyItemChanged(result.getPosition());
                 recyclerView.scrollToPosition(result.getPosition());
                 replyFAB.hide();
+                replyFAB.setTag(false);
                 bottomNavBar.setVisibility(View.GONE);
             } else {
                 Timber.i("Prepare for edit unsuccessful");

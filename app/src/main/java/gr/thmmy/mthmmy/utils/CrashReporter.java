@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 
 public class CrashReporter {
@@ -13,12 +14,48 @@ public class CrashReporter {
 
     private CrashReporter() {}
 
+    public static void reportForumInfo(Document document) {
+        ParseHelpers.Theme theme = ParseHelpers.parseTheme(document);
+        ParseHelpers.Language language = ParseHelpers.Language.getLanguage(document);
+        String themeKey = "forum theme", themeValue = null;
+        String languageKey = "forum language", languageValue = null;
+        switch (theme) {
+            case SCRIBBLES2:
+                themeValue = "Scribbles2";
+                break;
+            case SMF_DEFAULT:
+                themeValue = "SMF Default Theme";
+                break;
+            case SMFONE_BLUE:
+                themeValue = "SMFone_Blue";
+                break;
+            case HELIOS_MULTI:
+                themeValue = "Helios_Multi";
+                break;
+            case THEME_UNKNOWN:
+                themeValue = "Unknown theme";
+                break;
+        }
+        switch (language) {
+            case GREEK:
+                languageValue = "Greek";
+                break;
+            case ENGLISH:
+                languageValue = "English";
+                break;
+        }
+
+        Crashlytics.setString(themeKey, themeValue);
+        Crashlytics.setString(languageKey, languageValue);
+        Crashlytics.setBool("isLoggedIn", BaseApplication.getInstance().getSessionManager().isLoggedIn());
+    }
+
     public static void reportDocument(Document document, String key) {
         String documentString = document.toString();
 
         ParseHelpers.Language language = ParseHelpers.Language.getLanguage(document);
         Elements postRows;
-        if (language.is(ParseHelpers.Language.GREEK))
+        if (language == ParseHelpers.Language.GREEK)
             postRows = document.select("form[id=quickModForm]>table>tbody>tr:matches(στις)");
         else
             postRows = document.select("form[id=quickModForm]>table>tbody>tr:matches(on)");

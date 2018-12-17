@@ -3,8 +3,9 @@ package gr.thmmy.mthmmy.utils;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.support.annotation.NonNull;
 import android.text.style.ReplacementSpan;
+
+import androidx.annotation.NonNull;
 
 public class CenterVerticalSpan extends ReplacementSpan {
     @Override

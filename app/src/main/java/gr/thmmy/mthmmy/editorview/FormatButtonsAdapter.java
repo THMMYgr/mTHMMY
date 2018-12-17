@@ -1,12 +1,12 @@
 package gr.thmmy.mthmmy.editorview;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 
 public class FormatButtonsAdapter extends RecyclerView.Adapter<FormatButtonsAdapter.FormatButtonViewHolder> {

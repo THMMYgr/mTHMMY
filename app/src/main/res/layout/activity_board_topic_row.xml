@@ -9,14 +9,12 @@
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingStart="16dp"
+    android:paddingEnd="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp"
         android:orientation="horizontal">
 
         <TextView
@@ -27,6 +25,8 @@
             android:text="@string/fa_circle"
             android:textColor="@color/accent"
             android:visibility="invisible"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
             android:layout_marginEnd="6dp"
             android:textSize="9sp"
             tools:ignore="SmallSp" />
@@ -37,7 +37,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:paddingBottom="2dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="7dp"
             android:text="@string/topic_subject"
             android:textColor="@color/primary_text"
             android:textSize="18sp" />
@@ -48,7 +49,9 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:contentDescription="@string/child_board_button"
-            app:srcCompat="@drawable/ic_arrow_drop_down_accent_24dp" />
+            android:paddingStart="0dp"
+            android:paddingEnd="16dp"
+            app:srcCompat="@drawable/ic_arrow_drop_down_accent_24dp"/>
     </LinearLayout>
 
     <LinearLayout

@@ -37,10 +37,10 @@ public class TopicTaskResult {
     private final String topicTreeAndMods;
     private final String topicViewers;
 
-    public TopicTaskResult(TopicTask.ResultCode resultCode, String topicTitle,
-                           String replyPageUrl, ArrayList<TopicItem> newPostsList, int loadedPageTopicId,
-                           int currentPageIndex, int pageCount, int focusedPostIndex, String topicTreeAndMods,
-                           String topicViewers) {
+    TopicTaskResult(TopicTask.ResultCode resultCode, String topicTitle,
+                    String replyPageUrl, ArrayList<TopicItem> newPostsList, int loadedPageTopicId,
+                    int currentPageIndex, int pageCount, int focusedPostIndex, String topicTreeAndMods,
+                    String topicViewers) {
         this.resultCode = resultCode;
         this.topicTitle = topicTitle;
         this.replyPageUrl = replyPageUrl;

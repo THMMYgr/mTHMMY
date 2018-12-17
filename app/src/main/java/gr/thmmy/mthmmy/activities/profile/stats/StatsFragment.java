@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,12 +37,15 @@ import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import androidx.fragment.app.Fragment;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
+
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.deobfuscateElements;
 
 public class StatsFragment extends Fragment {
     /**
@@ -103,7 +105,7 @@ public class StatsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (!haveParsed) {
             profileStatsTask = new ProfileStatsTask();
-            profileStatsTask.execute(profileUrl + ";sa=statPanel");
+            profileStatsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=statPanel");
         }
         Timber.d("onActivityCreated");
     }
@@ -173,6 +175,7 @@ public class StatsFragment extends Fragment {
                 return false;
             {
                 Elements titleRows = statsPage.select("table.bordercolor[align]>tbody>tr.titlebg");
+                deobfuscateElements(titleRows, false);
                 generalStatisticsTitle = titleRows.first().text();
                 if (userHasPosts) {
                     postingActivityByTimeTitle = titleRows.get(1).text();

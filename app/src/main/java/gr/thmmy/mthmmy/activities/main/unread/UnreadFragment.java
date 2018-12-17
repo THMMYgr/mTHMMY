@@ -1,11 +1,8 @@
+
 package gr.thmmy.mthmmy.activities.main.unread;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +18,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -59,8 +59,7 @@ public class UnreadFragment extends BaseFragment {
     private MarkReadTask markReadTask;
 
     // Required empty public constructor
-    public UnreadFragment() {
-    }
+    public UnreadFragment() {}
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -89,7 +88,7 @@ public class UnreadFragment extends BaseFragment {
         if (topicSummaries.isEmpty()) {
             unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
             assert SessionManager.unreadUrl != null;
-            unreadTask.execute(SessionManager.unreadUrl.toString());
+            unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
         }
         markReadTask = new MarkReadTask();
         Timber.d("onActivityCreated");
@@ -107,11 +106,11 @@ public class UnreadFragment extends BaseFragment {
             progressBar = rootView.findViewById(R.id.progressBar);
             unreadAdapter = new UnreadAdapter(topicSummaries,
                     fragmentInteractionListener, markReadLinkUrl -> {
-                        if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                            markReadTask = new MarkReadTask();
-                            markReadTask.execute(markReadLinkUrl);
-                        }
-                    });
+                if (!markReadTask.isRunning() && !unreadTask.isRunning()) {
+                    markReadTask = new MarkReadTask();
+                    markReadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, markReadLinkUrl);
+                }
+            });
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -126,13 +125,12 @@ public class UnreadFragment extends BaseFragment {
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(
                     () -> {
-                        if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
-                            topicSummaries.clear();
+                        if (!unreadTask.isRunning()) {
                             numberOfPages = 0;
                             loadedPages = 0;
                             unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
                             assert SessionManager.unreadUrl != null;
-                            unreadTask.execute(SessionManager.unreadUrl.toString());
+                            unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
                         }
                     }
             );
@@ -144,10 +142,11 @@ public class UnreadFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING)
+        if (unreadTask.isRunning())
             unreadTask.cancel(true);
-        if (markReadTask != null && markReadTask.getStatus() != AsyncTask.Status.RUNNING)
+        if (markReadTask.isRunning())
             markReadTask.cancel(true);
+        topicSummaries.clear();
     }
 
     public interface UnreadFragmentInteractionListener extends FragmentInteractionListener {
@@ -160,15 +159,19 @@ public class UnreadFragment extends BaseFragment {
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
-    private void onUnreadTaskFinished(int resultCode, Void data) {
+    private void onUnreadTaskFinished(int resultCode,  ArrayList<TopicSummary> fetchedUnread) {
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            unreadAdapter.notifyDataSetChanged();
-
-            ++loadedPages;
+            if(fetchedUnread!=null && !fetchedUnread.isEmpty()){
+                if(loadedPages==0)
+                    topicSummaries.clear();
+                topicSummaries.addAll(fetchedUnread);
+                unreadAdapter.notifyDataSetChanged();
+            }
+            loadedPages++;
             if (loadedPages < numberOfPages) {
                 unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
                 assert SessionManager.unreadUrl != null;
-                unreadTask.execute(SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
+                unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
             }
             else {
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -179,19 +182,23 @@ public class UnreadFragment extends BaseFragment {
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             swipeRefreshLayout.setRefreshing(false);
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
-                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(getContext(), "Unexpected error," +
+                        " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
     }
 
-    private class UnreadTask extends NewParseTask<Void> {
+    private class UnreadTask extends NewParseTask<ArrayList<TopicSummary>> {
 
-        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Void> onParseTaskFinishedListener) {
+        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
             super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        protected Void parse(Document document, Response response) throws ParseException {
+        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException {
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
+            ArrayList<TopicSummary> fetchedTopicSummaries = new ArrayList<>();
             if (!unread.isEmpty()) {
                 //topicSummaries.clear();
                 for (Element row : unread) {
@@ -207,16 +214,14 @@ public class UnreadFragment extends BaseFragment {
                     dateTime = dateTime.replace("<b>", "");
                     dateTime = dateTime.replace("</b>", "");
                     if (dateTime.contains(" am") || dateTime.contains(" pm") ||
-                            dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
+                            dateTime.contains(" πμ") || dateTime.contains(" μμ"))
                         dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
-                    } else {
+                    else
                         dateTime = dateTime.substring(0, dateTime.lastIndexOf(":"));
-                    }
-                    if (!dateTime.contains(",")) {
+                    if (!dateTime.contains(","))
                         dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
-                    }
 
-                    topicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
+                    fetchedTopicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
                 Element topBar = document.select("table:not(.bordercolor):not(#bodyarea):has(td.middletext)").first();
 
@@ -230,31 +235,29 @@ public class UnreadFragment extends BaseFragment {
 
                 if (numberOfPages == 0 && pagesElement != null) {
                     Elements pages = pagesElement.select("a");
-                    if (!pages.isEmpty()) {
+                    if (!pages.isEmpty())
                         numberOfPages = Integer.parseInt(pages.last().text());
-                    } else {
+                    else
                         numberOfPages = 1;
-                    }
                 }
 
                 if (markRead != null && loadedPages == numberOfPages - 1)
-                    topicSummaries.add(new TopicSummary(markRead.attr("href"), markRead.text(), null,
+                    fetchedTopicSummaries.add(new TopicSummary(markRead.attr("href"), markRead.text(), null,
                             null));
             } else {
-                topicSummaries.clear();
                 String message = document.select("table.bordercolor[cellspacing=1]").first().text();
                 if (message.contains("No messages")) { //It's english
                     message = "No unread posts!";
                 } else { //It's greek
-                    message = "Δεν υπάρχουν μη διαβασμένα μηνύματα!";
+                    message = "Δεν υπάρχουν μη αναγνωσμένα μηνύματα!";
                 }
-                topicSummaries.add(new TopicSummary(null, null, null, message));
+                fetchedTopicSummaries.add(new TopicSummary(null, null, null, message));
             }
-            return null;
+            return fetchedTopicSummaries;
         }
 
         @Override
-        protected int getResultCode(Response response, Void data) {
+        protected int getResultCode(Response response, ArrayList<TopicSummary> data) {
             return NetworkResultCodes.SUCCESSFUL;
         }
     }
@@ -298,12 +301,19 @@ public class UnreadFragment extends BaseFragment {
                 Toast.makeText(getContext()
                         , "Fatal error!\n Task aborted...", Toast.LENGTH_LONG).show();
             } else {
-                if (unreadTask != null && unreadTask.getStatus() != AsyncTask.Status.RUNNING) {
+                if (!unreadTask.isRunning()) {
+                    numberOfPages = 0;
+                    loadedPages = 0;
                     unreadTask = new UnreadTask(UnreadFragment.this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskFinished);
                     assert SessionManager.unreadUrl != null;
-                    unreadTask.execute(SessionManager.unreadUrl.toString());
+                    unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
                 }
             }
+        }
+
+        //TODO: Maybe extend this task and use isRunning() from ExternalAsyncTask instead (?)
+        public boolean isRunning(){
+            return getStatus() == AsyncTask.Status.RUNNING;
         }
     }
 }

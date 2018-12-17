@@ -1,11 +1,9 @@
 package gr.thmmy.mthmmy.activities;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.UnderlineSpan;
@@ -16,6 +14,11 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.material.appbar.AppBarLayout;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.drawerlayout.widget.DrawerLayout;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -36,6 +39,20 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
         String versionName = BuildConfig.VERSION_NAME;
+
+        boolean gitExists = true;
+
+        String commitHash = BuildConfig.COMMIT_HASH;
+        if (commitHash.length() > 8)
+            commitHash = commitHash.substring(0, 8);
+        else
+            gitExists = false;
+
+        String versionInfo = "";
+        if(gitExists)
+            versionInfo = "-" + BuildConfig.CURRENT_BRANCH + "-" + commitHash
+                    + (BuildConfig.IS_CLEAN ? "" : "-dirty")
+                    + " ";  // Avoid last letter being cut in italics styled TextView
 
         //Initialize appbar
         appBar = findViewById(R.id.appbar);
@@ -58,14 +75,19 @@ public class AboutActivity extends BaseActivity {
         TextView tv = findViewById(R.id.version);
         if (tv != null) {
             if (BuildConfig.DEBUG)
-                tv.setText(getString(R.string.version, versionName + "-debug"));
+                tv.setText(getString(R.string.version, versionName + versionInfo));
             else
                 tv.setText(getString(R.string.version, versionName));
 
 
-            tv.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            if(BuildConfig.DEBUG && gitExists){
+                tv.setOnClickListener(view -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ThmmyNoLife/mTHMMY/commit/" + BuildConfig.COMMIT_HASH));
+                    startActivity(intent);
+                });
+            }
+            else{   // Easter Egg
+                tv.setOnClickListener(view -> {
                     if (mVersionLastPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
                         if (mVersionPressedCounter == TIMES_TO_PRESS) {
                             appBar.setVisibility(View.INVISIBLE);
@@ -80,8 +102,8 @@ public class AboutActivity extends BaseActivity {
                         mVersionLastPressedTime = System.currentTimeMillis();
                         mVersionPressedCounter = 0;
                     }
-                }
-            });
+                });
+            }
         }
 
         TextView privacyPolicy = findViewById(R.id.privacy_policy_header);

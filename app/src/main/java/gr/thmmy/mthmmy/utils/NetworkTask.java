@@ -1,12 +1,17 @@
 package gr.thmmy.mthmmy.utils;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
+import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -49,11 +54,15 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         }
         try {
-            T data = performTask(Jsoup.parse(responseBodyString), response);
+            T data = performTask(ParseHelpers.parse(responseBodyString), response);
             int resultCode = getResultCode(response, data);
             return new Parcel<>(resultCode, data);
         } catch (ParseException pe) {
             Timber.e(pe);
+            SharedPreferences settingsPreferences = PreferenceManager.getDefaultSharedPreferences(BaseApplication.getInstance());
+            if (settingsPreferences.getBoolean(BaseApplication.getInstance()
+                    .getString(R.string.pref_privacy_crashlytics_enable_key), false))
+                CrashReporter.reportForumInfo(Jsoup.parse(responseBodyString));
             return new Parcel<>(NetworkResultCodes.PARSE_ERROR, null);
         } catch (Exception e) {
             Timber.e(e);

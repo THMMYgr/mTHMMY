@@ -2,9 +2,6 @@ package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +17,9 @@ import java.util.ArrayList;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseFragment;
@@ -29,6 +29,8 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
+
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.deobfuscateElements;
 
 /**
  * Use the {@link LatestPostsFragment#newInstance} factory method to create an instance of this fragment.
@@ -120,7 +122,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
 
             //Load data
             profileLatestPostsTask = new LatestPostsTask();
-            profileLatestPostsTask.execute(profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
+            profileLatestPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
             ++pagesLoaded;
         }
     }
@@ -130,10 +132,9 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
         super.onActivityCreated(savedInstanceState);
         if (parsedTopicSummaries.isEmpty() && userHasPosts) {
             profileLatestPostsTask = new LatestPostsTask();
-            profileLatestPostsTask.execute(profileUrl + ";sa=showPosts");
+            profileLatestPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=showPosts");
             pagesLoaded = 1;
         }
-        Timber.d("onActivityCreated");
     }
 
     @Override
@@ -191,14 +192,13 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
             //td:contains( Sorry, no matches were found)
             Elements latestPostsRows = latestPostsPage.
                     select("td:has(table:Contains(Show Posts)):not([style]) > table");
-            if (latestPostsRows.isEmpty()) {
+            if (latestPostsRows.isEmpty())
                 latestPostsRows = latestPostsPage.
                         select("td:has(table:Contains(Εμφάνιση μηνυμάτων)):not([style]) > table");
-            }
+
             //Removes loading item
-            if (isLoadingMore) {
+            if (isLoadingMore)
                 parsedTopicSummaries.remove(parsedTopicSummaries.size() - 1);
-            }
 
             if (!latestPostsRows.select("td:contains(Sorry, no matches were found)").isEmpty() ||
                     !latestPostsRows.select("td:contains(Δυστυχώς δεν βρέθηκε τίποτα)").isEmpty()){
@@ -207,6 +207,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                 return true;
             }
 
+            deobfuscateElements(latestPostsRows, false);
             for (Element row : latestPostsRows) {
                 String pTopicUrl, pTopicTitle, pDateTime, pPost;
                 if (Integer.parseInt(row.attr("cellpadding")) == 4) {
@@ -219,10 +220,10 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                     }
                 } else {
                     Elements rowHeader = row.select("td.middletext");
-                    if (rowHeader.size() != 2) {
+                    if (rowHeader.size() != 2)
                         return false;
-                    } else {
-                        pTopicTitle = rowHeader.first().text().trim();
+                    else {
+                        pTopicTitle = rowHeader.first().text().replaceAll("\\u00a0","").trim();
                         pTopicUrl = rowHeader.first().select("a").last().attr("href");
                         pDateTime = rowHeader.last().text();
                     }

@@ -2,9 +2,6 @@ package gr.thmmy.mthmmy.activities.main.recent;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +17,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -55,8 +54,7 @@ public class RecentFragment extends BaseFragment {
     private RecentTask recentTask;
 
     // Required empty public constructor
-    public RecentFragment() {
-    }
+    public RecentFragment() {}
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -84,7 +82,7 @@ public class RecentFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         if (topicSummaries.isEmpty()) {
             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
-            recentTask.execute(SessionManager.indexUrl.toString());
+            recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
 
         }
         Timber.d("onActivityCreated");
@@ -114,9 +112,9 @@ public class RecentFragment extends BaseFragment {
             swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
             swipeRefreshLayout.setOnRefreshListener(() -> {
-                        if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING) {
+                        if (!recentTask.isRunning()) {
                             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
-                            recentTask.execute(SessionManager.indexUrl.toString());
+                            recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
                         }
                     }
             );
@@ -128,7 +126,7 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recentTask != null && recentTask.getStatus() != AsyncTask.Status.RUNNING)
+        if (recentTask.isRunning())
             recentTask.cancel(true);
     }
 
@@ -147,7 +145,10 @@ public class RecentFragment extends BaseFragment {
             topicSummaries.addAll(fetchedRecent);
             recentAdapter.notifyDataSetChanged();
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
-            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "Unexpected error," +
+                    " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
 
         progressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -157,8 +158,8 @@ public class RecentFragment extends BaseFragment {
     //---------------------------------------ASYNC TASK-----------------------------------
     private class RecentTask extends NewParseTask<ArrayList<TopicSummary>> {
 
-        public RecentTask(OnTaskStartedListener onTaskStartedListener,
-                          OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
+        RecentTask(OnTaskStartedListener onTaskStartedListener,
+                   OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
             super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 

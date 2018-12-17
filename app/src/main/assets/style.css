@@ -521,3 +521,20 @@ img
 .customSignature{
     background: #323232;
 }
+
+[style="color: blue;"]
+{
+  color: #3452fe !important;
+}
+
+[style="color: purple;"]
+{
+  color: #a511a5 !important;
+}
+
+[style="color: maroon;"]
+{
+  color: #a51111 !important;
+}
+
+

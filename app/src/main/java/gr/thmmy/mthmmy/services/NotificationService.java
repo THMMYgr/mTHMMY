@@ -12,9 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.preference.PreferenceManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -22,6 +19,9 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
@@ -29,7 +29,7 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.PostNotification;
 import timber.log.Timber;
 
-import static android.support.v4.app.NotificationCompat.PRIORITY_MAX;
+import static androidx.core.app.NotificationCompat.PRIORITY_MAX;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.NOTIFICATION_LED_KEY;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.NOTIFICATION_VIBRATION_KEY;
 import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SELECTED_RINGTONE;
