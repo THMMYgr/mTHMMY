@@ -275,6 +275,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else {
                 // Showing results
                 holder.optionsLayout.setVisibility(View.GONE);
+
+                if (poll.getSelectedEntryIndex() != -1) {
+                    holder.selectedEntry.setText("You voted \"" +
+                            poll.getEntries()[poll.getSelectedEntryIndex()].getEntryName() + "\"");
+                    holder.selectedEntry.setVisibility(View.VISIBLE);
+                }
+
                 Arrays.sort(entries, (p1, p2) -> p1.getVotes() - p2.getVotes());
                 List<BarEntry> valuesToCompare = new ArrayList<>();
                 int totalVotes = 0;
@@ -320,12 +327,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setMinimumHeight((int) (chartHeightDp * (metrics.densityDpi / 160f)));
                 holder.voteChart.invalidate();
                 holder.voteChart.setVisibility(View.VISIBLE);
-
-                if (poll.getSelectedEntryIndex() != -1) {
-                    holder.selectedEntry.setText("You voted \"" +
-                            poll.getEntries()[poll.getSelectedEntryIndex()].getEntryName() + "\"");
-                    holder.selectedEntry.setVisibility(View.VISIBLE);
-                }
             }
             if (poll.getRemoveVoteUrl() != null) {
                 holder.removeVotesButton.setOnClickListener(v -> viewModel.removeVote());

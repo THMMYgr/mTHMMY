@@ -17,11 +17,13 @@ public class ShoutboxViewModel extends ViewModel {
     private SendShoutTask.OnTaskStartedListener onSendShoutTaskStarted;
     private SendShoutTask.OnNetworkTaskFinishedListener<Void> onSendShoutTaskFinished;
 
-    public void loadShoutbox() {
-        if (shoutboxTask != null && shoutboxTask.getStatus() == AsyncTask.Status.RUNNING)
-            shoutboxTask.cancel(true);
-        shoutboxTask = new ShoutboxTask(onShoutboxTaskStarted, onShoutboxTaskFinished);
-        shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
+    public void loadShoutbox(boolean force) {
+        if (shoutboxMutableLiveData.getValue() == null || force) {
+            if (shoutboxTask != null && shoutboxTask.getStatus() == AsyncTask.Status.RUNNING)
+                shoutboxTask.cancel(true);
+            shoutboxTask = new ShoutboxTask(onShoutboxTaskStarted, onShoutboxTaskFinished);
+            shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
+        }
     }
 
     public void sendShout(String shout) {

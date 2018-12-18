@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.shoutbox;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,7 +21,6 @@ import gr.thmmy.mthmmy.editorview.EditorView;
 import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Shout;
 import gr.thmmy.mthmmy.model.Shoutbox;
-import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.ShoutboxViewModel;
@@ -32,7 +30,6 @@ import timber.log.Timber;
 public class ShoutboxFragment extends Fragment {
 
     private MaterialProgressBar progressBar;
-    private ShoutboxTask shoutboxTask;
     private ShoutAdapter shoutAdapter;
     private EmojiKeyboard emojiKeyboard;
     private EditorView editorView;
@@ -90,7 +87,7 @@ public class ShoutboxFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_refresh) {
-            shoutboxViewModel.loadShoutbox();
+            shoutboxViewModel.loadShoutbox(true);
             return true;
         } else {
             return false;
@@ -100,7 +97,7 @@ public class ShoutboxFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        shoutboxViewModel = ViewModelProviders.of(this).get(ShoutboxViewModel.class);
+        shoutboxViewModel = ViewModelProviders.of(getActivity()).get(ShoutboxViewModel.class);
         shoutboxViewModel.getShoutboxMutableLiveData().observe(this, shoutbox -> {
             if (shoutbox != null) {
                 Timber.i("Shoutbox loaded successfully");
@@ -113,7 +110,7 @@ public class ShoutboxFragment extends Fragment {
         shoutboxViewModel.setOnSendShoutTaskStarted(this::onSendShoutTaskStarted);
         shoutboxViewModel.setOnSendShoutTaskFinished(this::onSendShoutTaskFinished);
 
-        shoutboxViewModel.loadShoutbox();
+        shoutboxViewModel.loadShoutbox(false);
     }
 
     private void onShoutboxTaskSarted() {
@@ -137,8 +134,7 @@ public class ShoutboxFragment extends Fragment {
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             Timber.i("Shout was sent successfully");
             editorView.getEditText().getText().clear();
-            shoutboxTask = new ShoutboxTask(ShoutboxFragment.this::onShoutboxTaskSarted, ShoutboxFragment.this::onShoutboxTaskFinished);
-            shoutboxTask.execute(SessionManager.shoutboxUrl.toString());
+            shoutboxViewModel.loadShoutbox(true);
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Timber.w("Failed to send shout");
             Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();

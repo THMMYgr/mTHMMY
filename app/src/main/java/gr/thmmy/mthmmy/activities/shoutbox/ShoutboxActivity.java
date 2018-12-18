@@ -26,12 +26,10 @@ public class ShoutboxActivity extends BaseActivity {
         createDrawer();
         drawer.setSelection(SHOUTBOX_ID);
 
-        if (savedInstanceState == null) {
-            shoutboxFragment = ShoutboxFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, shoutboxFragment)
-                    .commitNow();
-        }
+        shoutboxFragment = ShoutboxFragment.newInstance();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, shoutboxFragment)
+                .commitNow();
     }
 
     @Override
