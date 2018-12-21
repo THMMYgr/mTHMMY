@@ -85,7 +85,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //Bookmarks
     public static final String BOOKMARKS_SHARED_PREFS = "bookmarksSharedPrefs";
     public static final String BOOKMARKED_TOPICS_KEY = "bookmarkedTopicsKey";
-    private static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
+    public static final String BOOKMARKED_BOARDS_KEY = "bookmarkedBoardsKey";
     protected Bookmark thisPageBookmark;
     private MenuItem thisPageBookmarkMenuButton;
     private SharedPreferences sharedPreferences;
@@ -584,13 +584,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     private void loadSavedBookmarks() {
         String tmpString = bookmarksFile.getString(BOOKMARKED_TOPICS_KEY, null);
         if (tmpString != null)
-            topicsBookmarked = Bookmark.arrayFromString(tmpString);
+            topicsBookmarked = Bookmark.stringToArrayList(tmpString);
         else
             topicsBookmarked = new ArrayList<>();
 
         tmpString = bookmarksFile.getString(BOOKMARKED_BOARDS_KEY, null);
         if (tmpString != null)
-            boardsBookmarked = Bookmark.arrayFromString(tmpString);
+            boardsBookmarked = Bookmark.stringToArrayList(tmpString);
         else {
             boardsBookmarked = new ArrayList<>();
         }
@@ -622,14 +622,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private void updateBoardBookmarks() {
         String tmpString;
-        tmpString = Bookmark.arrayToString(boardsBookmarked);
+        tmpString = Bookmark.arrayListToString(boardsBookmarked);
         SharedPreferences.Editor editor = bookmarksFile.edit();
         editor.putString(BOOKMARKED_BOARDS_KEY, tmpString).apply();
     }
 
     private void updateTopicBookmarks() {
         String tmpString;
-        tmpString = Bookmark.arrayToString(topicsBookmarked);
+        tmpString = Bookmark.arrayListToString(topicsBookmarked);
         SharedPreferences.Editor editor = bookmarksFile.edit();
         editor.putString(BOOKMARKED_TOPICS_KEY, tmpString).apply();
     }

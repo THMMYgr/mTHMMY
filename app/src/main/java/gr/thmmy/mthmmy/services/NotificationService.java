@@ -19,6 +19,10 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
@@ -36,6 +40,7 @@ import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SELECTED_RING
 import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SETTINGS_SHARED_PREFS;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKED_BOARDS_KEY;
 import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKED_TOPICS_KEY;
 import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKS_SHARED_PREFS;
 import static gr.thmmy.mthmmy.model.Bookmark.matchExistsById;
@@ -61,15 +66,27 @@ public class NotificationService extends FirebaseMessagingService {
                         Timber.i("FCM BOARD type message detected.");
 
                         SharedPreferences bookmarksFile = getSharedPreferences(BOOKMARKS_SHARED_PREFS, Context.MODE_PRIVATE);
-                        String tmpString = bookmarksFile.getString(BOOKMARKED_TOPICS_KEY, null);
-                        if (tmpString != null){
-                            if(matchExistsById(Bookmark.arrayFromString(tmpString), topicId)){
-                                Timber.i("Board notification suppressed (already subscribed to topic).");
-                                return;
-                            }
+                        String bookmarkedTopicsString = bookmarksFile.getString(BOOKMARKED_TOPICS_KEY, null);
+                        if (bookmarkedTopicsString != null && matchExistsById(Bookmark.stringToArrayList(bookmarkedTopicsString), topicId)){
+                            Timber.i("Board notification suppressed (already subscribed to topic).");
+                            return;
                         }
 
                         boardId = Integer.parseInt(json.getString("boardId"));
+
+                        String bookmarkedBoardsString = bookmarksFile.getString(BOOKMARKED_BOARDS_KEY, null);
+                        if (bookmarkedBoardsString != null){
+                            ArrayList<Bookmark> boardBookmarks = Bookmark.stringToArrayList(bookmarkedBoardsString);
+                            ArrayList<Integer> subBoardIds = getSubBoardIds(json.getString("boardIds"), boardId);
+                            //TODO: Also suppress if user has chosen to be notified only for direct children of boardId && !subBoardIds.isEmpty()
+                            for(int subId:subBoardIds){
+                                if(matchExistsById(boardBookmarks, subId)){
+                                    Timber.i("Board notification suppressed (already subscribed to a subBoard).");
+                                    return;
+                                }
+                            }
+                        }
+
                         boardTitle = json.getString("boardTitle");
                     }
                     else
@@ -86,6 +103,21 @@ public class NotificationService extends FirebaseMessagingService {
                 Timber.e(e, "JSON Exception");
             }
         }
+    }
+
+    private static ArrayList<Integer> getSubBoardIds(String boardIdsString, int boardId){
+        ArrayList<Integer> subBoardIds = new ArrayList<>();
+        Pattern p = Pattern.compile("(\\d+)");
+        Matcher m = p.matcher(boardIdsString);
+        boolean boardIdfound=false;
+        while (m.find()){
+            int subBoardId = Integer.parseInt(m.group());
+            if(boardIdfound)
+                subBoardIds.add(subBoardId);
+            else if(boardId==subBoardId)
+                boardIdfound=true;
+        }
+        return subBoardIds;
     }
 
     private static final String CHANNEL_ID = "Posts";
