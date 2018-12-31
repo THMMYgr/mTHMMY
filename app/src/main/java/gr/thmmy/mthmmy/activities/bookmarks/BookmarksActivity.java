@@ -47,8 +47,8 @@ public class BookmarksActivity extends BaseActivity {
 
         //Creates the adapter that will return a fragment for each section of the activity
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        sectionsPagerAdapter.addFragment(BookmarksTopicFragment.newInstance(1, Bookmark.arrayToString(getTopicsBookmarked())), "Topics");
-        sectionsPagerAdapter.addFragment(BookmarksBoardFragment.newInstance(2, Bookmark.arrayToString(getBoardsBookmarked())), "Boards");
+        sectionsPagerAdapter.addFragment(BookmarksTopicFragment.newInstance(1, Bookmark.arrayListToString(getTopicsBookmarked())), "Topics");
+        sectionsPagerAdapter.addFragment(BookmarksBoardFragment.newInstance(2, Bookmark.arrayListToString(getBoardsBookmarked())), "Boards");
 
         //Sets up the ViewPager with the sections adapter.
         ViewPager viewPager = findViewById(R.id.bookmarks_container);

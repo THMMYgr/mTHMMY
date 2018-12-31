@@ -63,7 +63,7 @@ public class BookmarksTopicFragment extends Fragment {
         if (getArguments() != null) {
             String bundledTopicBookmarks = getArguments().getString(ARG_TOPIC_BOOKMARKS);
             if (bundledTopicBookmarks != null) {
-                topicBookmarks = Bookmark.arrayFromString(bundledTopicBookmarks);
+                topicBookmarks = Bookmark.stringToArrayList(bundledTopicBookmarks);
             }
         }
 

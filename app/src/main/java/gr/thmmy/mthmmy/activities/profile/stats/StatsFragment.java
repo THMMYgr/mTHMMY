@@ -56,13 +56,12 @@ public class StatsFragment extends Fragment {
     private ProfileStatsTask profileStatsTask;
     private LinearLayout mainContent;
     private MaterialProgressBar progressBar;
-    private boolean haveParsed = false;
 
     private boolean userHasPosts = true;
     private String generalStatisticsTitle = "", generalStatistics = "", postingActivityByTimeTitle = "", mostPopularBoardsByPostsTitle = "", mostPopularBoardsByActivityTitle = "";
-    final private List<Entry> postingActivityByTime = new ArrayList<>();
-    final private List<BarEntry> mostPopularBoardsByPosts = new ArrayList<>(), mostPopularBoardsByActivity = new ArrayList<>();
-    final private ArrayList<String> mostPopularBoardsByPostsLabels = new ArrayList<>(), mostPopularBoardsByActivityLabels = new ArrayList<>();
+    private final List<Entry> postingActivityByTime = new ArrayList<>();
+    private final List<BarEntry> mostPopularBoardsByPosts = new ArrayList<>(), mostPopularBoardsByActivity = new ArrayList<>();
+    private final ArrayList<String> mostPopularBoardsByPostsLabels = new ArrayList<>(), mostPopularBoardsByActivityLabels = new ArrayList<>();
 
     public StatsFragment() {
         // Required empty public constructor
@@ -95,7 +94,7 @@ public class StatsFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_stats, container, false);
         mainContent = rootView.findViewById(R.id.main_content);
         progressBar = rootView.findViewById(R.id.progressBar);
-        if (haveParsed)
+        if (profileStatsTask!=null && profileStatsTask.getStatus() == AsyncTask.Status.FINISHED)
             populateLayout();
         return rootView;
     }
@@ -103,7 +102,7 @@ public class StatsFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (!haveParsed) {
+        if (profileStatsTask==null) {
             profileStatsTask = new ProfileStatsTask();
             profileStatsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=statPanel");
         }
@@ -130,7 +129,6 @@ public class StatsFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(ProgressBar.VISIBLE);
-            haveParsed = true;
         }
 
         @Override
@@ -159,7 +157,6 @@ public class StatsFragment extends Fragment {
                 getActivity().finish();
             }
             //Parse was successful
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
             populateLayout();
         }
 
@@ -233,6 +230,7 @@ public class StatsFragment extends Fragment {
     }
 
     private void populateLayout() {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
         ((TextView) mainContent.findViewById(R.id.general_statistics_title))
                 .setText(generalStatisticsTitle);
         ((TextView) mainContent.findViewById(R.id.general_statistics))
@@ -358,6 +356,7 @@ public class StatsFragment extends Fragment {
         mostPopularBoardsByActivityData.setValueTextColor(Color.WHITE);
         mostPopularBoardsByActivityChart.setData(mostPopularBoardsByActivityData);
         mostPopularBoardsByActivityChart.invalidate();
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
     }
 
     private class MyXAxisValueFormatter implements IAxisValueFormatter {

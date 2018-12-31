@@ -69,7 +69,7 @@ public class Bookmark implements java.io.Serializable {
     }
 
     @Nullable
-    public static String arrayToString(@NonNull ArrayList<Bookmark> arrayList) {
+    public static String arrayListToString(@NonNull ArrayList<Bookmark> arrayList) {
         String returnString = "";
         for (Bookmark bookmark : arrayList) {
             if (bookmark != null) {
@@ -82,7 +82,7 @@ public class Bookmark implements java.io.Serializable {
         else return null;
     }
 
-    public static ArrayList<Bookmark> arrayFromString(@NonNull String string) {
+    public static ArrayList<Bookmark> stringToArrayList(@NonNull String string) {
         ArrayList<Bookmark> returnArray = new ArrayList<>();
         String[] lines = string.split("\n");
         for (String line : lines) {
