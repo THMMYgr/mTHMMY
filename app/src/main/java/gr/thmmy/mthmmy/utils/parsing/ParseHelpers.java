@@ -245,7 +245,7 @@ public class ParseHelpers {
         tagToHtmlMap.put(Pattern.compile(Pattern.quote(";)"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/wink.gif\" alt=\"Wink\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote(":D"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/cheesy.gif\" alt=\"Cheesy\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote(";D"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/grin.gif\" alt=\"Grin\" border=\"0\">");
-        tagToHtmlMap.put(Pattern.compile(Pattern.quote(">:("), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/angry.gif\" alt=\"Angry\" border=\"0\">");
+        tagToHtmlMap.put(Pattern.compile(Pattern.quote("&gt;:("), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/angry.gif\" alt=\"Angry\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote(":("), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/sad.gif\" alt=\"Sad\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote(":o"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/shocked.gif\" alt=\"Shocked\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote("8))"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/cool.gif\" alt=\"Cool\" border=\"0\">");
@@ -256,7 +256,7 @@ public class ParseHelpers {
         tagToHtmlMap.put(Pattern.compile(Pattern.quote(":-\\"), Pattern.MULTILINE), "<img src =\"https://www.thmmy.gr/smf/Smileys/default_dither/undecided.gif\" alt=\"Undecided\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote(":-*"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/kiss.gif\" alt=\"Kiss\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote(":'("), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/cry.gif\" alt=\"Cry\" border=\"0\">");
-        tagToHtmlMap.put(Pattern.compile(Pattern.quote("<3"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/heart.gif\" alt=\"heart\" border=\"0\">");
+        tagToHtmlMap.put(Pattern.compile(Pattern.quote("&lt;3"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/heart.gif\" alt=\"heart\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote("^locked^"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/locked.gif\" alt=\"kleidaria\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote("^rollover^"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/roll_over.gif\" alt=\"roll_over\" border=\"0\">");
         tagToHtmlMap.put(Pattern.compile(Pattern.quote("^redface^"), Pattern.MULTILINE), "<img src=\"https://www.thmmy.gr/smf/Smileys/default_dither/redface.gif\" alt=\"redface\" border=\"0\">");
