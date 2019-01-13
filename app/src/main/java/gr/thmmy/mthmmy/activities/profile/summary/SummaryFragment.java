@@ -144,7 +144,7 @@ public class SummaryFragment extends Fragment {
                         || summaryRow.text().contains("Κατάσταση")) continue;
                 else if (rowText.contains("Signature") || rowText.contains("Υπογραφή")) {
                     //This needs special handling since it may have css
-                    pHtml = ParseHelpers.youtubeEmbeddedFix(summaryRow);
+                    pHtml = ParseHelpers.emojiTagToHtml(ParseHelpers.youtubeEmbeddedFix(summaryRow));
                     //Add stuff to make it work in WebView
                     //style.css
                     pHtml = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +

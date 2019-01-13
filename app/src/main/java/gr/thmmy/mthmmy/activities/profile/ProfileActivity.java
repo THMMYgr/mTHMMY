@@ -57,6 +57,7 @@ import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.emojiTagToHtml;
 
 /**
  * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>
@@ -273,7 +274,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             { //Finds personal text
                 Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
                 if (tmpEl != null) {
-                    personalText = tmpEl.text().trim();
+                    personalText = emojiTagToHtml(tmpEl.text().trim());
                 } else {
                     //Should never get here!
                     //Something is wrong.
