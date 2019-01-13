@@ -13,8 +13,8 @@ android {
         applicationId "gr.thmmy.mthmmy"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 17
-        versionName "1.6.2"
+        versionCode 18
+        versionName "1.6.3"
         archivesBaseName = "mTHMMY-v$versionName"
         buildConfigField "String", "CURRENT_BRANCH", "\"" + getCurrentBranch() + "\""
         buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
