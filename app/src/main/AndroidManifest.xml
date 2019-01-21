@@ -161,7 +161,7 @@
         </service>
 
         <activity
-            android:name=".activities.create_content.CreateContentActivity"
+            android:name=".activities.create_topic.CreateTopicActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
