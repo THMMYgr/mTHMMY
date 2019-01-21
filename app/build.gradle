@@ -89,7 +89,8 @@ dependencies {
     implementation 'ru.noties:markwon:2.0.0'
     implementation 'net.gotev:uploadservice:3.4.2'
     implementation 'net.gotev:uploadservice-okhttp:3.4.2'
-    implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.4' //Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
+    implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.4'
+    //Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
 }
 
 apply plugin: 'com.google.gms.google-services'

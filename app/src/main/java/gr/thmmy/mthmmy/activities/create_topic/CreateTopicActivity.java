@@ -33,7 +33,7 @@ public class CreateTopicActivity extends BaseActivity implements NewTopicTask.Ne
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_content);
+        setContentView(R.layout.activity_create_topic);
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);

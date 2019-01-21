@@ -173,6 +173,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity" />
         </activity>
+        <activity android:name=".activities.create_pm.CreatePMActivity"></activity>
     </application>
 
 </manifest>

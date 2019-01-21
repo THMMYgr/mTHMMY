@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.create_pm.CreatePMActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/appbar_padding_top"
+            android:theme="@style/ToolbarTheme">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:gravity="center"
+                app:popupTheme="@style/ToolbarTheme"></androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <include
+            layout="@layout/full_post_editor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/appbar" />
+
+        <gr.thmmy.mthmmy.editorview.EmojiKeyboard
+            android:id="@+id/emoji_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/progress_bar_height"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_anchor="@id/appbar"
+        app:layout_anchorGravity="bottom|center"
+        app:mpb_indeterminateTint="@color/accent"
+        app:mpb_progressStyle="horizontal" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
