@@ -173,7 +173,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity" />
         </activity>
-        <activity android:name=".activities.create_pm.CreatePMActivity"></activity>
+        <activity android:name=".activities.create_pm.CreatePMActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package gr.thmmy.mthmmy.activities.profile;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -38,6 +40,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.create_pm.CreatePMActivity;
 import gr.thmmy.mthmmy.activities.profile.latestPosts.LatestPostsFragment;
 import gr.thmmy.mthmmy.activities.profile.stats.StatsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
@@ -79,6 +83,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      * If username is not available put an empty string or leave it null.
      */
     public static final String BUNDLE_PROFILE_USERNAME = "USERNAME";
+    public static final String BUNDLE_SEND_PM_URL = "send-pm-url";
 
     private TextView usernameView;
     private ImageView avatarView;
@@ -92,6 +97,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     private String profileUrl;
     private String avatarUrl;
     private String username;
+    private String sendPmUrl;
     private int tabSelect;
 
     //Fix for vector drawables on android <21
@@ -140,37 +146,29 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         viewPager = findViewById(R.id.profile_tab_container);
 
         pmFAB = findViewById(R.id.profile_fab);
-        pmFAB.setEnabled(false);
-        pmFAB.hide();
-        /*if (!sessionManager.isLoggedIn()) pmFAB.hide();
+        if (!sessionManager.isLoggedIn()) pmFAB.hide();
         else {
-            pmFAB.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (sessionManager.isLoggedIn()) {
-                        //TODO PM
-                    } else {
-                        new AlertDialog.Builder(ProfileActivity.this)
-                                .setMessage("You need to be logged in to sent a personal message!")
-                                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                                    }
-                                })
-                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                    }
-                                })
-                                .show();
-                    }
+            pmFAB.setOnClickListener(view -> {
+                if (sessionManager.isLoggedIn()) {
+                    Intent sendPMIntent = new Intent(ProfileActivity.this, CreatePMActivity.class);
+                    sendPMIntent.putExtra(BUNDLE_PROFILE_USERNAME, username);
+                    sendPMIntent.putExtra(BUNDLE_SEND_PM_URL, sendPmUrl);
+                    startActivity(sendPMIntent);
+                } else {
+                    new AlertDialog.Builder(ProfileActivity.this)
+                            .setMessage("You need to be logged in to sent a personal message!")
+                            .setPositiveButton("Login", (dialogInterface, i) -> {
+                                Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                                finish();
+                                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                            })
+                            .setNegativeButton("Cancel", (dialogInterface, i) -> {
+                            })
+                            .show();
                 }
             });
-        }*/
+        }
 
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(profileUrl));
         if (!target.is(ThmmyPage.PageCategory.PROFILE)) {
@@ -211,7 +209,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
     }
 
-    private void loadAvatar(){
+    private void loadAvatar() {
         Picasso.with(this)
                 .load(avatarUrl)
                 .fit()
@@ -224,7 +222,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 .into(avatarView);
     }
 
-    private void loadDefaultAvatar(){
+    private void loadDefaultAvatar() {
         Picasso.with(this)
                 .load(R.drawable.ic_default_user_avatar)
                 .fit()
@@ -296,6 +294,13 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 usernameSpan.setSpan(new ForegroundColorSpan(Color.parseColor("#26A69A"))
                         , 2, usernameSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+            // Url needed to send to send pm
+            Elements urllinks;
+            urllinks = profilePage.select("a:contains(Send this member a personal message.)");
+            if (urllinks.size() == 0) {
+                urllinks = profilePage.select("a:contains(Αποστολή προσωπικού μηνύματος σε αυτό το μέλος.)");
+            }
+            sendPmUrl = urllinks.first().attr("href");
             return null;
         }
 
