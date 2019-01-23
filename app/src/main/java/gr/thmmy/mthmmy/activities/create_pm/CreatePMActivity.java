@@ -80,7 +80,7 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
             SendPMTask sendPMTask = new SendPMTask(includeAppSignature);
             sendPMTask.setOnTaskStartedListener(this);
             sendPMTask.setOnTaskFinishedListener(this);
-            sendPMTask.execute(sendPmUrl, username, subjectInput.getEditText().getText().toString(),
+            sendPMTask.execute(sendPmUrl, subjectInput.getEditText().getText().toString(),
                     contentEditor.getText().toString());
         });
     }

@@ -33,7 +33,7 @@ public class SendPMTask extends ExternalAsyncTask<String, Boolean> {
         OkHttpClient client = BaseApplication.getInstance().getClient();
 
         Document document;
-        String seqnum, sc, outbox, createTopicUrl, replied_to, folder;
+        String seqnum, sc, outbox, createTopicUrl, replied_to, folder, u;
         try {
             Response response = client.newCall(request).execute();
             document = Jsoup.parse(response.body().string());
@@ -43,6 +43,7 @@ public class SendPMTask extends ExternalAsyncTask<String, Boolean> {
             outbox = document.select("input[name=outbox]").first().attr("value");
             replied_to = document.select("input[name=replied_to]").first().attr("value");
             folder = document.select("input[name=folder]").first().attr("value");
+            u = document.select("input[name=u]").first().attr("value");
             createTopicUrl = document.select("form").first().attr("action");
 
             final String appSignature = "\n[right][size=7pt][i]sent from [url=https://play.google.com/store/apps/" +
@@ -50,11 +51,11 @@ public class SendPMTask extends ExternalAsyncTask<String, Boolean> {
 
             RequestBody postBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("message", strings[3] + (includeAppSignature ? appSignature : ""))
+                    .addFormDataPart("message", strings[2] + (includeAppSignature ? appSignature : ""))
                     .addFormDataPart("seqnum", seqnum)
                     .addFormDataPart("sc", sc)
-                    .addFormDataPart("u", strings[1]) // recipient
-                    .addFormDataPart("subject", strings[2])
+                    .addFormDataPart("u", u) // recipient id
+                    .addFormDataPart("subject", strings[1])
                     .addFormDataPart("outbox", outbox)
                     .addFormDataPart("replied_to", replied_to)
                     .addFormDataPart("folder", folder)
@@ -71,7 +72,7 @@ public class SendPMTask extends ExternalAsyncTask<String, Boolean> {
                 Response response2 = client.newCall(pmRequest).execute();
                 switch (replyStatus(response2)) {
                     case SUCCESSFUL:
-                        BaseApplication.getInstance().logFirebaseAnalyticsEvent("new_topic_creation", null);
+                        BaseApplication.getInstance().logFirebaseAnalyticsEvent("new_pm_sent", null);
                         return true;
                     default:
                         Timber.e("Malformed pmRequest. Request string: %s", pmRequest.toString());
