@@ -48,6 +48,7 @@ import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.bookmarks.BookmarksActivity;
 import gr.thmmy.mthmmy.activities.downloads.DownloadsActivity;
+import gr.thmmy.mthmmy.activities.inbox.InboxActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
@@ -161,6 +162,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected static final int ABOUT_ID = 5;
     protected static final int SETTINGS_ID = 6;
     protected static final int SHOUTBOX_ID = 7;
+    protected static final int INBOX_ID = 8;
 
     private AccountHeader accountHeader;
     private ProfileDrawerItem profileDrawerItem;
@@ -175,8 +177,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
-        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem, shoutboxItem;
-        IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, uploadIcon, uploadIconSelected, settingsIcon,
+        PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem, shoutboxItem, inboxItem;
+        IconicsDrawable homeIcon, homeIconSelected, downloadsIcon, downloadsIconSelected, uploadIcon,
+                uploadIconSelected, settingsIcon,
                 settingsIconSelected, bookmarksIcon, bookmarksIconSelected, aboutIcon, aboutIconSelected;
 
         //Drawer Icons
@@ -274,6 +277,18 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withSelectedIconColor(selectedSecondaryColor)
                 .withIconTintingEnabled(true);
 
+        inboxItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(INBOX_ID)
+                .withName(R.string.inbox)
+                .withIcon(R.drawable.ic_message_white_24dp)
+                .withIconColor(primaryColor)
+                .withSelectedIconColor(selectedSecondaryColor)
+                .withIconTintingEnabled(true);
+
+
         if (sessionManager.isLoggedIn()) //When logged in
         {
             loginLogoutItem = new PrimaryDrawerItem()
@@ -368,6 +383,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                             Intent intent = new Intent(BaseActivity.this, ShoutboxActivity.class);
                             startActivity(intent);
                         }
+                    } else if (drawerItem.equals(INBOX_ID)) {
+                        if (!(BaseActivity.this instanceof InboxActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, InboxActivity.class);
+                            startActivity(intent);
+                        }
                     } else if (drawerItem.equals(DOWNLOADS_ID)) {
                         if (!(BaseActivity.this instanceof DownloadsActivity)) {
                             Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
@@ -412,7 +432,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 });
 
         if (sessionManager.isLoggedIn())
-            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, shoutboxItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
+            drawerBuilder.addDrawerItems(homeItem, bookmarksItem, shoutboxItem, inboxItem, downloadsItem, settingsItem, loginLogoutItem, aboutItem);
         else
             drawerBuilder.addDrawerItems(homeItem, bookmarksItem, shoutboxItem, settingsItem, loginLogoutItem, aboutItem);
 

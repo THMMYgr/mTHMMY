@@ -11,6 +11,8 @@
     <string name="about">About</string>
     <string name="home">Home</string>
     <string name="bookmark">Bookmarks</string>
+    <string name="shoutbox">Shoutbox</string>
+    <string name="inbox">Inbox</string>
     <string name="info">Info</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -21,7 +23,6 @@
     <string name="recent">Recent</string>
     <string name="forum">Forum</string>
     <string name="unread">Unread</string>
-    <string name="shoutbox">Shoutbox</string>
     <string name="refresh">Refresh</string>
 
     <!--Login Activity-->
