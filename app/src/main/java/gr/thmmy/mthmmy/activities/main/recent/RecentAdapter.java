@@ -6,7 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.database.collection.ArraySortedMap;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,12 +30,26 @@ import gr.thmmy.mthmmy.model.TopicSummary;
  */
 class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     private final Context context;
-    private final List<TopicSummary> recentList;
+    private final List<DocumentReference> postSummaries;
     private final RecentFragment.RecentFragmentInteractionListener mListener;
 
-    RecentAdapter(Context context, @NonNull List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
+    RecentAdapter(Context context, @NonNull List<DocumentReference> postSummaries, BaseFragment.FragmentInteractionListener listener) {
         this.context = context;
-        this.recentList = topicSummaryList;
+        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+        for (DocumentReference documentReference : postSummaries) {
+            Task<DocumentSnapshot> documentSnapshotTask = documentReference.get();
+            tasks.add(documentSnapshotTask);
+        }
+        Tasks.whenAllSuccess(tasks).addOnSuccessListener(new OnSuccessListener<List<Object>>() {
+            @Override
+            public void onSuccess(List<Object> objects) {
+                ArrayList<Map> posts = new ArrayList<>();
+                for (Object object : objects) {
+                    posts.add((Map) object);
+                }
+            }
+        })
+        this.postSummaries = postSummaries;
         mListener = (RecentFragment.RecentFragmentInteractionListener) listener;
     }
 
@@ -41,9 +64,11 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.mTitleView.setText(recentList.get(position).getSubject());
-        holder.mDateTimeView.setText(recentList.get(position).getDateTimeModified());
-        holder.mUserView.setText(recentList.get(position).getLastUser());
+        ArraySortedMap map = (ArraySortedMap) postSummaries.get("posts");
+        ArraySortedMap post = (ArraySortedMap) map.get(position);
+        holder.mTitleView.setText(post.get("topicTitle").toString());
+        holder.mDateTimeView.setText(post.get("timestamp").toString());
+        holder.mUserView.setText(post.get("poster").toString());
 
         holder.topic = recentList.get(position);
 

@@ -9,6 +9,11 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -17,10 +22,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -49,7 +56,7 @@ public class RecentFragment extends BaseFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecentAdapter recentAdapter;
 
-    private List<TopicSummary> topicSummaries;
+    private DocumentSnapshot recentDocument;
 
     private RecentTask recentTask;
 
@@ -74,13 +81,20 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        topicSummaries = new ArrayList<>();
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (topicSummaries.isEmpty()) {
+        if (recentDocument == null) {
+            DocumentReference docRef = BaseApplication.getInstance().getFirestoredb()
+                    .collection("recent_posts")
+                    .document("recent");
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    recentDocument = task.getResult();
+                }
+            });
             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
             recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
 
@@ -98,7 +112,7 @@ public class RecentFragment extends BaseFragment {
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = rootView.findViewById(R.id.progressBar);
-            recentAdapter = new RecentAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
+            recentAdapter = new RecentAdapter(getActivity(), (List<DocumentReference>) recentDocument.get("posts"), fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -153,61 +167,5 @@ public class RecentFragment extends BaseFragment {
 
         progressBar.setVisibility(ProgressBar.INVISIBLE);
         swipeRefreshLayout.setRefreshing(false);
-    }
-
-    //---------------------------------------ASYNC TASK-----------------------------------
-    private class RecentTask extends NewParseTask<ArrayList<TopicSummary>> {
-
-        RecentTask(OnTaskStartedListener onTaskStartedListener,
-                   OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
-            super(onTaskStartedListener, onParseTaskFinishedListener);
-        }
-
-        @Override
-        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException {
-            ArrayList<TopicSummary> fetchedRecent = new ArrayList<>();
-            Elements recent = document.select("#block8 :first-child div");
-            if (!recent.isEmpty()) {
-                for (int i = 0; i < recent.size(); i += 3) {
-                    String link = recent.get(i).child(0).attr("href");
-                    String title = recent.get(i).child(0).attr("title");
-                    title = title.trim();
-
-                    String lastUser = recent.get(i + 1).text();
-                    Pattern pattern = Pattern.compile("\\b (.*)");
-                    Matcher matcher = pattern.matcher(lastUser);
-                    if (matcher.find())
-                        lastUser = matcher.group(1);
-                    else
-                        throw new ParseException("Parsing failed (lastUser)");
-
-                    String dateTime = recent.get(i + 2).text();
-                    pattern = Pattern.compile("\\[(.*)]");
-                    matcher = pattern.matcher(dateTime);
-                    if (matcher.find()) {
-                        dateTime = matcher.group(1);
-                        if (dateTime.contains(" am") || dateTime.contains(" pm") ||
-                                dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
-                            dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
-                        } else {
-                            dateTime = dateTime.substring(0, dateTime.lastIndexOf(":"));
-                        }
-                        if (!dateTime.contains(",")) {
-                            dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
-                        }
-                    } else
-                        throw new ParseException("Parsing failed (dateTime)");
-
-                    fetchedRecent.add(new TopicSummary(link, title, lastUser, dateTime));
-                }
-                return fetchedRecent;
-            }
-            throw new ParseException("Parsing failed");
-        }
-
-        @Override
-        protected int getResultCode(Response response, ArrayList<TopicSummary> data) {
-            return NetworkResultCodes.SUCCESSFUL;
-        }
     }
 }

@@ -16,6 +16,7 @@ import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
@@ -52,6 +53,7 @@ public class BaseApplication extends Application {
 
     //Firebase Analytics
     private FirebaseAnalytics firebaseAnalytics;
+    private FirebaseFirestore firestoredb;
 
     //Client & SessionManager
     private OkHttpClient client;
@@ -93,6 +95,7 @@ public class BaseApplication extends Application {
             Timber.i("Starting app with Analytics enabled.");
         else
             Timber.i("Starting app with Analytics disabled.");
+        firestoredb = FirebaseFirestore.getInstance();
 
         SharedPrefsCookiePersistor sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(getApplicationContext());
         PersistentCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
@@ -179,6 +182,10 @@ public class BaseApplication extends Application {
 
     public OkHttpClient getClient() {
         return client;
+    }
+
+    public FirebaseFirestore getFirestoredb() {
+        return firestoredb;
     }
 
     public SessionManager getSessionManager() {
