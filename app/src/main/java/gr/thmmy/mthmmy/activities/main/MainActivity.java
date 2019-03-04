@@ -147,7 +147,9 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     @Override
     public void onRecentFragmentInteraction(RecentItem recentItem) {
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
-        i.putExtra(BUNDLE_TOPIC_URL, recentItem.getTopicUrl());
+        //TODO: Improve this shit with a thmmy url class in model probably
+        i.putExtra(BUNDLE_TOPIC_URL, "https://www.thmmy.gr/smf/index.php?topic=" +
+                recentItem.getTopicId() + ".msg" + recentItem.getPostId() + ";topicseen#new");
         i.putExtra(BUNDLE_TOPIC_TITLE, recentItem.getTopicTitle());
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(i);

@@ -24,10 +24,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.RecentItem;
-import gr.thmmy.mthmmy.model.TopicSummary;
-import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
-import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
@@ -48,7 +45,7 @@ public class RecentFragment extends BaseFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecentAdapter recentAdapter;
 
-    private ArrayList<RecentItem> recentItems;
+    private ArrayList<RecentItem> recentItems = new ArrayList<>();
 
     // Required empty public constructor
     public RecentFragment() {}
@@ -78,27 +75,41 @@ public class RecentFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (recentItems == null) {
-            DocumentReference docRef = BaseApplication.getInstance().getFirestoredb()
-                    .collection("recent_posts")
-                    .document("recent");
-            docRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot recentDocument = task.getResult();
-                    List<DocumentReference> posts = (List<DocumentReference>) recentDocument.get("posts");
-                    List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-                    for (DocumentReference documentReference : posts) {
-                        Task<DocumentSnapshot> documentSnapshotTask = documentReference.get();
-                        tasks.add(documentSnapshotTask);
-                    }
-                    Tasks.whenAllSuccess(tasks).addOnSuccessListener(objects -> {
-                        ArrayList<RecentItem> recentItems = new ArrayList<>();
-                        for (Object object : objects) {
-                            RecentItem recentItem = ((DocumentSnapshot) object).toObject(RecentItem.class);
-                            recentItems.add(recentItem);
+            Timber.d("I'm ere");
+            new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    DocumentReference docRef = BaseApplication.getInstance().getFirestoredb()
+                            .collection("recent_posts")
+                            .document("recent");
+                    Timber.d("I'm here");
+                    docRef.get().addOnCompleteListener(task -> {
+                        Timber.d("I'm there");
+                        progressBar.setVisibility(ProgressBar.INVISIBLE);
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot recentDocument = task.getResult();
+                            List<DocumentReference> posts = (List<DocumentReference>) recentDocument.get("posts");
+                            List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+                            for (DocumentReference documentReference : posts) {
+                                Task<DocumentSnapshot> documentSnapshotTask = documentReference.get();
+                                tasks.add(documentSnapshotTask);
+                            }
+                            Tasks.whenAllSuccess(tasks).addOnSuccessListener(objects -> {
+                                ArrayList<RecentItem> recentItems = new ArrayList<>();
+                                for (Object object : objects) {
+                                    RecentItem recentItem = ((DocumentSnapshot) object).toObject(RecentItem.class);
+                                    recentItems.add(recentItem);
+                                }
+                            });
+                        } else {
+                            Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
                         }
                     });
+                    return null;
                 }
-            });
+            }.execute();
+            progressBar.setVisibility(ProgressBar.VISIBLE);
         }
         Timber.d("onActivityCreated");
     }
@@ -126,47 +137,13 @@ public class RecentFragment extends BaseFragment {
             swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
             swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
             swipeRefreshLayout.setColorSchemeResources(R.color.accent);
-            swipeRefreshLayout.setOnRefreshListener(() -> {
-                        if (!recentTask.isRunning()) {
-                            recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
-                            recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
-                        }
-                    }
-            );
         }
 
         return rootView;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (recentTask.isRunning())
-            recentTask.cancel(true);
-    }
-
 
     public interface RecentFragmentInteractionListener extends FragmentInteractionListener {
         void onRecentFragmentInteraction(RecentItem topicSummary);
-    }
-
-    private void onRecentTaskStarted() {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
-    }
-
-    private void onRecentTaskFinished(int resultCode, ArrayList<TopicSummary> fetchedRecent) {
-        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            topicSummaries.clear();
-            topicSummaries.addAll(fetchedRecent);
-            recentAdapter.notifyDataSetChanged();
-        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
-            Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getContext(), "Unexpected error," +
-                    " please contact the developers with the details", Toast.LENGTH_LONG).show();
-        }
-
-        progressBar.setVisibility(ProgressBar.INVISIBLE);
-        swipeRefreshLayout.setRefreshing(false);
     }
 }
