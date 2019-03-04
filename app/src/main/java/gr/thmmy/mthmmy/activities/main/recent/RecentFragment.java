@@ -9,34 +9,26 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
+import gr.thmmy.mthmmy.model.RecentItem;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
-import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
-import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-import okhttp3.Response;
 import timber.log.Timber;
 
 
@@ -56,12 +48,11 @@ public class RecentFragment extends BaseFragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecentAdapter recentAdapter;
 
-    private DocumentSnapshot recentDocument;
-
-    private RecentTask recentTask;
+    private ArrayList<RecentItem> recentItems;
 
     // Required empty public constructor
     public RecentFragment() {}
+
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -86,18 +77,28 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (recentDocument == null) {
+        if (recentItems == null) {
             DocumentReference docRef = BaseApplication.getInstance().getFirestoredb()
                     .collection("recent_posts")
                     .document("recent");
             docRef.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    recentDocument = task.getResult();
+                    DocumentSnapshot recentDocument = task.getResult();
+                    List<DocumentReference> posts = (List<DocumentReference>) recentDocument.get("posts");
+                    List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+                    for (DocumentReference documentReference : posts) {
+                        Task<DocumentSnapshot> documentSnapshotTask = documentReference.get();
+                        tasks.add(documentSnapshotTask);
+                    }
+                    Tasks.whenAllSuccess(tasks).addOnSuccessListener(objects -> {
+                        ArrayList<RecentItem> recentItems = new ArrayList<>();
+                        for (Object object : objects) {
+                            RecentItem recentItem = ((DocumentSnapshot) object).toObject(RecentItem.class);
+                            recentItems.add(recentItem);
+                        }
+                    });
                 }
             });
-            recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
-            recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
-
         }
         Timber.d("onActivityCreated");
     }
@@ -112,7 +113,7 @@ public class RecentFragment extends BaseFragment {
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = rootView.findViewById(R.id.progressBar);
-            recentAdapter = new RecentAdapter(getActivity(), (List<DocumentReference>) recentDocument.get("posts"), fragmentInteractionListener);
+            recentAdapter = new RecentAdapter(getActivity(), recentItems, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -146,7 +147,7 @@ public class RecentFragment extends BaseFragment {
 
 
     public interface RecentFragmentInteractionListener extends FragmentInteractionListener {
-        void onRecentFragmentInteraction(TopicSummary topicSummary);
+        void onRecentFragmentInteraction(RecentItem topicSummary);
     }
 
     private void onRecentTaskStarted() {

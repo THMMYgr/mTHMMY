@@ -7,8 +7,8 @@ public class RecentItem {
     private String boardTitle, topicTitle, poster;
     private Date timestamp;
 
-    public RecentItem(int boardId, String boardTitle, int postId, String poster, int posterId, int timestamp, int topicId,
-                      String topicTitle) {
+    public RecentItem(int boardId, String boardTitle, int postId, String poster, int posterId, int timestamp,
+                      int topicId, String topicTitle) {
         this.boardId = boardId;
         this.postId = postId;
         this.poster = poster;

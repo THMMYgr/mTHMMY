@@ -31,6 +31,7 @@ import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
+import gr.thmmy.mthmmy.model.RecentItem;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import timber.log.Timber;
@@ -144,10 +145,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     }
 
     @Override
-    public void onRecentFragmentInteraction(TopicSummary topicSummary) {
+    public void onRecentFragmentInteraction(RecentItem recentItem) {
         Intent i = new Intent(MainActivity.this, TopicActivity.class);
-        i.putExtra(BUNDLE_TOPIC_URL, topicSummary.getTopicUrl());
-        i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
+        i.putExtra(BUNDLE_TOPIC_URL, recentItem.getTopicUrl());
+        i.putExtra(BUNDLE_TOPIC_TITLE, recentItem.getTopicTitle());
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(i);
     }

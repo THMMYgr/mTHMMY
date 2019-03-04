@@ -6,21 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.database.collection.ArraySortedMap;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
+import gr.thmmy.mthmmy.model.RecentItem;
 import gr.thmmy.mthmmy.model.TopicSummary;
 
 
@@ -30,26 +22,13 @@ import gr.thmmy.mthmmy.model.TopicSummary;
  */
 class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     private final Context context;
-    private final List<DocumentReference> postSummaries;
+    private final List<RecentItem> recentItems;
     private final RecentFragment.RecentFragmentInteractionListener mListener;
 
-    RecentAdapter(Context context, @NonNull List<DocumentReference> postSummaries, BaseFragment.FragmentInteractionListener listener) {
+    RecentAdapter(Context context, @NonNull List<RecentItem> recentItems, BaseFragment.FragmentInteractionListener listener) {
         this.context = context;
-        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-        for (DocumentReference documentReference : postSummaries) {
-            Task<DocumentSnapshot> documentSnapshotTask = documentReference.get();
-            tasks.add(documentSnapshotTask);
-        }
-        Tasks.whenAllSuccess(tasks).addOnSuccessListener(new OnSuccessListener<List<Object>>() {
-            @Override
-            public void onSuccess(List<Object> objects) {
-                ArrayList<Map> posts = new ArrayList<>();
-                for (Object object : objects) {
-                    posts.add((Map) object);
-                }
-            }
-        })
-        this.postSummaries = postSummaries;
+
+        this.recentItems = recentItems;
         mListener = (RecentFragment.RecentFragmentInteractionListener) listener;
     }
 
@@ -64,13 +43,10 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        ArraySortedMap map = (ArraySortedMap) postSummaries.get("posts");
-        ArraySortedMap post = (ArraySortedMap) map.get(position);
-        holder.mTitleView.setText(post.get("topicTitle").toString());
-        holder.mDateTimeView.setText(post.get("timestamp").toString());
-        holder.mUserView.setText(post.get("poster").toString());
-
-        holder.topic = recentList.get(position);
+        RecentItem recentItem = recentItems.get(position);
+        holder.mTitleView.setText(recentItem.getTopicTitle());
+        holder.mDateTimeView.setText(recentItem.getTimestamp().toString());
+        holder.mUserView.setText(recentItem.getPoster());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +55,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onRecentFragmentInteraction(holder.topic);  //?
+                    mListener.onRecentFragmentInteraction(recentItems.get(holder.getAdapterPosition()));  //?
 
                 }
 
@@ -89,7 +65,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return recentList.size();
+        return recentItems.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -97,7 +73,6 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
         final TextView mTitleView;
         final TextView mUserView;
         final TextView mDateTimeView;
-        public TopicSummary topic;
 
         ViewHolder(View view) {
             super(view);
