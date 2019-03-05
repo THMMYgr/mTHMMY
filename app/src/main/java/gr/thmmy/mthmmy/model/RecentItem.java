@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.model;
 
 import java.util.Date;
+import java.util.HashMap;
 
 public class RecentItem {
     private int boardId, postId, topicId, posterId;
@@ -17,6 +18,10 @@ public class RecentItem {
         this.boardTitle = boardTitle;
         this.topicTitle = topicTitle;
         this.timestamp = new Date(timestamp);
+    }
+
+    public RecentItem(HashMap<String, Object> keymap) {
+
     }
 
     public Date getTimestamp() {
