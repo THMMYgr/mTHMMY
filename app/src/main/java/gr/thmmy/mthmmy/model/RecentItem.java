@@ -1,27 +1,22 @@
 package gr.thmmy.mthmmy.model;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 
 public class RecentItem {
     private int boardId, postId, topicId, posterId;
     private String boardTitle, topicTitle, poster;
     private Date timestamp;
 
-    public RecentItem(int boardId, String boardTitle, int postId, String poster, int posterId, int timestamp,
-                      int topicId, String topicTitle) {
-        this.boardId = boardId;
-        this.postId = postId;
-        this.poster = poster;
-        this.posterId = posterId;
-        this.topicId = topicId;
-        this.boardTitle = boardTitle;
-        this.topicTitle = topicTitle;
-        this.timestamp = new Date(timestamp);
-    }
-
-    public RecentItem(HashMap<String, Object> keymap) {
-
+    public RecentItem(Map<String, Object> map) {
+        this.boardId = ((Long) map.get("boardId")).intValue();
+        this.postId = ((Long) map.get("postId")).intValue();
+        this.poster = String.valueOf(map.get("poster"));
+        this.posterId = ((Long) map.get("posterId")).intValue();
+        this.topicId = ((Long) map.get("topicId")).intValue();
+        this.boardTitle = String.valueOf(map.get("boardTitle"));
+        this.topicTitle = String.valueOf(map.get("topicTitle"));
+        this.timestamp = new Date((long)(map.get("timestamp")) * 1000);
     }
 
     public Date getTimestamp() {
