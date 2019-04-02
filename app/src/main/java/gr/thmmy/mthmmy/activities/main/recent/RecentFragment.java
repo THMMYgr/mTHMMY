@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,10 +40,11 @@ public class RecentFragment extends BaseFragment {
     // Fragment initialization parameters, e.g. ARG_SECTION_NUMBER
 
     private MaterialProgressBar progressBar;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private RecentAdapter recentAdapter;
 
     private ArrayList<RecentItem> recentItems = new ArrayList<>();
+
+    private ListenerRegistration recentSnapshotListener;
 
     // Required empty public constructor
     public RecentFragment() {
@@ -78,21 +80,23 @@ public class RecentFragment extends BaseFragment {
                 .document("recent");
         docRef.get().addOnCompleteListener(task -> {
             progressBar.setVisibility(ProgressBar.INVISIBLE);
-            if (task.isSuccessful()) {
-                DocumentSnapshot recentDocument = task.getResult();
-                ArrayList<HashMap<String, Object>> posts = (ArrayList<HashMap<String, Object>>) recentDocument.get("posts");
-                for (HashMap<String, Object> map : posts) {
-                    RecentItem recentItem = new RecentItem(map);
-                    recentItems.add(recentItem);
-                }
-                recentAdapter.notifyDataSetChanged();
-            } else {
-                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
-            }
+
+            if (task.isSuccessful()) onNewDocumentSnapshot(task.getResult());
+            else Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
         });
+        recentSnapshotListener = docRef.addSnapshotListener((documentSnapshot, e) -> {
+                    Timber.i("New doc");
+                    onNewDocumentSnapshot(documentSnapshot);
+                }
+        );
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        recentSnapshotListener.remove();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -112,13 +116,19 @@ public class RecentFragment extends BaseFragment {
                     linearLayoutManager.getOrientation());
             recyclerView.addItemDecoration(dividerItemDecoration);
             recyclerView.setAdapter(recentAdapter);
-
-            swipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
-            swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primary);
-            swipeRefreshLayout.setColorSchemeResources(R.color.accent);
         }
 
         return rootView;
+    }
+
+    public void onNewDocumentSnapshot(DocumentSnapshot recentDocument) {
+        recentItems.clear();
+        ArrayList<HashMap<String, Object>> posts = (ArrayList<HashMap<String, Object>>) recentDocument.get("posts");
+        for (HashMap<String, Object> map : posts) {
+            RecentItem recentItem = new RecentItem(map);
+            recentItems.add(recentItem);
+        }
+        recentAdapter.notifyDataSetChanged();
     }
 
 
