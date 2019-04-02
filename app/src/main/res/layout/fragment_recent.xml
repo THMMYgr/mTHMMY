@@ -1,28 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swiperefresh"
+    <gr.thmmy.mthmmy.utils.CustomRecyclerView
+        android:id="@+id/list"
+        android:name="gr.thmmy.mthmmy.sections.recent.RecentFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <gr.thmmy.mthmmy.utils.CustomRecyclerView
-            android:id="@+id/list"
-            android:name="gr.thmmy.mthmmy.sections.recent.RecentFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/background"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            app:layoutManager="LinearLayoutManager"
-            tools:context=".activities.main.recent.RecentFragment"
-            tools:listitem="@layout/fragment_recent_row"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent"
+        android:background="@color/background"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        app:layoutManager="LinearLayoutManager"
+        tools:context=".activities.main.recent.RecentFragment"
+        tools:listitem="@layout/fragment_recent_row" />
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
@@ -33,5 +26,5 @@
         android:indeterminate="true"
         android:visibility="invisible"
         app:mpb_indeterminateTint="@color/accent"
-        app:mpb_progressStyle="horizontal"/>
+        app:mpb_progressStyle="horizontal" />
 </RelativeLayout>

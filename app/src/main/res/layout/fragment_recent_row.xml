@@ -32,7 +32,7 @@
             android:layout_below="@+id/title"
             android:layout_toEndOf="@+id/dateTime"/>
 
-        <TextView
+        <com.github.curioustechizen.ago.RelativeTimeTextView
             android:id="@+id/dateTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

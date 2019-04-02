@@ -72,6 +72,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    implementation 'com.google.firebase:firebase-firestore:18.1.0'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
     implementation 'com.squareup.okhttp3:okhttp:3.12.0'
     implementation 'com.squareup.picasso:picasso:2.5.2'
@@ -89,6 +90,7 @@ dependencies {
     implementation 'ru.noties:markwon:2.0.0'
     implementation 'net.gotev:uploadservice:3.4.2'
     implementation 'net.gotev:uploadservice-okhttp:3.4.2'
+    implementation 'com.github.curioustechizen.android-ago:library:1.4.0'
     implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.4' //Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
 }
 

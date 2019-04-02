@@ -16,6 +16,7 @@ import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
