@@ -6,7 +6,7 @@ import java.util.Map;
 public class RecentItem {
     private int boardId, postId, topicId, posterId;
     private String boardTitle, topicTitle, poster;
-    private Date timestamp;
+    private long timestamp;
 
     public RecentItem(Map<String, Object> map) {
         this.boardId = ((Long) map.get("boardId")).intValue();
@@ -16,10 +16,10 @@ public class RecentItem {
         this.topicId = ((Long) map.get("topicId")).intValue();
         this.boardTitle = String.valueOf(map.get("boardTitle"));
         this.topicTitle = String.valueOf(map.get("topicTitle"));
-        this.timestamp = new Date((long)(map.get("timestamp")) * 1000);
+        this.timestamp = (long)(map.get("timestamp")) * 1000;
     }
 
-    public Date getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 

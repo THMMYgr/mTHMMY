@@ -73,23 +73,19 @@ public class RecentFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Timber.d("onActivityCreated");
-
         DocumentReference docRef = FirebaseFirestore.getInstance()
                 .collection("recent_posts")
                 .document("recent");
-        Timber.i("I'm here");
         docRef.get().addOnCompleteListener(task -> {
-            Timber.i("I'm there");
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             if (task.isSuccessful()) {
                 DocumentSnapshot recentDocument = task.getResult();
-                Timber.i("Type: " + recentDocument.get("posts").getClass().getName());
                 ArrayList<HashMap<String, Object>> posts = (ArrayList<HashMap<String, Object>>) recentDocument.get("posts");
                 for (HashMap<String, Object> map : posts) {
                     RecentItem recentItem = new RecentItem(map);
                     recentItems.add(recentItem);
                 }
+                recentAdapter.notifyDataSetChanged();
             } else {
                 Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
             }

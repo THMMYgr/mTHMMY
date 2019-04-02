@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.curioustechizen.ago.RelativeTimeTextView;
+
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -45,21 +47,18 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         RecentItem recentItem = recentItems.get(position);
         holder.mTitleView.setText(recentItem.getTopicTitle());
-        holder.mDateTimeView.setText(recentItem.getTimestamp().toString());
+        holder.mDateTimeView.setReferenceTime(recentItem.getTimestamp());
         holder.mUserView.setText(recentItem.getPoster());
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        holder.mView.setOnClickListener(v -> {
 
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onRecentFragmentInteraction(recentItems.get(holder.getAdapterPosition()));  //?
-
-                }
+            if (null != mListener) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                mListener.onRecentFragmentInteraction(recentItems.get(holder.getAdapterPosition()));  //?
 
             }
+
         });
     }
 
@@ -72,7 +71,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
         final View mView;
         final TextView mTitleView;
         final TextView mUserView;
-        final TextView mDateTimeView;
+        final RelativeTimeTextView mDateTimeView;
 
         ViewHolder(View view) {
             super(view);
