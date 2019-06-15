@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.base;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
@@ -21,6 +22,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,6 +79,13 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
 import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_ID_KEY;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_RETRY_CATEGORY;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_RETRY_DESCRIPTION;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_RETRY_FILENAME;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_RETRY_FILE_URI;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_RETRY_ICON;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_RETRY_TITLE;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_RETRY_UPLOADER;
 import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
@@ -771,9 +780,25 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 String dialogUploadID = intentBundle.getString(UPLOAD_ID_KEY);
 
+                String retryFilename = intentBundle.getString(UPLOAD_RETRY_FILENAME);
+                String retryCategory = intentBundle.getString(UPLOAD_RETRY_CATEGORY);
+                String retryTitleText = intentBundle.getString(UPLOAD_RETRY_TITLE);
+                String retryDescription = intentBundle.getString(UPLOAD_RETRY_DESCRIPTION);
+                String retryIcon = intentBundle.getString(UPLOAD_RETRY_ICON);
+                String retryUploaderProfile = intentBundle.getString(UPLOAD_RETRY_UPLOADER);
+                Uri retryFileUri = (Uri) intentBundle.get(UPLOAD_RETRY_FILE_URI);
+
                 Intent retryIntent = new Intent(context, UploadsReceiver.class);
+                retryIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
-                retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, dialogUploadID);
+
+                retryIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_FILENAME, retryFilename);
+                retryIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_CATEGORY, retryCategory);
+                retryIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_TITLE, retryTitleText);
+                retryIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_DESCRIPTION, retryDescription);
+                retryIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_ICON, retryIcon);
+                retryIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_UPLOADER, retryUploaderProfile);
+                retryIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_FILE_URI, retryFileUri);
 
                 if (uploadsProgressDialog == null) {
                     AlertDialog.Builder progressDialogBuilder = new AlertDialog.Builder(activityContext);
@@ -786,14 +811,34 @@ public abstract class BaseActivity extends AppCompatActivity {
                     progressDialogBuilder.setView(progressDialogLayout);
 
                     uploadsProgressDialog = progressDialogBuilder.create();
-                    //Empty buttons are needed, they are updated with correct values in the receiver
-                    uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "placeholder", (progressDialog, progressWhich) -> {
-                    });
-                    uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "placeholder", (progressDialog, progressWhich) -> {
-                    });
+                    if (!UploadService.getTaskList().contains("" + dialogUploadID)) {
+                        //Upload probably failed at this point
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Retry", (progressDialog, progressWhich) -> {
+                            /*LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context.getApplicationContext());
+                            localBroadcastManager.sendBroadcast(multipartUploadRetryIntent);
+                            uploadProgressDialog.dismiss();*/
 
-                    UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
-                    uploadsProgressDialog.show();
+                            context.sendBroadcast(retryIntent);
+                        });
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", (progressDialog, progressWhich) -> {
+                            uploadsProgressDialog.dismiss();
+                        });
+
+                        TextView dialogProgressText = progressDialogLayout.findViewById(R.id.dialog_upload_progress_text);
+                        dialogProgressBar.setVisibility(View.GONE);
+                        dialogProgressText.setText("Upload failed.");
+
+                        uploadsProgressDialog.show();
+                    } else {
+                        //Empty buttons are needed, they are updated with correct values in the receiver
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "placeholder", (progressDialog, progressWhich) -> {
+                        });
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "placeholder", (progressDialog, progressWhich) -> {
+                        });
+
+                        UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
+                        uploadsProgressDialog.show();
+                    }
                 } else {
                     UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
                     uploadsProgressDialog.show();

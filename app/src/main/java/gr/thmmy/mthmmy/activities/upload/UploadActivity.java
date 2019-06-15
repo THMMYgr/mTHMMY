@@ -394,7 +394,11 @@ public class UploadActivity extends BaseActivity {
 
                 String uploadID = UUID.randomUUID().toString();
                 if (uploadFile(this, uploadID, getConfigForUpload(this, uploadID,
-                        editTextFilename), categorySelected, uploadTitleText,
+                        editTextFilename, categorySelected, uploadTitleText, uploadDescriptionText[0],
+                        fileIcon, uploaderProfileIndex, tempFileUri == null
+                                ? filesList.get(0).getFileUri()
+                                : tempFileUri),
+                        categorySelected, uploadTitleText,
                         uploadDescriptionText[0], fileIcon, uploaderProfileIndex,
                         tempFileUri == null
                                 ? filesList.get(0).getFileUri()
@@ -668,7 +672,11 @@ public class UploadActivity extends BaseActivity {
         filesListView.setVisibility(View.VISIBLE);
     }
 
-    private static UploadNotificationConfig getConfigForUpload(Context context, String uploadID, String filename) {
+    public static UploadNotificationConfig getConfigForUpload(Context context, String uploadID,
+                                                              String filename, String retryCategory,
+                                                              String retryTitleText, String retryDescription,
+                                                              String retryIcon, String retryUploaderProfile,
+                                                              Uri retryFileUri) {
         UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
         uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
         uploadNotificationConfig.setTitleForAllStatuses("Uploading " + filename);
@@ -685,7 +693,16 @@ public class UploadActivity extends BaseActivity {
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
+            combinedActionsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
+
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_FILENAME, filename);
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_CATEGORY, retryCategory);
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_TITLE, retryTitleText);
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_DESCRIPTION, retryDescription);
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_ICON, retryIcon);
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_UPLOADER, retryUploaderProfile);
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_FILE_URI, retryFileUri);
 
             uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
                     1, combinedActionsIntent, PendingIntent.FLAG_UPDATE_CURRENT));
@@ -716,11 +733,11 @@ public class UploadActivity extends BaseActivity {
         return uploadNotificationConfig;
     }
 
-    private static boolean uploadFile(Context context, String uploadID,
-                                      UploadNotificationConfig uploadNotificationConfig,
-                                      String categorySelected, String uploadTitleText,
-                                      String uploadDescriptionText, String fileIcon,
-                                      String uploaderProfileIndex, Uri fileUri) {
+    public static boolean uploadFile(Context context, String uploadID,
+                                     UploadNotificationConfig uploadNotificationConfig,
+                                     String categorySelected, String uploadTitleText,
+                                     String uploadDescriptionText, String fileIcon,
+                                     String uploaderProfileIndex, Uri fileUri) {
         try {
             new MultipartUploadRequest(context, uploadID, uploadIndexUrl)
                     .setUtf8Charset()
@@ -1013,7 +1030,9 @@ public class UploadActivity extends BaseActivity {
 
             String uploadID = UUID.randomUUID().toString();
             if (!uploadFile(weakActivity.get(), uploadID,
-                    getConfigForUpload(weakActivity.get(), uploadID, zipFilename), categorySelected,
+                    getConfigForUpload(weakActivity.get(), uploadID, zipFilename, categorySelected,
+                            uploadTitleText, uploadDescriptionText, fileIcon, uploaderProfileIndex,
+                            zipFileUri), categorySelected,
                     uploadTitleText, uploadDescriptionText, fileIcon, uploaderProfileIndex,
                     zipFileUri)) {
                 Toast.makeText(weakActivity.get(), "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();

@@ -3,10 +3,11 @@ package gr.thmmy.mthmmy.services;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -15,24 +16,33 @@ import android.widget.Toast;
 
 import com.snatik.storage.Storage;
 
-import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.UploadServiceBroadcastReceiver;
 
+import java.util.UUID;
+
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.activities.upload.UploadsHelper;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 public class UploadsReceiver extends UploadServiceBroadcastReceiver {
     public static final String UPLOAD_ID_KEY = "UPLOAD_ID_KEY";
-    public static final String UPLOAD_REQUEST_KEY = "UPLOAD_REQUEST_KEY";
 
     public static final String ACTION_COMBINED_UPLOAD = "ACTION_COMBINED_UPLOAD";
     public static final String ACTION_CANCEL_UPLOAD = "ACTION_CANCEL_UPLOAD";
     public static final String ACTION_RETRY_UPLOAD = "ACTION_RETRY_UPLOAD";
+
+    public static final String UPLOAD_RETRY_FILENAME = "UPLOAD_RETRY_FILENAME";
+    public static final String UPLOAD_RETRY_CATEGORY = "UPLOAD_RETRY_CATEGORY";
+    public static final String UPLOAD_RETRY_TITLE = "UPLOAD_RETRY_TITLE";
+    public static final String UPLOAD_RETRY_DESCRIPTION = "UPLOAD_RETRY_DESCRIPTION";
+    public static final String UPLOAD_RETRY_ICON = "UPLOAD_RETRY_ICON";
+    public static final String UPLOAD_RETRY_UPLOADER = "UPLOAD_RETRY_UPLOADER";
+    public static final String UPLOAD_RETRY_FILE_URI = "UPLOAD_RETRY_FILE_URI";
 
     private Storage storage;
     private static AlertDialog uploadProgressDialog;
@@ -54,12 +64,21 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
                 UploadService.stopUpload(uploadID);
                 break;
             case ACTION_RETRY_UPLOAD:
-                MultipartUploadRequest multipartUploadRequest = (MultipartUploadRequest) intentBundle.get(UPLOAD_REQUEST_KEY);
-                if (multipartUploadRequest != null) {
-                    multipartUploadRequest.startUpload();
-                } else {
-                    Toast.makeText(context.getApplicationContext(), "Couldn't retry upload.", Toast.LENGTH_SHORT).show();
-                }
+                String retryFilename = intentBundle.getString(UPLOAD_RETRY_FILENAME);
+                String retryCategory = intentBundle.getString(UPLOAD_RETRY_CATEGORY);
+                String retryTitleText = intentBundle.getString(UPLOAD_RETRY_TITLE);
+                String retryDescription = intentBundle.getString(UPLOAD_RETRY_DESCRIPTION);
+                String retryIcon = intentBundle.getString(UPLOAD_RETRY_ICON);
+                String retryUploaderProfile = intentBundle.getString(UPLOAD_RETRY_UPLOADER);
+                Uri retryFileUri = (Uri) intentBundle.get(UPLOAD_RETRY_FILE_URI);
+                String retryUploadID = UUID.randomUUID().toString();
+
+                UploadActivity.uploadFile(context, retryUploadID,
+                        UploadActivity.getConfigForUpload(context, retryUploadID, retryFilename, retryCategory,
+                                retryTitleText, retryDescription, retryIcon, retryUploaderProfile, retryFileUri),
+                        retryCategory, retryTitleText, retryDescription, retryIcon,
+                        retryUploaderProfile, retryFileUri);
+
                 break;
             default:
                 super.onReceive(context, intent);
@@ -114,8 +133,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             alertDialogNeutral.setText("Retry");
             alertDialogNeutral.setOnClickListener(v -> {
                 if (multipartUploadRetryIntent != null) {
-                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context.getApplicationContext());
-                    localBroadcastManager.sendBroadcast(multipartUploadRetryIntent);
+                    context.sendBroadcast(multipartUploadRetryIntent);
                 }
                 uploadProgressDialog.dismiss();
             });
@@ -146,6 +164,16 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
                     uploadProgressDialog.dismiss();
                 }
             }
+        } else {
+            NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().
+                    getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                notificationManager.cancel(uploadInfo.getNotificationID());
+            }
+
+            Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
+            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadInfo.getUploadId());
+            context.sendBroadcast(combinedActionsIntent);
         }
 
         Toast.makeText(context.getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
