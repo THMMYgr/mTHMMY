@@ -44,7 +44,7 @@ android {
 tasks.whenTaskAdded { task ->
     if (task.name.contains("assembleRelease")) {
         task.getDependsOn().add({
-            def inputFile = new File("app/google-services.json")
+            def inputFile = new File("google-services.json")
             def json = new JsonSlurper().parseText(inputFile.text)
             if (json.project_info.project_id != "mthmmy-release-3aef0")
                 throw new GradleException('Please supply the correct google-services.json for release (or manually change the id above)!')
@@ -73,6 +73,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
+    implementation 'com.snatik:storage:2.1.0'
     implementation 'com.squareup.okhttp3:okhttp:3.12.0'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'

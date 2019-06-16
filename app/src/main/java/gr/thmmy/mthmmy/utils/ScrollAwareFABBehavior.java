@@ -2,14 +2,15 @@ package gr.thmmy.mthmmy.utils;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Extends FloatingActionButton's behavior so the button will hide when scrolling down and show
@@ -37,7 +38,9 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
                                final int dxUnconsumed, final int dyUnconsumed, int type) {
         super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed,
                 dyUnconsumed, type);
+        Log.d("THISSSS", "GOT");
         if (dyConsumed > 0 || (!target.canScrollVertically(-1) && dyConsumed == 0 && dyUnconsumed > 50)) {
+            Log.d("THISSSS", "GOT_HIDE");
             child.hide(new FloatingActionButton.OnVisibilityChangedListener() {
                 @Override
                 public void onHidden(FloatingActionButton fab) {
@@ -47,7 +50,14 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
             });
         } else if (child.getTag() != null && (boolean) child.getTag() && (dyConsumed < 0 ||
                 !target.canScrollVertically(-1) && dyUnconsumed < -50)) {
-            child.show();
+            Log.d("THISSSS", "GOT_SHOW");
+            child.show(new FloatingActionButton.OnVisibilityChangedListener() {
+                @Override
+                public void onShown(FloatingActionButton fab) {
+                    super.onShown(fab);
+                    fab.setVisibility(View.VISIBLE);
+                }
+            });
         }
     }
 

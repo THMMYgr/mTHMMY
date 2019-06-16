@@ -100,6 +100,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         progressBar = findViewById(R.id.progressBar);
         newTopicFAB = findViewById(R.id.board_fab);
+        newTopicFAB.setTag(true);
         if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
         else {
             newTopicFAB.setOnClickListener(view -> {

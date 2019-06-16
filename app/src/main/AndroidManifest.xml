@@ -160,6 +160,14 @@
             </intent-filter>
         </service>
 
+        <receiver
+            android:name=".services.UploadsReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="gr.thmmy.mthmmy.uploadservice.broadcast.status" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".activities.create_content.CreateContentActivity"
             android:configChanges="orientation|screenSize"

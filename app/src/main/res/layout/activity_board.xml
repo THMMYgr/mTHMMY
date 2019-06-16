@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
@@ -31,7 +30,7 @@
                 android:layout_marginEnd="19dp"
                 android:background="@null"
                 android:contentDescription="@string/bookmark"
-                app:srcCompat="@drawable/ic_bookmark_false_accent_24dp"/>
+                app:srcCompat="@drawable/ic_bookmark_false_accent_24dp" />
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -43,8 +42,8 @@
         android:layout_marginTop="64dp"
         android:background="@color/background"
         android:scrollbars="none"
-        tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity">
-    </androidx.recyclerview.widget.RecyclerView>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity" />
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
@@ -56,7 +55,7 @@
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|center"
         app:mpb_indeterminateTint="@color/accent"
-        app:mpb_progressStyle="horizontal"/>
+        app:mpb_progressStyle="horizontal" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/board_fab"
@@ -65,7 +64,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
-        app:srcCompat="@drawable/ic_add_fab"/>
+        app:srcCompat="@drawable/ic_add_fab" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-

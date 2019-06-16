@@ -28,16 +28,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
-        android:background="@color/background"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:background="@color/primary_light"
         android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="gr.thmmy.mthmmy.activities.upload.UploadActivity">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/background"
+            android:background="@color/primary_light"
             android:focusableInTouchMode="true"
             android:orientation="vertical">
 
@@ -45,15 +45,16 @@
                 android:id="@+id/upload_spinners"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/background"
+                android:layout_marginTop="8dp"
+                android:background="@color/primary_light"
                 android:orientation="vertical">
 
                 <gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault
                     android:id="@+id/upload_spinner_category_root"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="6dp"
                     android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
                     android:popupBackground="@color/primary"
                     android:prompt="@string/upload_spinners_hint" />
             </LinearLayout>
@@ -61,8 +62,8 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:layout_marginTop="6dp">
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp">
 
                 <EditText
                     android:id="@+id/upload_title"
@@ -73,11 +74,41 @@
                     android:maxLength="500" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:layout_weight="1">
+
+                    <EditText
+                        android:id="@+id/upload_filename"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/upload_filename"
+                        android:inputType="textNoSuggestions"
+                        android:maxLength="500" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/upload_filename_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="12dp"
+                    android:theme="@style/LightBackgroundColoredButton"
+                    app:srcCompat="@drawable/ic_info_outline_white_24dp" />
+            </LinearLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:layout_marginTop="6dp">
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp">
 
                 <EditText
                     android:id="@+id/upload_description"
@@ -97,16 +128,13 @@
                 android:textAlignment="center"
                 android:textColor="@color/accent" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/upload_filename"
+            <LinearLayout
+                android:id="@+id/upload_files_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
                 android:layout_marginTop="6dp"
-                android:drawablePadding="5dp"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:textColor="@color/primary_text"
+                android:layout_marginBottom="6dp"
+                android:orientation="vertical"
                 android:visibility="gone" />
 
             <LinearLayout
@@ -129,11 +157,6 @@
                     android:text="@string/upload_select_file"
                     android:textColor="@color/primary_text" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/upload_take_photo_button"
                     android:layout_width="wrap_content"
@@ -144,6 +167,11 @@
                     android:gravity="center_vertical"
                     android:text="@string/upload_take_photo"
                     android:textColor="@color/primary_text" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -165,8 +193,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margins"
         android:layout_marginEnd="@dimen/fab_margins"
+        android:layout_marginBottom="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_file_upload_white_24dp" />
 
