@@ -219,7 +219,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         PrepareForEditResult editResult = prepareForEditResult.getValue();
         Timber.i("Editing post");
         new EditTask(editTaskCallbacks, position).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, editResult.getCommitEditUrl(), message,
-                editResult.getNumReplies(), editResult.getSeqnum(), editResult.getSc(), subject, editResult.getTopic());
+                editResult.getNumReplies(), editResult.getSeqnum(), editResult.getSc(), subject, editResult.getTopic(), editResult.getIcon());
     }
 
     /**

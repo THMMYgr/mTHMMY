@@ -1,18 +1,19 @@
 package gr.thmmy.mthmmy.activities.topic.tasks;
 
 public class PrepareForEditResult {
-    private final String postText, commitEditUrl, numReplies, seqnum, sc, topic;
+    private final String postText, commitEditUrl, numReplies, seqnum, sc, topic, icon;
     private int position;
     private boolean successful;
 
     public PrepareForEditResult(String postText, String commitEditUrl, String numReplies, String seqnum,
-                                String sc, String topic, int position, boolean successful) {
+                                String sc, String topic, String icon, int position, boolean successful) {
         this.postText = postText;
         this.commitEditUrl = commitEditUrl;
         this.numReplies = numReplies;
         this.seqnum = seqnum;
         this.sc = sc;
         this.topic = topic;
+        this.icon = icon;
         this.position = position;
         this.successful = successful;
     }
@@ -39,6 +40,10 @@ public class PrepareForEditResult {
 
     public String getTopic() {
         return topic;
+    }
+
+    public String getIcon() {
+        return icon;
     }
 
     public int getPosition() {

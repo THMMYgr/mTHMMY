@@ -38,28 +38,32 @@ public class PrepareForEditTask extends AsyncTask<String, Void, PrepareForEditRe
         Document document;
         String url = strings[0];
         Request request = new Request.Builder()
-                .url(url + ";wap2")
+                /*.url(url + ";wap2")*/
+                .url(url)
                 .build();
 
         try {
-            String postText, commitEditURL, numReplies, seqnum, sc, topic;
+            String postText, commitEditURL, numReplies, seqnum, sc, topic, icon;
             OkHttpClient client = BaseApplication.getInstance().getClient();
             Response response = client.newCall(request).execute();
             document = ParseHelpers.parse(response.body().string());
 
-            Element message = document.select("textarea").first();
+            Element form = document.select("form#postmodify").first();
+
+            Element message = form.select("textarea").first();
             postText = message.text();
 
-            commitEditURL = document.select("form").first().attr("action");
+            commitEditURL = form.attr("action");
             numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
-            seqnum = document.select("input[name=seqnum]").first().attr("value");
-            sc = document.select("input[name=sc]").first().attr("value");
-            topic = document.select("input[name=topic]").first().attr("value");
+            seqnum = form.select("input[name=seqnum]").first().attr("value");
+            sc = form.select("input[name=sc]").first().attr("value");
+            topic = form.select("input[name=topic]").first().attr("value");
+            icon = form.select("select[name=icon]>option[selected]").first().attr("value");
 
-            return new PrepareForEditResult(postText, commitEditURL, numReplies, seqnum, sc, topic, position, true);
+            return new PrepareForEditResult(postText, commitEditURL, numReplies, seqnum, sc, topic, icon, position, true);
         } catch (IOException | Selector.SelectorParseException e) {
             Timber.e(e, "Prepare failed.");
-            return new PrepareForEditResult(null, null, null, null, null, null, position, false);
+            return new PrepareForEditResult(null, null, null, null, null, null, null, position, false);
         }
     }
 
