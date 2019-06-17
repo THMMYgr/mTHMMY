@@ -38,9 +38,7 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
                                final int dxUnconsumed, final int dyUnconsumed, int type) {
         super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed,
                 dyUnconsumed, type);
-        Log.d("THISSSS", "GOT");
         if (dyConsumed > 0 || (!target.canScrollVertically(-1) && dyConsumed == 0 && dyUnconsumed > 50)) {
-            Log.d("THISSSS", "GOT_HIDE");
             child.hide(new FloatingActionButton.OnVisibilityChangedListener() {
                 @Override
                 public void onHidden(FloatingActionButton fab) {
@@ -50,7 +48,6 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
             });
         } else if (child.getTag() != null && (boolean) child.getTag() && (dyConsumed < 0 ||
                 !target.canScrollVertically(-1) && dyUnconsumed < -50)) {
-            Log.d("THISSSS", "GOT_SHOW");
             child.show(new FloatingActionButton.OnVisibilityChangedListener() {
                 @Override
                 public void onShown(FloatingActionButton fab) {

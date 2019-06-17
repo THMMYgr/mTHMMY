@@ -12,14 +12,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.preference.PreferenceManager;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
@@ -36,6 +28,16 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.core.content.FileProvider;
+import androidx.preference.PreferenceManager;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.UploadNotificationAction;
@@ -91,9 +93,10 @@ public class UploadActivity extends BaseActivity {
     private static final int AFR_REQUEST_CODE_FIELDS_BUILDER = 74;    //Arbitrary, application specific
 
     /**
-     * Request code to gain read/write permission
+     * Request codes to gain camera and read/write permission
      */
-    private static final int UPLOAD_REQUEST_CODE = 42;    //Arbitrary, application specific
+    private static final int UPLOAD_REQUEST_CAMERA_CODE = 42;    //Arbitrary, application specific
+    private static final int UPLOAD_REQUEST_STORAGE_CODE = 12;    //Arbitrary, application specific
 
     private static final int MAX_FILE_SIZE_SUPPORTED = 45000000;
 
@@ -110,6 +113,8 @@ public class UploadActivity extends BaseActivity {
     private AppCompatImageButton uploadFilenameInfo;
     private CustomTextWatcher textWatcher;
     private boolean hasModifiedFilename = false;
+
+    private ZipTask zipTask;
 
     //UI elements
     private MaterialProgressBar progressBar;
@@ -280,7 +285,7 @@ public class UploadActivity extends BaseActivity {
             if (checkPerms())
                 takePhoto();
             else
-                requestPerms(UPLOAD_REQUEST_CODE);
+                requestPerms(UPLOAD_REQUEST_CAMERA_CODE);
         });
 
         FloatingActionButton uploadFAB = findViewById(R.id.upload_fab);
@@ -386,10 +391,18 @@ public class UploadActivity extends BaseActivity {
                         filesListArray[i] = filesList.get(i).getFileUri();
                     }
 
-                    new ZipTask(this, editTextFilename, categorySelected,
+                    zipTask = new ZipTask(this, editTextFilename, categorySelected,
                             uploadTitleText, uploadDescriptionText[0], fileIcon,
-                            uploaderProfileIndex).execute(filesListArray);
-                    finish();
+                            uploaderProfileIndex);
+
+                    if (checkPerms()) {
+                        zipTask.execute(filesListArray);
+                        finish();
+                    } else {
+                        requestPerms(UPLOAD_REQUEST_STORAGE_CODE);
+                        dialog.cancel();
+                    }
+
                     return;
                 }
 
@@ -590,9 +603,21 @@ public class UploadActivity extends BaseActivity {
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
             , @NonNull int[] grantResults) {
         switch (permsRequestCode) {
-            case UPLOAD_REQUEST_CODE:
+            case UPLOAD_REQUEST_CAMERA_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     takePhoto();
+                break;
+            case UPLOAD_REQUEST_STORAGE_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    zipTask != null) {
+                    Uri[] filesListArray = new Uri[filesList.size()];
+                    for (int i = 0; i < filesList.size(); ++i) {
+                        filesListArray[i] = filesList.get(i).getFileUri();
+                    }
+
+                    zipTask.execute(filesListArray);
+                    finish();
+                }
                 break;
         }
     }
