@@ -270,8 +270,8 @@ public class UploadActivity extends BaseActivity {
                     "application/msword", "image/vnd.djvu", "application/gz", "application/tar.gz"};
 
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
-                    //.setType("*/*")
-                    .setType("image/jpeg")
+                    .setType("*/*")
+                    //.setType("image/jpeg")
                     .putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
                     .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 

@@ -110,6 +110,7 @@
         </activity>
         <activity
             android:name=".activities.upload.UploadActivity"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
