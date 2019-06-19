@@ -390,9 +390,9 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
             return greeklish ? "hlektronikh_1" : "Ηλεκτρονική 1";
         } else if (normalisedCourse.contains(("Ηλεκτρονικές Διατάξεις και Μετρήσεις"))) {
             return greeklish ? "hlektron_diatakseis_metrhseis" : "Ηλεκτρονικές Διατάξεις και Μετρήσεις";
-        } else if (normalisedCourse.contains(("Ηλεκτρονικά Iσχύος II"))) {
+        } else if (normalisedCourse.contains(("Ηλεκτρονικά Ισχύος II"))) {
             return greeklish ? "isxyos_II" : "Ισχύος 2";
-        } else if (normalisedCourse.contains(("Ηλεκτρονικά Iσχύος I"))) {
+        } else if (normalisedCourse.contains(("Ηλεκτρονικά Ισχύος I"))) {
             return greeklish ? "isxyos_I" : "Ισχύος 1";
         } else if (normalisedCourse.contains(("Ηλεκτρομαγνητικό Πεδίο II"))) {
             return greeklish ? "pedio_II" : "Πεδίο 2";

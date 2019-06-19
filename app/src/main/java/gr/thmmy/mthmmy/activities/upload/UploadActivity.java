@@ -360,29 +360,37 @@ public class UploadActivity extends BaseActivity {
 
                     if (!editTextFilename.equals(selectedFileFilename)) {
                         //File should be uploaded with a different name
-                        if (!uploadFile.isCameraPhoto()) {
-                            //Temporarily copies the file to a another location and renames it
-                            tempFileUri = UploadsHelper.createTempFile(this, storage,
-                                    uploadFile.getFileUri(),
-                                    FileUtils.getFilenameWithoutExtension(editTextFilename));
-                        } else {
-                            //Renames the photo taken
-                            String photoPath = uploadFile.getPhotoFile().getPath();
-                            photoPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
-                            String destinationFilename = photoPath + File.separator +
-                                    FileUtils.getFilenameWithoutExtension(editTextFilename) + ".jpg";
 
-                            if (!storage.rename(uploadFile.getPhotoFile().getAbsolutePath(), destinationFilename)) {
-                                //Something went wrong, abort
-                                Toast.makeText(this, "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
-                                return;
+                        if (checkPerms()) {
+                            if (!uploadFile.isCameraPhoto()) {
+                                //Temporarily copies the file to a another location and renames it
+                                tempFileUri = UploadsHelper.createTempFile(this, storage,
+                                        uploadFile.getFileUri(),
+                                        FileUtils.getFilenameWithoutExtension(editTextFilename));
+                            } else {
+                                //Renames the photo taken
+                                String photoPath = uploadFile.getPhotoFile().getPath();
+                                photoPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
+                                String destinationFilename = photoPath + File.separator +
+                                        FileUtils.getFilenameWithoutExtension(editTextFilename) + ".jpg";
+
+                                if (!storage.rename(uploadFile.getPhotoFile().getAbsolutePath(), destinationFilename)) {
+                                    //Something went wrong, abort
+                                    Toast.makeText(this, "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
+                                    progressBar.setVisibility(View.GONE);
+                                    return;
+                                }
+
+                                //Points photoFile and fileUri to the new copied and renamed file
+                                uploadFile.setPhotoFile(storage.getFile(destinationFilename));
+                                uploadFile.setFileUri(FileProvider.getUriForFile(this, getPackageName() +
+                                        ".provider", uploadFile.getPhotoFile()));
                             }
-
-                            //Points photoFile and fileUri to the new copied and renamed file
-                            uploadFile.setPhotoFile(storage.getFile(destinationFilename));
-                            uploadFile.setFileUri(FileProvider.getUriForFile(this, getPackageName() +
-                                    ".provider", uploadFile.getPhotoFile()));
+                        } else {
+                            requestPerms(UPLOAD_REQUEST_STORAGE_CODE);
+                            zipTask = null;
+                            dialog.cancel();
+                            return;
                         }
                     }
                 } else {
@@ -586,8 +594,9 @@ public class UploadActivity extends BaseActivity {
             if (previousName.isEmpty()) {
                 uploadFilename.setText(data.getStringExtra(RESULT_FILENAME));
             } else {
+                String extractedExtension = FileUtils.getFileExtension(previousName);
                 String filenameWithExtension = data.getStringExtra(RESULT_FILENAME) +
-                        FileUtils.getFileExtension(previousName);
+                        (extractedExtension != null ? extractedExtension : "");
                 uploadFilename.setText(filenameWithExtension);
             }
             hasModifiedFilename = true;
@@ -609,7 +618,7 @@ public class UploadActivity extends BaseActivity {
                 break;
             case UPLOAD_REQUEST_STORAGE_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    zipTask != null) {
+                        zipTask != null) {
                     Uri[] filesListArray = new Uri[filesList.size()];
                     for (int i = 0; i < filesList.size(); ++i) {
                         filesListArray[i] = filesList.get(i).getFileUri();
@@ -617,6 +626,8 @@ public class UploadActivity extends BaseActivity {
 
                     zipTask.execute(filesListArray);
                     finish();
+                } else {
+                    Toast.makeText(this, "Please retry uploading.", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
