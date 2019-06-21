@@ -10,11 +10,11 @@ import android.widget.AdapterView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatSpinner;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import androidx.appcompat.widget.AppCompatSpinner;
 
 public class AppCompatSpinnerWithoutDefault extends AppCompatSpinner {
     public AppCompatSpinnerWithoutDefault(Context context) {

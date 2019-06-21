@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -53,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -71,7 +73,9 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.UPLOADING_APP_SIGNATURE_ENABLE_KEY;
-import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_GREEKLISH_NAME;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_MINIFIED_NAME;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_NAME;
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER;
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_DESCRIPTION;
 import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_FILENAME;
@@ -84,7 +88,7 @@ public class UploadActivity extends BaseActivity {
      */
     public static final String BUNDLE_UPLOAD_CATEGORY = "UPLOAD_CATEGORY";
     private static final String uploadIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl=upload";
-    private static final String uploadedFromThmmyPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
+    private static final String uploadedFromTHMMYPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
     /**
      * Request codes used in activities for result (AFR) calls
      */
@@ -100,12 +104,15 @@ public class UploadActivity extends BaseActivity {
 
     private static final int MAX_FILE_SIZE_SUPPORTED = 45000000;
 
-    //private UploadsReceiver uploadsReceiver = new UploadsReceiver();
+    private HashMap<String, UploadsCourse> uploadsCourses;
+
     private ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     private ParseUploadPageTask parseUploadPageTask;
     private ArrayList<String> bundleCategory;
     private String categorySelected = "-1";
     private String uploaderProfileIndex = "1";
+    private UploadsCourse uploadsCourse;
+    private String semester = "";
 
     private ArrayList<UploadFile> filesList = new ArrayList<>();
     private File photoFileCreated = null;
@@ -168,64 +175,19 @@ public class UploadActivity extends BaseActivity {
         rootCategorySpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener(uploadRootCategories));
 
         titleDescriptionBuilderButton = findViewById(R.id.upload_title_description_builder);
-        titleDescriptionBuilderButton.setOnClickListener(view -> {
-            if (categorySelected.equals("-1")) {
-                Toast.makeText(view.getContext(), "Please choose a category first", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            int numberOfSpinners = categoriesSpinners.getChildCount();
-
-            if (numberOfSpinners < 3) {
-                Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String maybeSemester = "", maybeCourse = "";
-
-            if (numberOfSpinners == 5) {
-                if (((AppCompatSpinnerWithoutDefault) categoriesSpinners.getChildAt(numberOfSpinners - 1)).
-                        getSelectedItemPosition() == -1) {
-                    maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
-                            categoriesSpinners.getChildAt(numberOfSpinners - 4)).getSelectedItem();
-                    maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
-                            categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
-                } else {
-                    Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
-                }
-            } else if (numberOfSpinners == 4) {
-                maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
-                        categoriesSpinners.getChildAt(numberOfSpinners - 3)).getSelectedItem();
-                maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
-                        categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
-            } else {
-                maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
-                        categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
-                maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
-                        categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
-            }
-
-            if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) {
-                Toast.makeText(view.getContext(), "Please choose a course category", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (maybeCourse == null) {
-                Toast.makeText(view.getContext(), "Please choose a course", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            //Fixes course and semester
-            String course = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
-            String semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
-
-            Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
-            Bundle builderExtras = new Bundle();
-            builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE, course);
-            builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER, semester);
-            intent.putExtras(builderExtras);
-            startActivityForResult(intent, AFR_REQUEST_CODE_FIELDS_BUILDER);
-        });
         titleDescriptionBuilderButton.setEnabled(false);
+        titleDescriptionBuilderButton.setOnClickListener(view -> {
+            if(uploadsCourse!=null && !uploadsCourse.getName().equals("") && !semester.equals("")){
+                Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
+                Bundle builderExtras = new Bundle();
+                builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_NAME, uploadsCourse.getName());
+                builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_MINIFIED_NAME, uploadsCourse.getMinifiedName());
+                builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_GREEKLISH_NAME, uploadsCourse.getGreeklishName());
+                builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER, semester);
+                intent.putExtras(builderExtras);
+                startActivityForResult(intent, AFR_REQUEST_CODE_FIELDS_BUILDER);
+            }
+        });
 
         uploadTitle = findViewById(R.id.upload_title);
         uploadDescription = findViewById(R.id.upload_description);
@@ -343,7 +305,7 @@ public class UploadActivity extends BaseActivity {
                 //Checks settings and possibly adds "Uploaded from mTHMMY" string to description
                 SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(view.getContext());
                 if (sharedPrefs.getBoolean(UPLOADING_APP_SIGNATURE_ENABLE_KEY, true)) {
-                    uploadDescriptionText[0] += uploadedFromThmmyPromptHtml;
+                    uploadDescriptionText[0] += uploadedFromTHMMYPromptHtml;
                 }
 
                 for (UploadFile file : filesList) {
@@ -450,6 +412,10 @@ public class UploadActivity extends BaseActivity {
             updateUIElements();
             titleDescriptionBuilderButton.setEnabled(true);
         }
+
+        Resources res = getResources();
+        uploadsCourses = new HashMap<>(UploadsCourse
+                .generateUploadsCourses(res.getStringArray(R.array.string_array_uploads_courses)));
     }
 
     @Override
@@ -493,7 +459,7 @@ public class UploadActivity extends BaseActivity {
 
                 if (!hasModifiedFilename) {
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-                    String zipFilename = "mThmmy_" + timeStamp + ".zip";
+                    String zipFilename = "mTHMMY_" + timeStamp + ".zip";
                     uploadFilename.setText(zipFilename);
                     hasModifiedFilename = false;
                 }
@@ -542,7 +508,7 @@ public class UploadActivity extends BaseActivity {
 
                         if (!hasModifiedFilename) {
                             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-                            String zipFilename = "mThmmy_" + timeStamp + ".zip";
+                            String zipFilename = "mTHMMY_" + timeStamp + ".zip";
                             uploadFilename.setText(zipFilename);
                             hasModifiedFilename = false;
                         }
@@ -574,7 +540,7 @@ public class UploadActivity extends BaseActivity {
 
                 if (!hasModifiedFilename) {
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-                    String zipFilename = "mThmmy_" + timeStamp + ".zip";
+                    String zipFilename = "mTHMMY_" + timeStamp + ".zip";
                     uploadFilename.setText(zipFilename);
                     hasModifiedFilename = false;
                 }
@@ -881,6 +847,7 @@ public class UploadActivity extends BaseActivity {
             }
 
             categorySelected = parentCategories.get(position).getValue();
+            setCourseAndSemester();
 
             //Adds new sub-category spinner
             if (parentCategories.get(position).hasSubCategories()) {
@@ -924,7 +891,72 @@ public class UploadActivity extends BaseActivity {
         }
 
         @Override
-        public void onNothingSelected(AdapterView<?> parent) {
+        public void onNothingSelected(AdapterView<?> parent) { }
+
+        private void setCourseAndSemester(){
+            uploadsCourse = null;
+            semester = "";
+
+            if (categorySelected.equals("-1")) {
+                titleDescriptionBuilderButton.setEnabled(false);
+                return;
+            }
+
+            int numberOfSpinners = categoriesSpinners.getChildCount();
+
+            if (numberOfSpinners < 3) {
+                titleDescriptionBuilderButton.setEnabled(false);
+                return;
+            }
+
+            String maybeSemester = "";
+            String maybeCourse = "";
+
+            if (numberOfSpinners == 5) {
+                if (((AppCompatSpinnerWithoutDefault) categoriesSpinners.getChildAt(numberOfSpinners - 1)).
+                        getSelectedItemPosition() == -1) {
+                    maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
+                            categoriesSpinners.getChildAt(numberOfSpinners - 4)).getSelectedItem();
+                    maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
+                            categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
+                }
+                else return;
+            } else if (numberOfSpinners == 4) {
+                maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 3)).getSelectedItem();
+                maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
+            } else {
+                maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
+                maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
+                        categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
+            }
+
+            if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) {
+                titleDescriptionBuilderButton.setEnabled(false);
+                return;
+            }
+
+            if (maybeCourse == null) {
+                titleDescriptionBuilderButton.setEnabled(false);
+                return;
+            }
+
+            String retrievedCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
+            String retrievedSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
+
+            UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
+
+            if(foundUploadsCourse != null){
+                uploadsCourse = foundUploadsCourse;
+                semester = retrievedSemester;
+                Timber.i("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
+                titleDescriptionBuilderButton.setEnabled(true);
+                return;
+            }
+
+            titleDescriptionBuilderButton.setEnabled(false);
         }
     }
 
@@ -987,7 +1019,6 @@ public class UploadActivity extends BaseActivity {
         @Override
         protected void postExecution(ResultCode result) {
             updateUIElements();
-            titleDescriptionBuilderButton.setEnabled(true);
             progressBar.setVisibility(ProgressBar.GONE);
         }
     }
@@ -1032,14 +1063,14 @@ public class UploadActivity extends BaseActivity {
 
         @Override
         protected Boolean doInBackground(Uri... filesToZip) {
-            if (weakActivity == null || zipFilename == null) {
+            if (weakActivity == null || zipFilename == null)
                 return false;
-            }
+
             File zipFile = UploadsHelper.createZipFile(zipFilename);
 
-            if (zipFile == null) {
+            if (zipFile == null)
                 return false;
-            }
+
             zipFileUri = FileProvider.getUriForFile(weakActivity.get(),
                     weakActivity.get().getPackageName() +
                             ".provider", zipFile);
@@ -1050,9 +1081,8 @@ public class UploadActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            if (weakActivity == null) {
+            if (weakActivity == null)
                 return;
-            }
 
             if (!result) {
                 Toast.makeText(weakActivity.get(), "Couldn't create zip!", Toast.LENGTH_SHORT).show();

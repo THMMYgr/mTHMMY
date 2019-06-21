@@ -118,7 +118,7 @@
                     android:inputType="textMultiLine" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.appcompat.widget.AppCompatButton
+            <gr.thmmy.mthmmy.utils.ToggledBackgroundButton
                 android:id="@+id/upload_title_description_builder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -235,7 +235,7 @@ public class ParseHelpers {
             stringBuilder.append(Character.toString((char) i));
         }
 
-        Timber.i("Email deobfuscated.");
+        Timber.d("Email deobfuscated.");
         return stringBuilder.toString();
     }
 

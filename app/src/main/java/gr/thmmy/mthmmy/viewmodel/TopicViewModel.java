@@ -8,9 +8,10 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
+import androidx.lifecycle.MutableLiveData;
+
 import java.util.ArrayList;
 
-import androidx.lifecycle.MutableLiveData;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;

@@ -3,12 +3,11 @@ package gr.thmmy.mthmmy.activities.upload;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
-
-import android.util.Log;
-import android.widget.Toast;
 
 import com.snatik.storage.Storage;
 
