@@ -36,7 +36,7 @@ class UploadsCourse {
     static Map<String, UploadsCourse> generateUploadsCourses(String[] uploadsCoursesRes){
         Map<String, UploadsCourse> uploadsCourses = new HashMap<>();
         for(String uploadsCourseStr:uploadsCoursesRes) {
-            String[] split = uploadsCourseStr.split(",");
+            String[] split = uploadsCourseStr.split(":");
             UploadsCourse uploadsCourse = new UploadsCourse(split[0], split[1], split[2]);
             uploadsCourses.put(uploadsCourse.getName(),uploadsCourse);
         }
@@ -52,7 +52,7 @@ class UploadsCourse {
         String foundKey = null;
         for (Map.Entry<String, UploadsCourse> entry : uploadsCourses.entrySet()) {
             String key = entry.getKey();
-            if (key.contains(retrievedCourse)&& (foundKey==null || key.length()>foundKey.length()))
+            if ((key.contains(retrievedCourse))&& (foundKey==null || key.length()>foundKey.length()))
                     foundKey = key;
         }
 
