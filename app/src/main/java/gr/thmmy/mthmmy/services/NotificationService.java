@@ -261,10 +261,9 @@ public class NotificationService extends FirebaseMessagingService {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Since Android Oreo notification channel is needed.
-        if (buildVersion >= Build.VERSION_CODES.O){
-            if (notificationManager.getNotificationChannel(CHANNEL_ID) == null)
+        if (buildVersion >= Build.VERSION_CODES.O && notificationManager.getNotificationChannel(CHANNEL_ID) == null)
                 notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
-        }
+
 
         notificationManager.notify(NEW_POST_TAG, notificationId, notificationBuilder.build());
 

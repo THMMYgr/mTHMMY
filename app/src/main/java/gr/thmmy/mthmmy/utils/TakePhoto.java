@@ -10,7 +10,6 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -19,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+import androidx.exifinterface.media.ExifInterface;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -86,12 +86,10 @@ public class TakePhoto {
         File imageFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) +
                 File.separator + "mTHMMY");
 
-        if (!imageFolder.exists()) {
-            if (!imageFolder.mkdirs()) {
-                Timber.w("Photos folder build returned false in %s", TakePhoto.class.getSimpleName());
-                Toast.makeText(context, "Couldn't create photos directory", Toast.LENGTH_SHORT).show();
-                return null;
-            }
+        if (!imageFolder.exists()&&!imageFolder.mkdirs()) {
+            Timber.w("Photos folder build returned false in %s", TakePhoto.class.getSimpleName());
+            Toast.makeText(context, "Couldn't create photos directory", Toast.LENGTH_SHORT).show();
+            return null;
         }
 
         return new File(imageFolder, imageFileName);
