@@ -25,26 +25,24 @@ import gr.thmmy.mthmmy.utils.FileUtils;
 import timber.log.Timber;
 
 public class UploadsHelper {
-    private final static int BUFFER = 4096;
-    private static final String TEMP_FILES_DIRECTORY = "~tmp_mThmmy_uploads";
+    private static final int BUFFER = 4096;
+    private static final String TEMP_FILES_DIRECTORY = "~tmp_mTHMMY_uploads";
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Nullable
     static Uri createTempFile(Context context, Storage storage, Uri fileUri, String newFilename) {
         String oldFilename = FileUtils.filenameFromUri(context, fileUri);
-        String fileExtension = oldFilename.substring(oldFilename.indexOf("."));
+        String fileExtension = oldFilename.substring(oldFilename.indexOf('.'));
         String destinationFilename = Environment.getExternalStorageDirectory().getPath() +
                 File.separatorChar + TEMP_FILES_DIRECTORY + File.separatorChar + newFilename + fileExtension;
 
         File tempDirectory = new File(android.os.Environment.getExternalStorageDirectory().getPath() +
                 File.separatorChar + TEMP_FILES_DIRECTORY);
 
-        if (!tempDirectory.exists()) {
-            if (!tempDirectory.mkdirs()) {
-                Timber.w("Temporary directory build returned false in %s", UploadActivity.class.getSimpleName());
-                Toast.makeText(context, "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
-                return null;
-            }
+        if (!tempDirectory.exists() && !tempDirectory.mkdirs()) {
+            Timber.w("Temporary directory build returned false in %s", UploadActivity.class.getSimpleName());
+            Toast.makeText(context, "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
+            return null;
         }
 
         InputStream inputStream;
@@ -82,28 +80,26 @@ public class UploadsHelper {
     }
 
     @Nullable
-    public static File createZipFile(@NonNull String zipFilename) {
+    static File createZipFile(@NonNull String zipFilename) {
         // Create a zip file name
         File zipFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) +
-                File.separator + "mThmmy");
+                File.separator + "mTHMMY");
 
-        if (!zipFolder.exists()) {
-            if (!zipFolder.mkdirs()) {
+        if (!zipFolder.exists() && !zipFolder.mkdirs()) {
                 Timber.w("Zip folder build returned false in %s", UploadsHelper.class.getSimpleName());
                 return null;
-            }
         }
 
         return new File(zipFolder, zipFilename);
     }
 
-    public static void zip(Context context, Uri[] files, Uri zipFile) {
+    static void zip(Context context, Uri[] files, Uri zipFile) {
         try {
             BufferedInputStream origin;
             OutputStream dest = context.getContentResolver().openOutputStream(zipFile);
             assert dest != null;
             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
-            byte data[] = new byte[BUFFER];
+            byte[] data = new byte[BUFFER];
 
             for (Uri file : files) {
                 InputStream inputStream = context.getContentResolver().openInputStream(file);

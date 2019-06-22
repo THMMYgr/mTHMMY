@@ -1,16 +1,21 @@
 package gr.thmmy.mthmmy.activities.upload;
 
+import android.os.Bundle;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
 
-public class UploadsCourse {
+class UploadsCourse {
     private String name;
     private String minifiedName;
     private String greeklishName;
 
-    public UploadsCourse(String fullName, String minifiedName, String greeklishName) {
+    private UploadsCourse(String fullName, String minifiedName, String greeklishName) {
         this.name = fullName;
         this.minifiedName = minifiedName;
         this.greeklishName = greeklishName;
@@ -41,7 +46,6 @@ public class UploadsCourse {
     static UploadsCourse findCourse(String retrievedCourse,
                                     Map<String, UploadsCourse> uploadsCourses){
         retrievedCourse = normalizeGreekNumbers(retrievedCourse);
-        Timber.w("AAAAAAAA %s",retrievedCourse);
         UploadsCourse uploadsCourse = uploadsCourses.get(retrievedCourse);
         if(uploadsCourse != null) return uploadsCourse;
 
@@ -54,13 +58,20 @@ public class UploadsCourse {
 
         if(foundKey==null){
             Timber.w("Couldn't find course that matches %s", retrievedCourse);
-            //TODO: report to Firebase for a new Course
+            Bundle bundle = new Bundle();
+            bundle.putString("COURSE_NAME", retrievedCourse);
+            BaseApplication.getInstance().logFirebaseAnalyticsEvent("UNSUPPORTED_UPLOADS_COURSE", bundle);
         }
 
         return uploadsCourses.get(foundKey);
     }
 
     private static String normalizeGreekNumbers(String stringWithGreekNumbers) {
-        return stringWithGreekNumbers.replaceAll("Ι", "I");
+        StringBuilder normalizedStrBuilder = new StringBuilder(stringWithGreekNumbers);
+        Pattern pattern = Pattern.compile("(Ι+)(?:\\s|\\(|\\)|$)");
+        Matcher matcher = pattern.matcher(stringWithGreekNumbers);
+        while (matcher.find())
+            normalizedStrBuilder.replace(matcher.start(1), matcher.end(1), matcher.group(1).replaceAll("Ι", "I"));
+        return normalizedStrBuilder.toString();
     }
 }

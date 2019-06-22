@@ -457,12 +457,8 @@ public class UploadActivity extends BaseActivity {
                 fileIcon = "archive.gif";
                 textWatcher.setFileExtension(".zip");
 
-                if (!hasModifiedFilename) {
-                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-                    String zipFilename = "mTHMMY_" + timeStamp + ".zip";
-                    uploadFilename.setText(zipFilename);
-                    hasModifiedFilename = false;
-                }
+                if (!hasModifiedFilename)
+                    setZipUploadFilename();
 
                 for (int fileIndex = 0; fileIndex < data.getClipData().getItemCount(); ++fileIndex) {
                     Uri newFileUri = data.getClipData().getItemAt(fileIndex).getUri();
@@ -506,12 +502,8 @@ public class UploadActivity extends BaseActivity {
                         fileIcon = "archive.gif";
                         textWatcher.setFileExtension(".zip");
 
-                        if (!hasModifiedFilename) {
-                            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-                            String zipFilename = "mTHMMY_" + timeStamp + ".zip";
-                            uploadFilename.setText(zipFilename);
-                            hasModifiedFilename = false;
-                        }
+                        if (!hasModifiedFilename)
+                            setZipUploadFilename();
                     }
 
                     addFileViewToList(filename);
@@ -538,12 +530,8 @@ public class UploadActivity extends BaseActivity {
                 fileIcon = "archive.gif";
                 textWatcher.setFileExtension(".zip");
 
-                if (!hasModifiedFilename) {
-                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-                    String zipFilename = "mTHMMY_" + timeStamp + ".zip";
-                    uploadFilename.setText(zipFilename);
-                    hasModifiedFilename = false;
-                }
+                if (!hasModifiedFilename)
+                    setZipUploadFilename();
             }
 
             UploadFile newFile = new UploadFile(true, TakePhoto.processResult(this,
@@ -597,6 +585,13 @@ public class UploadActivity extends BaseActivity {
                 }
                 break;
         }
+    }
+
+    private void setZipUploadFilename(){
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
+        String zipFilename = "mTHMMY_" + timeStamp + ".zip";
+        uploadFilename.setText(zipFilename);
+        hasModifiedFilename = false;
     }
 
     // Should only be called after making sure permissions are granted
@@ -768,8 +763,7 @@ public class UploadActivity extends BaseActivity {
         }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
+        public void onTextChanged(CharSequence s, int start, int before, int count) { }
 
         @Override
         public void afterTextChanged(Editable s) {
@@ -951,7 +945,7 @@ public class UploadActivity extends BaseActivity {
             if(foundUploadsCourse != null){
                 uploadsCourse = foundUploadsCourse;
                 semester = retrievedSemester;
-                Timber.i("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
+                Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
                 titleDescriptionBuilderButton.setEnabled(true);
                 return;
             }

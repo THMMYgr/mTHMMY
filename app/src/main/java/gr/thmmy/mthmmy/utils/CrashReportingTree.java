@@ -27,8 +27,7 @@ public class CrashReportingTree extends DebugTree {
 
         Crashlytics.log(level + "/" + tag + ": " + message);
 
-        if(priority == Log.ERROR)
-        {
+        if(priority == Log.ERROR) {
             if (t!=null)
                 Crashlytics.logException(t);
             else

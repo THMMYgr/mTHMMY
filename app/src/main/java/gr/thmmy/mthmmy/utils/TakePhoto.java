@@ -32,7 +32,7 @@ import timber.log.Timber;
 
 public class TakePhoto {
     private static final int DEFAULT_MIN_WIDTH_QUALITY = 400;
-    private static final String IMAGE_CONTENT_DESCRIPTION = "mThmmy uploads image";
+    private static final String IMAGE_CONTENT_DESCRIPTION = "mTHMMY uploads image";
 
     @Nullable
     public static Intent getIntent(Context context, @NonNull File photoFile) {
@@ -81,10 +81,10 @@ public class TakePhoto {
     public static File createImageFile(Context context) {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
-        String imageFileName = "mThmmy_" + timeStamp + ".jpg";
+        String imageFileName = "mTHMMY_" + timeStamp + ".jpg";
 
         File imageFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) +
-                File.separator + "mThmmy");
+                File.separator + "mTHMMY");
 
         if (!imageFolder.exists()) {
             if (!imageFolder.mkdirs()) {
