@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
+import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
+
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -33,8 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import androidx.core.content.ContextCompat;
-import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;

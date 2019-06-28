@@ -13,6 +13,8 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,7 +23,6 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import androidx.fragment.app.Fragment;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;

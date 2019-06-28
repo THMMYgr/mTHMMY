@@ -9,6 +9,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -17,9 +21,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;

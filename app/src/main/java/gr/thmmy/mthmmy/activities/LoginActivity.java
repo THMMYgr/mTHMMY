@@ -10,10 +10,11 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.preference.PreferenceManager;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;

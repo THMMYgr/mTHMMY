@@ -13,6 +13,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
+
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -23,9 +27,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
-import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
@@ -260,10 +261,9 @@ public class NotificationService extends FirebaseMessagingService {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Since Android Oreo notification channel is needed.
-        if (buildVersion >= Build.VERSION_CODES.O){
-            if (notificationManager.getNotificationChannel(CHANNEL_ID) == null)
+        if (buildVersion >= Build.VERSION_CODES.O && notificationManager.getNotificationChannel(CHANNEL_ID) == null)
                 notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
-        }
+
 
         notificationManager.notify(NEW_POST_TAG, notificationId, notificationBuilder.build());
 

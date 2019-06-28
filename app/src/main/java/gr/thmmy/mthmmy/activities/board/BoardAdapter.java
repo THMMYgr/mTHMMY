@@ -12,10 +12,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
-import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.model.Board;

@@ -14,11 +14,12 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.android.material.appbar.AppBarLayout;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.appbar.AppBarLayout;
+
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;

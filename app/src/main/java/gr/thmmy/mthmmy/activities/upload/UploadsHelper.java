@@ -1,71 +1,48 @@
 package gr.thmmy.mthmmy.activities.upload;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
-import android.provider.OpenableColumns;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
+
+import com.snatik.storage.Storage;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import gr.thmmy.mthmmy.utils.FileUtils;
 import timber.log.Timber;
 
-class UploadsHelper {
-    private static final int DEFAULT_MIN_WIDTH_QUALITY = 400;
-    private static final String CACHE_IMAGE_NAME = "tempUploadFile.jpg";
-
-    @NonNull
-    static String filenameFromUri(Context context, Uri uri) {
-        String filename = null;
-        if (uri.getScheme().equals("content")) {
-            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            }
-        }
-        if (filename == null) {
-            filename = uri.getPath();
-            int cut = filename.lastIndexOf('/');
-            if (cut != -1) {
-                filename = filename.substring(cut + 1);
-            }
-        }
-
-        return filename;
-    }
+public class UploadsHelper {
+    private static final int BUFFER = 4096;
+    private static final String TEMP_FILES_DIRECTORY = "~tmp_mTHMMY_uploads";
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Nullable
-    static String createTempFile(Context context, Uri fileUri, String newFilename) {
-        String oldFilename = filenameFromUri(context, fileUri);
-        String fileExtension = oldFilename.substring(oldFilename.indexOf("."));
+    static Uri createTempFile(Context context, Storage storage, Uri fileUri, String newFilename) {
+        String oldFilename = FileUtils.filenameFromUri(context, fileUri);
+        String fileExtension = oldFilename.substring(oldFilename.indexOf('.'));
         String destinationFilename = Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + "~tmp_mThmmy_uploads" + File.separatorChar + newFilename + fileExtension;
+                File.separatorChar + TEMP_FILES_DIRECTORY + File.separatorChar + newFilename + fileExtension;
 
         File tempDirectory = new File(android.os.Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + "~tmp_mThmmy_uploads");
+                File.separatorChar + TEMP_FILES_DIRECTORY);
 
-        if (!tempDirectory.exists()) {
-            if (!tempDirectory.mkdirs()) {
-                Timber.w("Temporary directory build returned false in %s", UploadActivity.class.getSimpleName());
-                Toast.makeText(context, "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
-                return null;
-            }
+        if (!tempDirectory.exists() && !tempDirectory.mkdirs()) {
+            Timber.w("Temporary directory build returned false in %s", UploadActivity.class.getSimpleName());
+            Toast.makeText(context, "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
+            return null;
         }
 
         InputStream inputStream;
@@ -97,103 +74,63 @@ class UploadsHelper {
             }
         }
 
-        return destinationFilename;
+        return FileProvider.getUriForFile(context, context.getPackageName() +
+                ".provider", storage.getFile(destinationFilename));
+
     }
 
-    static File getCacheFile(Context context) {
-        File imageFile = new File(context.getExternalCacheDir(), CACHE_IMAGE_NAME);
-        //noinspection ResultOfMethodCallIgnored
-        imageFile.getParentFile().mkdirs();
-        return imageFile;
-    }
+    @Nullable
+    static File createZipFile(@NonNull String zipFilename) {
+        // Create a zip file name
+        File zipFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) +
+                File.separator + "mTHMMY");
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    static void deleteTempFiles() {
-        File tempFilesDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + "~tmp_mThmmy_uploads");
-
-        if (tempFilesDirectory.isDirectory()) {
-            String[] tempFilesArray = tempFilesDirectory.list();
-            for (String tempFile : tempFilesArray) {
-                new File(tempFilesDirectory, tempFile).delete();
-            }
-            tempFilesDirectory.delete();
+        if (!zipFolder.exists() && !zipFolder.mkdirs()) {
+                Timber.w("Zip folder build returned false in %s", UploadsHelper.class.getSimpleName());
+                return null;
         }
+
+        return new File(zipFolder, zipFilename);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    static void deleteCacheFiles(Context context) {
-        File cacheFilesDirectory = context.getExternalCacheDir();
-        assert cacheFilesDirectory != null;
-        String[] tempFilesArray = cacheFilesDirectory.list();
-        for (String tempFile : tempFilesArray) {
-            new File(cacheFilesDirectory, tempFile).delete();
-        }
-    }
-
-    /**
-     * Resize to avoid using too much memory loading big images (e.g.: 2560*1920)
-     **/
-    static Bitmap getImageResized(Context context, Uri selectedImage) {
-        Bitmap bm;
-        int[] sampleSizes = new int[]{5, 3, 2, 1};
-        int i = 0;
-        do {
-            bm = decodeBitmap(context, selectedImage, sampleSizes[i]);
-            i++;
-        } while (bm.getWidth() < DEFAULT_MIN_WIDTH_QUALITY && i < sampleSizes.length);
-        return bm;
-    }
-
-    private static Bitmap decodeBitmap(Context context, Uri theUri, int sampleSize) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = sampleSize;
-
-        AssetFileDescriptor fileDescriptor = null;
+    static void zip(Context context, Uri[] files, Uri zipFile) {
         try {
-            fileDescriptor = context.getContentResolver().openAssetFileDescriptor(theUri, "r");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+            BufferedInputStream origin;
+            OutputStream dest = context.getContentResolver().openOutputStream(zipFile);
+            assert dest != null;
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+            byte[] data = new byte[BUFFER];
 
-        assert fileDescriptor != null;
-        return BitmapFactory.decodeFileDescriptor(
-                fileDescriptor.getFileDescriptor(), null, options);
-    }
+            for (Uri file : files) {
+                InputStream inputStream = context.getContentResolver().openInputStream(file);
+                assert inputStream != null;
+                origin = new BufferedInputStream(inputStream, BUFFER);
 
-    static int getRotation(Context context, Uri imageUri) {
-        int rotation = 0;
-        try {
+                ZipEntry entry = new ZipEntry(FileUtils.filenameFromUri(context, file));
+                out.putNextEntry(entry);
+                int count;
 
-            context.getContentResolver().notifyChange(imageUri, null);
-            ExifInterface exif = new ExifInterface(imageUri.getPath());
-            int orientation = exif.getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL);
-
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    rotation = 270;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    rotation = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotation = 90;
-                    break;
+                while ((count = origin.read(data, 0, BUFFER)) != -1) {
+                    out.write(data, 0, count);
+                }
+                origin.close();
             }
+
+            out.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return rotation;
     }
 
-    static Bitmap rotate(Bitmap bm, int rotation) {
-        if (rotation != 0) {
-            Matrix matrix = new Matrix();
-            matrix.postRotate(rotation);
-            return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
+    public static void deleteTempFiles(Storage storage) {
+        File tempFilesDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
+                File.separatorChar + TEMP_FILES_DIRECTORY);
+
+        if (storage.isDirectoryExists(tempFilesDirectory.getAbsolutePath())) {
+            for (File tempFile : storage.getFiles(tempFilesDirectory.getAbsolutePath())) {
+                storage.deleteFile(tempFile.getAbsolutePath());
+            }
+            storage.deleteDirectory(tempFilesDirectory.getAbsolutePath());
         }
-        return bm;
     }
 }

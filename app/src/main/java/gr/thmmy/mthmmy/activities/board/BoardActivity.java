@@ -8,6 +8,11 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jsoup.nodes.Document;
@@ -17,10 +22,6 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.create_content.CreateContentActivity;
@@ -100,6 +101,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         progressBar = findViewById(R.id.progressBar);
         newTopicFAB = findViewById(R.id.board_fab);
+        newTopicFAB.setTag(true);
         if (!sessionManager.isLoggedIn()) newTopicFAB.hide();
         else {
             newTopicFAB.setOnClickListener(view -> {

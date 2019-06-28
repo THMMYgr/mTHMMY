@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Format: Original:Minified:Greeklish-->
+    <string-array name="string_array_uploads_courses">
+        <item>Ακουστική I:Ακουστική 1:Akoustiki_I</item>
+        <item>Ακουστική II:Ακουστική 2:Akoustiki_II</item>
+        <item>Ανάλυση Ηλεκτρικών Κυκλωμάτων με Υπολογιστή:Ανάλυση Ηλεκτρικ. Κυκλ. με Υπολογιστή:Analysi_Ilektr_Kykl</item>
+        <item>Ανάλυση Συστημάτων Ηλεκτρικής Ενέργειας:ΑΣΗΕ:ASHE</item>
+        <item>Ανάλυση Χρονοσειρών:Χρονοσειρές:Xronoseires</item>
+        <item>Ανάλυση και Σχεδίαση Αλγορίθμων:Αλγόριθμοι:Algorithms</item>
+        <item>Αναγνώριση Προτύπων:Αναγνώριση Προτύπων:protipa</item>
+        <item>Αναλογικές Τηλεπικοινωνίες (πρώην Τηλεπικοινωνιακά Συστήματα I):Αναλογικές Τηλεπ.:Anal_Tilep</item>
+        <item>Αντικειμενοστραφής Προγραμματισμός:Αντικειμενοστραφής:OOP</item>
+        <item>Αξιοπιστία Συστημάτων:Αξιοπιστία Συστημάτων:Aksiopistia_Systimaton</item>
+        <item>Αριθμητική Ανάλυση:Αριθμ. Ανάλυση:Arith_Anal</item>
+        <item>Αρχές Οικονομίας:Αρχές Οικονομίας:Arx_Oikonomias</item>
+        <item>Αρχές Παράλληλης Επεξεργασίας:Αρχές Παράλληλης Επεξεργασίας:Arxes_Parall_Epeksergasias</item>
+        <item>Αρχιτεκτονική Υπολογιστών:Αρχ. Υπολογιστών:Arx_Ypologiston</item>
+        <item>Ασαφή Συστήματα:Ασαφή:Asafi</item>
+        <item>Ασφάλεια Πληροφοριακών Συστημάτων:Ασφάλεια:Asfaleia</item>
+        <item>Ασύρματος Τηλεπικοινωνία I:Ασύρματος 1:Asyrmatos_I</item>
+        <item>Ασύρματος Τηλεπικοινωνία II:Ασύρματος 2:Asyrmatos_II</item>
+        <item>Βάσεις Δεδομένων:Βάσεις:Vaseis</item>
+        <item>Βιομηχανικά Ηλεκτρονικά:Βιομηχανικά Ηλεκτρονικά:Viomix_Ilektronika</item>
+        <item>Βιομηχανική Πληροφορική:Βιομηχανική Πληρ:Viomix_Plir</item>
+        <item>Βιοϊατρική Τεχνολογία:Βιοιατρική:Vioiatriki</item>
+        <item>Γεωηλεκτρομαγνητισμός:Γεωηλεκτρομαγνητισμός:Geoilektromagnitismos</item>
+        <item>Γραμμική Άλγεβρα:Γραμμ. Άλγεβρ.:Grammiki_Algevra</item>
+        <item>Γραφική με Υπολογιστές:Γραφική:Grafiki</item>
+        <item>Δίκτυα Τηλεπικοινωνιών:Δίκτυα Τηλέπ.:Diktya_Tilep</item>
+        <item>Δίκτυα Υπολογιστών I:Δίκτυα 1:Diktya_I</item>
+        <item>Δίκτυα Υπολογιστών II:Δίκτυα 2:Diktya_II</item>
+        <item>Διάδοση Η/Μ Κύματος II:Διάδοση 2:Diadosi_II</item>
+        <item>Διάδοση Ηλεκτρομαγνητικού Κύματος I (πρώην Πεδίο III):Διάδοση 1:Diadosi_I</item>
+        <item>Διακριτά Μαθηματικά:Διακριτά Μαθηματικά:Diakrita</item>
+        <item>Διακριτά μαθηματικά:Διακριτά Μαθηματικά:Diakrita</item>
+        <item>Διανεμημένη Παραγωγή:Διανεμημένη Παραγωγή:Dian_Paragogi</item>
+        <item>Διαφορικές Εξισώσεις:Διαφορικές:Diaforikes</item>
+        <item>Διαχείριση Συστημάτων Ηλεκτρικής Ενέργειας:ΔΣΗΕ:DSHE</item>
+        <item>Δομές Δεδομένων:Δομ. Δεδομ.:Domes_Dedomenon</item>
+        <item>Δομημένος Προγραμματισμός:Δομ. Προγραμμ.:C</item>
+        <item>Ειδικά Κεφάλαια Διαφορικών Εξισώσεων:Ειδικά Κεφάλαια Διαφορικών Εξισώσεων:Eidika_Kef_Diaf_Eksis</item>
+        <item>Ειδικά Κεφάλαια Ηλεκτρομαγνητικού Πεδίου I:Ειδικά Κεφάλαια Ηλεκτρομαγνητικού Πεδίου I:Eidika_Kef_HM_Pediou_I</item>
+        <item>Ειδικά Κεφάλαια Συστημάτων Ηλεκτρικής Ενέργειας:ΕΚΣΗΕ:EKSHE</item>
+        <item>Ειδικές Αρχιτεκτονικές Υπολογιστών:Ειδικές Αρχιτεκτονικές Υπολογιστών:Eidikes_Arx_Ypolog</item>
+        <item>Ειδικές Κεραίες, Σύνθεση Κεραιών:Ειδικές Κεραίες, Σύνθεση Κεραιών:Eidikes_Keraies</item>
+        <item>Εισαγωγή στην Ενεργειακή Τεχνολογία I:ΕΕΤ 1:EET_I</item>
+        <item>Εισαγωγή στην Ενεργειακή Τεχνολογία II:ΕΕΤ2:EET_II</item>
+        <item>Εισαγωγή στην Πολιτική Οικονομία:Πολιτική Οικονομία:Polit_Oik</item>
+        <item>Εισαγωγή στις εφαρμογές Πυρηνικής Τεχνολογίας:Εισ. Πυρηνικη Τεχν.:Intro_Pyriniki_Texn</item>
+        <item>Ενσωματωμένα Συστήματα Πραγματικού Χρόνου:Ενσωματωμένα:Enswmatwmena</item>
+        <item>Επιχειρησιακή Έρευνα:Επιχειρησιακή Έρευνα:Epixeirisiaki</item>
+        <item>Ευρυζωνικά Δίκτυα:Ευρυζωνικά:Evryzonika</item>
+        <item>Ευφυή Συστήματα Ρομπότ:Ευφυή:eufuh</item>
+        <item>Εφαρμογές Τηλεπικοινωνιακών Διατάξεων:Εφαρμογές Τηλεπ. Διατάξεων:Efarm_Tilep_Diatakseon</item>
+        <item>Εφαρμοσμένα Μαθηματικά I:Εφαρμοσμένα 1:Efarmosmena_Math_I</item>
+        <item>Εφαρμοσμένα Μαθηματικά II:Εφαρμοσμένα 2:Efarmosmena_Math_II</item>
+        <item>Εφαρμοσμένη Θερμοδυναμική:Θερμοδυναμική:Thermodynamiki</item>
+        <item>Ηλεκτρακουστική I:Ηλεκτρακουστική 1:Ilektrakoustiki_I</item>
+        <item>Ηλεκτρακουστική II:Ηλεκτρακουστική 2:Ilektrakoustiki_II</item>
+        <item>Ηλεκτρικά Κυκλώματα I:Κυκλώματα 1:Kyklomata_I</item>
+        <item>Ηλεκτρικά Κυκλώματα II:Κυκλώματα 2:Kyklomata_II</item>
+        <item>Ηλεκτρικά Κυκλώματα III:Κυκλώματα 3:Kyklomata_I</item>
+        <item>Ηλεκτρικές Μετρήσεις I:Μετρήσεις 1:Metriseis_I</item>
+        <item>Ηλεκτρικές Μετρήσεις II:Μετρήσεις 2:Metriseis_II</item>
+        <item>Ηλεκτρικές Μηχανές Α\':Μηχανές Α:Mixanes_A</item>
+        <item>Ηλεκτρικές Μηχανές Β\':Μηχανές Β:Mixanes_B</item>
+        <item>Ηλεκτρικές Μηχανές Γ\':Μηχανές Γ:Mixanes_C</item>
+        <item>Ηλεκτρική Οικονομία:Ηλεκτρική Οικονομία:Ilektr_Oikonomia</item>
+        <item>Ηλεκτρολογικά Υλικά:Ηλεκτρ. Υλικά:Ylika</item>
+        <item>Ηλεκτρομαγνητική Συμβατότητα:H/M Συμβατότητα:HM_Symvatotita</item>
+        <item>Ηλεκτρομαγνητικό Πεδίο I:Πεδίο 1:Pedio_I</item>
+        <item>Ηλεκτρομαγνητικό Πεδίο II:Πεδίο 2:Pedio_II</item>
+        <item>Ηλεκτρονικά Ισχύος I:Ισχύος 1:Isxyos_I</item>
+        <item>Ηλεκτρονικά Ισχύος II:Ισχύος 2:Isxyos_II</item>
+        <item>Ηλεκτρονικές Διατάξεις και Μετρήσεις:Ηλεκτρονικές Διατάξεις και Μετρήσεις:Ilektron_Diatakseis_Metriseis</item>
+        <item>Ηλεκτρονική I:Ηλεκτρονική 1:Ilektroniki_I</item>
+        <item>Ηλεκτρονική II:Ηλεκτρονική 2:Ilektroniki_II</item>
+        <item>Ηλεκτρονική III:Ηλεκτρονική 3:Ilektroniki_III</item>
+        <item>Ημιαγωγά Υλικά: Θεωρία-Διατάξεις:Ημιαγωγά Υλικά:Imiagoga_Ylika</item>
+        <item>Θεωρία Πιθανοτήτων και Στατιστική:Πιθανότητες:Pithanotites</item>
+        <item>Θεωρία Πληροφοριών:Θεωρία Πληρ.:Theoria_Plir</item>
+        <item>Θεωρία Σημάτων και Γραμμικών Συστημάτων:Σήματα &amp; Συστήματα:Analog_Sima</item>
+        <item>Θεωρία Σκέδασης:Σκέδαση:Skedasi</item>
+        <item>Θεωρία Υπολογισμών και Αλγορίθμων:ΘΥΑ:THYA</item>
+        <item>Θεωρία και Τεχνολογία Πυρηνικών Αντιδραστήρων:Τεχνολογία Αντιδραστήρων:Texn_Antidrasthron</item>
+        <item>Κβαντική Φυσική:Κβαντική:Kvantiki</item>
+        <item>Κινητές και Δορυφορικές Επικοινωνίες:Κινητές &amp; Δορυφορικές Επικοινωνίες:Kinites_Doryforikes_Epik</item>
+        <item>Λειτουργικά Συστήματα:Λειτουργικά:OS</item>
+        <item>Λογική Σχεδίαση:Λογική Σχεδίαση:Logiki_Sxediasi</item>
+        <item>Λογισμός I:Λογισμός 1:Logismos_I</item>
+        <item>Λογισμός II:Λογισμός 2:Logismos_II</item>
+        <item>Μετάδοση Θερμότητας:Μετάδοση Θερμ.:Metadosi_Therm</item>
+        <item>Μικροεπεξεργαστές και Περιφερειακά:Μίκρο 2:Mikro_II</item>
+        <item>Μικροκυματική Τηλεπισκόπηση:Τηλεπισκόπηση:Tilepiskopisi</item>
+        <item>Μικροκύματα I:Μικροκύματα 1:Mikrokymata_I</item>
+        <item>Μικροκύματα II:Μικροκύματα 2:Mikrokymata_II</item>
+        <item>Οπτικές Επικοινωνίες:Οπτικές Τηλεπ.:Optikes_Tilep</item>
+        <item>Οπτική I:Οπτική 1:Optiki_I</item>
+        <item>Οπτική II:Οπτική 2:Optiki_II</item>
+        <item>Οργάνωση Υπολογιστών:Οργάνωση Υπολ.:Org_Ypol</item>
+        <item>Οργάνωση και Διοίκηση Εργοστασίων:Οργάνωση και Διοίκηση Εργοστασίων:Organ_Dioik_Ergostasion</item>
+        <item>Παράλληλα και Κατανεμημένα Συστήματα:Παράλληλα:Parallila</item>
+        <item>Προγραμματιζόμενα Κυκλώματα ASIC:ASIC:ASIC</item>
+        <item>Προγραμματιστικές Τεχνικές:Προγραμματ. Τεχν.:CPP</item>
+        <item>Προηγμένες Τεχνικές Επεξεργασίας Σήματος:ΠΤΕΣ:PTES</item>
+        <item>Προσομοίωση και Μοντελοποίηση Συστημάτων:Μοντελοποίηση:Montelopoiisi</item>
+        <item>Ρομποτική:Ρομποτική:Robotiki</item>
+        <item>Σήματα και Συστήματα:Σήματα &amp; Συστήματα:Analog_Sima</item>
+        <item>Σερβοκινητήρια Συστήματα:Σέρβο:Servo</item>
+        <item>Σταθμοί Παραγωγής Ηλεκτρικής Ενέργειας:ΣΠΗΕ:SPHE</item>
+        <item>Στοχαστικό Σήμα:Στοχ. Σήμα:Stox_Sima</item>
+        <item>Συστήματα Αυτομάτου Ελέγχου I:ΣΑΕ 1:SAE_I</item>
+        <item>Συστήματα Αυτομάτου Ελέγχου II:ΣΑΕ 2:SAE_II</item>
+        <item>Συστήματα Αυτομάτου Ελέγχου III:ΣΑΕ 3:SAE_III</item>
+        <item>Συστήματα Ηλεκτρικής Ενέργειας I:ΣΗΕ 1:SHE_I</item>
+        <item>Συστήματα Ηλεκτρικής Ενέργειας II:ΣΗΕ 2:SHE_II</item>
+        <item>Συστήματα Ηλεκτρικής Ενέργειας III:ΣΗΕ 3:SHE_III</item>
+        <item>Συστήματα Ηλεκτροκίνησης:Ηλεκτροκίνηση:Ilektrokinisi</item>
+        <item>Συστήματα Μικροϋπολογιστών:Μίκρο 1:Mikro_I</item>
+        <item>Συστήματα Πολυμέσων και Εικονική Πραγματικότητα:Πολυμέσα:Polymesa</item>
+        <item>Συστήματα Υπολογιστών (Υπολογιστικά Συστήματα):Συσ. Υπολογιστών:Sys_Ypologiston</item>
+        <item>Σχεδίαση Συστημάτων VLSI:VLSI:VLSI</item>
+        <item>Σύνθεση Ενεργών και Παθητικών Κυκλωμάτων:Σύνθεση:Synthesi</item>
+        <item>Σύνθεση Τηλεπικοινωνιακών Διατάξεων:Σύνθεση Τηλεπ. Διατάξεων:Synth_Tilep_Diatakseon</item>
+        <item>Τεχνικές Βελτιστοποίησης:Βελτιστοποίηση:Veltistopoiisi</item>
+        <item>Τεχνικές Κωδικοποίησης:Τεχνικές Κωδικοποίησης:Texn_Kodikopoiisis</item>
+        <item>Τεχνικές Σχεδίασης με Η/Υ:Σχέδιο:sxedio</item>
+        <item>Τεχνικές μη Καταστρεπτικών Δοκιμών:Μη Καταστρεπτικές Δοκιμές:Non_Destructive_Tests</item>
+        <item>Τεχνική Μηχανική:Τεχν. Μηχαν.:Texn_Mixan</item>
+        <item>Τεχνολογία Ήχου και Εικόνας:Τεχνολογία Ήχου και Εικόνας:Texn_Ixou_Eikonas</item>
+        <item>Τεχνολογία Ηλεκτροτεχνικών Υλικών:Ηλεκτροτεχνικά Υλικά:Ilektrotexnika_Ylika</item>
+        <item>Τεχνολογία Λογισμικού:Τεχνολογία Λογισμικού:SE</item>
+        <item>Τηλεοπτικά Συστήματα:Τηλεοπτικά:Tileoptika</item>
+        <item>Τηλεπικοινωνιακή Ηλεκτρονική:Τηλεπ. Ηλεκτρ.:Tilep_Ilektr</item>
+        <item>Υπολογιστικές Μέθοδοι στα Ενεργειακά Συστήματα:ΥΜΕΣ:YMES</item>
+        <item>Υπολογιστικός Ηλεκτρομαγνητισμός:Υπολογιστικός Η/Μ:Ypologistikos_HM</item>
+        <item>Υψηλές Τάσεις I:Υψηλές 1:Ypsiles_I</item>
+        <item>Υψηλές Τάσεις II:Υψηλές 2:Ypsiles_II</item>
+        <item>Υψηλές Τάσεις III:Υψηλές 3:Ypsiles_III</item>
+        <item>Υψηλές Τάσεις 4:Υψηλές 4:Ypsiles_IV</item>
+        <item>Φυσική I:Φυσική 1:Fysiki_I</item>
+        <item>Φωτονική Τεχνολογία:Φωτονική:Fotoniki</item>
+        <item>Ψηφιακά Συστήματα I:Ψηφιακά 1:Psifiaka_I</item>
+        <item>Ψηφιακά Συστήματα II:Ψηφιακά 2:Psifiaka_II</item>
+        <item>Ψηφιακά Συστήματα III:Ψηφιακά 3:Psifiaka_III</item>
+        <item>Ψηφιακά Φίλτρα:Φίλτρα:Filtra</item>
+        <item>Ψηφιακές Τηλεπικοινωνίες I:Ψηφιακές Τηλεπ. 1:Psif_Tilep_I</item>
+        <item>Ψηφιακές Τηλεπικοινωνίες II:Ψηφιακές Τηλεπ. 2:Psif_Tilep_II</item>
+        <item>Ψηφιακή Επεξεργασία Εικόνας:ΨΕΕ:PSEE</item>
+        <item>Ψηφιακή Επεξεργασία Σήματος:ΨΕΣ:PSES</item>
+    </string-array>
+</resources>

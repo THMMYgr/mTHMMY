@@ -12,11 +12,12 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+
+import java.util.ArrayList;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.model.Bookmark;
 
