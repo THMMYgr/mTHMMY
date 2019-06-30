@@ -17,8 +17,8 @@ public class CrashReporter {
     public static void reportForumInfo(Document document) {
         ParseHelpers.Theme theme = ParseHelpers.parseTheme(document);
         ParseHelpers.Language language = ParseHelpers.Language.getLanguage(document);
-        String themeKey = "forum theme", themeValue = null;
-        String languageKey = "forum language", languageValue = null;
+        String themeKey = "forum theme", themeValue;
+        String languageKey = "forum language", languageValue;
         switch (theme) {
             case SCRIBBLES2:
                 themeValue = "Scribbles2";
@@ -32,18 +32,16 @@ public class CrashReporter {
             case HELIOS_MULTI:
                 themeValue = "Helios_Multi";
                 break;
-            case THEME_UNKNOWN:
+            default:
                 themeValue = "Unknown theme";
-                break;
         }
-        switch (language) {
-            case GREEK:
-                languageValue = "Greek";
-                break;
-            case ENGLISH:
-                languageValue = "English";
-                break;
-        }
+
+        if (language == ParseHelpers.Language.GREEK)
+            languageValue = "Greek";
+        else if (language == ParseHelpers.Language.ENGLISH)
+            languageValue = "English";
+        else
+            languageValue = "Unknown";
 
         Crashlytics.setString(themeKey, themeValue);
         Crashlytics.setString(languageKey, languageValue);

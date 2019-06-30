@@ -23,7 +23,7 @@ public class ParseHelpers {
     /**
      * An enum describing a forum page's language by defining the types:<ul>
      * <li>{@link #PAGE_INCOMPLETE}</li>
-     * <li>{@link #UNDEFINED_LANGUAGE}</li>
+     * <li>{@link #UNKNOWN_LANGUAGE}</li>
      * <li>{@link #ENGLISH}</li>
      * <li>{@link #GREEK}</li>
      * </ul>
@@ -42,9 +42,9 @@ public class ParseHelpers {
          */
         PAGE_INCOMPLETE,
         /**
-         * Page language is not (yet) supported.
+         * Page language could not be determined/ not (yet) supported.
          */
-        UNDEFINED_LANGUAGE;
+        UNKNOWN_LANGUAGE;
 
         /**
          * Returns one of the supported forum languages.
@@ -57,13 +57,12 @@ public class ParseHelpers {
             Element welcoming = page.select("h3").first();
             if (welcoming == null) {
                 Element welcomingGuest = page.select("div[id=myuser]").first();
-                if (welcomingGuest != null) {
-                    if (welcomingGuest.text().contains("Welcome")) return ENGLISH;
-                }
+                if (welcomingGuest != null && welcomingGuest.text().contains("Welcome"))
+                    return ENGLISH;
                 return PAGE_INCOMPLETE;
             } else if (welcoming.text().contains("Καλώς ορίσατε")) return GREEK;
             else if (welcoming.text().contains("Hey")) return ENGLISH;
-            else return UNDEFINED_LANGUAGE;
+            else return UNKNOWN_LANGUAGE;
         }
     }
 
@@ -77,16 +76,17 @@ public class ParseHelpers {
 
     public static Theme parseTheme(Document page) {
         Element stylesheet = page.select("link[rel=stylesheet]").first();
-        if (stylesheet.attr("href").contains("scribbles2"))
-            return Theme.SCRIBBLES2;
-        else if (stylesheet.attr("href").contains("helios_multi"))
-            return Theme.HELIOS_MULTI;
-        else if (stylesheet.attr("href").contains("smfone"))
-            return Theme.SMFONE_BLUE;
-        else if (stylesheet.attr("href").contains("default"))
-            return Theme.SMF_DEFAULT;
-        else
-            return Theme.THEME_UNKNOWN;
+        if(stylesheet!=null){
+            if (stylesheet.attr("href").contains("scribbles2"))
+                return Theme.SCRIBBLES2;
+            else if (stylesheet.attr("href").contains("helios_multi"))
+                return Theme.HELIOS_MULTI;
+            else if (stylesheet.attr("href").contains("smfone"))
+                return Theme.SMFONE_BLUE;
+            else if (stylesheet.attr("href").contains("default"))
+                return Theme.SMF_DEFAULT;
+        }
+        return Theme.THEME_UNKNOWN;
     }
 
     /**
