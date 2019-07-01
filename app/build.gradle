@@ -41,20 +41,30 @@ android {
     }
 }
 
+def firebaseReleaseProjectId = "mthmmy-release-3aef0"
+
 tasks.whenTaskAdded { task ->
     if (task.name.contains("assembleRelease")) {
         task.getDependsOn().add({
-            def inputFile = new File("google-services.json")
-            def json = new JsonSlurper().parseText(inputFile.text)
-            if (json.project_info.project_id != "mthmmy-release-3aef0")
-                throw new GradleException('Please supply the correct google-services.json for release (or manually change the id above)!')
+            def googleServicesFile = new File("app/src/release/google-services.json")
+            if(googleServicesFile.exists()){
+                def json = new JsonSlurper().parseText(googleServicesFile.text)
+                if (json.project_info.project_id != firebaseReleaseProjectId)
+                    throw new GradleException('Please supply the correct google-services.json for release in app/src/release/ directory!')
+            }
+            else
+                throw new GradleException('Please add the release google-services.json in app/src/release/ directory!')
         })
     } else if (task.name.contains("assembleDebug")) {
         task.getDependsOn().add({
-            def inputFile = new File("app/google-services.json")
-            def json = new JsonSlurper().parseText(inputFile.text)
-            if (json.project_info.project_id == "mthmmy-release-3aef0")
-                throw new GradleException('Please replace the release google-services.json with a debug one!')
+            def googleServicesFile = new File("app/src/debug/google-services.json")
+            if(googleServicesFile.exists()){
+                def json = new JsonSlurper().parseText(googleServicesFile.text)
+                if (json.project_info.project_id == firebaseReleaseProjectId)
+                    throw new GradleException('Please replace google-services.json in app/src/debug/ with a debug one!')
+            }
+            else
+                throw new GradleException('Please add a debug google-services.json in app/src/debug/ directory!')
         })
     }
 }
