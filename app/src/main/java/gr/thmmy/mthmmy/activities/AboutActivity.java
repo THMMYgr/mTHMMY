@@ -11,8 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -23,6 +25,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 
 public class AboutActivity extends BaseActivity {
     private static final int TIME_INTERVAL = 1000;
@@ -32,8 +35,9 @@ public class AboutActivity extends BaseActivity {
 
     private AppBarLayout appBar;
     private CoordinatorLayout coordinatorLayout;
+    private ScrollView mainContent;
     private AlertDialog alertDialog;
-    private FrameLayout trollGif;
+    private FrameLayout easterEggImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,41 +74,41 @@ public class AboutActivity extends BaseActivity {
         createDrawer();
         drawer.setSelection(ABOUT_ID);
 
-        final ScrollView mainContent = findViewById(R.id.scrollview);
-        trollGif = findViewById(R.id.trollPicFrame);
+        mainContent = findViewById(R.id.scrollview);
+        easterEggImage = findViewById(R.id.trollPicFrame);
 
-        TextView tv = findViewById(R.id.version);
-        if (tv != null) {
+        // Set Easter egg on logo image
+        ImageView logoImageView = findViewById(R.id.logoView);
+        logoImageView.setOnClickListener(view -> {
+            if (mVersionLastPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
+                if (mVersionPressedCounter == TIMES_TO_PRESS)
+                    showEasterEgg();
+                mVersionLastPressedTime = System.currentTimeMillis();
+                ++mVersionPressedCounter;
+            } else {
+                mVersionLastPressedTime = System.currentTimeMillis();
+                mVersionPressedCounter = 0;
+            }
+        });
+
+        TextView versionTextView = findViewById(R.id.version);
+        if (versionTextView != null) {
             if (BuildConfig.DEBUG)
-                tv.setText(getString(R.string.version, versionName + versionInfo));
+                versionTextView.setText(getString(R.string.version, versionName + versionInfo));
             else
-                tv.setText(getString(R.string.version, versionName));
+                versionTextView.setText(getString(R.string.version, versionName));
 
-
-            if(BuildConfig.DEBUG && gitExists){
-                tv.setOnClickListener(view -> {
+            if(gitExists){
+                versionTextView.setOnClickListener(view -> {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ThmmyNoLife/mTHMMY/commit/" + BuildConfig.COMMIT_HASH));
                     startActivity(intent);
                 });
             }
-            else{   // Easter Egg
-                tv.setOnClickListener(view -> {
-                    if (mVersionLastPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
-                        if (mVersionPressedCounter == TIMES_TO_PRESS) {
-                            appBar.setVisibility(View.INVISIBLE);
-                            mainContent.setVisibility(View.INVISIBLE);
-                            trollGif.setVisibility(View.VISIBLE);
-                            drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        }
-                        mVersionLastPressedTime = System.currentTimeMillis();
-                        ++mVersionPressedCounter;
-                    } else {
-                        mVersionLastPressedTime = System.currentTimeMillis();
-                        mVersionPressedCounter = 0;
-                    }
-                });
-            }
+
+            versionTextView.setOnLongClickListener(view -> {
+                Toast.makeText(getApplicationContext(), BaseApplication.getFirebaseProjectId(), Toast.LENGTH_SHORT).show();
+                return true;
+            });
         }
 
         TextView privacyPolicy = findViewById(R.id.privacy_policy_header);
@@ -120,6 +124,14 @@ public class AboutActivity extends BaseActivity {
     protected void onResume() {
         drawer.setSelection(ABOUT_ID);
         super.onResume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(easterEggImage.getVisibility()==View.INVISIBLE)
+            super.onBackPressed();
+        else
+            hideEasterEgg();
     }
 
     public void displayApacheLibraries(View v) {
@@ -152,4 +164,21 @@ public class AboutActivity extends BaseActivity {
             alertDialog.getWindow().setLayout(width, height);
     }
 
+    private void showEasterEgg(){
+        if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            appBar.setVisibility(View.INVISIBLE);
+            mainContent.setVisibility(View.INVISIBLE);
+            easterEggImage.setVisibility(View.VISIBLE);
+            drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
+    }
+
+    private void hideEasterEgg(){
+        appBar.setVisibility(View.VISIBLE);
+        mainContent.setVisibility(View.VISIBLE);
+        easterEggImage.setVisibility(View.INVISIBLE);
+        drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+    }
 }
