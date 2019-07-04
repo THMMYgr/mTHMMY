@@ -59,8 +59,9 @@ class UploadsCourse {
         if(foundKey==null){
             Timber.w("Couldn't find course that matches %s", retrievedCourse);
             Bundle bundle = new Bundle();
-            bundle.putString("COURSE_NAME", retrievedCourse);
-            BaseApplication.getInstance().logFirebaseAnalyticsEvent("UNSUPPORTED_UPLOADS_COURSE", bundle);
+            bundle.putString("course_name", retrievedCourse);
+            BaseApplication.getInstance().logFirebaseAnalyticsEvent("unsupported_uploads_course", bundle);
+            return null;
         }
 
         return uploadsCourses.get(foundKey);
