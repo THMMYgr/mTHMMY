@@ -940,14 +940,16 @@ public class UploadActivity extends BaseActivity {
             String retrievedCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
             String retrievedSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
 
-            UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
+            if(!retrievedCourse.isEmpty()){
+                UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
 
-            if(foundUploadsCourse != null){
-                uploadsCourse = foundUploadsCourse;
-                semester = retrievedSemester;
-                Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
-                titleDescriptionBuilderButton.setEnabled(true);
-                return;
+                if(foundUploadsCourse != null){
+                    uploadsCourse = foundUploadsCourse;
+                    semester = retrievedSemester;
+                    Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
+                    titleDescriptionBuilderButton.setEnabled(true);
+                    return;
+                }
             }
 
             titleDescriptionBuilderButton.setEnabled(false);
