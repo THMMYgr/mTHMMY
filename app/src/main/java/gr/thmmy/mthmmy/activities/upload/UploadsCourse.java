@@ -52,8 +52,9 @@ class UploadsCourse {
         String foundKey = null;
         for (Map.Entry<String, UploadsCourse> entry : uploadsCourses.entrySet()) {
             String key = entry.getKey();
-            if ((key.contains(retrievedCourse))&& (foundKey==null || key.length()>foundKey.length()))
-                    foundKey = key;
+            if ((key.contains(retrievedCourse) || retrievedCourse.contains(key))
+                    && (foundKey==null || key.length()>foundKey.length()))
+                foundKey = key;
         }
 
         if(foundKey==null){

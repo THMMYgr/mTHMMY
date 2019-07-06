@@ -130,7 +130,7 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadTitle;
     private EditText uploadFilename;
     private EditText uploadDescription;
-    private AppCompatButton titleDescriptionBuilderButton;
+    private AppCompatButton generateFieldsButton;
     private LinearLayout filesListView;
 
     @Override
@@ -174,9 +174,9 @@ public class UploadActivity extends BaseActivity {
         rootCategorySpinner = findViewById(R.id.upload_spinner_category_root);
         rootCategorySpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener(uploadRootCategories));
 
-        titleDescriptionBuilderButton = findViewById(R.id.upload_title_description_builder);
-        titleDescriptionBuilderButton.setEnabled(false);
-        titleDescriptionBuilderButton.setOnClickListener(view -> {
+        generateFieldsButton = findViewById(R.id.upload_title_description_builder);
+        generateFieldsButton.setEnabled(false);
+        generateFieldsButton.setOnClickListener(view -> {
             if(uploadsCourse!=null && !uploadsCourse.getName().equals("") && !semester.equals("")){
                 Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
                 Bundle builderExtras = new Bundle();
@@ -410,7 +410,7 @@ public class UploadActivity extends BaseActivity {
         } else {
             //Renders the already parsed data
             updateUIElements();
-            titleDescriptionBuilderButton.setEnabled(true);
+            generateFieldsButton.setEnabled(true);
         }
 
         Resources res = getResources();
@@ -841,7 +841,7 @@ public class UploadActivity extends BaseActivity {
             }
 
             categorySelected = parentCategories.get(position).getValue();
-            setCourseAndSemester();
+            generateFieldsButton.setEnabled(false);
 
             //Adds new sub-category spinner
             if (parentCategories.get(position).hasSubCategories()) {
@@ -882,6 +882,8 @@ public class UploadActivity extends BaseActivity {
                     }
                 }
             }
+            else
+                setCourseAndSemester();
         }
 
         @Override
@@ -890,21 +892,13 @@ public class UploadActivity extends BaseActivity {
         private void setCourseAndSemester(){
             uploadsCourse = null;
             semester = "";
-
-            if (categorySelected.equals("-1")) {
-                titleDescriptionBuilderButton.setEnabled(false);
-                return;
-            }
+            if (categorySelected.equals("-1")) return;
 
             int numberOfSpinners = categoriesSpinners.getChildCount();
 
-            if (numberOfSpinners < 3) {
-                titleDescriptionBuilderButton.setEnabled(false);
-                return;
-            }
+            if (numberOfSpinners < 3) return;
 
-            String maybeSemester = "";
-            String maybeCourse = "";
+            String maybeSemester, maybeCourse;
 
             if (numberOfSpinners == 5) {
                 if (((AppCompatSpinnerWithoutDefault) categoriesSpinners.getChildAt(numberOfSpinners - 1)).
@@ -927,15 +921,8 @@ public class UploadActivity extends BaseActivity {
                         categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
             }
 
-            if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) {
-                titleDescriptionBuilderButton.setEnabled(false);
-                return;
-            }
-
-            if (maybeCourse == null) {
-                titleDescriptionBuilderButton.setEnabled(false);
-                return;
-            }
+            if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) return;
+            if (maybeCourse == null) return;
 
             String retrievedCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
             String retrievedSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
@@ -947,12 +934,9 @@ public class UploadActivity extends BaseActivity {
                     uploadsCourse = foundUploadsCourse;
                     semester = retrievedSemester;
                     Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
-                    titleDescriptionBuilderButton.setEnabled(true);
-                    return;
+                    generateFieldsButton.setEnabled(true);
                 }
             }
-
-            titleDescriptionBuilderButton.setEnabled(false);
         }
     }
 
