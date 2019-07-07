@@ -924,15 +924,17 @@ public class UploadActivity extends BaseActivity {
             if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) return;
             if (maybeCourse == null) return;
 
-            String retrievedCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
-            String retrievedSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
+            String retrievedCourse = maybeCourse.replaceAll("-", "")
+                                                .replaceAll("\\((πρώην|πρωην).*\\)","")
+                                                .replace("(ΝΠΣ)", "")
+                                                .trim();
 
             if(!retrievedCourse.isEmpty()){
                 UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
 
                 if(foundUploadsCourse != null){
                     uploadsCourse = foundUploadsCourse;
-                    semester = retrievedSemester;
+                    semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
                     Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
                     generateFieldsButton.setEnabled(true);
                 }
