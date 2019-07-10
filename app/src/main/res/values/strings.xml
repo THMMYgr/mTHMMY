@@ -209,4 +209,10 @@
     <!-- New topic activity -->
     <string name="new_topic_toolbar">New topic</string>
     <string name="create_topic">Create topic</string>
+
+    <!-- Inbox activity -->
+    <string name="personal_message_thumbnail">Personal message author thumbnail</string>
+    <string name="pm_author">PM author</string>
+    <string name="pm_subject">PM subject</string>
+    <string name="pm_content">PM content</string>
 </resources>
