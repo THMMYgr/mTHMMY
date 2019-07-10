@@ -2,10 +2,15 @@ package gr.thmmy.mthmmy.activities.inbox;
 
 import android.os.Bundle;
 
+import androidx.lifecycle.ViewModelProviders;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.viewmodel.InboxViewModel;
 
 public class InboxActivity extends BaseActivity {
+
+    InboxViewModel inboxViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,5 +28,14 @@ public class InboxActivity extends BaseActivity {
 
         createDrawer();
         drawer.setSelection(INBOX_ID);
+
+        inboxViewModel = ViewModelProviders.of(this).get(InboxViewModel.class);
+        subscribeUI();
+    }
+
+    private void subscribeUI() {
+        inboxViewModel.setOnInboxTaskFinishedListener((resultCode, data) -> {
+
+        });
     }
 }

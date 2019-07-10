@@ -652,7 +652,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 Toast.makeText(this, "Failed to remove vote", Toast.LENGTH_LONG).show();
             }
         });
-        // observe the chages in data
+        // observe the changes in data
         viewModel.getPageIndicatorIndex().observe(this, pageIndicatorIndex -> {
             if (pageIndicatorIndex == null) return;
             pageIndicator.setText(String.valueOf(pageIndicatorIndex) + "/" +
