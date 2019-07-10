@@ -162,7 +162,7 @@
             </LinearLayout>
 
             <FrameLayout
-                android:id="@+id/pm_date_and_number_exp"
+                android:id="@+id/pm_date_exp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
@@ -174,15 +174,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
-                    android:text=""
-                    android:textColor="@color/accent"
-                    android:textSize="11sp" />
-
-                <TextView
-                    android:id="@+id/pm_number"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
                     android:text=""
                     android:textColor="@color/accent"
                     android:textSize="11sp" />
@@ -216,26 +207,6 @@
                     android:focusable="true"
                     tools:text="@string/pm_content" />
             </FrameLayout>
-
-            <View
-                android:id="@+id/body_footer_divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="9dp"
-                android:background="@color/divider"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/pm_footer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="9dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>
