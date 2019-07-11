@@ -13,6 +13,7 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Inbox;
 import gr.thmmy.mthmmy.model.PM;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
@@ -30,14 +31,13 @@ public class InboxTask extends NewParseTask<Inbox> {
         inbox.setNumberOfPages(ParseHelpers.parseNumberOfPages(document, inbox.getCurrentPageIndex(), language));
 
         ArrayList<PM> pmList = parsePMs(document, language);
-
-
-        return null;
+        inbox.setPms(pmList);
+        return inbox;
     }
 
     @Override
     protected int getResultCode(Response response, Inbox data) {
-        return 0;
+        return NetworkResultCodes.SUCCESSFUL;
     }
 
     private ArrayList<PM> parsePMs(Document document, ParseHelpers.Language language) {
