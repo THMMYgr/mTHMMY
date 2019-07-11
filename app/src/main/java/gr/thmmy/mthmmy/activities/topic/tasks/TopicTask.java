@@ -85,10 +85,10 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                         , topicTitle.indexOf("(Αναγνώστηκε") - 2);
 
             //Finds current page's index
-            int currentPageIndex = TopicParser.parseCurrentPageIndex(topic, language);
+            int currentPageIndex = ParseHelpers.parseCurrentPageIndex(topic, language);
 
             //Finds number of pages
-            int pageCount = TopicParser.parseTopicNumberOfPages(topic, currentPageIndex, language);
+            int pageCount = ParseHelpers.parseNumberOfPages(topic, currentPageIndex, language);
 
             ArrayList<TopicItem> newPostsList = TopicParser.parseTopic(topic, language);
 

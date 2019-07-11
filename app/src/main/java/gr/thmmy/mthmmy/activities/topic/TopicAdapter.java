@@ -84,8 +84,8 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
-import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
-import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.USER_COLOR_WHITE;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.USER_COLOR_YELLOW;
 import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
 
 /**
@@ -493,7 +493,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     } else //noinspection deprecation
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.mention_card));
-                } else if (mUserColor == TopicParser.USER_COLOR_PINK) {
+                } else if (mUserColor == ParseHelpers.USER_COLOR_PINK) {
                     //Special card for special member of the month!
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         holder.cardChildLinear.setBackground(context.getResources().

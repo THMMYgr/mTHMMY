@@ -85,7 +85,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         //Sets username,submit date, index number, subject, post's and attached files texts
         holder.username.setText(currentPM.getAuthor());
-        holder.pmDate.setText(currentPM.getPostDate());
+        holder.pmDate.setText(currentPM.getPmDate());
         holder.subject.setText(currentPM.getSubject());
         holder.pm.loadDataWithBaseURL("file:///android_asset/", currentPM.getContent(),
                 "text/html", "UTF-8", null);

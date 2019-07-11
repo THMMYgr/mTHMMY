@@ -1,7 +1,5 @@
 package gr.thmmy.mthmmy.activities.topic;
 
-import android.graphics.Color;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,23 +28,9 @@ import timber.log.Timber;
  * Singleton used for parsing a topic.
  * <p>Class contains the methods:<ul><li>{@link #parseUsersViewingThisTopic(Document,
  * ParseHelpers.Language)}</li>
- * <li>{@link #parseCurrentPageIndex(Document, ParseHelpers.Language)}</li>
- * <li>{@link #parseTopicNumberOfPages(Document, int, ParseHelpers.Language)}</li>
  * <li>{@link #parseTopic(Document, ParseHelpers.Language)}</li>
  */
 public class TopicParser {
-    private static Pattern mentionsPattern = Pattern.
-            compile("<div class=\"quoteheader\">\\n\\s+?<a href=.+?>(Quote from|Παράθεση από): "
-                    + BaseActivity.getSessionManager().getUsername() +"\\s(στις|on)");
-
-    //User colors
-    private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
-    private static final int USER_COLOR_RED = Color.parseColor("#F44336");
-    private static final int USER_COLOR_GREEN = Color.parseColor("#4CAF50");
-    private static final int USER_COLOR_BLUE = Color.parseColor("#536DFE");
-    static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
-    static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
-    static final int USER_COLOR_WHITE = Color.WHITE;
 
     /**
      * Returns users currently viewing this topic.
@@ -62,82 +46,6 @@ public class TopicParser {
         if (language == ParseHelpers.Language.GREEK)
             return topic.select("td:containsOwn(διαβάζουν αυτό το θέμα)").first().html();
         return topic.select("td:containsOwn(are viewing this topic)").first().html();
-    }
-
-    /**
-     * Returns current topic's page index.
-     *
-     * @param topic    {@link Document} object containing this topic's source code
-     * @param language a {@link ParseHelpers.Language} containing this topic's
-     *                 language set, this is returned by
-     *                 {@link ParseHelpers.Language#getLanguage(Document)}
-     * @return int containing parsed topic's current page
-     * @see org.jsoup.Jsoup Jsoup
-     */
-    public static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
-        int parsedPage = 1;
-
-        if (language == ParseHelpers.Language.GREEK) {
-            Elements findCurrentPage = topic.select("td:contains(Σελίδες:)>b");
-
-            for (Element item : findCurrentPage) {
-                if (!item.text().contains("...")
-                        && !item.text().contains("Σελίδες:")) {
-                    parsedPage = Integer.parseInt(item.text());
-                    break;
-                }
-            }
-        } else {
-            Elements findCurrentPage = topic.select("td:contains(Pages:)>b");
-
-            for (Element item : findCurrentPage) {
-                if (!item.text().contains("...") && !item.text().contains("Pages:")) {
-                    parsedPage = Integer.parseInt(item.text());
-                    break;
-                }
-            }
-        }
-
-        return parsedPage;
-    }
-
-    /**
-     * Returns the number of this topic's pages.
-     *
-     * @param topic       {@link Document} object containing this topic's source code
-     * @param currentPage an int containing current page of this topic
-     * @param language    a {@link ParseHelpers.Language} containing this topic's
-     *                    language set, this is returned by
-     *                    {@link ParseHelpers.Language#getLanguage(Document)}
-     * @return int containing the number of pages
-     * @see org.jsoup.Jsoup Jsoup
-     */
-    public static int parseTopicNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
-        int returnPages = 1;
-
-        if (language == ParseHelpers.Language.GREEK) {
-            Elements pages = topic.select("td:contains(Σελίδες:)>a.navPages");
-
-            if (pages.size() != 0) {
-                returnPages = currentPage;
-                for (Element item : pages) {
-                    if (Integer.parseInt(item.text()) > returnPages)
-                        returnPages = Integer.parseInt(item.text());
-                }
-            }
-        } else {
-            Elements pages = topic.select("td:contains(Pages:)>a.navPages");
-
-            if (pages.size() != 0) {
-                returnPages = currentPage;
-                for (Element item : pages) {
-                    if (Integer.parseInt(item.text()) > returnPages)
-                        returnPages = Integer.parseInt(item.text());
-                }
-            }
-        }
-
-        return returnPages;
     }
 
     /**
@@ -186,7 +94,7 @@ public class TopicParser {
             p_personalText = "";
             p_numberOfPosts = "";
             p_numberOfStars = 0;
-            p_userColor = USER_COLOR_YELLOW;
+            p_userColor = ParseHelpers.USER_COLOR_YELLOW;
             p_attachedFiles = new ArrayList<>();
             p_postLastEditDate = null;
             p_deletePostURL = null;
@@ -245,7 +153,7 @@ public class TopicParser {
                             .select("td:has(div.smalltext:containsOwn(Επισκέπτης))[style^=overflow]")
                             .first().text();
                     p_userName = p_userName.substring(0, p_userName.indexOf(" Επισκέπτης"));
-                    p_userColor = USER_COLOR_YELLOW;
+                    p_userColor = ParseHelpers.USER_COLOR_YELLOW;
                 } else {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
@@ -315,7 +223,7 @@ public class TopicParser {
                             .select("td:has(div.smalltext:containsOwn(Guest))[style^=overflow]")
                             .first().text();
                     p_userName = p_userName.substring(0, p_userName.indexOf(" Guest"));
-                    p_userColor = USER_COLOR_YELLOW;
+                    p_userColor = ParseHelpers.USER_COLOR_YELLOW;
                 } else {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
@@ -405,7 +313,7 @@ public class TopicParser {
                             starsLineIndex = infoList.indexOf(line);
                             Document starsHtml = Jsoup.parse(line);
                             p_numberOfStars = starsHtml.select("img[alt]").size();
-                            p_userColor = colorPicker(starsHtml.select("img[alt]").first()
+                            p_userColor = ParseHelpers.colorPicker(starsHtml.select("img[alt]").first()
                                     .attr("abs:src"));
                         }
                     }
@@ -426,7 +334,7 @@ public class TopicParser {
                             starsLineIndex = infoList.indexOf(line);
                             Document starsHtml = Jsoup.parse(line);
                             p_numberOfStars = starsHtml.select("img[alt]").size();
-                            p_userColor = colorPicker(starsHtml.select("img[alt]").first()
+                            p_userColor = ParseHelpers.colorPicker(starsHtml.select("img[alt]").first()
                                     .attr("abs:src"));
                         }
                     }
@@ -456,7 +364,7 @@ public class TopicParser {
 
                 //Checks post for mentions of this user (if the user is logged in)
                 if (BaseActivity.getSessionManager().isLoggedIn() &&
-                        mentionsPattern.matcher(p_post).find()) {
+                        ParseHelpers.mentionsPattern.matcher(p_post).find()) {
                     p_isUserMentionedInPost = true;
                 }
 
@@ -567,25 +475,4 @@ public class TopicParser {
         return null;
     }
 
-    /**
-     * Returns the color of a user according to user's rank on forum.
-     *
-     * @param starsUrl String containing the URL of a user's stars
-     * @return an int corresponding to the right color
-     */
-    private static int colorPicker(String starsUrl) {
-        if (starsUrl.contains("/star.gif"))
-            return USER_COLOR_YELLOW;
-        else if (starsUrl.contains("/starmod.gif"))
-            return USER_COLOR_GREEN;
-        else if (starsUrl.contains("/stargmod.gif"))
-            return USER_COLOR_BLUE;
-        else if (starsUrl.contains("/staradmin.gif"))
-            return USER_COLOR_RED;
-        else if (starsUrl.contains("/starweb.gif"))
-            return USER_COLOR_BLACK;
-        else if (starsUrl.contains("/oscar.gif"))
-            return USER_COLOR_PINK;
-        return USER_COLOR_YELLOW;
-    }
 }
