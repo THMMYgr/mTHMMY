@@ -66,8 +66,7 @@ public class InboxTask extends NewParseTask<Inbox> {
                     .first().parent().attr("href"));
             pm.setReplyUrl(pmContainer.select("img[src=https://www.thmmy.gr/smf/Themes/scribbles2_114/images/buttons/im_reply.gif]")
                     .first().parent().attr("href"));
-            pm.setDeleteUrl(pmContainer.select("img[src=https://www.thmmy.gr/smf/index.php?actio" +
-                    "n=pm;sa=pmactions;pm_actions[321639]=delete;f=inbox;start=45;;sesc=07776660021fecb42ad23f8c5dba6aff]")
+            pm.setDeleteUrl(pmContainer.select("img[src=https://www.thmmy.gr/smf/Themes/scribbles2_114/images/buttons/delete.gif]")
                     .first().parent().attr("href"));
 
             // language specific parsing
@@ -85,7 +84,7 @@ public class InboxTask extends NewParseTask<Inbox> {
                 } else {
                     isAuthorDeleted = false;
                     pm.setAuthor(username.html());
-                    pm.setAuthor(username.attr("href"));
+                    pm.setAuthorProfileUrl(username.attr("href"));
                 }
 
                 String date = dateContainer.text();
@@ -105,7 +104,7 @@ public class InboxTask extends NewParseTask<Inbox> {
                 } else {
                     isAuthorDeleted = false;
                     pm.setAuthor(username.html());
-                    pm.setAuthor(username.attr("href"));
+                    pm.setAuthorProfileUrl(username.attr("href"));
                 }
 
                 String date = dateContainer.text();

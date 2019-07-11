@@ -1,16 +1,28 @@
 package gr.thmmy.mthmmy.activities.inbox;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.InboxViewModel;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import timber.log.Timber;
 
 public class InboxActivity extends BaseActivity {
 
-    InboxViewModel inboxViewModel;
+    private InboxViewModel inboxViewModel;
+
+    private MaterialProgressBar progressBar;
+    private RecyclerView pmRecyclerview;
+    private InboxAdapter inboxAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,13 +41,26 @@ public class InboxActivity extends BaseActivity {
         createDrawer();
         drawer.setSelection(INBOX_ID);
 
+        progressBar = findViewById(R.id.progress_bar);
+        pmRecyclerview = findViewById(R.id.inbox_recyclerview);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        pmRecyclerview.setLayoutManager(layoutManager);
+        inboxAdapter = new InboxAdapter(this);
+        pmRecyclerview.setAdapter(inboxAdapter);
+
         inboxViewModel = ViewModelProviders.of(this).get(InboxViewModel.class);
         subscribeUI();
+
+        inboxViewModel.loadInbox();
     }
 
     private void subscribeUI() {
-        inboxViewModel.setOnInboxTaskFinishedListener((resultCode, data) -> {
-
+        inboxViewModel.setOnInboxTaskStartedListener(() -> progressBar.setVisibility(View.VISIBLE));
+        inboxViewModel.setOnInboxTaskFinishedListener((resultCode, inbox) -> {
+            progressBar.setVisibility(View.INVISIBLE);
+            if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+                inboxAdapter.notifyDataSetChanged();
+            }
         });
     }
 }

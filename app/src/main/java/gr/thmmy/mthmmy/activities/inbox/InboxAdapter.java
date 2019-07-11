@@ -52,6 +52,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private InboxViewModel inboxViewModel;
 
     public InboxAdapter(InboxActivity context) {
+        this.context = context;
         inboxViewModel = ViewModelProviders.of(context).get(InboxViewModel.class);
     }
 
@@ -93,7 +94,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return pms().size();
+        return inboxViewModel.getInbox() == null ? 0 : pms().size();
     }
 
     private ArrayList<PM> pms() {

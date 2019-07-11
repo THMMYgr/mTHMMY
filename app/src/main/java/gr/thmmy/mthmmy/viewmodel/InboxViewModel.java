@@ -12,15 +12,21 @@ public class InboxViewModel extends ViewModel implements InboxTask.OnNetworkTask
 
     private Inbox inbox;
     private InboxTask.OnNetworkTaskFinishedListener<Inbox> onInboxTaskFinishedListener;
+    private InboxTask.OnTaskStartedListener onInboxTaskStartedListener;
 
-    private void loadInbox() {
+    public void loadInbox() {
         currentInboxTask = new InboxTask();
+        currentInboxTask.setOnTaskStartedListener(onInboxTaskStartedListener);
         currentInboxTask.setOnNetworkTaskFinishedListener(this);
         currentInboxTask.execute(INBOX_URL);
     }
 
     public void setOnInboxTaskFinishedListener(InboxTask.OnNetworkTaskFinishedListener<Inbox> onInboxTaskFinishedListener) {
         this.onInboxTaskFinishedListener = onInboxTaskFinishedListener;
+    }
+
+    public void setOnInboxTaskStartedListener(InboxTask.OnTaskStartedListener onInboxTaskStartedListener) {
+        this.onInboxTaskStartedListener = onInboxTaskStartedListener;
     }
 
     @Override
@@ -30,7 +36,6 @@ public class InboxViewModel extends ViewModel implements InboxTask.OnNetworkTask
     }
 
     public Inbox getInbox() {
-        if (inbox == null) throw new NullPointerException("Inbox has not been loaded yet");
         return inbox;
     }
 }
