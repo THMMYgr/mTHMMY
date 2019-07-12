@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.topic;
+package gr.thmmy.mthmmy.utils;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -7,11 +7,11 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class TopicAnimations {
+public class MessageAnimations {
     /**
      * Method that animates view's visibility changes for user's extra info
      */
-    static void animateUserExtraInfoVisibility(final TextView username, final TextView subject,
+    public static void animateUserExtraInfoVisibility(final TextView username, final TextView subject,
                                                int expandedColor, final int collapsedColor,
                                                final LinearLayout userExtraInfo) {
         //If the view is currently gone it fades it in

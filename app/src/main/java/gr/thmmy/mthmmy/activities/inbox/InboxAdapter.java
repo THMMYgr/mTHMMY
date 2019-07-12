@@ -4,9 +4,11 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,10 +34,12 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
+import gr.thmmy.mthmmy.utils.MessageAnimations;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.model.PM;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.InboxViewModel;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -45,6 +49,8 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.USER_COLOR_WHITE;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.USER_COLOR_YELLOW;
 
 public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -90,6 +96,115 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         holder.subject.setText(currentPM.getSubject());
         holder.pm.loadDataWithBaseURL("file:///android_asset/", currentPM.getContent(),
                 "text/html", "UTF-8", null);
+
+        // author info
+        if (currentPM.getAuthorSpecialRank() != null && !currentPM.getAuthorSpecialRank().equals("")) {
+            holder.specialRank.setText(currentPM.getAuthorSpecialRank());
+            holder.specialRank.setVisibility(View.VISIBLE);
+        } else holder.specialRank.setVisibility(View.GONE);
+        if (currentPM.getAuthorRank() != null && !currentPM.getAuthorRank().equals("")) {
+            holder.rank.setText(currentPM.getAuthorRank());
+            holder.rank.setVisibility(View.VISIBLE);
+        } else holder.rank.setVisibility(View.GONE);
+        if (currentPM.getAuthorGender() != null && !currentPM.getAuthorGender().equals("")) {
+            holder.gender.setText(currentPM.getAuthorGender());
+            holder.gender.setVisibility(View.VISIBLE);
+        } else holder.gender.setVisibility(View.GONE);
+        if (currentPM.getAuthorNumberOfPosts() != null && !currentPM.getAuthorNumberOfPosts().equals("")) {
+            holder.numberOfPosts.setText(currentPM.getAuthorNumberOfPosts());
+            holder.numberOfPosts.setVisibility(View.VISIBLE);
+        } else holder.numberOfPosts.setVisibility(View.GONE);
+        if (currentPM.getAuthorPersonalText() != null && !currentPM.getAuthorPersonalText().equals("")) {
+            holder.personalText.setText(currentPM.getAuthorPersonalText());
+            holder.personalText.setVisibility(View.VISIBLE);
+        } else holder.personalText.setVisibility(View.GONE);
+        if (currentPM.getAuthorColor() != USER_COLOR_YELLOW)
+            holder.username.setTextColor(currentPM.getAuthorColor());
+        else holder.username.setTextColor(USER_COLOR_WHITE);
+
+        if (currentPM.getAuthorNumberOfStars() > 0) {
+            holder.stars.setTypeface(Typeface.createFromAsset(context.getAssets()
+                    , "fonts/fontawesome-webfont.ttf"));
+
+            String aStar = context.getResources().getString(R.string.fa_icon_star);
+            StringBuilder usersStars = new StringBuilder();
+            for (int i = 0; i < currentPM.getAuthorNumberOfStars(); ++i) {
+                usersStars.append(aStar);
+            }
+            holder.stars.setText(usersStars.toString());
+            holder.stars.setTextColor(currentPM.getAuthorColor());
+            holder.stars.setVisibility(View.VISIBLE);
+        } else holder.stars.setVisibility(View.GONE);
+
+        if (currentPM.isUserMentioned()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                holder.cardChildLinear.setBackground(context.getResources().
+                        getDrawable(R.drawable.mention_card, null));
+            } else
+                holder.cardChildLinear.setBackground(context.getResources().
+                        getDrawable(R.drawable.mention_card));
+        } else if (currentPM.getAuthorColor() == ParseHelpers.USER_COLOR_PINK) {
+            //Special card for special member of the month!
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                holder.cardChildLinear.setBackground(context.getResources().
+                        getDrawable(R.drawable.member_of_the_month_card, null));
+            } else
+                holder.cardChildLinear.setBackground(context.getResources().
+                        getDrawable(R.drawable.member_of_the_month_card));
+        } else holder.cardChildLinear.setBackground(null);
+
+        //Avoid's view's visibility recycling
+        if (inboxViewModel.isUserExtraInfoVisible(holder.getAdapterPosition())) {
+            holder.userExtraInfo.setVisibility(View.VISIBLE);
+            holder.userExtraInfo.setAlpha(1.0f);
+
+            holder.username.setMaxLines(Integer.MAX_VALUE);
+            holder.username.setEllipsize(null);
+
+            holder.subject.setTextColor(Color.parseColor("#FFFFFF"));
+            holder.subject.setMaxLines(Integer.MAX_VALUE);
+            holder.subject.setEllipsize(null);
+        } else {
+            holder.userExtraInfo.setVisibility(View.GONE);
+            holder.userExtraInfo.setAlpha(0.0f);
+
+            holder.username.setMaxLines(1);
+            holder.username.setEllipsize(TextUtils.TruncateAt.END);
+
+            holder.subject.setTextColor(Color.parseColor("#757575"));
+            holder.subject.setMaxLines(1);
+            holder.subject.setEllipsize(TextUtils.TruncateAt.END);
+        }
+
+        //Sets graphics behavior
+        holder.thumbnail.setOnClickListener(view -> {
+            //Clicking the thumbnail opens user's profile
+            Intent intent = new Intent(context, ProfileActivity.class);
+            Bundle extras = new Bundle();
+            extras.putString(BUNDLE_PROFILE_URL, currentPM.getAuthorProfileUrl());
+            if (currentPM.getThumbnailUrl() == null)
+                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
+            else
+                extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, currentPM.getAuthorProfileUrl());
+            extras.putString(BUNDLE_PROFILE_USERNAME, currentPM.getAuthor());
+            intent.putExtras(extras);
+            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        });
+        holder.header.setOnClickListener(v -> {
+            //Clicking the header makes it expand/collapse
+            inboxViewModel.toggleUserInfo(holder.getAdapterPosition());
+            MessageAnimations.animateUserExtraInfoVisibility(holder.username,
+                    holder.subject, Color.parseColor("#FFFFFF"),
+                    Color.parseColor("#757575"), holder.userExtraInfo);
+        });
+        //Clicking the expanded part of a header (the extra info) makes it collapse
+        holder.userExtraInfo.setOnClickListener(v -> {
+            inboxViewModel.hideUserInfo(holder.getAdapterPosition());
+            MessageAnimations.animateUserExtraInfoVisibility(holder.username,
+                    holder.subject, Color.parseColor("#FFFFFF"),
+                    Color.parseColor("#757575"), (LinearLayout) v);
+        });
     }
 
     @Override
@@ -139,9 +254,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
      * This class is used to handle link clicks in WebViews. When link url is one that the app can
      * handle internally, it does. Otherwise user is prompt to open the link in a browser.
      */
-    @SuppressWarnings("unchecked")
     private class LinkLauncher extends WebViewClient {
-        @SuppressWarnings("deprecation")
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             final Uri uri = Uri.parse(url);

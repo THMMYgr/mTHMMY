@@ -111,7 +111,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void resetPage() {
         if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
         Timber.i("Resetting page");
-        loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
+        loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + currentPageIndex * 15);
     }
 
     public void resetPageThen(Runnable runnable) {
@@ -122,7 +122,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             TopicViewModel.this.onTopicTaskCompleted(result);
             runnable.run();
         });
-        currentTopicTask.execute(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
+        currentTopicTask.execute(ParseHelpers.getBaseURL(topicUrl) + "." + currentPageIndex * 15);
     }
 
     public void loadPageIndicated() {
@@ -131,7 +131,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         int pageRequested = pageIndicatorIndex.getValue() - 1;
         if (pageRequested != currentPageIndex - 1) {
             Timber.i("Changing to page " + pageRequested + 1);
-            loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(pageRequested * 15));
+            loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + pageRequested * 15);
             pageIndicatorIndex.setValue(pageRequested + 1);
         } else {
             stopLoading();

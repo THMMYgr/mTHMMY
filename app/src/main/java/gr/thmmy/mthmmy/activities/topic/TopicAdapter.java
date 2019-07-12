@@ -72,6 +72,7 @@ import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.MessageAnimations;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
@@ -544,14 +545,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.header.setOnClickListener(v -> {
                         //Clicking the header makes it expand/collapse
                         viewModel.toggleUserInfo(holder.getAdapterPosition());
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                        MessageAnimations.animateUserExtraInfoVisibility(holder.username,
                                 holder.subject, Color.parseColor("#FFFFFF"),
                                 Color.parseColor("#757575"), holder.userExtraInfo);
                     });
                     //Clicking the expanded part of a header (the extra info) makes it collapse
                     holder.userExtraInfo.setOnClickListener(v -> {
                         viewModel.hideUserInfo(holder.getAdapterPosition());
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                        MessageAnimations.animateUserExtraInfoVisibility(holder.username,
                                 holder.subject, Color.parseColor("#FFFFFF"),
                                 Color.parseColor("#757575"), (LinearLayout) v);
                     });
