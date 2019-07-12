@@ -215,4 +215,6 @@
     <string name="pm_author">PM author</string>
     <string name="pm_subject">PM subject</string>
     <string name="pm_content">PM content</string>
+    <string name="quote_menu_button_text">Quote</string>
+    <string name="reply_menu_button_text">Reply</string>
 </resources>

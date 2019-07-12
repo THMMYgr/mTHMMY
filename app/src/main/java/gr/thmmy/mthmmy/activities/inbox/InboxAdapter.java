@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,10 +19,14 @@ import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,11 +39,11 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
-import gr.thmmy.mthmmy.utils.MessageAnimations;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.model.PM;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.MessageAnimations;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.InboxViewModel;
 
@@ -204,6 +209,55 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             MessageAnimations.animateUserExtraInfoVisibility(holder.username,
                     holder.subject, Color.parseColor("#FFFFFF"),
                     Color.parseColor("#757575"), (LinearLayout) v);
+        });
+
+        holder.overflowButton.setOnClickListener(view -> {
+            LayoutInflater layoutInflater = LayoutInflater.from(context);
+            View popupContent = layoutInflater.inflate(R.layout.activity_inbox_overflow_menu, null);
+
+            //Creates the PopupWindow
+            final PopupWindow popUp = new PopupWindow(holder.overflowButton.getContext());
+            popUp.setContentView(popupContent);
+            popUp.setWidth(LinearLayout.LayoutParams.WRAP_CONTENT);
+            popUp.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
+            popUp.setFocusable(true);
+
+            TextView quoteButton = popupContent.findViewById(R.id.pm_quote_button);
+            Drawable quoteDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_format_quote);
+            quoteButton.setCompoundDrawablesRelativeWithIntrinsicBounds(quoteDrawable, null, null, null);
+            quoteButton.setOnClickListener(v -> {
+                Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show();
+                // TODO: Create quote PM task
+            });
+
+            final TextView replyButton = popupContent.findViewById(R.id.pm_reply_button);
+            Drawable replyDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_reply);
+            replyButton.setCompoundDrawablesRelativeWithIntrinsicBounds(replyDrawable, null, null, null);
+
+            replyButton.setOnClickListener(v -> {
+                Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show();
+                // TODO: Create reply PM task
+            });
+
+            TextView deletePostButton = popupContent.findViewById(R.id.delete_post);
+
+            Drawable deleteStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_delete_white_24dp);
+            deletePostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(deleteStartDrawable, null, null, null);
+            popupContent.findViewById(R.id.delete_post).setOnClickListener(v -> {
+                new AlertDialog.Builder(holder.overflowButton.getContext())
+                        .setTitle("Delete personal message")
+                        .setMessage("Do you really want to delete this personal message?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
+                            Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show();
+                            // TODO: Create delete PM task
+                        })
+                        .setNegativeButton(android.R.string.no, null).show();
+                popUp.dismiss();
+            });
+
+            //Displays the popup
+            popUp.showAsDropDown(holder.overflowButton);
         });
     }
 

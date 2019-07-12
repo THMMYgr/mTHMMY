@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/pm_quote_button"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:drawablePadding="5dp"
+        android:gravity="center_vertical"
+        android:paddingBottom="6dp"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:text="@string/quote_menu_button_text"
+        android:textColor="@color/primary_text" />
+
+    <TextView
+        android:id="@+id/pm_reply_button"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:drawablePadding="5dp"
+        android:gravity="center_vertical"
+        android:paddingBottom="6dp"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:text="@string/reply_menu_button_text"
+        android:textColor="@color/primary_text" />
+
+    <TextView
+        android:id="@+id/delete_post"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:drawablePadding="5dp"
+        android:gravity="center_vertical"
+        android:paddingBottom="6dp"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:text="@string/post_delete_button"
+        android:textColor="@color/primary_text" />
+
+</LinearLayout>
