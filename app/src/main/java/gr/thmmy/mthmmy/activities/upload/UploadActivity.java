@@ -40,7 +40,6 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.UploadNotificationAction;
 import net.gotev.uploadservice.UploadNotificationConfig;
 
@@ -67,6 +66,7 @@ import gr.thmmy.mthmmy.services.UploadsReceiver;
 import gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.utils.TakePhoto;
+import gr.thmmy.mthmmy.activities.upload.multipart.MultipartUploadRequest;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -740,6 +740,7 @@ public class UploadActivity extends BaseActivity {
                     .addFileToUpload(fileUri.toString()
                             , "tp-dluploadfile")
                     .addParameter("tp_dluploadicon", fileIcon)
+                    .addParameter("tp_dluploadpic", "")
                     .addParameter("tp-uploaduser", uploaderProfileIndex)
                     .setNotificationConfig(uploadNotificationConfig)
                     .setMaxRetries(2)
