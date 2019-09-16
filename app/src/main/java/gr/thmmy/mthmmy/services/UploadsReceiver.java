@@ -90,11 +90,11 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
                 uploadInfo.getUploadId().equals(dialogUploadID) &&
                 uploadProgressDialog != null) {
             Button alertDialogNeutral = uploadProgressDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            alertDialogNeutral.setText("Resume on background");
+            alertDialogNeutral.setText(R.string.upload_resume_in_background);
             alertDialogNeutral.setOnClickListener(v -> uploadProgressDialog.dismiss());
 
             Button alertDialogNegative = uploadProgressDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            alertDialogNegative.setText("Cancel");
+            alertDialogNegative.setText(R.string.upload_cancel);
             alertDialogNegative.setOnClickListener(v -> {
                 UploadService.stopUpload(dialogUploadID);
                 uploadProgressDialog.dismiss();
@@ -137,7 +137,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             });*/
 
             Button alertDialogNegative = uploadProgressDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            alertDialogNegative.setText("Cancel");
+            alertDialogNegative.setText(R.string.upload_cancel);
             alertDialogNegative.setOnClickListener(v -> {
                 NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().
                         getSystemService(Context.NOTIFICATION_SERVICE);
@@ -155,7 +155,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
                     TextView dialogProgressText = progressWindow.findViewById(R.id.dialog_upload_progress_text);
 
                     dialogProgressBar.setVisibility(View.GONE);
-                    dialogProgressText.setText("Upload failed");
+                    dialogProgressText.setText(R.string.upload_failed);
                 }
 
                 if (uploadInfo.getUploadedBytes() == uploadInfo.getTotalBytes()) {
@@ -174,7 +174,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             context.sendBroadcast(combinedActionsIntent);
         }
 
-        Toast.makeText(context.getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context.getApplicationContext(), R.string.upload_failed, Toast.LENGTH_SHORT).show();
         if (storage == null) {
             storage = new Storage(context.getApplicationContext());
         }
@@ -193,8 +193,9 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
         }
         else {
-            Timber.e(new MultipartUploadException(response));
-            onError(context,uploadInfo,serverResponse,new MultipartUploadException(response));
+            MultipartUploadException multipartUploadException = new MultipartUploadException(response);
+            Timber.e(multipartUploadException);
+            onError(context,uploadInfo,serverResponse,multipartUploadException);
         }
         
         if (storage == null) {
@@ -211,7 +212,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             dialogUploadID = null;
         }
 
-        Toast.makeText(context.getApplicationContext(), "Upload canceled", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context.getApplicationContext(), R.string.upload_canceled, Toast.LENGTH_SHORT).show();
         if (storage == null) {
             storage = new Storage(context.getApplicationContext());
         }

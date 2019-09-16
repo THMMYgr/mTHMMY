@@ -710,13 +710,13 @@ public class UploadActivity extends BaseActivity {
 
             uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
                     R.drawable.ic_cancel_accent_24dp,
-                    context.getString(R.string.upload_notification_cancel),
+                    context.getString(R.string.upload_cancel),
                     PendingIntent.getBroadcast(context, 0, cancelIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT)
             ));
             uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
                     R.drawable.ic_notification,
-                    context.getString(R.string.upload_notification_retry),
+                    context.getString(R.string.upload_retry),
                     PendingIntent.getBroadcast(context, 0, retryIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT)
             ));
