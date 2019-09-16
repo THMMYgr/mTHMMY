@@ -22,8 +22,10 @@ import net.gotev.uploadservice.UploadServiceBroadcastReceiver;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.upload.UploadsHelper;
+import gr.thmmy.mthmmy.activities.upload.multipart.MultipartUploadException;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import timber.log.Timber;
 
 public class UploadsReceiver extends UploadServiceBroadcastReceiver {
     public static final String UPLOAD_ID_KEY = "UPLOAD_ID_KEY";
@@ -153,7 +155,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
                     TextView dialogProgressText = progressWindow.findViewById(R.id.dialog_upload_progress_text);
 
                     dialogProgressBar.setVisibility(View.GONE);
-                    dialogProgressText.setText("Upload failed.");
+                    dialogProgressText.setText("Upload failed");
                 }
 
                 if (uploadInfo.getUploadedBytes() == uploadInfo.getTotalBytes()) {
@@ -185,12 +187,20 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             dialogUploadID = null;
         }
 
-        Toast.makeText(context.getApplicationContext(), "Upload completed successfully", Toast.LENGTH_SHORT).show();
+        String response = serverResponse.getBodyAsString();
+        if(response.contains("Η προσθήκη του αρχείου ήταν επιτυχημένη.")||response.contains("The upload was successful.")){
+            Toast.makeText(context.getApplicationContext(), "Upload completed successfully", Toast.LENGTH_SHORT).show();
+            BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
+        }
+        else {
+            Timber.e(new MultipartUploadException(response));
+            onError(context,uploadInfo,serverResponse,new MultipartUploadException(response));
+        }
+        
         if (storage == null) {
             storage = new Storage(context.getApplicationContext());
         }
 
-        BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
         UploadsHelper.deleteTempFiles(storage);
     }
 

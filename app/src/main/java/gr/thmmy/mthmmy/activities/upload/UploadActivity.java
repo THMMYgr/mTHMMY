@@ -58,6 +58,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.upload.multipart.MultipartUploadRequest;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.UploadCategory;
@@ -66,7 +67,6 @@ import gr.thmmy.mthmmy.services.UploadsReceiver;
 import gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.utils.TakePhoto;
-import gr.thmmy.mthmmy.activities.upload.multipart.MultipartUploadRequest;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseTask;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
