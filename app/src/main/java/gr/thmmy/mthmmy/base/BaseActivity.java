@@ -921,22 +921,22 @@ public abstract class BaseActivity extends AppCompatActivity {
                     progressDialogBuilder.setView(progressDialogLayout);
 
                     uploadsProgressDialog = progressDialogBuilder.create();
-                    if (!UploadService.getTaskList().contains("" + dialogUploadID)) {
+                    if (!UploadService.getTaskList().contains(dialogUploadID)) {
                         //Upload probably failed at this point
-                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Retry", (progressDialog, progressWhich) -> {
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "", (progressDialog, progressWhich) -> {
                             /*LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context.getApplicationContext());
                             localBroadcastManager.sendBroadcast(multipartUploadRetryIntent);*/
-                            uploadsProgressDialog.dismiss();
+                            //uploadsProgressDialog.dismiss();
 
                             //context.sendBroadcast(retryIntent);
                         });
-                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", (progressDialog, progressWhich) -> {
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel), (progressDialog, progressWhich) -> {
                             uploadsProgressDialog.dismiss();
                         });
 
                         TextView dialogProgressText = progressDialogLayout.findViewById(R.id.dialog_upload_progress_text);
                         dialogProgressBar.setVisibility(View.GONE);
-                        dialogProgressText.setText("Upload failed.");
+                        dialogProgressText.setText(getString(R.string.upload_failed));
 
                         uploadsProgressDialog.show();
                     } else {

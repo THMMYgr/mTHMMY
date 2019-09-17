@@ -372,7 +372,6 @@ public class UploadActivity extends BaseActivity {
                         requestPerms(UPLOAD_REQUEST_STORAGE_CODE);
                         dialog.cancel();
                     }
-
                     return;
                 }
 
@@ -667,7 +666,7 @@ public class UploadActivity extends BaseActivity {
         filesListView.setVisibility(View.VISIBLE);
     }
 
-    public static UploadNotificationConfig getConfigForUpload(Context context, String uploadID,
+    public UploadNotificationConfig getConfigForUpload(Context context, String uploadID,
                                                               String filename) {
         UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
         uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
@@ -699,7 +698,7 @@ public class UploadActivity extends BaseActivity {
             uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
                     1, combinedActionsIntent, PendingIntent.FLAG_UPDATE_CURRENT));
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        else {
             Intent retryIntent = new Intent(context, UploadsReceiver.class);
             retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
             retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
@@ -710,7 +709,7 @@ public class UploadActivity extends BaseActivity {
 
             uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
                     R.drawable.ic_cancel_accent_24dp,
-                    context.getString(R.string.upload_cancel),
+                    context.getString(R.string.cancel),
                     PendingIntent.getBroadcast(context, 0, cancelIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT)
             ));
@@ -731,7 +730,7 @@ public class UploadActivity extends BaseActivity {
                                      String uploadDescriptionText, String fileIcon,
                                      String uploaderProfileIndex, Uri fileUri) {
         try {
-            new MultipartUploadRequest(context, uploadID, uploadIndexUrl)
+            MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(context, uploadID, uploadIndexUrl)
                     .setUtf8Charset()
                     .setNotificationConfig(uploadNotificationConfig)
                     .addParameter("tp-dluploadtitle", uploadTitleText)
@@ -743,10 +742,11 @@ public class UploadActivity extends BaseActivity {
                     .addParameter("tp_dluploadpic", "")
                     .addParameter("tp-uploaduser", uploaderProfileIndex)
                     .setNotificationConfig(uploadNotificationConfig)
-                    .setMaxRetries(2)
-                    .startUpload();
-
-            Toast.makeText(context, "Uploading files in the background.", Toast.LENGTH_SHORT).show();
+                    .setMaxRetries(2);
+            Timber.d("Uploading a file with properties: \nTitle: %s\nCategory: %s\nDescription: %s\nIcon: %s\nUploader: %s",
+                    uploadTitleText, categorySelected, uploadDescriptionText, fileIcon, uploaderProfileIndex);
+            multipartUploadRequest.startUpload();
+            Toast.makeText(context, "Uploading file(s) in the background...", Toast.LENGTH_SHORT).show();
             return true;
         } catch (Exception exception) {
             Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
@@ -1006,7 +1006,7 @@ public class UploadActivity extends BaseActivity {
         }
     }
 
-    public static class ZipTask extends AsyncTask<Uri, Void, Boolean> {
+    public class ZipTask extends AsyncTask<Uri, Void, Boolean> {
         // Weak references will still allow the Activity to be garbage-collected
         private final WeakReference<Activity> weakActivity;
         final String zipFilename, categorySelected, uploadTitleText, uploadDescriptionText,
