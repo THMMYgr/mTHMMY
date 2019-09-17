@@ -15,13 +15,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
-public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyResult> {
+public class PrepareForReplyTask extends AsyncTask<Integer, Void, PrepareForReplyResult> {
     private PrepareForReplyCallbacks listener;
     private OnPrepareForReplyFinished finishListener;
     private String replyPageUrl;
 
-    public PrepareForReply(PrepareForReplyCallbacks listener, OnPrepareForReplyFinished finishListener,
-                           String replyPageUrl) {
+    public PrepareForReplyTask(PrepareForReplyCallbacks listener, OnPrepareForReplyFinished finishListener,
+                               String replyPageUrl) {
         this.listener = listener;
         this.finishListener = finishListener;
         this.replyPageUrl = replyPageUrl;
@@ -49,12 +49,16 @@ public class PrepareForReply extends AsyncTask<Integer, Void, PrepareForReplyRes
             seqnum = document.select("input[name=seqnum]").first().attr("value");
             sc = document.select("input[name=sc]").first().attr("value");
             topic = document.select("input[name=topic]").first().attr("value");
-        } catch (IOException | Selector.SelectorParseException e) {
-            Timber.e(e, "Prepare failed.");
+        } catch (NullPointerException e) {
+            // TODO: Convert this task to (New)ParseTask (?) / handle parsing errors in a better way
+            Timber.e(e, "Prepare failed (1)");
+            return new PrepareForReplyResult(false, null, null, null, null, null);
+        } catch (IOException | Selector.SelectorParseException e){
+            Timber.e(e, "Prepare failed (2)");
             return new PrepareForReplyResult(false, null, null, null, null, null);
         }
 
-        StringBuilder buildedQuotes = new StringBuilder("");
+        StringBuilder buildedQuotes = new StringBuilder();
         for (Integer postIndex : postIndices) {
             request = new Request.Builder()
                     .url("https://www.thmmy.gr/smf/index.php?action=quotefast;quote=" +

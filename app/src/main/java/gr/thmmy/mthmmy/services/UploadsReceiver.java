@@ -22,8 +22,10 @@ import net.gotev.uploadservice.UploadServiceBroadcastReceiver;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.upload.UploadsHelper;
+import gr.thmmy.mthmmy.activities.upload.multipart.MultipartUploadException;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import timber.log.Timber;
 
 public class UploadsReceiver extends UploadServiceBroadcastReceiver {
     public static final String UPLOAD_ID_KEY = "UPLOAD_ID_KEY";
@@ -57,6 +59,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
         switch (intentAction) {
             case ACTION_CANCEL_UPLOAD:
                 String uploadID = intentBundle.getString(UPLOAD_ID_KEY);
+                Timber.d("Received ACTION_CANCEL_UPLOAD (id: %s)", uploadID);
                 UploadService.stopUpload(uploadID);
                 break;
             /*case ACTION_RETRY_UPLOAD:
@@ -84,16 +87,18 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
 
     @Override
     public void onProgress(Context context, UploadInfo uploadInfo) {
+        Timber.i("Upload in progress (id: %s)",uploadInfo.getUploadId());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
                 uploadInfo.getUploadId().equals(dialogUploadID) &&
                 uploadProgressDialog != null) {
             Button alertDialogNeutral = uploadProgressDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            alertDialogNeutral.setText("Resume on background");
+            alertDialogNeutral.setText(R.string.upload_resume_in_background);
             alertDialogNeutral.setOnClickListener(v -> uploadProgressDialog.dismiss());
 
             Button alertDialogNegative = uploadProgressDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            alertDialogNegative.setText("Cancel");
+            alertDialogNegative.setText(R.string.cancel);
             alertDialogNegative.setOnClickListener(v -> {
+                Timber.d("Cancelling upload (id: %s)", dialogUploadID);
                 UploadService.stopUpload(dialogUploadID);
                 uploadProgressDialog.dismiss();
             });
@@ -122,6 +127,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
     @Override
     public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
                         Exception exception) {
+        Timber.i("Error while uploading (id: %s)",uploadInfo.getUploadId());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
                 uploadInfo.getUploadId().equals(dialogUploadID) &&
                 uploadProgressDialog != null) {
@@ -135,13 +141,9 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             });*/
 
             Button alertDialogNegative = uploadProgressDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            alertDialogNegative.setText("Cancel");
+            alertDialogNegative.setText(R.string.cancel);
             alertDialogNegative.setOnClickListener(v -> {
-                NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().
-                        getSystemService(Context.NOTIFICATION_SERVICE);
-                if (notificationManager != null) {
-                    notificationManager.cancel(uploadInfo.getNotificationID());
-                }
+                cancelNotification(context, uploadInfo.getNotificationID());
                 UploadsHelper.deleteTempFiles(storage);
                 uploadProgressDialog.dismiss();
             });
@@ -153,7 +155,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
                     TextView dialogProgressText = progressWindow.findViewById(R.id.dialog_upload_progress_text);
 
                     dialogProgressBar.setVisibility(View.GONE);
-                    dialogProgressText.setText("Upload failed.");
+                    dialogProgressText.setText(R.string.upload_failed);
                 }
 
                 if (uploadInfo.getUploadedBytes() == uploadInfo.getTotalBytes()) {
@@ -161,18 +163,13 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
                 }
             }
         } else {
-            NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().
-                    getSystemService(Context.NOTIFICATION_SERVICE);
-            if (notificationManager != null) {
-                notificationManager.cancel(uploadInfo.getNotificationID());
-            }
-
+            cancelNotification(context, uploadInfo.getNotificationID());
             Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
             combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadInfo.getUploadId());
             context.sendBroadcast(combinedActionsIntent);
         }
 
-        Toast.makeText(context.getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context.getApplicationContext(), R.string.upload_failed, Toast.LENGTH_SHORT).show();
         if (storage == null) {
             storage = new Storage(context.getApplicationContext());
         }
@@ -185,32 +182,38 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             dialogUploadID = null;
         }
 
-        Toast.makeText(context.getApplicationContext(), "Upload completed successfully", Toast.LENGTH_SHORT).show();
+        String response = serverResponse.getBodyAsString();
+        if(response.contains("Η προσθήκη του αρχείου ήταν επιτυχημένη.")||response.contains("The upload was successful.")){
+            Timber.i("Upload completed successfully (id: %s)",uploadInfo.getUploadId());
+            Toast.makeText(context.getApplicationContext(), "Upload completed successfully", Toast.LENGTH_SHORT).show();
+            BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
+        }
+        else {
+            MultipartUploadException multipartUploadException = new MultipartUploadException(response);
+            Timber.e(multipartUploadException);
+            onError(context,uploadInfo,serverResponse,multipartUploadException);
+        }
+        
         if (storage == null) {
             storage = new Storage(context.getApplicationContext());
         }
 
-        BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
         UploadsHelper.deleteTempFiles(storage);
     }
 
     @Override
     public void onCancelled(Context context, UploadInfo uploadInfo) {
+        Timber.i("Upload cancelled (id: %s)", uploadInfo.getUploadId());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             uploadProgressDialog = null;
             dialogUploadID = null;
         }
 
-        Toast.makeText(context.getApplicationContext(), "Upload canceled", Toast.LENGTH_SHORT).show();
-        if (storage == null) {
+        Toast.makeText(context.getApplicationContext(), R.string.upload_cancelled, Toast.LENGTH_SHORT).show();
+        if (storage == null)
             storage = new Storage(context.getApplicationContext());
-        }
 
-        /*NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().
-                getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.cancel(uploadInfo.getNotificationID());
-        }*/
+        //cancelNotification(context, uploadInfo.getNotificationID());
         UploadsHelper.deleteTempFiles(storage);
     }
 
@@ -219,5 +222,12 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
         UploadsReceiver.uploadProgressDialog = uploadProgressDialog;
         UploadsReceiver.dialogUploadID = dialogUploadID;
         //UploadsReceiver.multipartUploadRetryIntent = multipartUploadRetryIntent;
+    }
+
+    private void cancelNotification(Context context, int notificationId){
+        NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().
+                getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null)
+            notificationManager.cancel(notificationId);
     }
 }

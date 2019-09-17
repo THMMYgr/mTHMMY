@@ -40,7 +40,6 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.UploadNotificationAction;
 import net.gotev.uploadservice.UploadNotificationConfig;
 
@@ -59,6 +58,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.upload.multipart.MultipartUploadRequest;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.UploadCategory;
@@ -130,7 +130,7 @@ public class UploadActivity extends BaseActivity {
     private EditText uploadTitle;
     private EditText uploadFilename;
     private EditText uploadDescription;
-    private AppCompatButton titleDescriptionBuilderButton;
+    private AppCompatButton generateFieldsButton;
     private LinearLayout filesListView;
 
     @Override
@@ -174,9 +174,9 @@ public class UploadActivity extends BaseActivity {
         rootCategorySpinner = findViewById(R.id.upload_spinner_category_root);
         rootCategorySpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener(uploadRootCategories));
 
-        titleDescriptionBuilderButton = findViewById(R.id.upload_title_description_builder);
-        titleDescriptionBuilderButton.setEnabled(false);
-        titleDescriptionBuilderButton.setOnClickListener(view -> {
+        generateFieldsButton = findViewById(R.id.upload_title_description_builder);
+        generateFieldsButton.setEnabled(false);
+        generateFieldsButton.setOnClickListener(view -> {
             if(uploadsCourse!=null && !uploadsCourse.getName().equals("") && !semester.equals("")){
                 Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
                 Bundle builderExtras = new Bundle();
@@ -372,7 +372,6 @@ public class UploadActivity extends BaseActivity {
                         requestPerms(UPLOAD_REQUEST_STORAGE_CODE);
                         dialog.cancel();
                     }
-
                     return;
                 }
 
@@ -410,7 +409,7 @@ public class UploadActivity extends BaseActivity {
         } else {
             //Renders the already parsed data
             updateUIElements();
-            titleDescriptionBuilderButton.setEnabled(true);
+            generateFieldsButton.setEnabled(true);
         }
 
         Resources res = getResources();
@@ -667,7 +666,7 @@ public class UploadActivity extends BaseActivity {
         filesListView.setVisibility(View.VISIBLE);
     }
 
-    public static UploadNotificationConfig getConfigForUpload(Context context, String uploadID,
+    public UploadNotificationConfig getConfigForUpload(Context context, String uploadID,
                                                               String filename) {
         UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
         uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
@@ -699,7 +698,7 @@ public class UploadActivity extends BaseActivity {
             uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
                     1, combinedActionsIntent, PendingIntent.FLAG_UPDATE_CURRENT));
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        else {
             Intent retryIntent = new Intent(context, UploadsReceiver.class);
             retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
             retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
@@ -710,13 +709,13 @@ public class UploadActivity extends BaseActivity {
 
             uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
                     R.drawable.ic_cancel_accent_24dp,
-                    context.getString(R.string.upload_notification_cancel),
+                    context.getString(R.string.cancel),
                     PendingIntent.getBroadcast(context, 0, cancelIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT)
             ));
             uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
                     R.drawable.ic_notification,
-                    context.getString(R.string.upload_notification_retry),
+                    context.getString(R.string.upload_retry),
                     PendingIntent.getBroadcast(context, 0, retryIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT)
             ));
@@ -731,7 +730,7 @@ public class UploadActivity extends BaseActivity {
                                      String uploadDescriptionText, String fileIcon,
                                      String uploaderProfileIndex, Uri fileUri) {
         try {
-            new MultipartUploadRequest(context, uploadID, uploadIndexUrl)
+            MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(context, uploadID, uploadIndexUrl)
                     .setUtf8Charset()
                     .setNotificationConfig(uploadNotificationConfig)
                     .addParameter("tp-dluploadtitle", uploadTitleText)
@@ -740,12 +739,14 @@ public class UploadActivity extends BaseActivity {
                     .addFileToUpload(fileUri.toString()
                             , "tp-dluploadfile")
                     .addParameter("tp_dluploadicon", fileIcon)
+                    .addParameter("tp_dluploadpic", "")
                     .addParameter("tp-uploaduser", uploaderProfileIndex)
                     .setNotificationConfig(uploadNotificationConfig)
-                    .setMaxRetries(2)
-                    .startUpload();
-
-            Toast.makeText(context, "Uploading files in the background.", Toast.LENGTH_SHORT).show();
+                    .setMaxRetries(2);
+            Timber.d("Uploading a file with properties: \nTitle: %s\nCategory: %s\nDescription: %s\nIcon: %s\nUploader: %s",
+                    uploadTitleText, categorySelected, uploadDescriptionText, fileIcon, uploaderProfileIndex);
+            multipartUploadRequest.startUpload();
+            Toast.makeText(context, "Uploading file(s) in the background...", Toast.LENGTH_SHORT).show();
             return true;
         } catch (Exception exception) {
             Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
@@ -841,7 +842,7 @@ public class UploadActivity extends BaseActivity {
             }
 
             categorySelected = parentCategories.get(position).getValue();
-            setCourseAndSemester();
+            generateFieldsButton.setEnabled(false);
 
             //Adds new sub-category spinner
             if (parentCategories.get(position).hasSubCategories()) {
@@ -882,6 +883,8 @@ public class UploadActivity extends BaseActivity {
                     }
                 }
             }
+            else
+                setCourseAndSemester();
         }
 
         @Override
@@ -890,21 +893,13 @@ public class UploadActivity extends BaseActivity {
         private void setCourseAndSemester(){
             uploadsCourse = null;
             semester = "";
-
-            if (categorySelected.equals("-1")) {
-                titleDescriptionBuilderButton.setEnabled(false);
-                return;
-            }
+            if (categorySelected.equals("-1")) return;
 
             int numberOfSpinners = categoriesSpinners.getChildCount();
 
-            if (numberOfSpinners < 3) {
-                titleDescriptionBuilderButton.setEnabled(false);
-                return;
-            }
+            if (numberOfSpinners < 3) return;
 
-            String maybeSemester = "";
-            String maybeCourse = "";
+            String maybeSemester, maybeCourse;
 
             if (numberOfSpinners == 5) {
                 if (((AppCompatSpinnerWithoutDefault) categoriesSpinners.getChildAt(numberOfSpinners - 1)).
@@ -927,30 +922,24 @@ public class UploadActivity extends BaseActivity {
                         categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
             }
 
-            if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) {
-                titleDescriptionBuilderButton.setEnabled(false);
-                return;
+            if (!maybeSemester.contains("εξάμηνο") && !maybeSemester.contains("Εξάμηνο")) return;
+            if (maybeCourse == null) return;
+
+            String retrievedCourse = maybeCourse.replaceAll("-", "")
+                                                .replaceAll("\\((πρώην|πρωην).*\\)","")
+                                                .replace("(ΝΠΣ)", "")
+                                                .trim();
+
+            if(!retrievedCourse.isEmpty()){
+                UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
+
+                if(foundUploadsCourse != null){
+                    uploadsCourse = foundUploadsCourse;
+                    semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
+                    Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
+                    generateFieldsButton.setEnabled(true);
+                }
             }
-
-            if (maybeCourse == null) {
-                titleDescriptionBuilderButton.setEnabled(false);
-                return;
-            }
-
-            String retrievedCourse = maybeCourse.replaceAll("-", "").replace("(ΝΠΣ)", "").trim();
-            String retrievedSemester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
-
-            UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
-
-            if(foundUploadsCourse != null){
-                uploadsCourse = foundUploadsCourse;
-                semester = retrievedSemester;
-                Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
-                titleDescriptionBuilderButton.setEnabled(true);
-                return;
-            }
-
-            titleDescriptionBuilderButton.setEnabled(false);
         }
     }
 
@@ -1017,7 +1006,7 @@ public class UploadActivity extends BaseActivity {
         }
     }
 
-    public static class ZipTask extends AsyncTask<Uri, Void, Boolean> {
+    public class ZipTask extends AsyncTask<Uri, Void, Boolean> {
         // Weak references will still allow the Activity to be garbage-collected
         private final WeakReference<Activity> weakActivity;
         final String zipFilename, categorySelected, uploadTitleText, uploadDescriptionText,

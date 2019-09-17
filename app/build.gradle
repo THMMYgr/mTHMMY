@@ -6,15 +6,16 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
+    buildToolsVersion = '29.0.2'
 
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
         applicationId "gr.thmmy.mthmmy"
         minSdkVersion 19
-        targetSdkVersion 28
-        versionCode 21
-        versionName "1.7.3"
+        targetSdkVersion 29
+        versionCode 22
+        versionName "1.7.4"
         archivesBaseName = "mTHMMY-v$versionName"
         buildConfigField "String", "CURRENT_BRANCH", "\"" + getCurrentBranch() + "\""
         buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
@@ -71,15 +72,15 @@ tasks.whenTaskAdded { task ->
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
-    implementation 'androidx.preference:preference:1.1.0-beta01'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.preference:preference:1.1.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha01'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha04'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.exifinterface:exifinterface:1.1.0-alpha01'
+    implementation 'androidx.exifinterface:exifinterface:1.1.0-beta01'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.google.firebase:firebase-core:17.0.0'
     implementation 'com.google.firebase:firebase-messaging:19.0.1'
@@ -101,8 +102,7 @@ dependencies {
     implementation 'ru.noties:markwon:2.0.2'
     implementation 'net.gotev:uploadservice:3.5.2'
     implementation 'net.gotev:uploadservice-okhttp:3.4.2' //TODO: Warning: v.3.5 depends on okhttp 3.13!
-    implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.5'
-//Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
+    implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.5' //Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
 }
 
 apply plugin: 'com.google.gms.google-services'
