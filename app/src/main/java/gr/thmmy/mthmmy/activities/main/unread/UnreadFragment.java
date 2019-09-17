@@ -143,11 +143,12 @@ public class UnreadFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (unreadTask.isRunning())
+        if (unreadTask!=null && unreadTask.isRunning())
             unreadTask.cancel(true);
-        if (markReadTask.isRunning())
+        if (markReadTask!=null && markReadTask.isRunning())
             markReadTask.cancel(true);
-        topicSummaries.clear();
+        if(topicSummaries!=null)
+            topicSummaries.clear();
     }
 
     public interface UnreadFragmentInteractionListener extends FragmentInteractionListener {

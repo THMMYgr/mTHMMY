@@ -17,7 +17,7 @@ import gr.thmmy.mthmmy.activities.topic.tasks.DeleteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditResult;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
-import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReplyTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReplyResult;
 import gr.thmmy.mthmmy.activities.topic.tasks.RemoveVoteTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.ReplyTask;
@@ -35,7 +35,7 @@ import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
 
 public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTaskCompleted,
-        PrepareForReply.OnPrepareForReplyFinished, PrepareForEditTask.OnPrepareEditFinished {
+        PrepareForReplyTask.OnPrepareForReplyFinished, PrepareForEditTask.OnPrepareEditFinished {
     /**
      * topic state
      */
@@ -56,7 +56,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     private TopicTask currentTopicTask;
     private PrepareForEditTask currentPrepareForEditTask;
-    private PrepareForReply currentPrepareForReplyTask;
+    private PrepareForReplyTask currentPrepareForReplyTask;
 
     //callbacks for topic activity
     private TopicTask.TopicTaskObserver topicTaskObserver;
@@ -65,7 +65,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private ReplyTask.ReplyTaskCallbacks replyFinishListener;
     private PrepareForEditTask.PrepareForEditCallbacks prepareForEditCallbacks;
     private EditTask.EditTaskCallbacks editTaskCallbacks;
-    private PrepareForReply.PrepareForReplyCallbacks prepareForReplyCallbacks;
+    private PrepareForReplyTask.PrepareForReplyCallbacks prepareForReplyCallbacks;
     private ExternalAsyncTask.OnTaskStartedListener voteTaskStartedListener;
     private NetworkTask.OnNetworkTaskFinishedListener<Void> voteTaskFinishedListener;
     private ExternalAsyncTask.OnTaskStartedListener removeVoteTaskStartedListener;
@@ -177,7 +177,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         stopLoading();
         setPageIndicatorIndex(pageCount, true);
         Timber.i("Preparing for reply");
-        currentPrepareForReplyTask = new PrepareForReply(prepareForReplyCallbacks, this,
+        currentPrepareForReplyTask = new PrepareForReplyTask(prepareForReplyCallbacks, this,
                 replyPageUrl.getValue());
         currentPrepareForReplyTask.execute(toQuoteList.toArray(new Integer[0]));
     }
@@ -424,7 +424,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         this.editTaskCallbacks = editTaskCallbacks;
     }
 
-    public void setPrepareForReplyCallbacks(PrepareForReply.PrepareForReplyCallbacks prepareForReplyCallbacks) {
+    public void setPrepareForReplyCallbacks(PrepareForReplyTask.PrepareForReplyCallbacks prepareForReplyCallbacks) {
         this.prepareForReplyCallbacks = prepareForReplyCallbacks;
     }
 

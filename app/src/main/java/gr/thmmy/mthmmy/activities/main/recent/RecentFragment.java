@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -146,9 +147,9 @@ public class RecentFragment extends BaseFragment {
             topicSummaries.addAll(fetchedRecent);
             recentAdapter.notifyDataSetChanged();
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
-            Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getContext(), "Unexpected error," +
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
                     " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
 
