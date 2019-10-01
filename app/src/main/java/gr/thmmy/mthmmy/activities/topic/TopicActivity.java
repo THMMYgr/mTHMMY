@@ -123,6 +123,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     private Snackbar snackbar;
     private TopicViewModel viewModel;
     private EmojiKeyboard emojiKeyboard;
+    private AlertDialog topicInfoDialog;
 
     //Fix for vector drawables on android <21
     static {
@@ -253,8 +254,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     usersViewing.setText(HTMLUtils.getSpannableFromHtml(this, topicViewers));
                 });
                 builder.setView(infoDialog);
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                topicInfoDialog = builder.create();
+                topicInfoDialog.show();
                 return true;
             case R.id.menu_share:
                 Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
@@ -312,6 +313,10 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(topicInfoDialog!=null){
+            topicInfoDialog.dismiss();
+            topicInfoDialog=null;
+        }
         recyclerView.setAdapter(null);
         viewModel.stopLoading();
     }

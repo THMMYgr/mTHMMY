@@ -548,7 +548,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
         builder.setTitle("Logout");
         builder.setMessage("Are you sure that you want to logout?");
-        builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+        builder.setPositiveButton("Yep", (dialogInterface, i) -> {
             new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
         });
         builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
