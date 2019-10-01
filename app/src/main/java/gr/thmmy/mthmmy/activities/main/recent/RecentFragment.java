@@ -128,7 +128,7 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recentTask.isRunning())
+        if (recentTask!=null && recentTask.isRunning())
             recentTask.cancel(true);
     }
 
