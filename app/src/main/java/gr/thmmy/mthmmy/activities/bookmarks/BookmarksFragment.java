@@ -21,38 +21,53 @@ import java.util.ArrayList;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.model.Bookmark;
 
-/**
- * A {@link Fragment} subclass.
- * Use the {@link BookmarksBoardFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class BookmarksBoardFragment extends Fragment {
+public class BookmarksFragment extends Fragment {
+    enum Type {TOPIC, BOARD}
     private static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
-    private static final String ARG_BOARD_BOOKMARKS = "BOARD_BOOKMARKS";
+    private static final String ARG_BOOKMARKS = "BOOKMARKS";
+
+    static final String INTERACTION_CLICK_TOPIC_BOOKMARK = "CLICK_TOPIC_BOOKMARK";
+    static final String INTERACTION_TOGGLE_TOPIC_NOTIFICATION = "TOGGLE_TOPIC_NOTIFICATION";
+    static final String INTERACTION_REMOVE_TOPIC_BOOKMARK = "REMOVE_TOPIC_BOOKMARK";
 
     static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
     static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
     static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
 
-    private ArrayList<Bookmark> boardBookmarks = null;
+    private ArrayList<Bookmark> bookmarks = null;
+    private Type type;
+    private String interactionClick, interactionToggle, interactionRemove;
 
-    private static Drawable notificationsEnabledButtonImage;
-    private static Drawable notificationsDisabledButtonImage;
+    private Drawable notificationsEnabledButtonImage;
+    private Drawable notificationsDisabledButtonImage;
 
-    // Required empty public constructor
-    public BookmarksBoardFragment() { }
+    public BookmarksFragment() {/* Required empty public constructor */}
+
+    private BookmarksFragment(Type type) {
+        this.type=type;
+        if(type==Type.TOPIC){
+            this.interactionClick=INTERACTION_CLICK_TOPIC_BOOKMARK;
+            this.interactionToggle=INTERACTION_TOGGLE_TOPIC_NOTIFICATION;
+            this.interactionRemove=INTERACTION_REMOVE_TOPIC_BOOKMARK;
+        }
+        else if (type==Type.BOARD){
+            this.interactionClick=INTERACTION_CLICK_BOARD_BOOKMARK;
+            this.interactionToggle=INTERACTION_TOGGLE_BOARD_NOTIFICATION;
+            this.interactionRemove=INTERACTION_REMOVE_BOARD_BOOKMARK;
+        }
+    }
 
     /**
      * Use ONLY this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * the desired fragment using the provided parameters.
      *
      * @return A new instance of fragment Forum.
      */
-    public static BookmarksBoardFragment newInstance(int sectionNumber, String boardBookmarks) {
-        BookmarksBoardFragment fragment = new BookmarksBoardFragment();
+    protected static BookmarksFragment newInstance(int sectionNumber, String bookmarks, Type type) {
+        BookmarksFragment fragment = new BookmarksFragment(type);
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        args.putString(ARG_BOARD_BOOKMARKS, boardBookmarks);
+        args.putString(ARG_BOOKMARKS, bookmarks);
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,9 +76,9 @@ public class BookmarksBoardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            String bundledBoardBookmarks = getArguments().getString(ARG_BOARD_BOOKMARKS);
-            if (bundledBoardBookmarks != null) {
-                boardBookmarks = Bookmark.stringToArrayList(bundledBoardBookmarks);
+            String bundledBookmarks = getArguments().getString(ARG_BOOKMARKS);
+            if (bundledBookmarks != null) {
+                bookmarks = Bookmark.stringToArrayList(bundledBookmarks);
             }
         }
 
@@ -83,47 +98,45 @@ public class BookmarksBoardFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflates the layout for this fragment
         final View rootView = layoutInflater.inflate(R.layout.fragment_bookmarks, container, false);
-        //bookmarks_board_container
+        //bookmarks container
         final LinearLayout bookmarksLinearView = rootView.findViewById(R.id.bookmarks_container);
 
-        if(this.boardBookmarks != null && !this.boardBookmarks.isEmpty()) {
-            for (final Bookmark bookmarkedBoard : boardBookmarks) {
-                if (bookmarkedBoard != null && bookmarkedBoard.getTitle() != null) {
+        if(this.bookmarks != null && !this.bookmarks.isEmpty()) {
+            for (final Bookmark bookmark : bookmarks) {
+                if (bookmark != null && bookmark.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
                             R.layout.fragment_bookmarks_row, bookmarksLinearView, false);
                     row.setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarksActivity){
-                            ((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_CLICK_BOARD_BOOKMARK, bookmarkedBoard);
-                        }
+                        if (activity instanceof BookmarksActivity)
+                            ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionClick, bookmark);
                     });
-                    ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmarkedBoard.getTitle());
+                    ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmark.getTitle());
 
                     final ImageButton notificationsEnabledButton = row.findViewById(R.id.toggle_notification);
-                    if (!bookmarkedBoard.isNotificationsEnabled()) {
+                    if (!bookmark.isNotificationsEnabled()) {
                         notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
                     }
 
                     notificationsEnabledButton.setOnClickListener(view -> {
                         Activity activity = getActivity();
                         if (activity instanceof BookmarksActivity) {
-                            if (((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_TOGGLE_BOARD_NOTIFICATION, bookmarkedBoard)) {
+                            if (((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionToggle, bookmark))
                                 notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
-                            } else {
+                            else
                                 notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
-                            }
                         }
                     });
 
                     (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
                         Activity activity = getActivity();
                         if (activity instanceof BookmarksActivity){
-                            ((BookmarksActivity) activity).onBoardInteractionListener(INTERACTION_REMOVE_BOARD_BOOKMARK, bookmarkedBoard);
-                            boardBookmarks.remove(bookmarkedBoard);
+                            ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionRemove, bookmark);
+                            bookmarks.remove(bookmark);
                         }
                         row.setVisibility(View.GONE);
 
-                        if (boardBookmarks.isEmpty()){
+                        if (bookmarks.isEmpty()){
                             bookmarksLinearView.addView(bookmarksListEmptyMessage());
                         }
                     });
@@ -142,7 +155,11 @@ public class BookmarksBoardFragment extends Fragment {
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 12, 0, 0);
         emptyBookmarksCategory.setLayoutParams(params);
-        emptyBookmarksCategory.setText(getString(R.string.empty_board_bookmarks));
+        if(type==Type.TOPIC)
+            emptyBookmarksCategory.setText(getString(R.string.empty_topic_bookmarks));
+        else if(type==Type.BOARD)
+            emptyBookmarksCategory.setText(getString(R.string.empty_board_bookmarks));
+
         emptyBookmarksCategory.setTypeface(emptyBookmarksCategory.getTypeface(), Typeface.BOLD);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             emptyBookmarksCategory.setTextColor(this.getContext().getColor(R.color.primary_text));
@@ -153,4 +170,5 @@ public class BookmarksBoardFragment extends Fragment {
         emptyBookmarksCategory.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         return emptyBookmarksCategory;
     }
+
 }
