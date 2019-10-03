@@ -15,6 +15,7 @@ import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.utils.RelativeTimeTextView;
+import timber.log.Timber;
 
 
 /**
@@ -45,7 +46,13 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
         String dateTimeString = recentList.get(position).getDateTimeModified();
         if(BaseApplication.getInstance().isDisplayRelativeTimeEnabled())
-            holder.mDateTimeView.setReferenceTime(Long.valueOf(dateTimeString));
+            try{
+                holder.mDateTimeView.setReferenceTime(Long.valueOf(dateTimeString));
+            }
+            catch(NumberFormatException e){
+                Timber.e(e, "Invalid number format.");
+                holder.mDateTimeView.setText(dateTimeString);
+            }
         else
             holder.mDateTimeView.setText(dateTimeString);
 
