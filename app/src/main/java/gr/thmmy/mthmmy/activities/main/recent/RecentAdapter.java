@@ -50,7 +50,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
                 holder.mDateTimeView.setReferenceTime(Long.valueOf(dateTimeString));
             }
             catch(NumberFormatException e){
-                Timber.e(e, "Invalid number format.");
+                Timber.e(e, "Invalid number format: %s", dateTimeString);
                 holder.mDateTimeView.setText(dateTimeString);
             }
         else
