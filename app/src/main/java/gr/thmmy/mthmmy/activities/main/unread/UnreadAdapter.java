@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
+import gr.thmmy.mthmmy.utils.RelativeTimeTextView;
 
 class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<TopicSummary> unreadList;
@@ -65,19 +67,21 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             final UnreadAdapter.ViewHolder viewHolder = (UnreadAdapter.ViewHolder) holder;
 
             viewHolder.mTitleView.setText(unreadList.get(holder.getAdapterPosition()).getSubject());
-            viewHolder.mDateTimeView.setText(unreadList.get(holder.getAdapterPosition()).getDateTimeModified());
-            viewHolder.mUserView.setText(unreadList.get(position).getLastUser());
 
+            String dateTimeString=unreadList.get(holder.getAdapterPosition()).getDateTimeModified();
+            if(BaseApplication.getInstance().isDisplayRelativeTimeEnabled())
+                viewHolder.mDateTimeView.setReferenceTime(Long.valueOf(dateTimeString));
+            else
+                viewHolder.mDateTimeView.setText(dateTimeString);
+
+            viewHolder.mUserView.setText(unreadList.get(position).getLastUser());
             viewHolder.topic = unreadList.get(holder.getAdapterPosition());
 
-            viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != mListener) {
-                        // Notify the active callbacks interface (the activity, if the
-                        // fragment is attached to one) that an item has been selected.
-                        mListener.onUnreadFragmentInteraction(viewHolder.topic);  //?
-                    }
+            viewHolder.mView.setOnClickListener(v -> {
+                if (null != mListener) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that an item has been selected.
+                    mListener.onUnreadFragmentInteraction(viewHolder.topic);  //?
                 }
             });
         } else if (holder instanceof UnreadAdapter.MarkReadViewHolder) {
@@ -107,7 +111,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final View mView;
         final TextView mTitleView;
         final TextView mUserView;
-        final TextView mDateTimeView;
+        final RelativeTimeTextView mDateTimeView;
         public TopicSummary topic;
 
         ViewHolder(View view) {

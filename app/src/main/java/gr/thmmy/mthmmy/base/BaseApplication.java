@@ -49,6 +49,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import timber.log.Timber;
 
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
+
 public class BaseApplication extends Application {
     private static BaseApplication baseApplication; //BaseApplication singleton
 
@@ -59,6 +61,8 @@ public class BaseApplication extends Application {
     //Client & SessionManager
     private OkHttpClient client;
     private SessionManager sessionManager;
+
+    private boolean displayRelativeTime;
 
     //TODO: maybe use PreferenceManager.getDefaultSharedPreferences here as well?
     private static final String SHARED_PREFS = "ThmmySharedPrefs";
@@ -104,12 +108,11 @@ public class BaseApplication extends Application {
                 .addInterceptor(chain -> {
                     Request request = chain.request();
                     HttpUrl oldUrl = chain.request().url();
-                    if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")) {
-                        if (!oldUrl.toString().contains("theme=4")) {
+                    if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")
+                            && !oldUrl.toString().contains("theme=4")) {
                             //Probably works but needs more testing:
                             HttpUrl newUrl = oldUrl.newBuilder().addQueryParameter("theme", "4").build();
                             request = request.newBuilder().url(newUrl).build();
-                        }
                     }
                     return chain.proceed(request);
                 })
@@ -173,6 +176,8 @@ public class BaseApplication extends Application {
 
         DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
         dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
+        displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, false);
     }
 
     //Getters
@@ -192,6 +197,9 @@ public class BaseApplication extends Application {
         return dpWidth;
     }
 
+    public boolean isDisplayRelativeTimeEnabled() {
+        return displayRelativeTime;
+    }
 
     //--------------------Firebase--------------------
 

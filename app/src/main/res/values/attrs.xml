@@ -3,4 +3,7 @@
     <declare-styleable name="EditorView" >
         <attr name="hint" format="string" />
     </declare-styleable>
+    <declare-styleable name="RelativeTimeTextView">
+        <attr name="reference_time" format="string" />
+    </declare-styleable>
 </resources>

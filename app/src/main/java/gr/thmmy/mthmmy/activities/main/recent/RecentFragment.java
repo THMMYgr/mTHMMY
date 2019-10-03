@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,9 @@ import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
 import timber.log.Timber;
+
+import static gr.thmmy.mthmmy.utils.DateTimeUtils.convertDateTime;
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
 
 
 /**
@@ -100,7 +104,7 @@ public class RecentFragment extends BaseFragment {
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = rootView.findViewById(R.id.progressBar);
-            recentAdapter = new RecentAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
+            recentAdapter = new RecentAdapter(topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -186,18 +190,19 @@ public class RecentFragment extends BaseFragment {
                     String dateTime = recent.get(i + 2).text();
                     pattern = Pattern.compile("\\[(.*)]");
                     matcher = pattern.matcher(dateTime);
-                    if (matcher.find()) {
+                    if (matcher.find()){
                         dateTime = matcher.group(1);
-                        if (dateTime.contains(" am") || dateTime.contains(" pm") ||
-                                dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
-                            dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
-                        } else {
-                            dateTime = dateTime.substring(0, dateTime.lastIndexOf(":"));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                                && BaseApplication.getInstance().isDisplayRelativeTimeEnabled())  {
+                            dateTime=convertDateTime(dateTime, false);
+                            String timestamp = convertToTimestamp(dateTime);
+                            if(timestamp!=null)
+                                dateTime=timestamp;
                         }
-                        if (!dateTime.contains(",")) {
-                            dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
-                        }
-                    } else
+                        else
+                            dateTime=convertDateTime(dateTime, true);
+                    }
+                    else
                         throw new ParseException("Parsing failed (dateTime)");
 
                     fetchedRecent.add(new TopicSummary(link, title, lastUser, dateTime));

@@ -90,6 +90,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     implementation 'org.jsoup:jsoup:1.10.3' //TODO: Warning: upgrading from 1.10.3 will break stuff!
+    implementation 'joda-time:joda-time:2.10.4'
     implementation 'com.github.franmontiel:PersistentCookieJar:1.0.1'
     implementation 'com.github.PhilJay:MPAndroidChart:3.0.3'
     implementation 'com.mikepenz:materialdrawer:6.1.1'

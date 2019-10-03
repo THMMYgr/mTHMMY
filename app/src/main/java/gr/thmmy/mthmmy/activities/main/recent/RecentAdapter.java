@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
+import gr.thmmy.mthmmy.utils.RelativeTimeTextView;
 
 
 /**
@@ -21,12 +22,10 @@ import gr.thmmy.mthmmy.model.TopicSummary;
  * specified {@link RecentFragment.RecentFragmentInteractionListener}.
  */
 class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
-    private final Context context;
     private final List<TopicSummary> recentList;
     private final RecentFragment.RecentFragmentInteractionListener mListener;
 
-    RecentAdapter(Context context, @NonNull List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
-        this.context = context;
+    RecentAdapter(@NonNull List<TopicSummary> topicSummaryList, BaseFragment.FragmentInteractionListener listener) {
         this.recentList = topicSummaryList;
         mListener = (RecentFragment.RecentFragmentInteractionListener) listener;
     }
@@ -43,22 +42,21 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mTitleView.setText(recentList.get(position).getSubject());
-        holder.mDateTimeView.setText(recentList.get(position).getDateTimeModified());
-        holder.mUserView.setText(recentList.get(position).getLastUser());
 
+        String dateTimeString = recentList.get(position).getDateTimeModified();
+        if(BaseApplication.getInstance().isDisplayRelativeTimeEnabled())
+            holder.mDateTimeView.setReferenceTime(Long.valueOf(dateTimeString));
+        else
+            holder.mDateTimeView.setText(dateTimeString);
+
+        holder.mUserView.setText(recentList.get(position).getLastUser());
         holder.topic = recentList.get(position);
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onRecentFragmentInteraction(holder.topic);  //?
-
-                }
-
+        holder.mView.setOnClickListener(v -> {
+            if (null != mListener) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                mListener.onRecentFragmentInteraction(holder.topic);  //?
             }
         });
     }
@@ -72,7 +70,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
         final View mView;
         final TextView mTitleView;
         final TextView mUserView;
-        final TextView mDateTimeView;
+        final RelativeTimeTextView mDateTimeView;
         public TopicSummary topic;
 
         ViewHolder(View view) {
