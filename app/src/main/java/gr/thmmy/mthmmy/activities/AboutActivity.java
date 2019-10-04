@@ -39,6 +39,7 @@ public class AboutActivity extends BaseActivity {
     private AlertDialog alertDialog;
     private FrameLayout easterEggImage;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,29 +135,33 @@ public class AboutActivity extends BaseActivity {
             hideEasterEgg();
     }
 
-    public void displayApacheLibraries(View v) {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        WebView webView = (WebView) inflater.inflate(R.layout.dialog_licenses, coordinatorLayout, false);
-        webView.loadUrl("file:///android_asset/apache_libraries.html");
-        int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
-        int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.95);
-        alertDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dark_Dialog)
-                .setTitle(getString(R.string.apache_v2_0_libraries))
-                .setView(webView)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
-        if(alertDialog.getWindow()!=null)
-            alertDialog.getWindow().setLayout(width, height);
-    }
+    public void displayLibraries(View v) {
+        String libraryType = v.getTag().toString();
+        String title="", fileUrl="";
+        switch(libraryType) {
+            case "APACHE":
+                title=getString(R.string.apache_v2_0_libraries);
+                fileUrl="file:///android_asset/apache_libraries.html";
+                break;
+            case "MIT":
+                title=getString(R.string.the_mit_libraries);
+                fileUrl="file:///android_asset/mit_libraries.html";
+                break;
+            case "EPL":
+                title=getString(R.string.epl_libraries);
+                fileUrl="file:///android_asset/epl_libraries.html";
+                break;
+            default:
+                break;
+        }
 
-    public void displayMITLibraries(View v) {
         LayoutInflater inflater = LayoutInflater.from(this);
         WebView webView = (WebView) inflater.inflate(R.layout.dialog_licenses, coordinatorLayout, false);
-        webView.loadUrl("file:///android_asset/mit_libraries.html");
+        webView.loadUrl(fileUrl);
         int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
         int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.95);
         alertDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dark_Dialog)
-                .setTitle(getString(R.string.the_mit_libraries))
+                .setTitle(title)
                 .setView(webView)
                 .setPositiveButton(android.R.string.ok, null)
                 .show();

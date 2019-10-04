@@ -104,6 +104,11 @@ dependencies {
     implementation 'net.gotev:uploadservice:3.5.2'
     implementation 'net.gotev:uploadservice-okhttp:3.4.2' //TODO: Warning: v.3.5 depends on okhttp 3.13!
     implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.5' //Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.powermock:powermock-core:2.0.2'
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
+    testImplementation 'net.lachlanmckee:timber-junit-rule:1.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
