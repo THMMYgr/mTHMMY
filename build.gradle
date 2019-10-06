@@ -3,13 +3,13 @@ apply plugin: "com.github.ben-manes.versions"
 
 buildscript {
     repositories {
-        maven { url "https://jitpack.io" }
         maven { url "https://maven.fabric.io/public" }
         google()
         jcenter()
+        maven { url "https://jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.5.1'
         classpath 'com.google.gms:google-services:4.3.2'
         classpath 'io.fabric.tools:gradle:1.29.0'
         classpath 'org.ajoberstar.grgit:grgit-core:3.1.1' // Also change in app/gradle/grgit.gradle
@@ -19,9 +19,9 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url "https://jitpack.io" }
         maven { url "https://maven.google.com" }
         jcenter()
+        maven { url "https://jitpack.io" }
     }
 }
 
