@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.utils;
 
+import androidx.annotation.VisibleForTesting;
+
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.HOUR_IN_MILLIS;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
@@ -20,38 +22,55 @@ public class DateTimeUtils {
         return dateTime;
     }
 
-    private static final long MONTH_IN_MILLIS = DAY_IN_MILLIS*30;
-    private static final long DECADE_IN_MILLIS = YEAR_IN_MILLIS*10;
+    private static final long MONTH_IN_MILLIS = 30*DAY_IN_MILLIS;
+    private static final long DECADE_IN_MILLIS = 10*YEAR_IN_MILLIS;
 
-    static CharSequence getRelativeTimeSpanString(long time, long now, long minResolution) {
+    @VisibleForTesting
+    static String getRelativeTimeSpanString(long time) {
+        long now = System.currentTimeMillis();
+
         boolean past = (now >= time);
         long duration = Math.abs(now - time);
         String format;
-        long count;
-        if (duration < MINUTE_IN_MILLIS && minResolution < MINUTE_IN_MILLIS) {
-            count = duration / SECOND_IN_MILLIS;
-            format = "%d sec";
-        } else if (duration < HOUR_IN_MILLIS && minResolution < HOUR_IN_MILLIS) {
-            count = duration / MINUTE_IN_MILLIS;
-            format = "%d min";
-        } else if (duration < DAY_IN_MILLIS && minResolution < DAY_IN_MILLIS) {
-            count = duration / HOUR_IN_MILLIS;
-            format = "%d hour";
-            if(count>1)
-                format = format + 's';
-        } else if (duration < MONTH_IN_MILLIS && minResolution < MONTH_IN_MILLIS) {
-            count = duration / DAY_IN_MILLIS;
+        long count, mod;
+        if(duration < 45*SECOND_IN_MILLIS)
+            return "just now";
+        else if (duration < 45*MINUTE_IN_MILLIS) {
+            count = duration/MINUTE_IN_MILLIS;
+            mod = duration % MINUTE_IN_MILLIS;
+            if(mod >= 30*SECOND_IN_MILLIS)
+                count += 1;
+            format = "%dm";
+        } else if (duration < 22*HOUR_IN_MILLIS) {
+            count = duration/HOUR_IN_MILLIS;
+            format = "%dh";
+            mod = (duration%HOUR_IN_MILLIS)/MINUTE_IN_MILLIS;
+            if(count<4 && mod>10 && mod<50)
+                format = format + mod +"m";
+            else if(mod >= 30)
+                count += 1;
+        } else if (duration < 26*DAY_IN_MILLIS) {
+            count = duration/DAY_IN_MILLIS;
             format = "%d day";
+            mod = duration % DAY_IN_MILLIS;
+            if(mod >= 12*HOUR_IN_MILLIS)
+                count += 1;
             if(count>1)
                 format = format + 's';
-        } else if (duration < YEAR_IN_MILLIS && minResolution < YEAR_IN_MILLIS) {
-            count = duration / MONTH_IN_MILLIS;
+        } else if (duration < 320*DAY_IN_MILLIS) {
+            count = duration/MONTH_IN_MILLIS;
             format = "%d month";
+            mod = duration % MONTH_IN_MILLIS;
+            if(mod >= 15*DAY_IN_MILLIS)
+                count += 1;
             if(count>1)
                 format = format + 's';
-        } else if (duration < DECADE_IN_MILLIS && minResolution < DECADE_IN_MILLIS) {
-            count = duration / YEAR_IN_MILLIS;
+        } else if (duration < DECADE_IN_MILLIS) {
+            count = duration/YEAR_IN_MILLIS;
             format = "%d year";
+            mod = duration % YEAR_IN_MILLIS;
+            if(mod >= 183*DAY_IN_MILLIS)
+                count += 1;
             if(count>1)
                 format = format + 's';
         }

@@ -75,7 +75,7 @@ public class ThmmyDateTimeParserTest {
     };
 
     @Test
-    public void todayDateTimeDontConvertToNull() {
+    public void todayDateTimeConvertToNonNull() {
         stub(method(ThmmyDateTimeParser.class, GET_DTZ)).toReturn(DateTimeZone.forID(TIME_ZONE));
 
         for (String todayDateTime : todayDateTimes)

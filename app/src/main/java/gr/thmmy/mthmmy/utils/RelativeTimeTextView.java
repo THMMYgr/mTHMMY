@@ -100,24 +100,7 @@ public class RelativeTimeTextView extends TextView {
          */
         if (this.mReferenceTime == -1L)
             return;
-        setText(getRelativeTimeDisplayString(mReferenceTime, System.currentTimeMillis()));
-    }
-
-    /**
-     * Get the text to display for relative time.
-     * <br/>
-     * @param referenceTime The reference time passed in through {@link #setReferenceTime(long)} or through {@code reference_time} attribute
-     * @param now The current time
-     * @return The display text for the relative time
-     */
-    protected CharSequence getRelativeTimeDisplayString(long referenceTime, long now) {
-        long difference = now - referenceTime;
-        return (difference >= 0 &&  difference<=DateUtils.MINUTE_IN_MILLIS) ?
-                "just now" :
-                getRelativeTimeSpanString(
-                        mReferenceTime,
-                        now,
-                        DateUtils.MINUTE_IN_MILLIS);
+        setText(getRelativeTimeSpanString(mReferenceTime));
     }
 
     @Override
