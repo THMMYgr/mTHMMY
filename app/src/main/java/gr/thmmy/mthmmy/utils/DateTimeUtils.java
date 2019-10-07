@@ -8,19 +8,7 @@ import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.SECOND_IN_MILLIS;
 import static android.text.format.DateUtils.YEAR_IN_MILLIS;
 
-public class DateTimeUtils {
-    //TODO: move this function to ThmmyDateTimeParser class once KitKat support is dropped
-    public static String convertDateTime(String dateTime, boolean removeSeconds){
-        //Convert e.g. Today at 12:16:48 -> 12:16:48, but October 03, 2019, 16:40:18 remains as is
-        if (!dateTime.contains(","))
-            dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
-
-        //Remove seconds
-        if(removeSeconds)
-            dateTime = dateTime.replaceAll("(.+?)(:[0-5][0-9])($|\\s)", "$1$3");
-
-        return dateTime;
-    }
+class DateTimeUtils {
 
     private static final long MONTH_IN_MILLIS = 30*DAY_IN_MILLIS;
     private static final long DECADE_IN_MILLIS = 10*YEAR_IN_MILLIS;

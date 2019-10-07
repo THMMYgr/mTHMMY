@@ -38,7 +38,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.utils.DateTimeUtils.convertDateTime;
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertDateTime;
 import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
 
 /**
@@ -220,8 +220,7 @@ public class UnreadFragment extends BaseFragment {
                     dateTime = dateTime.replace("<b>", "");
                     dateTime = dateTime.replace("</b>", "");
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                            && BaseApplication.getInstance().isDisplayRelativeTimeEnabled())  {
+                    if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled())  {
                         dateTime=convertDateTime(dateTime, false);
                         String timestamp = convertToTimestamp(dateTime);
                         if(timestamp!=null)

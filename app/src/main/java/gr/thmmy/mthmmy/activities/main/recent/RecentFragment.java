@@ -35,7 +35,7 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.utils.DateTimeUtils.convertDateTime;
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertDateTime;
 import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
 
 
@@ -192,8 +192,7 @@ public class RecentFragment extends BaseFragment {
                     matcher = pattern.matcher(dateTime);
                     if (matcher.find()){
                         dateTime = matcher.group(1);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                                && BaseApplication.getInstance().isDisplayRelativeTimeEnabled())  {
+                        if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled())  {
                             dateTime=convertDateTime(dateTime, false);
                             String timestamp = convertToTimestamp(dateTime);
                             if(timestamp!=null)

@@ -1,8 +1,5 @@
 package gr.thmmy.mthmmy.utils.parsing;
 
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 
 import org.joda.time.DateTime;
@@ -21,7 +18,6 @@ import java.util.regex.Pattern;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
 
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ThmmyDateTimeParser {
     private static final DateTimeParser[] parsers = {
             DateTimeFormat.forPattern("HH:mm:ss").getParser(),
@@ -38,8 +34,9 @@ public class ThmmyDateTimeParser {
             .append(null, parsers)
             .toFormatter();
 
-    private static final Locale greekLocale = Locale.forLanguageTag("el-GR");
-    private static final Locale englishLocale = Locale.forLanguageTag("en-US");
+    //TODO: Replace with Locale.forLanguageTag() (with "el-GR","en-US") when KitKat support is dropped
+    private static final Locale greekLocale = new Locale("el", "GR");
+    private static final Locale englishLocale = new Locale("en", "US");
 
     private static final Pattern pattern = Pattern.compile("\\s(1[3-9]|2[0-3]:)");
 
@@ -82,6 +79,18 @@ public class ThmmyDateTimeParser {
         Timber.d("DateTime %s was converted to %s, or %s", originalDateTime, timestamp, dateTime.toString());
 
         return timestamp;
+    }
+
+    public static String convertDateTime(String dateTime, boolean removeSeconds){
+        //Convert e.g. Today at 12:16:48 -> 12:16:48, but October 03, 2019, 16:40:18 remains as is
+        if (!dateTime.contains(","))
+            dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
+
+        //Remove seconds
+        if(removeSeconds)
+            dateTime = dateTime.replaceAll("(.+?)(:[0-5][0-9])($|\\s)", "$1$3");
+
+        return dateTime;
     }
 
     @VisibleForTesting
