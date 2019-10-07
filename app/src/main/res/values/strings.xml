@@ -231,6 +231,5 @@
     <!-- New topic activity -->
     <string name="new_topic_toolbar">New topic</string>
     <string name="create_topic">Create topic</string>
-    <string name="url_copied_msg">Url copied</string>
-    <string name="url_copy_does_not_work_msg">There was a problem copying the url. Probably your device does not support this functionality</string>
+    <string name="url_copied_msg">URL copied</string>
 </resources>

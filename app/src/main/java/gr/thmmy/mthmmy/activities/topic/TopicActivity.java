@@ -798,58 +798,30 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         });
     }
 
-
-
     /**This method sets a long click listener on the title of the topic. Once the
      * listener gets triggered, it copies the link url of the topic in the clipboard.
      * This method is getting called on the onCreate() of the TopicActivity*/
-    void setToolbarOnLongClickListener(String url)
-    {
+    void setToolbarOnLongClickListener(String url) {
+        toolbar.setOnLongClickListener(view -> {
+            //Try to set the clipboard text
+            try {
+                //Create a ClipboardManager
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
-        toolbar.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
+                clipboard.setPrimaryClip(ClipData.newPlainText(BUNDLE_TOPIC_URL, url));
 
-
-                //TRy to set the clipboard text.
-                try
-                {
-                    //Create a ClipboardManager.
-                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-
-                    clipboard.setPrimaryClip(ClipData.newPlainText(BUNDLE_TOPIC_URL, url));
-
-                    //Make a toast to inform the user that the url was copied.
-                    Toast.makeText(
-                            TopicActivity.this,
-                            TopicActivity.this.getString(R.string.url_copied_msg),
-                            Toast.LENGTH_SHORT).show();
-                }
-
-
-                //Something happened. Probably the device does not support this.
-                catch (NullPointerException e)
-                {
-                    //Create a new dialog builder.
-                    AlertDialog.Builder builder = new AlertDialog.Builder(TopicActivity.this);
-
-                    //Set UP the alert dialog.
-                    builder.setMessage(getString(R.string.url_copy_does_not_work_msg));
-                    builder.setTitle("ERROR");
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
-                        }
-                    });
-
-                    //Create and show the alert dialog.
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
-
-                return true;
+                //Make a toast to inform the user that the url was copied
+                Toast.makeText(
+                        TopicActivity.this,
+                        TopicActivity.this.getString(R.string.url_copied_msg),
+                        Toast.LENGTH_SHORT).show();
             }
+            //Something happened. Probably the device does not support this (report to Firebase)
+            catch (NullPointerException e) {
+                Timber.e(e, "Error while trying to copy topic's url.");
+            }
+
+            return true;
         });
     }
 }
