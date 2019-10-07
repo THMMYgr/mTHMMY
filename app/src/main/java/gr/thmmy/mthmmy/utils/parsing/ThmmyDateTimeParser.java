@@ -52,7 +52,8 @@ public class ThmmyDateTimeParser {
             thmmyDateTime = (new DateTime()).toString("MMMM d, Y, ") + thmmyDateTime;
 
         //Don't even ask
-        thmmyDateTime = thmmyDateTime.replaceAll("\\s00:"," 12:");
+        if(thmmyDateTime.contains("am"))
+            thmmyDateTime = thmmyDateTime.replaceAll("\\s00:"," 12:");
 
         // For the stupid format 23:54:12 pm
         Matcher matcher = pattern.matcher(thmmyDateTime);
@@ -77,7 +78,10 @@ public class ThmmyDateTimeParser {
                 return null;
             }
         }
-        return Long.toString(dateTime.getMillis());
+        String timestamp = Long.toString(dateTime.getMillis());
+        Timber.d("DateTime %s was converted to %s, or %s", originalDateTime, timestamp, dateTime.toString());
+
+        return timestamp;
     }
 
     @VisibleForTesting

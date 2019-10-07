@@ -45,8 +45,12 @@ public class DateTimeUtils {
             count = duration/HOUR_IN_MILLIS;
             format = "%dh";
             mod = (duration%HOUR_IN_MILLIS)/MINUTE_IN_MILLIS;
-            if(count<4 && mod>10 && mod<50)
-                format = format + mod +"m";
+            if(count<3 && mod>9 && mod<51){
+                if(count==0)
+                    format = mod +"m";
+                else
+                    format = format + " " + mod +"m";
+            }
             else if(mod >= 30)
                 count += 1;
         } else if (duration < 26*DAY_IN_MILLIS) {

@@ -69,6 +69,7 @@ public class ThmmyDateTimeParserTest {
 
     private final String [] todayDateTimes = {
         "10:10:10",
+        "00:58:07",
         "23:23:23",
         "09:09:09 am",
         "09:09:09 pm"
