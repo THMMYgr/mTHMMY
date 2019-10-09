@@ -133,6 +133,9 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity" />
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".activities.settings.SettingsActivity"
@@ -168,6 +171,14 @@
             <intent-filter>
                 <action android:name="gr.thmmy.mthmmy.uploadservice.broadcast.status" />
             </intent-filter>
+        </receiver>
+
+        <receiver android:name=".activities.widget.WidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
         </receiver>
 
         <activity

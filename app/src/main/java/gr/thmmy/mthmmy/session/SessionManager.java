@@ -39,6 +39,8 @@ public class SessionManager {
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
     public static final HttpUrl unreadUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=unread;all;start=0;theme=4");
     public static final HttpUrl shoutboxUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=tpmod;sa=shoutbox;theme=4");
+    public static final HttpUrl topicUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?topic=");
+    public static final HttpUrl boardUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?board=");
     private static final String guestName = "Guest";
 
     //Response Codes

@@ -70,15 +70,15 @@ public class Bookmark implements java.io.Serializable {
 
     @Nullable
     public static String arrayListToString(@NonNull ArrayList<Bookmark> arrayList) {
-        String returnString = "";
+        StringBuilder returnString = new StringBuilder();
         for (Bookmark bookmark : arrayList) {
             if (bookmark != null) {
-                returnString += (bookmark.getId() + "\t");
-                returnString += (bookmark.getTitle() + "\t");
-                returnString += (bookmark.isNotificationsEnabled() + "\n");
+                returnString.append(bookmark.getId()).append("\t");
+                returnString.append(bookmark.getTitle()).append("\t");
+                returnString.append(bookmark.isNotificationsEnabled()).append("\n");
             }
         }
-        if (!Objects.equals(returnString, "")) return returnString;
+        if (!Objects.equals(returnString.toString(), "")) return returnString.toString();
         else return null;
     }
 
