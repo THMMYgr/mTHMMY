@@ -156,11 +156,11 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
     private String buildTitle() {
         switch (typeRadio.getCheckedRadioButtonId()) {
             case R.id.upload_fields_builder_radio_button_exams:
-                return "[" + courseMinifiedName + "] - " + "Θέματα εξετάσεων " + getPeriod() + " " + year.getText().toString();
+                return "[" + courseMinifiedName + "] " + "Θέματα εξετάσεων " + getPeriod() + " " + year.getText().toString();
             case R.id.upload_fields_builder_radio_button_exam_solutions:
-                return "[" + courseMinifiedName + "] - " + "Λύσεις θεμάτων " + getPeriod() + " " + year.getText().toString();
+                return "[" + courseMinifiedName + "] " + "Λύσεις θεμάτων " + getPeriod() + " " + year.getText().toString();
             case R.id.upload_fields_builder_radio_button_notes:
-                return "[" + courseMinifiedName + "] - " + "Σημειώσεις παραδόσεων " + year.getText().toString();
+                return "[" + courseMinifiedName + "] " + "Σημειώσεις παραδόσεων " + year.getText().toString();
             default:
                 return null;
         }
