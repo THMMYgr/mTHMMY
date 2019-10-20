@@ -20,11 +20,10 @@ import timber.log.Timber;
 
 public class ThmmyDateTimeParser {
     private static final DateTimeParser[] parsers = {
-            DateTimeFormat.forPattern("HH:mm:ss").getParser(),
             DateTimeFormat.forPattern("hh:mm:ss a").getParser(),
-            DateTimeFormat.forPattern("MMMM d, Y, HH:mm:ss").getParser(),
+            DateTimeFormat.forPattern("HH:mm:ss").getParser(),
             DateTimeFormat.forPattern("MMMM d, Y, hh:mm:ss a").getParser(),
-            DateTimeFormat.forPattern("d MMMM Y, HH:mm:ss").getParser(),
+            DateTimeFormat.forPattern("MMMM d, Y, HH:mm:ss").getParser(),
             DateTimeFormat.forPattern("d MMMM Y, HH:mm:ss").getParser(),
             DateTimeFormat.forPattern("Y-M-d, HH:mm:ss").getParser(),
             DateTimeFormat.forPattern("d-M-Y, HH:mm:ss").getParser()
@@ -38,9 +37,12 @@ public class ThmmyDateTimeParser {
     private static final Locale greekLocale = new Locale("el", "GR");
     private static final Locale englishLocale = new Locale("en", "US");
 
-    private static final Pattern pattern = Pattern.compile("\\s(1[3-9]|2[0-3]:)");
+    private static final Pattern pattern = Pattern.compile("\\s((1[3-9]|2[0-3]):)");
+
+    private ThmmyDateTimeParser(){}
 
     public static String convertToTimestamp(String thmmyDateTime){
+        Timber.d("Will attempt to convert %s to timestamp.", thmmyDateTime);
         String originalDateTime = thmmyDateTime;
         DateTimeZone dtz = getDtz();
 
@@ -67,6 +69,7 @@ public class ThmmyDateTimeParser {
                 DateFormatSymbols dfs = DateTimeUtils.getDateFormatSymbols(greekLocale);
                 thmmyDateTime = thmmyDateTime.replace("am",dfs.getAmPmStrings()[0]);
                 thmmyDateTime = thmmyDateTime.replace("pm",dfs.getAmPmStrings()[1]);
+                Timber.d("Attempting to parse DateTime %s using Greek Locale...", thmmyDateTime);
                 dateTime=formatter.withZone(dtz).withLocale(greekLocale).parseDateTime(thmmyDateTime);
             }
             catch (IllegalArgumentException e2){

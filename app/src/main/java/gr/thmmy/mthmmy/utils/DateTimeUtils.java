@@ -43,12 +43,10 @@ class DateTimeUtils {
                 count += 1;
         } else if (duration < 26*DAY_IN_MILLIS) {
             count = duration/DAY_IN_MILLIS;
-            format = "%d day";
+            format = "%dd";
             mod = duration % DAY_IN_MILLIS;
             if(mod >= 12*HOUR_IN_MILLIS)
                 count += 1;
-            if(count>1)
-                format = format + 's';
         } else if (duration < 320*DAY_IN_MILLIS) {
             count = duration/MONTH_IN_MILLIS;
             format = "%d month";
