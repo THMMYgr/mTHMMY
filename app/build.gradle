@@ -29,6 +29,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
+            multiDexEnabled true
             def date = new Date().format('ddMMyy_HHmmss')
             archivesBaseName = archivesBaseName + "-$date"
             // Disable fabric build ID generation for debug builds
@@ -72,6 +73,7 @@ tasks.whenTaskAdded { task ->
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(":emojis")
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.preference:preference:1.1.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
