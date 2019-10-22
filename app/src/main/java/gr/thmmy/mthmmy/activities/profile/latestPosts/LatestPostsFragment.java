@@ -25,6 +25,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
@@ -176,13 +177,9 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
         }
 
         protected void onPostExecute(Boolean result) {
-            if (!result) { //Parse failed!
-                Timber.d("Parse failed!");
-                Toast.makeText(getContext()
-                        , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
-                getActivity().finish();
-            }
-            //Parse was successful
+            if (Boolean.FALSE.equals(result))
+                Timber.e(new ParseException("Parsing failed(latest posts)"),"ParseException");
+
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             latestPostsAdapter.notifyDataSetChanged();
             isLoadingMore = false;
