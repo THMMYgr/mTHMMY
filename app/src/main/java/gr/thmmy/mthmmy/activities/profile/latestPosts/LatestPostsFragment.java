@@ -8,6 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,9 +21,6 @@ import java.util.ArrayList;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseFragment;

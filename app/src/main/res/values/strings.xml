@@ -15,7 +15,7 @@
     <string name="inbox">Inbox</string>
     <string name="info">Info</string>
     <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">"Cancel"</string>
     <string name="user_agreement_dialog_text">"To use mTHMMY you have to agree to our Privacy Policy by choosing one of the options below. Choose \"Yes, I want to help\", if you consent to the collection of anonymized data that will help us improve the app. Otherwise, choose \"Nope, leave me alone\". You can change your preferences any time through the app's Settings.</string>
     <string name="user_consent_shared_preference_key">user_consent_shared_preference_key</string>
 
@@ -133,12 +133,22 @@
     <string name="upload_button">Upload</string>
 
     <!--Upload Activity-->
-    <string name="upload_title_description_builder">Generate title and description</string>
+    <string name="upload_title_description_builder">Generate fields</string>
     <string name="upload_title_hint">Title</string>
+    <string name="upload_filename">Upload as (filename)</string>
     <string name="upload_description_hint">Description</string>
-    <string name="upload_select_file">Select file</string>
+    <string name="upload_select_file">Add files</string>
     <string name="upload_take_photo">Take photo</string>
     <string name="upload_spinners_hint">Select a category</string>
+    <string name="upload_filename_info">Please follow the filename rules as\ndescribed
+        in&#160;<a href="https://www.thmmy.gr/smf/index.php?topic=34294.0">this topic</a>.\n
+        \nThis does not rename your local files.</string>
+    <string name="upload_progress_dialog_title">Uploading</string>
+    <string name="upload_progress_dialog_bytes_uploaded">Uploading: %1$.2f Kbit/s, %2$d/%3$d KBytes</string>
+    <string name="upload_failed">"Upload failed"</string>
+    <string name="upload_cancelled">"Upload canceled"</string>
+    <string name="upload_resume_in_background">"Resume in background"</string>
+    <string name="upload_retry">"Retry"</string>
 
     <!--Upload Fields Builder Activity-->
     <string name="upload_fields_builder_type_radio_buttons_title">Select type of upload</string>

@@ -13,6 +13,8 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,7 +23,6 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import androidx.fragment.app.Fragment;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
@@ -144,7 +145,7 @@ public class SummaryFragment extends Fragment {
                         || summaryRow.text().contains("Κατάσταση")) continue;
                 else if (rowText.contains("Signature") || rowText.contains("Υπογραφή")) {
                     //This needs special handling since it may have css
-                    pHtml = ParseHelpers.youtubeEmbeddedFix(summaryRow);
+                    pHtml = ParseHelpers.emojiTagToHtml(ParseHelpers.youtubeEmbeddedFix(summaryRow));
                     //Add stuff to make it work in WebView
                     //style.css
                     pHtml = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +

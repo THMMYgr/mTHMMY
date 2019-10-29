@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 
@@ -60,22 +61,24 @@ public class Posting {
         String finalUrl = response.request().url().toString();
         if (finalUrl.contains("action=post")) {
             Document postErrorPage = Jsoup.parse(response.body().string());
-            String[] errors = postErrorPage.select("tr[id=errors] div[id=error_list]").first()
-                    .toString().split("<br>");
-            for (int i = 0; i < errors.length; ++i) { //TODO test
-                Timber.d(String.valueOf(i));
-                Timber.d(errors[i]);
-            }
-            for (String error : errors) {
-                if (error.contains("Your session timed out while posting") ||
-                        error.contains("Υπερβήκατε τον μέγιστο χρόνο σύνδεσης κατά την αποστολή"))
-                    return REPLY_STATUS.SESSION_ENDED;
-                if (error.contains("No subject was filled in")
-                        || error.contains("Δεν δόθηκε τίτλος"))
-                    return REPLY_STATUS.NO_SUBJECT;
-                if (error.contains("The message body was left empty")
-                        || error.contains("Δεν δόθηκε κείμενο για το μήνυμα"))
-                    return REPLY_STATUS.EMPTY_BODY;
+            Element errorsElement = postErrorPage.select("tr[id=errors] div[id=error_list]").first();
+            if(errorsElement!=null){
+                String[] errors = errorsElement.toString().split("<br>");
+                for (int i = 0; i < errors.length; ++i) { //TODO test
+                    Timber.d(String.valueOf(i));
+                    Timber.d(errors[i]);
+                }
+                for (String error : errors) {
+                    if (error.contains("Your session timed out while posting") ||
+                            error.contains("Υπερβήκατε τον μέγιστο χρόνο σύνδεσης κατά την αποστολή"))
+                        return REPLY_STATUS.SESSION_ENDED;
+                    if (error.contains("No subject was filled in")
+                            || error.contains("Δεν δόθηκε τίτλος"))
+                        return REPLY_STATUS.NO_SUBJECT;
+                    if (error.contains("The message body was left empty")
+                            || error.contains("Δεν δόθηκε κείμενο για το μήνυμα"))
+                        return REPLY_STATUS.EMPTY_BODY;
+                }
             }
             return REPLY_STATUS.NEW_REPLY_WHILE_POSTING;
         }

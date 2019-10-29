@@ -38,6 +38,7 @@ public class EditTask extends AsyncTask<String, Void, Boolean> {
                 .addFormDataPart("sc", strings[4])
                 .addFormDataPart("subject", strings[5])
                 .addFormDataPart("topic", strings[6])
+                .addFormDataPart("icon", strings[7])
                 .build();
         Request post = new Request.Builder()
                 .url(strings[0])

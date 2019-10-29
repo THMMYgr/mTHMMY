@@ -61,6 +61,7 @@ public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
                     .addFormDataPart("sc", sc)
                     .addFormDataPart("subject", strings[1])
                     .addFormDataPart("topic", topic)
+                    .addFormDataPart("icon", "xx")
                     .build();
 
             Request post = new Request.Builder()

@@ -10,11 +10,15 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
+import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
+
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.jakewharton.picasso.OkHttp3Downloader;
@@ -33,8 +37,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import androidx.core.content.ContextCompat;
-import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -50,7 +52,8 @@ import timber.log.Timber;
 public class BaseApplication extends Application {
     private static BaseApplication baseApplication; //BaseApplication singleton
 
-    //Firebase Analytics
+    //Firebase
+    private static String firebaseProjectId;
     private FirebaseAnalytics firebaseAnalytics;
 
     //Client & SessionManager
@@ -62,7 +65,6 @@ public class BaseApplication extends Application {
 
     //Display Metrics
     private static float dpWidth;
-
     public static BaseApplication getInstance() {
         return baseApplication;
     }
@@ -86,6 +88,7 @@ public class BaseApplication extends Application {
         else
             Timber.i("Starting app with Crashlytics disabled.");
 
+        firebaseProjectId = FirebaseApp.getInstance().getOptions().getProjectId();
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         boolean enableAnalytics = settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_analytics_enable_key), false);
         firebaseAnalytics.setAnalyticsCollectionEnabled(enableAnalytics);
@@ -214,5 +217,9 @@ public class BaseApplication extends Application {
             Timber.i("Crashlytics enabled.");
         } else
             Timber.i("Crashlytics were already initialized for this app session.");
+    }
+
+    public static String getFirebaseProjectId(){
+        return firebaseProjectId;
     }
 }

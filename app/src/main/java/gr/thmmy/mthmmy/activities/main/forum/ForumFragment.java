@@ -9,6 +9,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 
 import org.jsoup.nodes.Document;
@@ -19,9 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;

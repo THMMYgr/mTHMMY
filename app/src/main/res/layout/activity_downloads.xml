@@ -48,7 +48,7 @@
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal"/>
 
-    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/upload_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,5 +56,5 @@
         android:layout_marginBottom="@dimen/fab_margins"
         android:layout_marginEnd="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
-        app:srcCompat="@drawable/ic_file_upload_white_24dp"/>-->
+        app:srcCompat="@drawable/ic_file_upload_white_24dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

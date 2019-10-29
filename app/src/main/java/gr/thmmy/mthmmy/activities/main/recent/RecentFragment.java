@@ -9,6 +9,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -17,10 +21,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -145,9 +147,9 @@ public class RecentFragment extends BaseFragment {
             topicSummaries.addAll(fetchedRecent);
             recentAdapter.notifyDataSetChanged();
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
-            Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getContext(), "Unexpected error," +
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
                     " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
 

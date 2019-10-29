@@ -2,20 +2,33 @@ package gr.thmmy.mthmmy.base;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -28,6 +41,9 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.snatik.storage.Storage;
+
+import net.gotev.uploadservice.UploadService;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,14 +51,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.preference.PreferenceManager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
@@ -53,12 +61,15 @@ import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.shoutbox.ShoutboxActivity;
+import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
+import gr.thmmy.mthmmy.services.UploadsReceiver;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.OkHttpClient;
 import ru.noties.markwon.LinkResolverDef;
 import ru.noties.markwon.Markwon;
@@ -73,6 +84,7 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_ID_KEY;
 import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
@@ -82,6 +94,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //SessionManager
     protected static SessionManager sessionManager;
+
+    //Storage manager
+    protected Storage storage;
 
     //Bookmarks
     public static final String BOOKMARKS_SHARED_PREFS = "bookmarksSharedPrefs";
@@ -97,6 +112,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     //Common UI elements
     protected Toolbar toolbar;
     protected Drawer drawer;
+    //Uploads progress dialog
+    UploadsShowDialogReceiver uploadsShowDialogReceiver;
+    AlertDialog uploadsProgressDialog;
 
     private MainActivity mainActivity;
     private boolean isMainActivity;
@@ -124,15 +142,24 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         BaseViewModel baseViewModel = ViewModelProviders.of(this).get(BaseViewModel.class);
         baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> setTopicBookmark(thisPageBookmarkMenuButton));
+
+        storage = new Storage(getApplicationContext());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         updateDrawer();
-        if (!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key), false) && !isUserConsentDialogShown){
-            isUserConsentDialogShown=true;
+        if (!sharedPreferences.getBoolean(getString(R.string.user_consent_shared_preference_key), false) && !isUserConsentDialogShown) {
+            isUserConsentDialogShown = true;
             showUserConsentDialog();
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (uploadsShowDialogReceiver == null) {
+                uploadsShowDialogReceiver = new UploadsShowDialogReceiver(this);
+            }
+            this.registerReceiver(uploadsShowDialogReceiver, new IntentFilter(UploadsReceiver.ACTION_COMBINED_UPLOAD));
         }
     }
 
@@ -141,6 +168,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onPause();
         if (drawer != null)    //close drawer animation after returning to activity
             drawer.closeDrawer();
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && uploadsShowDialogReceiver != null) {
+            this.unregisterReceiver(uploadsShowDialogReceiver);
+        }
     }
 
 
@@ -150,6 +181,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public static SessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    public Storage getStorage() {
+        return storage;
     }
 
     //TODO: move stuff below (?)
@@ -257,14 +292,15 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withName(R.string.downloads)
                 .withIcon(downloadsIcon)
                 .withSelectedIcon(downloadsIconSelected);
-//            uploadItem = new PrimaryDrawerItem()
-//                    .withTextColor(primaryColor)
-//                    .withSelectedColor(selectedPrimaryColor)
-//                    .withSelectedTextColor(selectedSecondaryColor)
-//                    .withIdentifier(UPLOAD_ID)
-//                    .withName(R.string.upload)
-//                    .withIcon(uploadIcon)
-//                    .withSelectedIcon(uploadIconSelected);
+
+        uploadItem = new PrimaryDrawerItem()
+                .withTextColor(primaryColor)
+                .withSelectedColor(selectedPrimaryColor)
+                .withSelectedTextColor(selectedSecondaryColor)
+                .withIdentifier(UPLOAD_ID)
+                .withName(R.string.upload)
+                .withIcon(uploadIcon)
+                .withSelectedIcon(uploadIconSelected);
 
         shoutboxItem = new PrimaryDrawerItem()
                 .withTextColor(primaryColor)
@@ -397,11 +433,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                             intent.putExtras(extras);
                             startActivity(intent);
                         }
-//                    } else if (drawerItem.equals(UPLOAD_ID)) {
-//                        if (!(BaseActivity.this instanceof UploadActivity)) {
-//                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
-//                            startActivity(intent);
-//                        }
+                    } else if (drawerItem.equals(UPLOAD_ID)) {
+                        if (!(BaseActivity.this instanceof UploadActivity)) {
+                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
+                            startActivity(intent);
+                        }
                     } else if (drawerItem.equals(BOOKMARKS_ID)) {
                         if (!(BaseActivity.this instanceof BookmarksActivity)) {
                             Intent intent = new Intent(BaseActivity.this, BookmarksActivity.class);
@@ -452,7 +488,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
             {
                 drawer.removeItem(DOWNLOADS_ID);
-//                drawer.removeItem(UPLOAD_ID);
+                drawer.removeItem(UPLOAD_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername());
                 setDefaultAvatar();
@@ -460,9 +496,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 if (!drawer.getDrawerItems().contains(downloadsItem)) {
                     drawer.addItemAtPosition(downloadsItem, 4);
                 }
-//                if (!drawer.getDrawerItems().contains(uploadItem)) {
-//                    drawer.addItemAtPosition(uploadItem, 5);
-//                }
+                if (!drawer.getDrawerItems().contains(uploadItem)) {
+                    drawer.addItemAtPosition(uploadItem, 5);
+                }
                 loginLogoutItem.withName(R.string.logout).withIcon(logoutIcon); //Swap login with logout
                 profileDrawerItem.withName(sessionManager.getUsername());
                 if (sessionManager.hasAvatar())
@@ -687,10 +723,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 //-------------------------------------------BOOKMARKS END------------------------------------------
 
     //-------PERMS---------
-    private static final int PERMISSIONS_REQUEST_CODE = 69;
+    private static final int DOWNLOAD_REQUEST_CODE = 69;  //Arbitrary, application specific
 
     //True if permissions are OK
-    private boolean checkPerms() {
+    protected boolean checkPerms() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -703,13 +739,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //Display popup for user to grant permission
-    private void requestPerms() { //Runtime permissions request for devices with API >= 23
+    protected void requestPerms(int code) { //Runtime permissions request for devices with API >= 23
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-            requestPermissions(PERMISSIONS_STORAGE, PERMISSIONS_REQUEST_CODE);
+            requestPermissions(PERMISSIONS_STORAGE, code);
         }
     }
 
@@ -718,8 +754,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
             , @NonNull int[] grantResults) {
         switch (permsRequestCode) {
-            case PERMISSIONS_REQUEST_CODE:
-                downloadFile();
+            case DOWNLOAD_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    prepareDownload(tempThmmyFile);
                 break;
         }
     }
@@ -733,7 +770,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             prepareDownload(thmmyFile);
         else {
             tempThmmyFile = thmmyFile;
-            requestPerms();
+            requestPerms(DOWNLOAD_REQUEST_CODE);
         }
     }
 
@@ -853,6 +890,93 @@ public abstract class BaseActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), enabled).apply();
         editor.putBoolean(getString(R.string.pref_privacy_analytics_enable_key), enabled).apply();
+    }
+
+    //------------------------------------------ UPLOADS -------------------------------------------
+    private class UploadsShowDialogReceiver extends BroadcastReceiver {
+        private final Context activityContext;
+
+        UploadsShowDialogReceiver(Context activityContext) {
+            this.activityContext = activityContext;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle intentBundle = intent.getExtras();
+            if (intentBundle == null) {
+                return;
+            }
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                String dialogUploadID = intentBundle.getString(UPLOAD_ID_KEY);
+
+                /*String retryFilename = intentBundle.getString(UPLOAD_RETRY_FILENAME);
+                String retryCategory = intentBundle.getString(UPLOAD_RETRY_CATEGORY);
+                String retryTitleText = intentBundle.getString(UPLOAD_RETRY_TITLE);
+                String retryDescription = intentBundle.getString(UPLOAD_RETRY_DESCRIPTION);
+                String retryIcon = intentBundle.getString(UPLOAD_RETRY_ICON);
+                String retryUploaderProfile = intentBundle.getString(UPLOAD_RETRY_UPLOADER);
+                Uri retryFileUri = (Uri) intentBundle.get(UPLOAD_RETRY_FILE_URI);
+
+                Intent retryIntent = new Intent(context, UploadsReceiver.class);
+                retryIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
+
+                retryIntent.putExtra(UPLOAD_RETRY_FILENAME, retryFilename);
+                retryIntent.putExtra(UPLOAD_RETRY_CATEGORY, retryCategory);
+                retryIntent.putExtra(UPLOAD_RETRY_TITLE, retryTitleText);
+                retryIntent.putExtra(UPLOAD_RETRY_DESCRIPTION, retryDescription);
+                retryIntent.putExtra(UPLOAD_RETRY_ICON, retryIcon);
+                retryIntent.putExtra(UPLOAD_RETRY_UPLOADER, retryUploaderProfile);
+                retryIntent.putExtra(UPLOAD_RETRY_FILE_URI, retryFileUri);*/
+
+                if (uploadsProgressDialog == null) {
+                    AlertDialog.Builder progressDialogBuilder = new AlertDialog.Builder(activityContext);
+                    LayoutInflater inflater = LayoutInflater.from(activityContext);
+                    LinearLayout progressDialogLayout = (LinearLayout) inflater.inflate(R.layout.dialog_upload_progress, null);
+
+                    MaterialProgressBar dialogProgressBar = progressDialogLayout.findViewById(R.id.dialogProgressBar);
+                    dialogProgressBar.setMax(100);
+
+                    progressDialogBuilder.setView(progressDialogLayout);
+
+                    uploadsProgressDialog = progressDialogBuilder.create();
+                    if (!UploadService.getTaskList().contains(dialogUploadID)) {
+                        //Upload probably failed at this point
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "", (progressDialog, progressWhich) -> {
+                            /*LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context.getApplicationContext());
+                            localBroadcastManager.sendBroadcast(multipartUploadRetryIntent);*/
+                            //uploadsProgressDialog.dismiss();
+
+                            //context.sendBroadcast(retryIntent);
+                        });
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel), (progressDialog, progressWhich) -> {
+                            uploadsProgressDialog.dismiss();
+                        });
+
+                        TextView dialogProgressText = progressDialogLayout.findViewById(R.id.dialog_upload_progress_text);
+                        dialogProgressBar.setVisibility(View.GONE);
+                        dialogProgressText.setText(getString(R.string.upload_failed));
+
+                        uploadsProgressDialog.show();
+                    } else {
+                        //Empty buttons are needed, they are updated with correct values in the receiver
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "placeholder", (progressDialog, progressWhich) -> {
+                        });
+                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "placeholder", (progressDialog, progressWhich) -> {
+                        });
+
+                        UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, null);
+                        //UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
+                        uploadsProgressDialog.show();
+                    }
+                } else {
+                    UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, null);
+                    //UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
+                    uploadsProgressDialog.show();
+                }
+            }
+        }
     }
 
     //----------------------------------MISC----------------------

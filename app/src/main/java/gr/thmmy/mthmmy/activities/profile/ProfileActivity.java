@@ -19,6 +19,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.squareup.picasso.Picasso;
@@ -33,12 +40,6 @@ import java.util.List;
 import java.util.Objects;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.create_pm.CreatePMActivity;
@@ -61,6 +62,7 @@ import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.emojiTagToHtml;
 
 /**
  * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>
@@ -271,7 +273,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             { //Finds personal text
                 Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
                 if (tmpEl != null) {
-                    personalText = tmpEl.text().trim();
+                    personalText = emojiTagToHtml(tmpEl.text().trim());
                 } else {
                     //Should never get here!
                     //Something is wrong.

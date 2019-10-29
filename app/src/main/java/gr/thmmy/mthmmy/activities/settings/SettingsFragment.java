@@ -11,12 +11,13 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import java.util.ArrayList;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;

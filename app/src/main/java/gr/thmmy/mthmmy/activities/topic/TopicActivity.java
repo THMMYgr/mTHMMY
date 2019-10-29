@@ -28,20 +28,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import java.util.ArrayList;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.topic.tasks.EditTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForEditTask;
-import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReply;
+import gr.thmmy.mthmmy.activities.topic.tasks.PrepareForReplyTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.ReplyTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
 import gr.thmmy.mthmmy.base.BaseActivity;
@@ -617,7 +618,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 }
             }
         });
-        viewModel.setPrepareForReplyCallbacks(new PrepareForReply.PrepareForReplyCallbacks() {
+        viewModel.setPrepareForReplyCallbacks(new PrepareForReplyTask.PrepareForReplyCallbacks() {
             @Override
             public void onPrepareForReplyStarted() {
                 progressBar.setVisibility(ProgressBar.VISIBLE);

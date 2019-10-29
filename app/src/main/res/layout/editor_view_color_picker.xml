@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/card_background">
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -14,84 +13,84 @@
             android:id="@+id/black"
             style="@style/PopupMenuItem.TopItem"
             android:text="@string/black"
-            android:textColor="@color/black"/>
+            android:textColor="@color/black" />
 
         <TextView
             android:id="@+id/red"
             style="@style/PopupMenuItem"
             android:text="@string/red"
-            android:textColor="@color/red"/>
+            android:textColor="@color/red" />
 
         <TextView
             android:id="@+id/yellow"
             style="@style/PopupMenuItem"
             android:text="@string/yellow"
-            android:textColor="@color/yellow"/>
+            android:textColor="@color/yellow" />
 
         <TextView
             android:id="@+id/pink"
             style="@style/PopupMenuItem"
             android:text="@string/pink"
-            android:textColor="@color/pink"/>
+            android:textColor="@color/pink" />
 
         <TextView
             android:id="@+id/green"
             style="@style/PopupMenuItem"
             android:text="@string/green"
-            android:textColor="@color/green"/>
+            android:textColor="@color/green" />
 
         <TextView
             android:id="@+id/orange"
             style="@style/PopupMenuItem"
             android:text="@string/orange"
-            android:textColor="@color/orange"/>
+            android:textColor="@color/orange" />
 
         <TextView
             android:id="@+id/purple"
             style="@style/PopupMenuItem"
             android:text="@string/purple"
-            android:textColor="@color/purple"/>
+            android:textColor="@color/purple" />
 
         <TextView
             android:id="@+id/blue"
             style="@style/PopupMenuItem"
             android:text="@string/blue"
-            android:textColor="@color/blue"/>
+            android:textColor="@color/blue" />
 
         <TextView
             android:id="@+id/beige"
             style="@style/PopupMenuItem"
             android:text="@string/beige"
-            android:textColor="@color/beige"/>
+            android:textColor="@color/beige" />
 
         <TextView
             android:id="@+id/brown"
             style="@style/PopupMenuItem"
             android:text="@string/brown"
-            android:textColor="@color/brown"/>
+            android:textColor="@color/brown" />
 
         <TextView
             android:id="@+id/teal"
             style="@style/PopupMenuItem"
             android:text="@string/teal"
-            android:textColor="@color/teal"/>
+            android:textColor="@color/teal" />
 
         <TextView
             android:id="@+id/navy"
             style="@style/PopupMenuItem"
             android:text="@string/navy"
-            android:textColor="@color/navy"/>
+            android:textColor="@color/navy" />
 
         <TextView
             android:id="@+id/maroon"
             style="@style/PopupMenuItem"
             android:text="@string/maroon"
-            android:textColor="@color/maroon"/>
+            android:textColor="@color/maroon" />
 
         <TextView
             android:id="@+id/lime_green"
             style="@style/PopupMenuItem.BottomItem"
             android:text="@string/lime_green"
-            android:textColor="@color/lime_green"/>
+            android:textColor="@color/lime_green" />
     </LinearLayout>
 </ScrollView>

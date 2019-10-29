@@ -12,6 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -37,7 +39,6 @@ import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import androidx.fragment.app.Fragment;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;

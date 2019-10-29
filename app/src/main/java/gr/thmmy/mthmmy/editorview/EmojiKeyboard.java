@@ -9,11 +9,12 @@ import android.view.MotionEvent;
 import android.view.inputmethod.InputConnection;
 import android.widget.LinearLayout;
 
-import java.util.HashSet;
-
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.HashSet;
+
 import gr.thmmy.mthmmy.R;
 
 public class EmojiKeyboard extends LinearLayout implements IEmojiKeyboard {

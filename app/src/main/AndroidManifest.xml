@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".base.BaseApplication"
@@ -110,6 +111,7 @@
         </activity>
         <activity
             android:name=".activities.upload.UploadActivity"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -160,6 +162,14 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".services.UploadsReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="gr.thmmy.mthmmy.uploadservice.broadcast.status" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".activities.create_topic.CreateTopicActivity"

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingEnd="24dp"
+    android:paddingStart="24dp">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="5dp"
+        android:text="@string/upload_progress_dialog_title"
+        android:textColor="@color/accent"
+        android:textSize="20sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="15dp"
+        android:background="@color/secondary_text" />
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/dialogProgressBar"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal.NoPadding"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/progress_bar_height"
+        android:indeterminate="false"
+        app:mpb_progressStyle="horizontal"
+        app:mpb_progressTint="@color/accent" />
+
+    <TextView
+        android:id="@+id/dialog_upload_progress_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="12dp"
+        android:minEms="64"
+        android:textColor="@color/white" />
+</LinearLayout>

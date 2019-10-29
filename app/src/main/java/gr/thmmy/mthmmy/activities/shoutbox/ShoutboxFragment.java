@@ -16,7 +16,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.editorview.EditorView;
 import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Shout;
@@ -133,6 +135,7 @@ public class ShoutboxFragment extends Fragment {
         progressBar.setVisibility(View.INVISIBLE);
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             Timber.i("Shout was sent successfully");
+            BaseApplication.getInstance().logFirebaseAnalyticsEvent("shout", null);
             editorView.getEditText().getText().clear();
             shoutboxViewModel.loadShoutbox(true);
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
