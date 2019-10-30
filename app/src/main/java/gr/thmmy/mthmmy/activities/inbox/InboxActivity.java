@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.inbox;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ProgressBar;
 
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
-import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.InboxViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
@@ -59,7 +57,10 @@ public class InboxActivity extends BaseActivity {
         inboxViewModel.setOnInboxTaskFinishedListener((resultCode, inbox) -> {
             progressBar.setVisibility(View.INVISIBLE);
             if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+                Timber.i("Successfully loaded inbox");
                 inboxAdapter.notifyDataSetChanged();
+            } else {
+
             }
         });
     }

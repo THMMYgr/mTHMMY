@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.activities.inbox.tasks.InboxTask;
 import gr.thmmy.mthmmy.model.Inbox;
+import gr.thmmy.mthmmy.model.PM;
+import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 
 public class InboxViewModel extends ViewModel implements InboxTask.OnNetworkTaskFinishedListener<Inbox> {
     private static final String INBOX_URL = "https://www.thmmy.gr/smf/index.php?action=pm";
@@ -38,10 +40,12 @@ public class InboxViewModel extends ViewModel implements InboxTask.OnNetworkTask
     @Override
     public void onNetworkTaskFinished(int resultCode, Inbox inbox) {
         this.inbox = inbox;
-        userExtraInfoVisibile.clear();
-        for (int i = 0; i < inbox.getPms().size(); i++)
-            userExtraInfoVisibile.add(false);
         onInboxTaskFinishedListener.onNetworkTaskFinished(resultCode, inbox);
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            userExtraInfoVisibile.clear();
+            for (PM pm : inbox.getPms())
+                userExtraInfoVisibile.add(false);
+        }
     }
 
     public Inbox getInbox() {

@@ -49,7 +49,9 @@ public class InboxTask extends NewParseTask<Inbox> {
             Element pmContainer = pmContainerContainer.select("table[style=table-layout: fixed;]").first().child(0);
 
             Element thumbnail = pmContainer.select("img.avatar").first();
-            pm.setThumbnailUrl(thumbnail.attr("src"));
+            // User might not have an avatar
+            if (thumbnail != null)
+                pm.setThumbnailUrl(thumbnail.attr("src"));
 
             Element subjectAndDateContainer = pmContainer.select("td[align=left]").first();
             pm.setSubject(subjectAndDateContainer.select("b").first().text());
