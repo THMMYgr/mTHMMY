@@ -31,7 +31,7 @@ import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
 import gr.thmmy.mthmmy.utils.NetworkTask;
-import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.StringUtils;
 import timber.log.Timber;
 
 public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTaskCompleted,
@@ -112,7 +112,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void resetPage() {
         if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
         Timber.i("Resetting page");
-        loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + currentPageIndex * 15);
+        loadUrl(StringUtils.getBaseURL(topicUrl) + "." + currentPageIndex * 15);
     }
 
     public void resetPageThen(Runnable runnable) {
@@ -123,7 +123,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             TopicViewModel.this.onTopicTaskCompleted(result);
             runnable.run();
         });
-        currentTopicTask.execute(ParseHelpers.getBaseURL(topicUrl) + "." + currentPageIndex * 15);
+        currentTopicTask.execute(StringUtils.getBaseURL(topicUrl) + "." + currentPageIndex * 15);
     }
 
     public void loadPageIndicated() {
@@ -132,7 +132,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         int pageRequested = pageIndicatorIndex.getValue() - 1;
         if (pageRequested != currentPageIndex - 1) {
             Timber.i("Changing to page " + pageRequested + 1);
-            loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + pageRequested * 15);
+            loadUrl(StringUtils.getBaseURL(topicUrl) + "." + pageRequested * 15);
             pageIndicatorIndex.setValue(pageRequested + 1);
         } else {
             stopLoading();

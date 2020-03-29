@@ -75,6 +75,7 @@ import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CircleTransform;
 import gr.thmmy.mthmmy.utils.MessageAnimations;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.StringUtils;
 import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
@@ -965,7 +966,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if the page to be loaded is the one already shown
-                if (uriString.contains(ParseHelpers.getBaseURL(viewModel.getTopicUrl()))) {
+                if (uriString.contains(StringUtils.getBaseURL(viewModel.getTopicUrl()))) {
                     if (uriString.contains("topicseen#new") || uriString.contains("#new")) {
                         if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
                             //same page
@@ -987,9 +988,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 return true;
                             }
                         }
-                    } else if ((Objects.equals(uriString, ParseHelpers.getBaseURL(viewModel.getTopicUrl())) &&
+                    } else if ((Objects.equals(uriString, StringUtils.getBaseURL(viewModel.getTopicUrl())) &&
                             viewModel.getCurrentPageIndex() == 1) ||
-                            Integer.parseInt(uriString.substring(ParseHelpers.getBaseURL(viewModel.getTopicUrl()).length() + 1)) / 15 + 1 ==
+                            Integer.parseInt(uriString.substring(StringUtils.getBaseURL(viewModel.getTopicUrl()).length() + 1)) / 15 + 1 ==
                                     viewModel.getCurrentPageIndex()) {
                         //same page
                         return true;

@@ -84,7 +84,6 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      * If username is not available put an empty string or leave it null.
      */
     public static final String BUNDLE_PROFILE_USERNAME = "USERNAME";
-    public static final String BUNDLE_SEND_PM_URL = "send-pm-url";
 
     private TextView usernameView;
     private ImageView avatarView;
@@ -153,11 +152,11 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 if (sessionManager.isLoggedIn()) {
                     Intent sendPMIntent = new Intent(ProfileActivity.this, CreatePMActivity.class);
                     sendPMIntent.putExtra(BUNDLE_PROFILE_USERNAME, username);
-                    sendPMIntent.putExtra(BUNDLE_SEND_PM_URL, sendPmUrl);
+                    sendPMIntent.putExtra(CreatePMActivity.BUNDLE_SEND_PM_URL, sendPmUrl);
                     startActivity(sendPMIntent);
                 } else {
                     new AlertDialog.Builder(ProfileActivity.this)
-                            .setMessage("You need to be logged in to sent a personal message!")
+                            .setMessage("You need to be logged in to send a personal message!")
                             .setPositiveButton("Login", (dialogInterface, i) -> {
                                 Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
                                 startActivity(intent);

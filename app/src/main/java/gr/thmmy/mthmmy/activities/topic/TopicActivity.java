@@ -55,7 +55,7 @@ import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
-import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.StringUtils;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
@@ -539,7 +539,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
 
                         if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
                             Timber.i("Reply was posted in new page. Switching to last page.");
-                            viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
+                            viewModel.loadUrl(StringUtils.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
                         } else {
                             viewModel.reloadPage();
                         }

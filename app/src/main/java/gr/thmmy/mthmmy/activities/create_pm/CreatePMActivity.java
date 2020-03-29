@@ -31,6 +31,9 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
     private EmojiKeyboard emojiKeyboard;
     private String username, sendPmUrl;
 
+    public static final String BUNDLE_SEND_PM_URL = "send-pm-url";
+    public static final String BUNDLE_PM_CONTENT = "pm-content";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +41,7 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
 
         Intent callingIntent = getIntent();
         username = callingIntent.getStringExtra(ProfileActivity.BUNDLE_PROFILE_USERNAME);
-        sendPmUrl = callingIntent.getStringExtra(ProfileActivity.BUNDLE_SEND_PM_URL);
+        sendPmUrl = callingIntent.getStringExtra(BUNDLE_SEND_PM_URL);
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);

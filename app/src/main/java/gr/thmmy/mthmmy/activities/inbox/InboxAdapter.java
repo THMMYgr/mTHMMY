@@ -38,6 +38,7 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
+import gr.thmmy.mthmmy.activities.create_pm.CreatePMActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.model.PM;
@@ -228,6 +229,10 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             quoteButton.setOnClickListener(v -> {
                 Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show();
                 // TODO: Create quote PM task
+                Intent sendPMIntent = new Intent(context, CreatePMActivity.class);
+                sendPMIntent.putExtra(CreatePMActivity.BUNDLE_SEND_PM_URL, currentPM.getQuoteUrl());
+                context.startActivity(sendPMIntent);
+                popUp.dismiss();
             });
 
             final TextView replyButton = popupContent.findViewById(R.id.pm_reply_button);
@@ -235,8 +240,10 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             replyButton.setCompoundDrawablesRelativeWithIntrinsicBounds(replyDrawable, null, null, null);
 
             replyButton.setOnClickListener(v -> {
-                Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show();
-                // TODO: Create reply PM task
+                Intent sendPMIntent = new Intent(context, CreatePMActivity.class);
+                sendPMIntent.putExtra(CreatePMActivity.BUNDLE_SEND_PM_URL, currentPM.getReplyUrl());
+                context.startActivity(sendPMIntent);
+                popUp.dismiss();
             });
 
             TextView deletePostButton = popupContent.findViewById(R.id.delete_post);
