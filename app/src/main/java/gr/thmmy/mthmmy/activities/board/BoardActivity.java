@@ -96,7 +96,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), true);
-        setBoardBookmark(findViewById(R.id.bookmark));
+        if (boardTitle != null && !Objects.equals(boardTitle, ""))
+            setBoardBookmark(findViewById(R.id.bookmark));
+
         createDrawer();
 
         progressBar = findViewById(R.id.progressBar);

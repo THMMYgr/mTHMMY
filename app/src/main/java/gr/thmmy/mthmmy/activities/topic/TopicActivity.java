@@ -2,6 +2,8 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -123,6 +125,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     private Snackbar snackbar;
     private TopicViewModel viewModel;
     private EmojiKeyboard emojiKeyboard;
+    private AlertDialog topicInfoDialog;
 
     //Fix for vector drawables on android <21
     static {
@@ -161,6 +164,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         toolbarTitle.setMarqueeRepeatLimit(-1);
         toolbarTitle.setText(topicTitle);
         toolbarTitle.setSelected(true);
+        this.setToolbarOnLongClickListener(topicPageUrl);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -253,8 +257,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     usersViewing.setText(HTMLUtils.getSpannableFromHtml(this, topicViewers));
                 });
                 builder.setView(infoDialog);
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                topicInfoDialog = builder.create();
+                topicInfoDialog.show();
                 return true;
             case R.id.menu_share:
                 Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
@@ -312,6 +316,10 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(topicInfoDialog!=null){
+            topicInfoDialog.dismiss();
+            topicInfoDialog=null;
+        }
         recyclerView.setAdapter(null);
         viewModel.stopLoading();
     }
@@ -786,6 +794,33 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 Timber.i("Prepare for edit unsuccessful");
                 Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
             }
+        });
+    }
+
+    /**This method sets a long click listener on the title of the topic. Once the
+     * listener gets triggered, it copies the link url of the topic in the clipboard.
+     * This method is getting called on the onCreate() of the TopicActivity*/
+    void setToolbarOnLongClickListener(String url) {
+        toolbar.setOnLongClickListener(view -> {
+            //Try to set the clipboard text
+            try {
+                //Create a ClipboardManager
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+                clipboard.setPrimaryClip(ClipData.newPlainText(BUNDLE_TOPIC_URL, url));
+
+                //Make a toast to inform the user that the url was copied
+                Toast.makeText(
+                        TopicActivity.this,
+                        TopicActivity.this.getString(R.string.url_copied_msg),
+                        Toast.LENGTH_SHORT).show();
+            }
+            //Something happened. Probably the device does not support this (report to Firebase)
+            catch (NullPointerException e) {
+                Timber.e(e, "Error while trying to copy topic's url.");
+            }
+
+            return true;
         });
     }
 }

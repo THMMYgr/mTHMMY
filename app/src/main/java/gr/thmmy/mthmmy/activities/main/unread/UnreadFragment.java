@@ -2,6 +2,7 @@
 package gr.thmmy.mthmmy.activities.main.unread;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
@@ -35,6 +37,9 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
+
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertDateTime;
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
 
 /**
  * A {@link BaseFragment} subclass.
@@ -211,17 +216,18 @@ public class UnreadFragment extends BaseFragment {
                     Element lastUserAndDate = information.get(6);
                     String lastUser = lastUserAndDate.select("a").text();
                     String dateTime = lastUserAndDate.select("span").html();
-                    //dateTime = dateTime.replace("<br>", "");
                     dateTime = dateTime.substring(0, dateTime.indexOf("<br>"));
                     dateTime = dateTime.replace("<b>", "");
                     dateTime = dateTime.replace("</b>", "");
-                    if (dateTime.contains(" am") || dateTime.contains(" pm") ||
-                            dateTime.contains(" πμ") || dateTime.contains(" μμ"))
-                        dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
+
+                    if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled())  {
+                        dateTime=convertDateTime(dateTime, false);
+                        String timestamp = convertToTimestamp(dateTime);
+                        if(timestamp!=null)
+                            dateTime=timestamp;
+                    }
                     else
-                        dateTime = dateTime.substring(0, dateTime.lastIndexOf(":"));
-                    if (!dateTime.contains(","))
-                        dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
+                        dateTime=convertDateTime(dateTime, true);
 
                     fetchedTopicSummaries.add(new TopicSummary(link, title, lastUser, dateTime));
                 }

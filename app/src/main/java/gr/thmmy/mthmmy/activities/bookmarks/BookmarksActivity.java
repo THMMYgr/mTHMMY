@@ -29,6 +29,9 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 //TODO proper handling with adapter etc.
 //TODO after clicking bookmark and then back button should return to this activity
 public class BookmarksActivity extends BaseActivity {
+    private static final String TOPIC_URL = "https://www.thmmy.gr/smf/index.php?topic=";
+    private static final String BOARD_URL = "https://www.thmmy.gr/smf/index.php?board=";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,8 +51,8 @@ public class BookmarksActivity extends BaseActivity {
 
         //Creates the adapter that will return a fragment for each section of the activity
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        sectionsPagerAdapter.addFragment(BookmarksTopicFragment.newInstance(1, Bookmark.arrayListToString(getTopicsBookmarked())), "Topics");
-        sectionsPagerAdapter.addFragment(BookmarksBoardFragment.newInstance(2, Bookmark.arrayListToString(getBoardsBookmarked())), "Boards");
+        sectionsPagerAdapter.addFragment(BookmarksFragment.newInstance(1, Bookmark.arrayListToString(getTopicsBookmarked()), BookmarksFragment.Type.TOPIC), "Topics");
+        sectionsPagerAdapter.addFragment(BookmarksFragment.newInstance(2, Bookmark.arrayListToString(getBoardsBookmarked()), BookmarksFragment.Type.BOARD), "Boards");
 
         //Sets up the ViewPager with the sections adapter.
         ViewPager viewPager = findViewById(R.id.bookmarks_container);
@@ -65,43 +68,56 @@ public class BookmarksActivity extends BaseActivity {
         super.onResume();
     }
 
-    public boolean onTopicInteractionListener(String interactionType, Bookmark bookmarkedTopic) {
+    public boolean onFragmentRowInteractionListener(BookmarksFragment.Type type, String interactionType, Bookmark bookmark) {
+        if(type== BookmarksFragment.Type.TOPIC)
+            return onTopicInteractionListener(interactionType, bookmark);
+        else if (type==BookmarksFragment.Type.BOARD)
+            return onBoardInteractionListener(interactionType, bookmark);
+
+        return false;
+    }
+
+    private boolean onTopicInteractionListener(String interactionType, Bookmark bookmarkedTopic) {
         switch (interactionType) {
-            case BookmarksTopicFragment.INTERACTION_CLICK_TOPIC_BOOKMARK:
+            case BookmarksFragment.INTERACTION_CLICK_TOPIC_BOOKMARK:
                 Intent intent = new Intent(BookmarksActivity.this, TopicActivity.class);
                 Bundle extras = new Bundle();
-                extras.putString(BUNDLE_TOPIC_URL, "https://www.thmmy.gr/smf/index.php?topic="
+                extras.putString(BUNDLE_TOPIC_URL, TOPIC_URL
                         + bookmarkedTopic.getId() + "." + 2147483647);
                 extras.putString(BUNDLE_TOPIC_TITLE, bookmarkedTopic.getTitle());
                 intent.putExtras(extras);
                 startActivity(intent);
                 break;
-            case BookmarksTopicFragment.INTERACTION_TOGGLE_TOPIC_NOTIFICATION:
+            case BookmarksFragment.INTERACTION_TOGGLE_TOPIC_NOTIFICATION:
                 return toggleNotification(bookmarkedTopic);
-            case BookmarksTopicFragment.INTERACTION_REMOVE_TOPIC_BOOKMARK:
+            case BookmarksFragment.INTERACTION_REMOVE_TOPIC_BOOKMARK:
                 removeBookmark(bookmarkedTopic);
                 Toast.makeText(BookmarksActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                break;
+            default:
                 break;
         }
         return true;
     }
 
-    public boolean onBoardInteractionListener(String interactionType, Bookmark bookmarkedBoard) {
+    private boolean onBoardInteractionListener(String interactionType, Bookmark bookmarkedBoard) {
         switch (interactionType) {
-            case BookmarksBoardFragment.INTERACTION_CLICK_BOARD_BOOKMARK:
+            case BookmarksFragment.INTERACTION_CLICK_BOARD_BOOKMARK:
                 Intent intent = new Intent(BookmarksActivity.this, BoardActivity.class);
                 Bundle extras = new Bundle();
-                extras.putString(BUNDLE_BOARD_URL, "https://www.thmmy.gr/smf/index.php?board="
+                extras.putString(BUNDLE_BOARD_URL, BOARD_URL
                         + bookmarkedBoard.getId() + ".0");
                 extras.putString(BUNDLE_BOARD_TITLE, bookmarkedBoard.getTitle());
                 intent.putExtras(extras);
                 startActivity(intent);
                 break;
-            case BookmarksBoardFragment.INTERACTION_TOGGLE_BOARD_NOTIFICATION:
+            case BookmarksFragment.INTERACTION_TOGGLE_BOARD_NOTIFICATION:
                 return toggleNotification(bookmarkedBoard);
-            case BookmarksBoardFragment.INTERACTION_REMOVE_BOARD_BOOKMARK:
+            case BookmarksFragment.INTERACTION_REMOVE_BOARD_BOOKMARK:
                 removeBookmark(bookmarkedBoard);
                 Toast.makeText(BookmarksActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                break;
+            default:
                 break;
         }
         return true;

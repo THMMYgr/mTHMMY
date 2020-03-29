@@ -448,7 +448,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                         if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
                             startLoginActivity();
                         else
-                            new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
+                            showLogoutDialog();
                     } else if (drawerItem.equals(ABOUT_ID)) {
                         if (!(BaseActivity.this instanceof AboutActivity)) {
                             Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
@@ -563,6 +563,17 @@ public abstract class BaseActivity extends AppCompatActivity {
             //}
         }
     }
+
+    private void showLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure that you want to logout?");
+        builder.setPositiveButton("Yep", (dialogInterface, i) -> {
+            new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
+        });
+        builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
+        builder.create().show();
+    }
 //-----------------------------------------LOGOUT END-----------------------------------------------
 
 //---------------------------------------------BOOKMARKS--------------------------------------------
@@ -577,23 +588,20 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void setTopicBookmark(MenuItem thisPageBookmarkMenuButton) {
         this.thisPageBookmarkMenuButton = thisPageBookmarkMenuButton;
-        if (thisPageBookmark.matchExists(topicsBookmarked)) {
+        if (thisPageBookmark.matchExists(topicsBookmarked))
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
-        } else {
+        else
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
-        }
     }
 
     protected void refreshTopicBookmark() {
-        if (thisPageBookmarkMenuButton == null) {
-            return;
-        }
+        if (thisPageBookmarkMenuButton == null) return;
+
         loadSavedBookmarks();
-        if (thisPageBookmark.matchExists(topicsBookmarked)) {
+        if (thisPageBookmark.matchExists(topicsBookmarked))
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
-        } else {
+        else
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
-        }
     }
 
     protected void topicMenuBookmarkClick() {

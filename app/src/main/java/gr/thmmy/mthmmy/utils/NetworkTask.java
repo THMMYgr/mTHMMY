@@ -47,7 +47,7 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
         try {
             responseBodyString = response.body().string();
         } catch (NullPointerException npe) {
-            Timber.wtf(npe, "Invalid response. Detatails: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Response.html#body--");
+            Timber.wtf(npe, "Invalid response. Details: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Response.html#body--");
             return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         } catch (IOException e) {
             Timber.e(e, "Error getting response body string");
