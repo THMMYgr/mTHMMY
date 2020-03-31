@@ -28,6 +28,7 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.TopicItem;
+import gr.thmmy.mthmmy.pagination.BottomPaginationView;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
 import gr.thmmy.mthmmy.utils.NetworkTask;
@@ -35,7 +36,8 @@ import gr.thmmy.mthmmy.utils.parsing.StringUtils;
 import timber.log.Timber;
 
 public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTaskCompleted,
-        PrepareForReplyTask.OnPrepareForReplyFinished, PrepareForEditTask.OnPrepareEditFinished {
+        PrepareForReplyTask.OnPrepareForReplyFinished, PrepareForEditTask.OnPrepareEditFinished,
+        BottomPaginationView.OnPageRequestedListener {
     /**
      * topic state
      */
@@ -76,6 +78,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
      * navigation bar occurs, aka the value that the page indicator shows
      */
     private MutableLiveData<Integer> pageIndicatorIndex = new MutableLiveData<>();
+    private MutableLiveData<Integer> pageCount = new MutableLiveData<>();
 
     private MutableLiveData<String> replyPageUrl = new MutableLiveData<>();
     private MutableLiveData<Integer> pageTopicId = new MutableLiveData<>();
@@ -87,7 +90,6 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     private MutableLiveData<String> topicViewers = new MutableLiveData<>();
     private String topicUrl;
     private int currentPageIndex;
-    private int pageCount;
 
     private MutableLiveData<PrepareForReplyResult> prepareForReplyResult = new MutableLiveData<>();
     private MutableLiveData<PrepareForEditResult> prepareForEditResult = new MutableLiveData<>();
@@ -126,7 +128,13 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         currentTopicTask.execute(StringUtils.getBaseURL(topicUrl) + "." + currentPageIndex * 15);
     }
 
-    public void loadPageIndicated() {
+    @Override
+    public void onPageRequested(int index) {
+        pageIndicatorIndex.setValue(index);
+        loadPageIndicated();
+    }
+
+    private void loadPageIndicated() {
         if (pageIndicatorIndex.getValue() == null)
             throw new NullPointerException("No page has been loaded yet!");
         int pageRequested = pageIndicatorIndex.getValue() - 1;
@@ -172,10 +180,14 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void prepareForReply() {
-        if (replyPageUrl.getValue() == null)
+        if (replyPageUrl.getValue() == null || pageCount.getValue() == null || pageIndicatorIndex.getValue() ==null)
             throw new NullPointerException("Topic task has not finished yet!");
         stopLoading();
-        setPageIndicatorIndex(pageCount, true);
+        // go to last page for reply
+        if (currentPageIndex != pageCount.getValue()) {
+            this.pageIndicatorIndex.setValue(pageCount.getValue());
+            loadPageIndicated();
+        }
         Timber.i("Preparing for reply");
         currentPrepareForReplyTask = new PrepareForReplyTask(prepareForReplyCallbacks, this,
                 replyPageUrl.getValue());
@@ -252,9 +264,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     // callbacks for viewmodel
     @Override
     public void onTopicTaskCompleted(TopicTaskResult result) {
+        //sets Data
         if (result.getResultCode() == TopicTask.ResultCode.SUCCESS) {
             currentPageIndex = result.getCurrentPageIndex();
-            pageCount = result.getPageCount();
+            pageCount.setValue(result.getPageCount());
             topicTreeAndMods.setValue(result.getTopicTreeAndMods());
             topicViewers.setValue(result.getTopicViewers());
             pageTopicId.setValue(result.getLoadedPageTopicId());
@@ -267,6 +280,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             for (int i = 0; i < result.getNewPostsList().size(); i++)
                 isUserExtraInfoVisibile.add(false);
         }
+        // see also callback in TopicActivity, sets UI
         topicTaskResultCode.setValue(result.getResultCode());
     }
 
@@ -279,36 +293,6 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     public void onPrepareEditFinished(PrepareForEditResult result, int position) {
         postBeingEditedPosition = position;
         prepareForEditResult.setValue(result);
-    }
-
-    public void incrementPageRequestValue(int step, boolean changePage) {
-        if (pageIndicatorIndex.getValue() == null)
-            throw new NullPointerException("No page has been loaded yet!");
-        int oldIndicatorIndex = pageIndicatorIndex.getValue();
-        if (oldIndicatorIndex <= pageCount - step)
-            pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() + step);
-        else
-            pageIndicatorIndex.setValue(pageCount);
-        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) loadPageIndicated();
-    }
-
-    public void decrementPageRequestValue(int step, boolean changePage) {
-        if (pageIndicatorIndex.getValue() == null)
-            throw new NullPointerException("No page has been loaded yet!");
-        int oldIndicatorIndex = pageIndicatorIndex.getValue();
-        if (oldIndicatorIndex > step)
-            pageIndicatorIndex.setValue(pageIndicatorIndex.getValue() - step);
-        else
-            pageIndicatorIndex.setValue(1);
-        if (changePage && oldIndicatorIndex != pageIndicatorIndex.getValue()) loadPageIndicated();
-    }
-
-    public void setPageIndicatorIndex(int pageIndicatorIndex, boolean changePage) {
-        if (this.pageIndicatorIndex.getValue() == null)
-            throw new NullPointerException("No page has been loaded yet!");
-        int oldIndicatorIndex = this.pageIndicatorIndex.getValue();
-        this.pageIndicatorIndex.setValue(pageIndicatorIndex);
-        if (changePage && oldIndicatorIndex != this.pageIndicatorIndex.getValue()) loadPageIndicated();
     }
 
     // <-------------Just getters, setters and helper methods below here---------------->
@@ -465,8 +449,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         return currentPageIndex;
     }
 
-    public int getPageCount() {
-        if (pageCount == 0) throw  new NullPointerException("No page has been loaded yet!");
+    public MutableLiveData<Integer> getPageCount() {
         return pageCount;
     }
 

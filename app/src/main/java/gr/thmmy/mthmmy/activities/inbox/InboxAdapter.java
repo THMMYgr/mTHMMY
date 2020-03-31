@@ -228,11 +228,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             quoteButton.setCompoundDrawablesRelativeWithIntrinsicBounds(quoteDrawable, null, null, null);
             quoteButton.setOnClickListener(v -> {
                 Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show();
-                // TODO: Create quote PM task
-                Intent sendPMIntent = new Intent(context, CreatePMActivity.class);
-                sendPMIntent.putExtra(CreatePMActivity.BUNDLE_SEND_PM_URL, currentPM.getQuoteUrl());
-                context.startActivity(sendPMIntent);
-                popUp.dismiss();
+                // TODO: Create delete PM task
             });
 
             final TextView replyButton = popupContent.findViewById(R.id.pm_reply_button);

@@ -1,5 +1,8 @@
 package gr.thmmy.mthmmy.model;
 
+import gr.thmmy.mthmmy.utils.parsing.StringUtils;
+import gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser;
+
 public class PM {
 
     private String thumbnailUrl;

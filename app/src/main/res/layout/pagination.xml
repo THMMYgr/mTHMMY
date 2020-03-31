@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/primary"
+    app:elevation="8dp"
+    app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareLinearBehavior">
+    <ImageButton
+        android:id="@+id/page_first_button"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="0.8"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/button_first"
+        app:srcCompat="@drawable/page_first" />
+
+    <ImageButton
+        android:id="@+id/page_previous_button"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="0.8"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/button_previous"
+        app:srcCompat="@drawable/page_previous" />
+
+    <TextView
+        android:id="@+id/page_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:hint="@string/button_page"
+        android:maxLines="1"
+        android:textColor="@color/white"
+        android:textSize="22sp" />
+
+    <ImageButton
+        android:id="@+id/page_next_button"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="0.8"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/button_next"
+        app:srcCompat="@drawable/page_next" />
+
+    <ImageButton
+        android:id="@+id/page_last_button"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="0.8"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/button_last"
+        app:srcCompat="@drawable/page_last" />
+</merge>

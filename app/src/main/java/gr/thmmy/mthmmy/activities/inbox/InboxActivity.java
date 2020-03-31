@@ -2,7 +2,12 @@ package gr.thmmy.mthmmy.activities.inbox;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,7 +51,7 @@ public class InboxActivity extends BaseActivity {
         inboxAdapter = new InboxAdapter(this);
         pmRecyclerview.setAdapter(inboxAdapter);
 
-        inboxViewModel = ViewModelProviders.of(this).get(InboxViewModel.class);
+        inboxViewModel =new ViewModelProvider(this).get(InboxViewModel.class);
         subscribeUI();
 
         inboxViewModel.loadInbox();
@@ -60,7 +65,9 @@ public class InboxActivity extends BaseActivity {
                 Timber.i("Successfully loaded inbox");
                 inboxAdapter.notifyDataSetChanged();
             } else {
-
+                Timber.w("Failed to load inbox");
+                Toast.makeText(this, "Failed to load inbox", Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
     }

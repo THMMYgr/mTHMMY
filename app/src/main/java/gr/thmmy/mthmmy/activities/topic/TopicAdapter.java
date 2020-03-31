@@ -968,7 +968,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 //Checks if the page to be loaded is the one already shown
                 if (uriString.contains(StringUtils.getBaseURL(viewModel.getTopicUrl()))) {
                     if (uriString.contains("topicseen#new") || uriString.contains("#new")) {
-                        if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
+                        if (viewModel.getCurrentPageIndex() == viewModel.getPageCount().getValue()) {
                             //same page
                             postFocusListener.onPostFocusChange(getItemCount() - 1);
                             Timber.e("new");

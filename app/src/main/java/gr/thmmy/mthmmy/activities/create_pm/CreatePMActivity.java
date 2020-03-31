@@ -30,6 +30,10 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
     private TextInputLayout subjectInput;
     private EmojiKeyboard emojiKeyboard;
     private String username, sendPmUrl;
+    /**
+     * Used for example in quotes to pre-populate the EditorView with quoted text
+     */
+    private String defaultContent;
 
     public static final String BUNDLE_SEND_PM_URL = "send-pm-url";
     public static final String BUNDLE_PM_CONTENT = "pm-content";
@@ -42,6 +46,7 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
         Intent callingIntent = getIntent();
         username = callingIntent.getStringExtra(ProfileActivity.BUNDLE_PROFILE_USERNAME);
         sendPmUrl = callingIntent.getStringExtra(BUNDLE_SEND_PM_URL);
+        defaultContent = callingIntent.getStringExtra(BUNDLE_PM_CONTENT);
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);
@@ -86,6 +91,8 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
             sendPMTask.execute(sendPmUrl, subjectInput.getEditText().getText().toString(),
                     contentEditor.getText().toString());
         });
+        if (defaultContent != null)
+            contentEditor.setText(defaultContent);
     }
 
     @Override
