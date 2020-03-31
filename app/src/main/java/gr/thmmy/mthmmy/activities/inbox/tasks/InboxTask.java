@@ -27,8 +27,8 @@ public class InboxTask extends NewParseTask<Inbox> {
 
         ParseHelpers.Language language = ParseHelpers.Language.getLanguage(document);
 
-        inbox.setCurrentPageIndex(ParseHelpers.parseCurrentPageIndex(document, language));
-        inbox.setNumberOfPages(ParseHelpers.parseNumberOfPages(document, inbox.getCurrentPageIndex(), language));
+        inbox.setCurrentPageIndex(ParseHelpers.parseCurrentPageIndexInbox(document, language));
+        inbox.setNumberOfPages(ParseHelpers.parseNumberOfPagesInbox(document, inbox.getCurrentPageIndex(), language));
 
         ArrayList<PM> pmList = parsePMs(document, language);
         inbox.setPms(pmList);

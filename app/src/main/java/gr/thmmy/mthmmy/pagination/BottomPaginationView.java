@@ -110,10 +110,10 @@ public class BottomPaginationView extends LinearLayout {
         public void run() {
             long REPEAT_DELAY = 250;
             if (autoIncrement) {
-                setIndicatedPageIndex(indicatorPageIndex+step);
+                incrementPageIndicator(step);
                 repeatUpdateHandler.postDelayed(new BottomPaginationView.RepetitiveUpdater(step), REPEAT_DELAY);
             } else if (autoDecrement) {
-                setIndicatedPageIndex(indicatorPageIndex-step);
+                decrementPageIndicator(step);
                 repeatUpdateHandler.postDelayed(new BottomPaginationView.RepetitiveUpdater(step), REPEAT_DELAY);
             }
         }

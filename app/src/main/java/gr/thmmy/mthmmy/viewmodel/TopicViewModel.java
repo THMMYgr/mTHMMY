@@ -267,6 +267,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         //sets Data
         if (result.getResultCode() == TopicTask.ResultCode.SUCCESS) {
             currentPageIndex = result.getCurrentPageIndex();
+            pageIndicatorIndex.setValue(result.getCurrentPageIndex());
             pageCount.setValue(result.getPageCount());
             topicTreeAndMods.setValue(result.getTopicTreeAndMods());
             topicViewers.setValue(result.getTopicViewers());

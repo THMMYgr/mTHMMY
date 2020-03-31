@@ -247,6 +247,34 @@ public class ParseHelpers {
         return returnPages;
     }
 
+    public static int parseNumberOfPagesInbox(Document topic, int currentPage, ParseHelpers.Language language) {
+        int returnPages = 1;
+
+        if (language == ParseHelpers.Language.GREEK) {
+            Elements pages = topic.select("div:contains(Σελίδες:)>a.navPages");
+
+            if (pages.size() != 0) {
+                returnPages = currentPage;
+                for (Element item : pages) {
+                    if (Integer.parseInt(item.text()) > returnPages)
+                        returnPages = Integer.parseInt(item.text());
+                }
+            }
+        } else {
+            Elements pages = topic.select("div:contains(Pages:)>a.navPages");
+
+            if (pages.size() != 0) {
+                returnPages = currentPage;
+                for (Element item : pages) {
+                    if (Integer.parseInt(item.text()) > returnPages)
+                        returnPages = Integer.parseInt(item.text());
+                }
+            }
+        }
+
+        return returnPages;
+    }
+
     /**
      * Returns current pages's page index.
      *
@@ -272,6 +300,33 @@ public class ParseHelpers {
             }
         } else {
             Elements findCurrentPage = topic.select("td:contains(Pages:)>b");
+
+            for (Element item : findCurrentPage) {
+                if (!item.text().contains("...") && !item.text().contains("Pages:")) {
+                    parsedPage = Integer.parseInt(item.text());
+                    break;
+                }
+            }
+        }
+
+        return parsedPage;
+    }
+
+    public static int parseCurrentPageIndexInbox(Document topic, ParseHelpers.Language language) {
+        int parsedPage = 1;
+
+        if (language == ParseHelpers.Language.GREEK) {
+            Elements findCurrentPage = topic.select("div:contains(Σελίδες:)>b");
+
+            for (Element item : findCurrentPage) {
+                if (!item.text().contains("...")
+                        && !item.text().contains("Σελίδες:")) {
+                    parsedPage = Integer.parseInt(item.text());
+                    break;
+                }
+            }
+        } else {
+            Elements findCurrentPage = topic.select("div:contains(Pages:)>b");
 
             for (Element item : findCurrentPage) {
                 if (!item.text().contains("...") && !item.text().contains("Pages:")) {
