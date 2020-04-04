@@ -224,6 +224,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             popUp.setFocusable(true);
 
             TextView quoteButton = popupContent.findViewById(R.id.pm_quote_button);
+            quoteButton.setVisibility(View.GONE); // TODO
             Drawable quoteDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_format_quote);
             quoteButton.setCompoundDrawablesRelativeWithIntrinsicBounds(quoteDrawable, null, null, null);
             quoteButton.setOnClickListener(v -> {
@@ -245,6 +246,7 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             TextView deletePostButton = popupContent.findViewById(R.id.delete_post);
 
             Drawable deleteStartDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_delete_white_24dp);
+            deletePostButton.setVisibility(View.GONE); //TODO
             deletePostButton.setCompoundDrawablesRelativeWithIntrinsicBounds(deleteStartDrawable, null, null, null);
             popupContent.findViewById(R.id.delete_post).setOnClickListener(v -> {
                 new AlertDialog.Builder(holder.overflowButton.getContext())

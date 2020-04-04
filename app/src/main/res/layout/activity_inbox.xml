@@ -57,6 +57,7 @@
         app:elevation="8dp"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareLinearBehavior"/>
 
+    <!--
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/send_pm_fab"
         android:layout_width="wrap_content"
@@ -66,4 +67,5 @@
         android:layout_marginEnd="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_message_white_24dp" />
+        -->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
