@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".activities.create_content.CreateContentActivity"
+    tools:context=".activities.create_topic.CreateTopicActivity"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:fitsSystemWindows="true">
@@ -29,31 +29,11 @@
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.AppBarLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/subject_input"
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
+        <include
+            layout="@layout/full_post_editor"
             android:layout_below="@id/appbar"
-            android:layout_margin="16dp"
-            android:hint="@string/subject">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:lines="1"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:inputType="text"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <gr.thmmy.mthmmy.editorview.EditorView
-            android:id="@+id/main_content_editorview"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/subject_input"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:hint="topic message"/>
+            android:layout_width="match_parent"/>
 
         <gr.thmmy.mthmmy.editorview.EmojiKeyboard
             android:id="@+id/emoji_keyboard"

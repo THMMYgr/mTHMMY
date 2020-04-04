@@ -18,6 +18,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
@@ -171,7 +172,7 @@
         </receiver>
 
         <activity
-            android:name=".activities.create_content.CreateContentActivity"
+            android:name=".activities.create_topic.CreateTopicActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -179,6 +180,16 @@
             android:name=".activities.shoutbox.ShoutboxActivity"
             android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.main.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.create_pm.CreatePMActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activities.inbox.InboxActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity" />

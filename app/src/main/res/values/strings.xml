@@ -11,6 +11,8 @@
     <string name="about">About</string>
     <string name="home">Home</string>
     <string name="bookmark">Bookmarks</string>
+    <string name="shoutbox">Shoutbox</string>
+    <string name="inbox">Inbox</string>
     <string name="info">Info</string>
     <string name="ok">OK</string>
     <string name="cancel">"Cancel"</string>
@@ -21,7 +23,6 @@
     <string name="recent">Recent</string>
     <string name="forum">Forum</string>
     <string name="unread">Unread</string>
-    <string name="shoutbox">Shoutbox</string>
     <string name="refresh">Refresh</string>
 
     <!--Login Activity-->
@@ -232,4 +233,12 @@
     <string name="new_topic_toolbar">New topic</string>
     <string name="create_topic">Create topic</string>
     <string name="url_copied_msg">URL copied</string>
+
+    <!-- Inbox activity -->
+    <string name="personal_message_thumbnail">Personal message author thumbnail</string>
+    <string name="pm_author">PM author</string>
+    <string name="pm_subject">PM subject</string>
+    <string name="pm_content">PM content</string>
+    <string name="quote_menu_button_text">Quote</string>
+    <string name="reply_menu_button_text">Reply</string>
 </resources>

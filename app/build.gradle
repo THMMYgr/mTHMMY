@@ -41,6 +41,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
+    }
 }
 
 def firebaseReleaseProjectId = "mthmmy-release-3aef0"
@@ -106,6 +113,7 @@ dependencies {
     implementation 'net.gotev:uploadservice:3.5.2'
     implementation 'net.gotev:uploadservice-okhttp:3.4.2' //TODO: Warning: v.3.5 depends on okhttp 3.13!
     implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.5' //Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
+
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.powermock:powermock-core:2.0.2'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.2'

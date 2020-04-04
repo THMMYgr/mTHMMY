@@ -1,17 +1,14 @@
 package gr.thmmy.mthmmy.activities.topic;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -21,10 +18,8 @@ import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,7 +28,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -54,10 +49,11 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
+import gr.thmmy.mthmmy.pagination.BottomPaginationView;
 import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
-import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.StringUtils;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
@@ -93,35 +89,9 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     //Reply related
     private FloatingActionButton replyFAB;
     //Topic's pages related
-    //Page select related
-    /**
-     * Used for handling bottom navigation bar's buttons long click user interactions
-     */
-    private final Handler repeatUpdateHandler = new Handler();
-    /**
-     * Holds the initial time delay before a click on bottom navigation bar is considered long
-     */
-    private final long INITIAL_DELAY = 500;
-    private boolean autoIncrement = false;
-    private boolean autoDecrement = false;
-    /**
-     * Holds the number of pages to be added or subtracted from current page on each step while a
-     * long click is held in either next or previous buttons
-     */
-    private static final int SMALL_STEP = 1;
-    /**
-     * Holds the number of pages to be added or subtracted from current page on each step while a
-     * long click is held in either first or last buttons
-     */
-    private static final int LARGE_STEP = 10;
 
     //Bottom navigation bar graphics related
-    private LinearLayout bottomNavBar;
-    private ImageButton firstPage;
-    private ImageButton previousPage;
-    private TextView pageIndicator;
-    private ImageButton nextPage;
-    private ImageButton lastPage;
+    private BottomPaginationView bottomPagination;
     private Snackbar snackbar;
     private TopicViewModel viewModel;
     private EmojiKeyboard emojiKeyboard;
@@ -139,7 +109,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
         // get TopicViewModel instance
-        viewModel = ViewModelProviders.of(this).get(TopicViewModel.class);
+        viewModel = new ViewModelProvider(this).get(TopicViewModel.class);
         subscribeUI();
 
         Bundle extras = getIntent().getExtras();
@@ -191,7 +161,6 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         replyFAB = findViewById(R.id.topic_fab);
         replyFAB.hide();
         replyFAB.setTag(false);
-        bottomNavBar = findViewById(R.id.bottom_navigation_bar);
         if (!sessionManager.isLoggedIn()) {
             replyFAB.hide();
             replyFAB.setTag(false);
@@ -204,18 +173,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         }
 
         //Sets bottom navigation bar
-        firstPage = findViewById(R.id.page_first_button);
-        previousPage = findViewById(R.id.page_previous_button);
-        pageIndicator = findViewById(R.id.page_indicator);
-        nextPage = findViewById(R.id.page_next_button);
-        lastPage = findViewById(R.id.page_last_button);
-
-        initDecrementButton(firstPage, LARGE_STEP);
-        initDecrementButton(previousPage, SMALL_STEP);
-        initIncrementButton(nextPage, SMALL_STEP);
-        initIncrementButton(lastPage, LARGE_STEP);
-
-        paginationEnabled(false);
+        bottomPagination = findViewById(R.id.bottom_pagination);
+        bottomPagination.setOnPageRequestedListener(viewModel);
 
         Timber.i("Starting initial topic load");
         viewModel.loadUrl(topicPageUrl);
@@ -291,7 +250,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             viewModel.setWritingReply(false);
             replyFAB.show();
             replyFAB.setTag(true);
-            bottomNavBar.setVisibility(View.VISIBLE);
+            bottomPagination.setVisibility(View.VISIBLE);
             return;
         } else if (viewModel.isEditingPost()) {
             ((Post) topicItems.get(viewModel.getPostBeingEditedPosition())).setPostType(Post.TYPE_POST);
@@ -300,7 +259,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             viewModel.setEditingPost(false);
             replyFAB.show();
             replyFAB.setTag(true);
-            bottomNavBar.setVisibility(View.VISIBLE);
+            bottomPagination.setVisibility(View.VISIBLE);
             return;
         }
         super.onBackPressed();
@@ -338,152 +297,6 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     public void onPostFocusChange(int position) {
         recyclerView.scrollToPosition(position);
-    }
-
-    //--------------------------------------BOTTOM NAV BAR METHODS----------------------------------
-
-    /**
-     * This class is used to implement the repetitive incrementPageRequestValue/decrementPageRequestValue
-     * of page value when long pressing one of the page navigation buttons.
-     */
-    private class RepetitiveUpdater implements Runnable {
-        private final int step;
-
-        /**
-         * @param step number of pages to add/subtract on each repetition
-         */
-        RepetitiveUpdater(int step) {
-            this.step = step;
-        }
-
-        public void run() {
-            long REPEAT_DELAY = 250;
-            if (autoIncrement) {
-                viewModel.incrementPageRequestValue(step, false);
-                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
-            } else if (autoDecrement) {
-                viewModel.decrementPageRequestValue(step, false);
-                repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
-            }
-        }
-    }
-
-    private void paginationEnabled(boolean enabled) {
-        firstPage.setEnabled(enabled);
-        previousPage.setEnabled(enabled);
-        nextPage.setEnabled(enabled);
-        lastPage.setEnabled(enabled);
-    }
-
-    private void paginationDisable(View exception) {
-        if (exception == firstPage) {
-            previousPage.setEnabled(false);
-            nextPage.setEnabled(false);
-            lastPage.setEnabled(false);
-        } else if (exception == previousPage) {
-            firstPage.setEnabled(false);
-            nextPage.setEnabled(false);
-            lastPage.setEnabled(false);
-        } else if (exception == nextPage) {
-            firstPage.setEnabled(false);
-            previousPage.setEnabled(false);
-            lastPage.setEnabled(false);
-        } else if (exception == lastPage) {
-            firstPage.setEnabled(false);
-            previousPage.setEnabled(false);
-            nextPage.setEnabled(false);
-        } else {
-            paginationEnabled(false);
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void initIncrementButton(ImageButton increment, final int step) {
-        // Increment once for a click
-        increment.setOnClickListener(v -> {
-            if (!autoIncrement && step == LARGE_STEP) {
-                viewModel.setPageIndicatorIndex(viewModel.getPageCount(), true);
-            } else if (!autoIncrement) {
-                viewModel.incrementPageRequestValue(step, true);
-            }
-        });
-
-        // Auto increment for a long click
-        increment.setOnLongClickListener(
-                arg0 -> {
-                    paginationDisable(arg0);
-                    autoIncrement = true;
-                    repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
-                    return false;
-                }
-        );
-
-        // When the button is released
-        increment.setOnTouchListener(new View.OnTouchListener() {
-            private Rect rect;
-
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-                } else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
-                    autoIncrement = false;
-                    paginationEnabled(true);
-                    viewModel.loadPageIndicated();
-                } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
-                        autoIncrement = false;
-                        viewModel.setPageIndicatorIndex(viewModel.getCurrentPageIndex(), false);
-                        paginationEnabled(true);
-                    }
-                }
-                return false;
-            }
-        });
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void initDecrementButton(ImageButton decrement, final int step) {
-        // Decrement once for a click
-        decrement.setOnClickListener(v -> {
-            if (!autoDecrement && step == LARGE_STEP) {
-                viewModel.setPageIndicatorIndex(1, true);
-            } else if (!autoDecrement) {
-                viewModel.decrementPageRequestValue(step, true);
-            }
-        });
-
-        // Auto decrement for a long click
-        decrement.setOnLongClickListener(
-                arg0 -> {
-                    paginationDisable(arg0);
-                    autoDecrement = true;
-                    repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), INITIAL_DELAY);
-                    return false;
-                }
-        );
-
-        // When the button is released
-        decrement.setOnTouchListener(new View.OnTouchListener() {
-            private Rect rect;
-
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-                } else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
-                    autoDecrement = false;
-                    paginationEnabled(true);
-                    viewModel.loadPageIndicated();
-                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (rect != null &&
-                            !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
-                        autoIncrement = false;
-                        viewModel.setPageIndicatorIndex(viewModel.getCurrentPageIndex(), false);
-                        paginationEnabled(true);
-                    }
-                }
-                return false;
-            }
-        });
     }
 
     //------------------------------------BOTTOM NAV BAR METHODS END------------------------------------
@@ -538,7 +351,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         Timber.i("Post reply successful");
                         replyFAB.show();
                         replyFAB.setTag(true);
-                        bottomNavBar.setVisibility(View.VISIBLE);
+                        bottomPagination.setVisibility(View.VISIBLE);
                         viewModel.setWritingReply(false);
 
                         SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key),
@@ -547,7 +360,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
 
                         if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
                             Timber.i("Reply was posted in new page. Switching to last page.");
-                            viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
+                            viewModel.loadUrl(StringUtils.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
                         } else {
                             viewModel.reloadPage();
                         }
@@ -615,7 +428,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     topicAdapter.notifyItemChanged(position);
                     replyFAB.show();
                     replyFAB.setTag(true);
-                    bottomNavBar.setVisibility(View.VISIBLE);
+                    bottomPagination.setVisibility(View.VISIBLE);
                     viewModel.setEditingPost(false);
                     viewModel.reloadPage();
                 } else {
@@ -661,11 +474,14 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 Toast.makeText(this, "Failed to remove vote", Toast.LENGTH_LONG).show();
             }
         });
-        // observe the chages in data
+        // observe the changes in data
         viewModel.getPageIndicatorIndex().observe(this, pageIndicatorIndex -> {
             if (pageIndicatorIndex == null) return;
-            pageIndicator.setText(String.valueOf(pageIndicatorIndex) + "/" +
-                    String.valueOf(viewModel.getPageCount()));
+            bottomPagination.setIndicatedPageIndex(pageIndicatorIndex);
+        });
+        viewModel.getPageCount().observe(this, pageCount -> {
+            if (pageCount == null) return;
+            bottomPagination.setTotalPageCount(pageCount);
         });
         viewModel.getTopicTitle().observe(this, newTopicTitle -> {
             if (newTopicTitle == null) return;
@@ -674,7 +490,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         });
         viewModel.getPageTopicId().observe(this, pageTopicId -> {
             if (pageTopicId == null) return;
-            if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
+            if (viewModel.getCurrentPageIndex() == viewModel.getPageCount().getValue()) {
                 NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null)
                     notificationManager.cancel(NEW_POST_TAG, pageTopicId);
@@ -696,6 +512,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             topicItems.addAll(postList);
             topicAdapter.notifyDataSetChanged();
         });
+        // Scroll to position does not work because WebView size is unknown initially
         /*viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
             if (focusedPostIndex == null) return;
             recyclerView.scrollToPosition(focusedPostIndex);
@@ -706,7 +523,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             switch (resultCode) {
                 case SUCCESS:
                     Timber.i("Successfully loaded a topic");
-                    paginationEnabled(true);
+                    bottomPagination.setEnabled(true);
                     break;
                 case NETWORK_ERROR:
                     Timber.w("Network error on loaded page");
@@ -731,7 +548,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         });
                     } else {
                         // a page has already been loaded
-                        viewModel.setPageIndicatorIndex(viewModel.getCurrentPageIndex(), false);
+                        bottomPagination.setIndicatedPageIndex(viewModel.getCurrentPageIndex());
                         snackbar = Snackbar.make(findViewById(R.id.main_content),
                                 R.string.generic_network_error, Snackbar.LENGTH_INDEFINITE);
                         snackbar.setAction(R.string.retry, view -> viewModel.reloadPage());
@@ -773,7 +590,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 recyclerView.scrollToPosition(topicItems.size() - 1);
                 replyFAB.hide();
                 replyFAB.setTag(false);
-                bottomNavBar.setVisibility(View.GONE);
+                bottomPagination.setVisibility(View.GONE);
             } else {
                 Timber.i("Prepare for reply unsuccessful");
                 Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
@@ -789,7 +606,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 recyclerView.scrollToPosition(result.getPosition());
                 replyFAB.hide();
                 replyFAB.setTag(false);
-                bottomNavBar.setVisibility(View.GONE);
+                bottomPagination.setVisibility(View.GONE);
             } else {
                 Timber.i("Prepare for edit unsuccessful");
                 Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
@@ -797,9 +614,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         });
     }
 
-    /**This method sets a long click listener on the title of the topic. Once the
+    /**
+     * This method sets a long click listener on the title of the topic. Once the
      * listener gets triggered, it copies the link url of the topic in the clipboard.
-     * This method is getting called on the onCreate() of the TopicActivity*/
+     * This method is getting called on the onCreate() of the TopicActivity
+     */
     void setToolbarOnLongClickListener(String url) {
         toolbar.setOnLongClickListener(view -> {
             //Try to set the clipboard text

@@ -73,7 +73,9 @@ import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.MessageAnimations;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import gr.thmmy.mthmmy.utils.parsing.StringUtils;
 import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import timber.log.Timber;
@@ -85,8 +87,8 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
-import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
-import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.USER_COLOR_WHITE;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.USER_COLOR_YELLOW;
 import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
 import static gr.thmmy.mthmmy.utils.FileUtils.faIconFromFilename;
 
@@ -495,7 +497,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     } else //noinspection deprecation
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.mention_card));
-                } else if (mUserColor == TopicParser.USER_COLOR_PINK) {
+                } else if (mUserColor == ParseHelpers.USER_COLOR_PINK) {
                     //Special card for special member of the month!
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         holder.cardChildLinear.setBackground(context.getResources().
@@ -546,14 +548,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.header.setOnClickListener(v -> {
                         //Clicking the header makes it expand/collapse
                         viewModel.toggleUserInfo(holder.getAdapterPosition());
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                        MessageAnimations.animateUserExtraInfoVisibility(holder.username,
                                 holder.subject, Color.parseColor("#FFFFFF"),
                                 Color.parseColor("#757575"), holder.userExtraInfo);
                     });
                     //Clicking the expanded part of a header (the extra info) makes it collapse
                     holder.userExtraInfo.setOnClickListener(v -> {
                         viewModel.hideUserInfo(holder.getAdapterPosition());
-                        TopicAnimations.animateUserExtraInfoVisibility(holder.username,
+                        MessageAnimations.animateUserExtraInfoVisibility(holder.username,
                                 holder.subject, Color.parseColor("#FFFFFF"),
                                 Color.parseColor("#757575"), (LinearLayout) v);
                     });
@@ -964,9 +966,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (target.is(ThmmyPage.PageCategory.TOPIC)) {
                 //This url points to a topic
                 //Checks if the page to be loaded is the one already shown
-                if (uriString.contains(ParseHelpers.getBaseURL(viewModel.getTopicUrl()))) {
+                if (uriString.contains(StringUtils.getBaseURL(viewModel.getTopicUrl()))) {
                     if (uriString.contains("topicseen#new") || uriString.contains("#new")) {
-                        if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
+                        if (viewModel.getCurrentPageIndex() == viewModel.getPageCount().getValue()) {
                             //same page
                             postFocusListener.onPostFocusChange(getItemCount() - 1);
                             Timber.e("new");
@@ -986,9 +988,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 return true;
                             }
                         }
-                    } else if ((Objects.equals(uriString, ParseHelpers.getBaseURL(viewModel.getTopicUrl())) &&
+                    } else if ((Objects.equals(uriString, StringUtils.getBaseURL(viewModel.getTopicUrl())) &&
                             viewModel.getCurrentPageIndex() == 1) ||
-                            Integer.parseInt(uriString.substring(ParseHelpers.getBaseURL(viewModel.getTopicUrl()).length() + 1)) / 15 + 1 ==
+                            Integer.parseInt(uriString.substring(StringUtils.getBaseURL(viewModel.getTopicUrl()).length() + 1)) / 15 + 1 ==
                                     viewModel.getCurrentPageIndex()) {
                         //same page
                         return true;

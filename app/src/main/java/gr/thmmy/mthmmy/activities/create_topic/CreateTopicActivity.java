@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.activities.create_content;
+package gr.thmmy.mthmmy.activities.create_topic;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +21,7 @@ import gr.thmmy.mthmmy.session.SessionManager;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
-public class CreateContentActivity extends BaseActivity implements NewTopicTask.NewTopicTaskCallbacks {
+public class CreateTopicActivity extends BaseActivity implements NewTopicTask.NewTopicTaskCallbacks {
 
     public final static String EXTRA_NEW_TOPIC_URL = "new-topic-extra";
 
@@ -33,7 +33,7 @@ public class CreateContentActivity extends BaseActivity implements NewTopicTask.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_content);
+        setContentView(R.layout.activity_create_topic);
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);

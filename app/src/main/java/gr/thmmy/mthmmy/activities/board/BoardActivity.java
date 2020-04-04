@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.create_content.CreateContentActivity;
+import gr.thmmy.mthmmy.activities.create_topic.CreateTopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Bookmark;
@@ -109,8 +109,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             newTopicFAB.setOnClickListener(view -> {
                 if (sessionManager.isLoggedIn()) {
                     if (newTopicUrl != null) {
-                        Intent intent = new Intent(this, CreateContentActivity.class);
-                        intent.putExtra(CreateContentActivity.EXTRA_NEW_TOPIC_URL, newTopicUrl);
+                        Intent intent = new Intent(this, CreateTopicActivity.class);
+                        intent.putExtra(CreateTopicActivity.EXTRA_NEW_TOPIC_URL, newTopicUrl);
                         startActivity(intent);
                     }
                 } else {

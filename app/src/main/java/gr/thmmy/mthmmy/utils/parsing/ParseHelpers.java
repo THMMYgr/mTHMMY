@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.utils.parsing;
 
+import android.graphics.Color;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,14 +13,49 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.base.BaseActivity;
 import timber.log.Timber;
 
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner
- * classes). It can be used to resolve a page's language and state or fix embedded videos html code
+ * classes). It can be used to resolve a page's language, number of pages and state or fix embedded videos html code
  * and obfuscated emails.
  */
 public class ParseHelpers {
+
+    public static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
+    public static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
+    public static final int USER_COLOR_WHITE = Color.WHITE;
+    //User colors
+    private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
+    private static final int USER_COLOR_RED = Color.parseColor("#F44336");
+    private static final int USER_COLOR_GREEN = Color.parseColor("#4CAF50");
+    private static final int USER_COLOR_BLUE = Color.parseColor("#536DFE");
+    public static Pattern mentionsPattern = Pattern.
+            compile("<div class=\"quoteheader\">\\n\\s+?<a href=.+?>(Quote from|Παράθεση από): "
+                    + BaseActivity.getSessionManager().getUsername() +"\\s(στις|on)");
+
+    /**
+     * Returns the color of a user according to user's rank on forum.
+     *
+     * @param starsUrl String containing the URL of a user's stars
+     * @return an int corresponding to the right color
+     */
+    public static int colorPicker(String starsUrl) {
+        if (starsUrl.contains("/star.gif"))
+            return USER_COLOR_YELLOW;
+        else if (starsUrl.contains("/starmod.gif"))
+            return USER_COLOR_GREEN;
+        else if (starsUrl.contains("/stargmod.gif"))
+            return USER_COLOR_BLUE;
+        else if (starsUrl.contains("/staradmin.gif"))
+            return USER_COLOR_RED;
+        else if (starsUrl.contains("/starweb.gif"))
+            return USER_COLOR_BLACK;
+        else if (starsUrl.contains("/oscar.gif"))
+            return USER_COLOR_PINK;
+        return USER_COLOR_YELLOW;
+    }
 
     /**
      * An enum describing a forum page's language by defining the types:<ul>
@@ -172,20 +209,134 @@ public class ParseHelpers {
     }
 
     /**
-     * Method that extracts the base URL from a topic's page URL. For example a topic with url similar to
-     * "https://www.thmmy.gr/smf/index.php?topic=1.15;topicseen" or
-     * "https://www.thmmy.gr/smf/index.php?topic=1.msg1#msg1"
-     * has the base url "https://www.thmmy.gr/smf/index.php?topic=1"
+     * Returns the number of this page's pages.
      *
-     * @param topicURL a topic's page URL
-     * @return the base URL of the given topic
+     * @param topic       {@link Document} object containing this page's source code
+     * @param currentPage an int containing current page of this page
+     * @param language    a {@link ParseHelpers.Language} containing this topic's
+     *                    language set, this is returned by
+     *                    {@link ParseHelpers.Language#getLanguage(Document)}
+     * @return int containing the number of pages
+     * @see org.jsoup.Jsoup Jsoup
      */
-    public static String getBaseURL(String topicURL) {
-        String forumUrl = "https://www.thmmy.gr/smf/index.php?";
-        Matcher baseUrlMatcher = Pattern.compile("topic=[0-9]+").matcher(topicURL);
-        if (baseUrlMatcher.find())
-            return forumUrl + topicURL.substring(baseUrlMatcher.start(), baseUrlMatcher.end());
-        else return "";
+    public static int parseNumberOfPages(Document topic, int currentPage, ParseHelpers.Language language) {
+        int returnPages = 1;
+
+        if (language == ParseHelpers.Language.GREEK) {
+            Elements pages = topic.select("td:contains(Σελίδες:)>a.navPages");
+
+            if (pages.size() != 0) {
+                returnPages = currentPage;
+                for (Element item : pages) {
+                    if (Integer.parseInt(item.text()) > returnPages)
+                        returnPages = Integer.parseInt(item.text());
+                }
+            }
+        } else {
+            Elements pages = topic.select("td:contains(Pages:)>a.navPages");
+
+            if (pages.size() != 0) {
+                returnPages = currentPage;
+                for (Element item : pages) {
+                    if (Integer.parseInt(item.text()) > returnPages)
+                        returnPages = Integer.parseInt(item.text());
+                }
+            }
+        }
+
+        return returnPages;
+    }
+
+    public static int parseNumberOfPagesInbox(Document topic, int currentPage, ParseHelpers.Language language) {
+        int returnPages = 1;
+
+        if (language == ParseHelpers.Language.GREEK) {
+            Elements pages = topic.select("div:contains(Σελίδες:)>a.navPages");
+
+            if (pages.size() != 0) {
+                returnPages = currentPage;
+                for (Element item : pages) {
+                    if (Integer.parseInt(item.text()) > returnPages)
+                        returnPages = Integer.parseInt(item.text());
+                }
+            }
+        } else {
+            Elements pages = topic.select("div:contains(Pages:)>a.navPages");
+
+            if (pages.size() != 0) {
+                returnPages = currentPage;
+                for (Element item : pages) {
+                    if (Integer.parseInt(item.text()) > returnPages)
+                        returnPages = Integer.parseInt(item.text());
+                }
+            }
+        }
+
+        return returnPages;
+    }
+
+    /**
+     * Returns current pages's page index.
+     *
+     * @param topic    {@link Document} object containing this page's source code
+     * @param language a {@link ParseHelpers.Language} containing this page's
+     *                 language set, this is returned by
+     *                 {@link ParseHelpers.Language#getLanguage(Document)}
+     * @return int containing parsed topic's current page
+     * @see org.jsoup.Jsoup Jsoup
+     */
+    public static int parseCurrentPageIndex(Document topic, ParseHelpers.Language language) {
+        int parsedPage = 1;
+
+        if (language == ParseHelpers.Language.GREEK) {
+            Elements findCurrentPage = topic.select("td:contains(Σελίδες:)>b");
+
+            for (Element item : findCurrentPage) {
+                if (!item.text().contains("...")
+                        && !item.text().contains("Σελίδες:")) {
+                    parsedPage = Integer.parseInt(item.text());
+                    break;
+                }
+            }
+        } else {
+            Elements findCurrentPage = topic.select("td:contains(Pages:)>b");
+
+            for (Element item : findCurrentPage) {
+                if (!item.text().contains("...") && !item.text().contains("Pages:")) {
+                    parsedPage = Integer.parseInt(item.text());
+                    break;
+                }
+            }
+        }
+
+        return parsedPage;
+    }
+
+    public static int parseCurrentPageIndexInbox(Document topic, ParseHelpers.Language language) {
+        int parsedPage = 1;
+
+        if (language == ParseHelpers.Language.GREEK) {
+            Elements findCurrentPage = topic.select("div:contains(Σελίδες:)>b");
+
+            for (Element item : findCurrentPage) {
+                if (!item.text().contains("...")
+                        && !item.text().contains("Σελίδες:")) {
+                    parsedPage = Integer.parseInt(item.text());
+                    break;
+                }
+            }
+        } else {
+            Elements findCurrentPage = topic.select("div:contains(Pages:)>b");
+
+            for (Element item : findCurrentPage) {
+                if (!item.text().contains("...") && !item.text().contains("Pages:")) {
+                    parsedPage = Integer.parseInt(item.text());
+                    break;
+                }
+            }
+        }
+
+        return parsedPage;
     }
 
     /**
