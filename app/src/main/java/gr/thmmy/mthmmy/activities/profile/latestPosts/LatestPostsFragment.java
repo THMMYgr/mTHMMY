@@ -32,8 +32,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.deobfuscateElements;
-
 /**
  * Use the {@link LatestPostsFragment#newInstance} factory method to create an instance of this fragment.
  */
@@ -205,7 +203,6 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                 return true;
             }
 
-            deobfuscateElements(latestPostsRows, false);
             for (Element row : latestPostsRows) {
                 String pTopicUrl, pTopicTitle, pDateTime, pPost;
                 if (Integer.parseInt(row.attr("cellpadding")) == 4) {

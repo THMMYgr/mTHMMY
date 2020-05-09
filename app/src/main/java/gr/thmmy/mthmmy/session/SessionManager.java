@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -112,7 +113,7 @@ public class SessionManager {
         try {
             //Make request & handle response
             Response response = client.newCall(request).execute();
-            Document document = ParseHelpers.parse(response.body().string());
+            Document document = Jsoup.parse(response.body().string());
 
             if (validateRetrievedCookies())
             {
@@ -218,7 +219,7 @@ public class SessionManager {
         try {
             //Make request & handle response
             Response response = client.newCall(request).execute();
-            Document document = ParseHelpers.parse(response.body().string());
+            Document document = Jsoup.parse(response.body().string());
 
             Elements loginButton = document.select("[value=Login]");  //Attempt to find login button
             if (!loginButton.isEmpty()) //If login button exists, logout was successful

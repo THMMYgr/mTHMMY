@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Selector;
@@ -46,7 +47,7 @@ public class PrepareForEditTask extends AsyncTask<String, Void, PrepareForEditRe
             String postText, commitEditURL, numReplies, seqnum, sc, topic, icon;
             OkHttpClient client = BaseApplication.getInstance().getClient();
             Response response = client.newCall(request).execute();
-            document = ParseHelpers.parse(response.body().string());
+            document = Jsoup.parse(response.body().string());
 
             Element form = document.select("form#postmodify").first();
 

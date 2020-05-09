@@ -54,7 +54,7 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         }
         try {
-            T data = performTask(ParseHelpers.parse(responseBodyString), response);
+            T data = performTask(Jsoup.parse(responseBodyString), response);
             int resultCode = getResultCode(response, data);
             return new Parcel<>(resultCode, data);
         } catch (ParseException pe) {

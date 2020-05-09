@@ -46,8 +46,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.deobfuscateElements;
-
 public class StatsFragment extends Fragment {
     /**
      * The key to use when putting profile's url String to {@link StatsFragment}'s Bundle.
@@ -173,7 +171,6 @@ public class StatsFragment extends Fragment {
                 return false;
             {
                 Elements titleRows = statsPage.select("table.bordercolor[align]>tbody>tr.titlebg");
-                deobfuscateElements(titleRows, false);
                 generalStatisticsTitle = titleRows.first().text();
                 if (userHasPosts) {
                     postingActivityByTimeTitle = titleRows.get(1).text();
