@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.TopicSummary;
+import gr.thmmy.mthmmy.utils.WebViewOnTouchClickListener;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**
@@ -26,11 +29,13 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_EMPTY = -1;
     private static final int VIEW_TYPE_ITEM = 0;
     private static final int VIEW_TYPE_LOADING = 1;
+    private final Context context;
     private final LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
     private final ArrayList<PostSummary> parsedTopicSummaries;
 
-    LatestPostsAdapter(BaseFragment.FragmentInteractionListener interactionListener,
+    LatestPostsAdapter(Context context, BaseFragment.FragmentInteractionListener interactionListener,
                        ArrayList<PostSummary> parsedTopicSummaries) {
+        this.context = context;
         this.interactionListener = (LatestPostsFragment.LatestPostsFragmentInteractionListener) interactionListener;
         this.parsedTopicSummaries = parsedTopicSummaries;
     }
@@ -64,6 +69,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return null;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof LatestPostViewHolder) {
@@ -75,6 +81,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             latestPostViewHolder.post.setBackgroundColor(Color.argb(1, 255, 255, 255));
             latestPostViewHolder.post.loadDataWithBaseURL("file:///android_asset/"
                     , topic.getPost(), "text/html", "UTF-8", null);
+            latestPostViewHolder.post.setOnTouchListener(new WebViewOnTouchClickListener(context));
 
             latestPostViewHolder.latestPostsRow.setOnClickListener(v -> {
                 if (interactionListener != null) {

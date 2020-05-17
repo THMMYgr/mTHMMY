@@ -73,6 +73,7 @@ import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.CircleTransform;
+import gr.thmmy.mthmmy.utils.WebViewOnTouchClickListener;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
@@ -362,6 +363,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 //Post's WebView parameters
                 holder.post.setClickable(true);
                 holder.post.setWebViewClient(new LinkLauncher());
+                holder.post.setOnTouchListener(new WebViewOnTouchClickListener(context));
 
                 //noinspection ConstantConditions
                 loadAvatar(currentPost.getThumbnailURL(), holder.thumbnail);

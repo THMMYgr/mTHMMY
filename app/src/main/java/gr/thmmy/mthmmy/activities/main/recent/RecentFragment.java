@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.main.recent;
 
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;

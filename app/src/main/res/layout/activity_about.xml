@@ -142,11 +142,22 @@
                 android:textColor="@color/accent" />
 
             <TextView
-                android:id="@+id/privacy_policy_header"
+                android:id="@+id/other_libs"
+                android:tag="OTHER"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/epl_libs"
+                android:onClick="displayLibraries"
+                android:text="@string/other_libraries"
+                android:textColor="@color/accent" />
+
+            <TextView
+                android:id="@+id/privacy_policy_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/other_libs"
                 android:layout_marginTop="20dp"
                 android:text="@string/privacy_policy"
                 android:textAppearance="?android:attr/textAppearanceMedium"

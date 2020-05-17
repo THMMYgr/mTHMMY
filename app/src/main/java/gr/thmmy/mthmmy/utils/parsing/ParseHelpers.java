@@ -1,17 +1,13 @@
 package gr.thmmy.mthmmy.utils.parsing;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import timber.log.Timber;
 
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner

@@ -390,7 +390,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
-                .withDrawerWidthDp((int) BaseApplication.getInstance().getDpWidth() / 2)
+                .withDrawerWidthDp((int) BaseApplication.getInstance().getWidthInDp() / 2)
                 .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
                 .withAccountHeader(accountHeader)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {

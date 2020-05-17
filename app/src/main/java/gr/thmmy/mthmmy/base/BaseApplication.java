@@ -68,7 +68,9 @@ public class BaseApplication extends Application {
     private static final String SHARED_PREFS = "ThmmySharedPrefs";
 
     //Display Metrics
-    private static float dpWidth;
+    private static float widthDp;
+    private static int widthPxl, heightPxl;
+
     public static BaseApplication getInstance() {
         return baseApplication;
     }
@@ -175,7 +177,11 @@ public class BaseApplication extends Application {
         });
 
         DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
-        dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
+        widthPxl = displayMetrics.widthPixels;
+        widthDp = widthPxl / displayMetrics.density;
+
+        heightPxl = displayMetrics.heightPixels;
 
         displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, false);
     }
@@ -193,8 +199,16 @@ public class BaseApplication extends Application {
         return sessionManager;
     }
 
-    public float getDpWidth() {
-        return dpWidth;
+    public float getWidthInDp() {
+        return widthDp;
+    }
+
+    public int getWidthInPixels() {
+        return widthPxl;
+    }
+
+    public int getHeightInPixels() {
+        return heightPxl;
     }
 
     public boolean isDisplayRelativeTimeEnabled() {

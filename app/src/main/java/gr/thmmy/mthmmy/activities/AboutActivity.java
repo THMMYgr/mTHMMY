@@ -151,6 +151,10 @@ public class AboutActivity extends BaseActivity {
                 title=getString(R.string.epl_libraries);
                 fileUrl="file:///android_asset/epl_libraries.html";
                 break;
+            case "OTHER":
+                title=getString(R.string.other_libraries);
+                fileUrl="file:///android_asset/other_libraries.html";
+                break;
             default:
                 break;
         }
