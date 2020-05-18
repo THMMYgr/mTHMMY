@@ -537,4 +537,12 @@ img
   color: #a51111 !important;
 }
 
+span[style="background-color: yellow;"]
+{
+  color: black !important;
+}
 
+[style="color: white;"] > span[style="background-color: yellow;"]
+{
+  color: white !important;
+}
