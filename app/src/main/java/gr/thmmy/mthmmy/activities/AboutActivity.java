@@ -1,7 +1,9 @@
 package gr.thmmy.mthmmy.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -26,6 +28,7 @@ import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.utils.io.AssetUtils;
 
 public class AboutActivity extends BaseActivity {
     private static final int TIME_INTERVAL = 1000;
@@ -137,31 +140,35 @@ public class AboutActivity extends BaseActivity {
 
     public void displayLibraries(View v) {
         String libraryType = v.getTag().toString();
-        String title="", fileUrl="";
+        String title="", fileName="";
         switch(libraryType) {
             case "APACHE":
                 title=getString(R.string.apache_v2_0_libraries);
-                fileUrl="file:///android_asset/apache_libraries.html";
+                fileName="apache_libraries.html";
                 break;
             case "MIT":
                 title=getString(R.string.the_mit_libraries);
-                fileUrl="file:///android_asset/mit_libraries.html";
+                fileName="mit_libraries.html";
                 break;
             case "EPL":
                 title=getString(R.string.epl_libraries);
-                fileUrl="file:///android_asset/epl_libraries.html";
+                fileName="epl_libraries.html";
                 break;
             case "OTHER":
                 title=getString(R.string.other_libraries);
-                fileUrl="file:///android_asset/other_libraries.html";
+                fileName="other_libraries.html";
                 break;
             default:
                 break;
         }
 
+        String htmlContent = AssetUtils.readFileToText(this,fileName);
+
         LayoutInflater inflater = LayoutInflater.from(this);
         WebView webView = (WebView) inflater.inflate(R.layout.dialog_licenses, coordinatorLayout, false);
-        webView.loadUrl(fileUrl);
+        webView.setBackgroundColor(Color.argb(1, 255, 255, 255));
+        webView.loadDataWithBaseURL("file:///android_asset/", htmlContent, "text/html", "UTF-8", null);
+
         int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
         int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.95);
         alertDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dark_Dialog)
@@ -173,9 +180,10 @@ public class AboutActivity extends BaseActivity {
             alertDialog.getWindow().setLayout(width, height);
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     private void showEasterEgg(){
         if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);  //TODO: why?
             appBar.setVisibility(View.INVISIBLE);
             mainContent.setVisibility(View.INVISIBLE);
             easterEggImage.setVisibility(View.VISIBLE);

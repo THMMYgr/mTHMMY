@@ -45,10 +45,7 @@ import com.snatik.storage.Storage;
 
 import net.gotev.uploadservice.UploadService;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
@@ -67,6 +64,7 @@ import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.services.UploadsReceiver;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
+import gr.thmmy.mthmmy.utils.io.AssetUtils;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.OkHttpClient;
@@ -840,32 +838,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         privacyPolicyTextView.setPadding(30, 20, 30, 20);
         privacyPolicyTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_text));
         SpannableConfiguration configuration = SpannableConfiguration.builder(this).linkResolver(new LinkResolverDef()).build();
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(getAssets().open("PRIVACY.md")));
-            String line;
 
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append("\n");
-            }
-            Markwon.setMarkdown(privacyPolicyTextView, configuration, stringBuilder.toString());
+        String privacyPolicy = AssetUtils.readFileToText(BaseActivity.this,"PRIVACY.md");
+        if(privacyPolicy!=null){
+            Markwon.setMarkdown(privacyPolicyTextView, configuration, privacyPolicy);
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
             builder.setView(privacyPolicyTextView);
             builder.setPositiveButton("Close", (dialogInterface, i) -> dialogInterface.dismiss());
             builder.show();
-        } catch (IOException e) {
-            Timber.e(e, "Error reading Privacy Policy from assets.");
-        } catch (Exception e) {
-            Timber.e(e, "Error in Privacy Policy dialog.");
-        } finally {
-            try {
-                if (reader != null)
-                    reader.close();
-            } catch (IOException e) {
-                Timber.e(e, "Error in Privacy Policy dialog (closing reader).");
-            }
         }
     }
 
