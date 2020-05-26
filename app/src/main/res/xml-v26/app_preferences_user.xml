@@ -15,7 +15,7 @@
             android:summary="@string/pref_summary_app_main_default_tab"
             app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="@string/pref_app_display_relative_time_key"
             android:title="@string/pref_title_display_relative_time"
             android:summary="@string/pref_summary_display_relative_time"

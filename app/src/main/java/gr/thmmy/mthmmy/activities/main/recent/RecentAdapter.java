@@ -42,22 +42,23 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.mTitleView.setText(recentList.get(position).getSubject());
-
-        String dateTimeString = recentList.get(position).getDateTimeModified();
-        if(BaseApplication.getInstance().isDisplayRelativeTimeEnabled())
+        TopicSummary topicSummary = recentList.get(position);
+        holder.mTitleView.setText(topicSummary.getSubject());
+        if(BaseApplication.getInstance().isDisplayRelativeTimeEnabled()){
+            String timestamp = topicSummary.getLastPostTimestamp();
             try{
-                holder.mDateTimeView.setReferenceTime(Long.valueOf(dateTimeString));
+                holder.mDateTimeView.setReferenceTime(Long.valueOf(timestamp));
             }
             catch(NumberFormatException e){
-                Timber.e(e, "Invalid number format: %s", dateTimeString);
-                holder.mDateTimeView.setText(dateTimeString);
+                Timber.e(e, "Invalid number format: %s", timestamp);
+                holder.mDateTimeView.setText(topicSummary.getLastPostSimplifiedDateTime());
             }
+        }
         else
-            holder.mDateTimeView.setText(dateTimeString);
+            holder.mDateTimeView.setText(topicSummary.getLastPostSimplifiedDateTime());
 
-        holder.mUserView.setText(recentList.get(position).getLastUser());
-        holder.topic = recentList.get(position);
+        holder.mUserView.setText(topicSummary.getLastUser());
+        holder.topic = topicSummary;
 
         holder.mView.setOnClickListener(v -> {
             if (null != mListener) {

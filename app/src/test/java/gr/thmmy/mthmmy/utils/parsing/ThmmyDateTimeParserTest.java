@@ -10,6 +10,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.purifyTodayDateTime;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
@@ -47,7 +48,6 @@ public class ThmmyDateTimeParserTest {
         }
     };
 
-
     @Test
     public void dateTimesAreConvertedCorrectly() {
         stub(method(ThmmyDateTimeParser.class, GET_DTZ)).toReturn(DateTimeZone.forID(TIME_ZONE));
@@ -64,7 +64,7 @@ public class ThmmyDateTimeParserTest {
             }
         }
 
-        assertArrayEquals(expectedTimeStamps,timeStamps);
+        assertArrayEquals(expectedTimeStamps, timeStamps);
     }
 
     private final String [] todayDateTimes = {
@@ -72,14 +72,54 @@ public class ThmmyDateTimeParserTest {
         "00:58:07",
         "23:23:23",
         "09:09:09 am",
-        "09:09:09 pm"
+        "09:09:09 pm",
+        "Today at 12:16:48",
+        "Σήμερα στις 12:16:48",
+        "Today at 12:16:48 am"
     };
 
     @Test
-    public void todayDateTimeConvertToNonNull() {
+    public void todayDateTimesConvertToNonNull() {
         stub(method(ThmmyDateTimeParser.class, GET_DTZ)).toReturn(DateTimeZone.forID(TIME_ZONE));
 
         for (String todayDateTime : todayDateTimes)
             assertNotNull(convertToTimestamp(todayDateTime));
+    }
+
+    private final String [] dateTimesToBePurified = {
+            "12:16:48",
+            "12:16:48 am",
+            "Today at 12:16:48",
+            "Σήμερα στις 12:16:48",
+            "Today at 12:16:48 am"
+    };
+
+    private final String [] expectedPurifiedDateTimes = {
+            "12:16:48",
+            "12:16:48 am",
+            "12:16:48",
+            "12:16:48",
+            "12:16:48 am"
+    };
+
+    @Test
+    public void todayDateTimesArePurifiedCorrectly(){
+        String[] purifiedTodayDateTimes = new String[dateTimesToBePurified.length];
+
+        for(int i = 0; i< dateTimesToBePurified.length; i++)
+            purifiedTodayDateTimes[i] = purifyTodayDateTime(dateTimesToBePurified[i]);
+
+        assertArrayEquals(purifiedTodayDateTimes, expectedPurifiedDateTimes);
+
+        // Those below should remain unaltered
+        String[][] purifiedDateTimes = new String[dateTimes.length][];
+
+        for(int i=0; i<dateTimes.length; i++){
+            purifiedDateTimes[i] = new String[dateTimes[i].length];
+            for(int j=0; j<dateTimes[i].length; j++)
+                purifiedDateTimes[i][j]=purifyTodayDateTime(dateTimes[i][j]);
+        }
+
+        assertArrayEquals(dateTimes, purifiedDateTimes);
     }
 }

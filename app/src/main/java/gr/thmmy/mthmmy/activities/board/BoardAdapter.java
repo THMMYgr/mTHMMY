@@ -187,7 +187,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicViewHolder.topicRow.setOnClickListener(view -> {
                 Intent intent = new Intent(context, TopicActivity.class);
                 Bundle extras = new Bundle();
-                extras.putString(BUNDLE_TOPIC_URL, topic.getUrl());
+                extras.putString(BUNDLE_TOPIC_URL, topic.getTopicUrl());
                 extras.putString(BUNDLE_TOPIC_TITLE, topic.getSubject());
                 intent.putExtras(extras);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -232,7 +232,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicViewHolder.topicSubject.setText(lockedSticky);
             topicViewHolder.topicStartedBy.setText(context.getString(R.string.topic_started_by, topic.getStarter()));
             topicViewHolder.topicStats.setText(topic.getStats());
-            topicViewHolder.topicLastPost.setText(context.getString(R.string.topic_last_post, topic.getLastPostDateAndTime()));
+            topicViewHolder.topicLastPost.setText(context.getString(R.string.topic_last_post, topic.getLastPostDateTime(), topic.getLastUser()));
             topicViewHolder.topicLastPost.setOnClickListener(view -> {
                 Intent intent = new Intent(context, TopicActivity.class);
                 Bundle extras = new Bundle();

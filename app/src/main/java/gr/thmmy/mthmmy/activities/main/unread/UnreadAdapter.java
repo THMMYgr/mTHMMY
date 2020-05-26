@@ -36,7 +36,7 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (unreadList.get(position).getDateTimeModified() == null) return VIEW_TYPE_MARK_READ;
+        if (unreadList.get(position).getLastPostDateTime() == null) return VIEW_TYPE_MARK_READ;
         return unreadList.get(position).getTopicUrl() == null ? VIEW_TYPE_NADA : VIEW_TYPE_ITEM;
     }
 
@@ -61,29 +61,29 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
+        TopicSummary topicSummary = unreadList.get(holder.getAdapterPosition());
         if (holder instanceof UnreadAdapter.EmptyViewHolder) {
             final UnreadAdapter.EmptyViewHolder emptyViewHolder = (UnreadAdapter.EmptyViewHolder) holder;
-            emptyViewHolder.text.setText(unreadList.get(holder.getAdapterPosition()).getDateTimeModified());
+            emptyViewHolder.text.setText(topicSummary.getLastPostDateTime());
         } else if (holder instanceof UnreadAdapter.ViewHolder) {
             final UnreadAdapter.ViewHolder viewHolder = (UnreadAdapter.ViewHolder) holder;
 
-            viewHolder.mTitleView.setText(unreadList.get(holder.getAdapterPosition()).getSubject());
-
-            String dateTimeString=unreadList.get(holder.getAdapterPosition()).getDateTimeModified();
+            viewHolder.mTitleView.setText(topicSummary.getSubject());
             if(BaseApplication.getInstance().isDisplayRelativeTimeEnabled()){
+                String timestamp = topicSummary.getLastPostTimestamp();
                 try{
-                    viewHolder.mDateTimeView.setReferenceTime(Long.valueOf(dateTimeString));
+                    viewHolder.mDateTimeView.setReferenceTime(Long.valueOf(timestamp));
                 }
                 catch(NumberFormatException e){
-                    Timber.e(e, "Invalid number format.");
-                    viewHolder.mDateTimeView.setText(dateTimeString);
+                    Timber.e(e, "Invalid number format: %s", timestamp);
+                    viewHolder.mDateTimeView.setText(topicSummary.getLastPostSimplifiedDateTime());
                 }
             }
             else
-                viewHolder.mDateTimeView.setText(dateTimeString);
+                viewHolder.mDateTimeView.setText(topicSummary.getLastPostSimplifiedDateTime());
 
-            viewHolder.mUserView.setText(unreadList.get(position).getLastUser());
-            viewHolder.topic = unreadList.get(holder.getAdapterPosition());
+            viewHolder.mUserView.setText(topicSummary.getLastUser());
+            viewHolder.topic = topicSummary;
 
             viewHolder.mView.setOnClickListener(v -> {
                 if (null != mListener) {

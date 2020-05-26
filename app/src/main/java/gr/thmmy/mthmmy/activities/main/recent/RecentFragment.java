@@ -34,9 +34,6 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertDateTime;
-import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
-
 
 /**
  * A {@link BaseFragment} subclass.
@@ -189,21 +186,12 @@ public class RecentFragment extends BaseFragment {
                     String dateTime = recent.get(i + 2).text();
                     pattern = Pattern.compile("\\[(.*)]");
                     matcher = pattern.matcher(dateTime);
-                    if (matcher.find()){
-                        dateTime = matcher.group(1);
-                        if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled())  {
-                            dateTime=convertDateTime(dateTime, false);
-                            String timestamp = convertToTimestamp(dateTime);
-                            if(timestamp!=null)
-                                dateTime=timestamp;
-                        }
-                        else
-                            dateTime=convertDateTime(dateTime, true);
-                    }
+                    if (matcher.find())
+                        fetchedRecent.add(new TopicSummary(link, title, lastUser, matcher.group(1)));
                     else
                         throw new ParseException("Parsing failed (dateTime)");
 
-                    fetchedRecent.add(new TopicSummary(link, title, lastUser, dateTime));
+
                 }
                 return fetchedRecent;
             }

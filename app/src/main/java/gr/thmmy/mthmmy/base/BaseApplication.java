@@ -183,7 +183,7 @@ public class BaseApplication extends Application {
 
         heightPxl = displayMetrics.heightPixels;
 
-        displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, false);
+        displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, true);
     }
 
     //Getters

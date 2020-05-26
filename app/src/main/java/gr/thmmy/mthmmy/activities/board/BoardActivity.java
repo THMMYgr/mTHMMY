@@ -277,7 +277,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             if (topicRows != null && !topicRows.isEmpty()) {
                 for (Element topicRow : topicRows) {
                     if (!Objects.equals(topicRow.className(), "titlebg")) {
-                        String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
+                        String pTopicUrl, pSubject, pStarter, pLastUser="", pLastPostDateTime="00:00:00", pLastPost, pLastPostUrl, pStats;
                         boolean pLocked = false, pSticky = false, pUnread = false;
                         Elements topicColumns = topicRow.select(">td");
                         {
@@ -292,21 +292,21 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             if (column.select("a[id^=newicon]").first() != null)
                                 pUnread = true;
                         }
-                        pStartedBy = topicColumns.get(3).text();
+                        pStarter = topicColumns.get(3).text();
                         pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
                         pLastPost = topicColumns.last().text();
                         if (pLastPost.contains("by")) {
-                            pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
-                                    "\n" + pLastPost.substring(pLastPost.indexOf("by"));
+                            pLastPostDateTime = pLastPost.substring(0, pLastPost.indexOf("by") -1);
+                            pLastUser = pLastPost.substring(pLastPost.indexOf("by") + 3);
                         } else if (pLastPost.contains("από")) {
-                            pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
-                                    "\n" + pLastPost.substring(pLastPost.indexOf("από"));
+                            pLastPostDateTime = pLastPost.substring(0, pLastPost.indexOf("από") - 1);
+                            pLastUser = pLastPost.substring(pLastPost.indexOf("από") + 4);
                         } else {
                             Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
                         }
                         pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
-                        tempTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
+                        tempTopics.add(new Topic(pTopicUrl, pSubject, pStarter, pLastUser, pLastPostDateTime, pLastPostUrl,
                                 pStats, pLocked, pSticky, pUnread));
                     }
                 }

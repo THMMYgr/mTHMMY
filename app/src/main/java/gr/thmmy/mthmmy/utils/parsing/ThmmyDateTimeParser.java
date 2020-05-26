@@ -46,11 +46,14 @@ public class ThmmyDateTimeParser {
         String originalDateTime = thmmyDateTime;
         DateTimeZone dtz = getDtz();
 
-        //Add today's date for the first two cases
+        // Remove any unnecessary "Today at" strings
+        thmmyDateTime = purifyTodayDateTime(thmmyDateTime);
+
+        // Add today's date for the first two cases
         if(thmmyDateTime.charAt(2)==':')
             thmmyDateTime = (new DateTime()).toString("MMMM d, Y, ") + thmmyDateTime;
 
-        //Don't even ask
+        // Don't even ask
         if(thmmyDateTime.contains("am"))
             thmmyDateTime = thmmyDateTime.replaceAll("\\s00:"," 12:");
 
@@ -84,16 +87,19 @@ public class ThmmyDateTimeParser {
         return timestamp;
     }
 
-    public static String convertDateTime(String dateTime, boolean removeSeconds){
-        //Convert e.g. Today at 12:16:48 -> 12:16:48, but October 03, 2019, 16:40:18 remains as is
-        if (!dateTime.contains(","))
-            dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
+    public static String simplifyDateTime(String dateTime){
+        return removeSeconds(purifyTodayDateTime(dateTime));
+    }
 
-        //Remove seconds
-        if(removeSeconds)
-            dateTime = dateTime.replaceAll("(.+?)(:[0-5][0-9])($|\\s)", "$1$3");
+    // Converts e.g. Today at 12:16:48 -> 12:16:48, but October 03, 2019, 16:40:18 remains as is
+    @VisibleForTesting
+    static String purifyTodayDateTime(String dateTime){
+        return dateTime.replaceAll("(Today at |Σήμερα στις )(.+)", "$2");
+    }
 
-        return dateTime;
+    // Converts e.g. 12:16:48 -> 12:16, October 03, 2019, 16:40:18 -> 12:16 October 03, 2019, 16:40
+    private static String removeSeconds(String dateTime){
+        return dateTime.replaceAll("(.*):\\d+(.*)", "$1$2");
     }
 
     @VisibleForTesting
