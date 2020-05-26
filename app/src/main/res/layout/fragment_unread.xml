@@ -1,28 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swiperefresh"
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <gr.thmmy.mthmmy.utils.CustomRecyclerView
-            android:id="@+id/list"
-            android:name="gr.thmmy.mthmmy.sections.unread.UnreadFragment"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swiperefresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/background"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            app:layoutManager="LinearLayoutManager"
-            tools:context=".activities.main.unread.UnreadFragment"
-            tools:listitem="@layout/fragment_unread_row"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="match_parent">
+
+            <gr.thmmy.mthmmy.utils.CustomRecyclerView
+                android:id="@+id/list"
+                android:name="gr.thmmy.mthmmy.sections.unread.UnreadFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/background"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                app:layoutManager="LinearLayoutManager"
+                tools:context=".activities.main.unread.UnreadFragment"
+                tools:listitem="@layout/fragment_unread_row" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/no_unread_topics"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:text="@string/no_unread_topics"
+        android:textColor="@color/primary_text"
+        app:layout_anchor="@+id/relativeLayout"
+        app:layout_anchorGravity="center" />
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
@@ -35,4 +52,13 @@
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal"/>
 
-</RelativeLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/unread_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margins"
+        android:layout_marginBottom="@dimen/fab_margins"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
+        app:srcCompat="@drawable/ic_mark_as_read" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -7,13 +7,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -50,9 +54,13 @@ public class UnreadFragment extends BaseFragment {
 
     private MaterialProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private FloatingActionButton markAsReadFAB;
+    private TextView noUnreadTopicsTextView;
+
     private UnreadAdapter unreadAdapter;
 
     private List<TopicSummary> topicSummaries;
+    private String markAsReadUrl = "";
     private int numberOfPages = 0;
     private int loadedPages = 0;
 
@@ -103,15 +111,21 @@ public class UnreadFragment extends BaseFragment {
         final View rootView = inflater.inflate(R.layout.fragment_unread, container, false);
 
         // Set the adapter
-        if (rootView instanceof RelativeLayout) {
+        if (rootView instanceof CoordinatorLayout) {
             progressBar = rootView.findViewById(R.id.progressBar);
-            unreadAdapter = new UnreadAdapter(topicSummaries,
-                    fragmentInteractionListener, markReadLinkUrl -> {
-                if (!markReadTask.isRunning() && !unreadTask.isRunning()) {
-                    markReadTask = new MarkReadTask();
-                    markReadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, markReadLinkUrl);
-                }
-            });
+            noUnreadTopicsTextView = rootView.findViewById(R.id.no_unread_topics);
+            markAsReadFAB = rootView.findViewById(R.id.unread_fab);
+
+            if(topicSummaries.isEmpty()){
+                hideMarkAsReadFAB();
+                noUnreadTopicsTextView.setVisibility(View.VISIBLE);
+            }
+            else{
+                noUnreadTopicsTextView.setVisibility(View.INVISIBLE);
+                showMarkAsReadFAB();
+            }
+
+            unreadAdapter = new UnreadAdapter(topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -155,20 +169,56 @@ public class UnreadFragment extends BaseFragment {
         void onUnreadFragmentInteraction(TopicSummary topicSummary);
     }
 
+    private void showMarkAsReadFAB() {
+        markAsReadFAB.setOnClickListener(v -> {
+            if (!markReadTask.isRunning() && !unreadTask.isRunning())
+                showMarkAsReadConfirmationDialog();
+        });
+        markAsReadFAB.show();
+        markAsReadFAB.setTag(true);
+    }
+
+    private void hideMarkAsReadFAB() {
+        markAsReadFAB.setOnClickListener(null);
+        markAsReadFAB.hide();
+        markAsReadFAB.setTag(false);
+    }
+
+    private void showMarkAsReadConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+        builder.setTitle("Mark all as read");
+        builder.setMessage("Are you sure that you want to mark ALL topics as read?");
+        builder.setPositiveButton("Yep", (dialogInterface, i) -> {
+            markReadTask = new MarkReadTask();
+            markReadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, markAsReadUrl);
+        });
+        builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
+        builder.create().show();
+    }
+
     //---------------------------------------ASYNC TASK-----------------------------------
 
     private void onUnreadTaskStarted() {
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
-    private void onUnreadTaskFinished(int resultCode,  ArrayList<TopicSummary> fetchedUnread) {
+    private void onUnreadTaskFinished(int resultCode,  UnreadTaskData unreadTaskData) {
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            if(fetchedUnread!=null && !fetchedUnread.isEmpty()){
+            ArrayList<TopicSummary> fetchedUnread = unreadTaskData.getTopicSummaries();
+            if(!fetchedUnread.isEmpty()){
                 if(loadedPages==0)
                     topicSummaries.clear();
                 topicSummaries.addAll(fetchedUnread);
-                unreadAdapter.notifyDataSetChanged();
+                markAsReadUrl = unreadTaskData.getMarkAsReadUrl();
+                noUnreadTopicsTextView.setVisibility(View.INVISIBLE);
+                showMarkAsReadFAB();
             }
+            else {
+                topicSummaries.clear();
+                hideMarkAsReadFAB();
+                noUnreadTopicsTextView.setVisibility(View.VISIBLE);
+            }
+            unreadAdapter.notifyDataSetChanged();
             loadedPages++;
             if (loadedPages < numberOfPages) {
                 unreadTask = new UnreadTask(this::onUnreadTaskStarted, this::onUnreadTaskFinished);
@@ -191,18 +241,17 @@ public class UnreadFragment extends BaseFragment {
         }
     }
 
-    private class UnreadTask extends NewParseTask<ArrayList<TopicSummary>> {
-
-        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
+    private class UnreadTask extends NewParseTask<UnreadTaskData> {
+        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<UnreadTaskData> onParseTaskFinishedListener) {
             super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 
         @Override
-        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException {
+        protected UnreadTaskData parse(Document document, Response response) throws ParseException {
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
             ArrayList<TopicSummary> fetchedTopicSummaries = new ArrayList<>();
+            String markAsReadUrl="";
             if (!unread.isEmpty()) {
-                //topicSummaries.clear();
                 for (Element row : unread) {
                     Elements information = row.select("td");
                     String link = information.last().select("a").first().attr("href");
@@ -222,7 +271,6 @@ public class UnreadFragment extends BaseFragment {
                 Element pagesElement = null, markRead = null;
                 if (topBar != null) {
                     pagesElement = topBar.select("td.middletext").first();
-
                     markRead = document.select("table:not(.bordercolor):not([width])").select("a")
                             .first();
                 }
@@ -236,23 +284,35 @@ public class UnreadFragment extends BaseFragment {
                 }
 
                 if (markRead != null && loadedPages == numberOfPages - 1)
-                    fetchedTopicSummaries.add(new TopicSummary(markRead.attr("href"), markRead.text(), null,
-                            null));
-            } else {
-                String message = document.select("table.bordercolor[cellspacing=1]").first().text();
-                if (message.contains("No messages")) { //It's english
-                    message = "No unread posts!";
-                } else { //It's greek
-                    message = "Δεν υπάρχουν μη αναγνωσμένα μηνύματα!";
-                }
-                fetchedTopicSummaries.add(new TopicSummary(null, null, null, message));
+                    markAsReadUrl = markRead.attr("href");
+
+                return new UnreadTaskData(fetchedTopicSummaries, markAsReadUrl);
             }
-            return fetchedTopicSummaries;
+
+            return new UnreadTaskData(new ArrayList<>(), markAsReadUrl);
         }
 
         @Override
-        protected int getResultCode(Response response, ArrayList<TopicSummary> data) {
+        protected int getResultCode(Response response, UnreadTaskData data) {
             return NetworkResultCodes.SUCCESSFUL;
+        }
+    }
+
+    private class UnreadTaskData {
+        ArrayList<TopicSummary> topicSummaries;
+        String markAsReadUrl;
+
+        UnreadTaskData(ArrayList<TopicSummary> topicSummaries, String markAsReadUrl){
+            this.topicSummaries = topicSummaries;
+            this.markAsReadUrl = markAsReadUrl;
+        }
+
+        ArrayList<TopicSummary> getTopicSummaries() {
+            return topicSummaries;
+        }
+
+        String getMarkAsReadUrl() {
+            return markAsReadUrl;
         }
     }
 

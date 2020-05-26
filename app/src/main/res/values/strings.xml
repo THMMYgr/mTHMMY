@@ -23,6 +23,7 @@
     <string name="unread">Unread</string>
     <string name="shoutbox">Shoutbox</string>
     <string name="refresh">Refresh</string>
+    <string name="no_unread_topics">No unread topics!</string>
 
     <!--Login Activity-->
     <string name="thmmy_img_description">thmmy.gr</string>
