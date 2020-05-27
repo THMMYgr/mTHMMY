@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.editorview;
+package gr.thmmy.mthmmy.views.editorview;
 
 import android.view.inputmethod.InputConnection;
 

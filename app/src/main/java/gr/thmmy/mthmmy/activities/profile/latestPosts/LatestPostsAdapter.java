@@ -18,7 +18,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.TopicSummary;
-import gr.thmmy.mthmmy.utils.WebViewOnTouchClickListener;
+import gr.thmmy.mthmmy.utils.ui.WebViewOnTouchClickListener;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**

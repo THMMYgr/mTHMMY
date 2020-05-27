@@ -14,7 +14,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
-import gr.thmmy.mthmmy.utils.RelativeTimeTextView;
+import gr.thmmy.mthmmy.views.RelativeTimeTextView;
 import timber.log.Timber;
 
 

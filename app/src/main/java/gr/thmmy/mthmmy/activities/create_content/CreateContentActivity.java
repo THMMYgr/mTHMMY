@@ -15,9 +15,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
-import gr.thmmy.mthmmy.editorview.EditorView;
-import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.views.editorview.EditorView;
+import gr.thmmy.mthmmy.views.editorview.EmojiKeyboard;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 

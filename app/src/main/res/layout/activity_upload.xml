@@ -49,7 +49,7 @@
                 android:background="@color/primary_light"
                 android:orientation="vertical">
 
-                <gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault
+                <gr.thmmy.mthmmy.views.AppCompatSpinnerWithoutDefault
                     android:id="@+id/upload_spinner_category_root"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -118,7 +118,7 @@
                     android:inputType="textMultiLine" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <gr.thmmy.mthmmy.utils.ToggledBackgroundButton
+            <gr.thmmy.mthmmy.views.ToggledBackgroundButton
                 android:id="@+id/upload_title_description_builder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -195,7 +195,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margins"
         android:layout_marginBottom="@dimen/fab_margins"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_file_upload_white_24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

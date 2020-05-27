@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.views;
 
 import android.content.Context;
 

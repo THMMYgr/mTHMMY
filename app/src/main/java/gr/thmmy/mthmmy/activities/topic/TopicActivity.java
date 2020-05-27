@@ -49,16 +49,16 @@ import gr.thmmy.mthmmy.activities.topic.tasks.ReplyTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
-import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
+import gr.thmmy.mthmmy.views.CustomLinearLayoutManager;
+import gr.thmmy.mthmmy.views.editorview.EmojiKeyboard;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 

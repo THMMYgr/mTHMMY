@@ -51,7 +51,7 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity" />
 
-        <gr.thmmy.mthmmy.editorview.EmojiKeyboard
+        <gr.thmmy.mthmmy.views.editorview.EmojiKeyboard
             android:id="@+id/emoji_keyboard"
             android:layout_width="match_parent"
             android:layout_height="240dp"
@@ -78,7 +78,7 @@
         android:layout_gravity="bottom|end"
         android:background="@color/primary"
         app:elevation="8dp"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareLinearBehavior">
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareLinearBehavior">
 
         <ImageButton
             android:id="@+id/page_first_button"
@@ -148,7 +148,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margins"
         android:layout_marginBottom="50dp"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_reply" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

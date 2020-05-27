@@ -23,7 +23,7 @@ import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.model.Shout;
 import gr.thmmy.mthmmy.model.ThmmyPage;
-import gr.thmmy.mthmmy.utils.CustomRecyclerView;
+import gr.thmmy.mthmmy.views.CustomRecyclerView;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;

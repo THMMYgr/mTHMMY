@@ -19,13 +19,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.editorview.EditorView;
-import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Shout;
 import gr.thmmy.mthmmy.model.Shoutbox;
-import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.ShoutboxViewModel;
+import gr.thmmy.mthmmy.views.CustomRecyclerView;
+import gr.thmmy.mthmmy.views.editorview.EditorView;
+import gr.thmmy.mthmmy.views.editorview.EmojiKeyboard;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 

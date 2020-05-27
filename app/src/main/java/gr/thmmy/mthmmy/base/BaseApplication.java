@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;
-import gr.thmmy.mthmmy.utils.CrashReportingTree;
+import gr.thmmy.mthmmy.utils.crashreporting.CrashReportingTree;
 import io.fabric.sdk.android.Fabric;
 import okhttp3.CipherSuite;
 import okhttp3.ConnectionSpec;

@@ -76,7 +76,7 @@
                     android:textSize="10sp"
                     tools:ignore="SmallSp" />
             </RelativeLayout>
-            <gr.thmmy.mthmmy.editorview.EditorView
+            <gr.thmmy.mthmmy.views.editorview.EditorView
                 android:id="@+id/edit_editorview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

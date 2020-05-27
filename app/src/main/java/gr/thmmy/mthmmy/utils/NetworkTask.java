@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.utils.crashreporting.CrashReporter;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -17,8 +18,7 @@ import okhttp3.Response;
 import timber.log.Timber;
 
 public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>> {
-
-    protected OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener;
+    private OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener;
 
     public NetworkTask(OnTaskStartedListener onTaskStartedListener, OnTaskCancelledListener onTaskCancelledListener,
                        OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener) {

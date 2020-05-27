@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.utils.ui;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;

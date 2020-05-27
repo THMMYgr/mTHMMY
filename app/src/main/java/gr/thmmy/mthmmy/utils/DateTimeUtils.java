@@ -8,13 +8,13 @@ import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.SECOND_IN_MILLIS;
 import static android.text.format.DateUtils.YEAR_IN_MILLIS;
 
-class DateTimeUtils {
+public class DateTimeUtils {
 
     private static final long MONTH_IN_MILLIS = 30*DAY_IN_MILLIS;
     private static final long DECADE_IN_MILLIS = 10*YEAR_IN_MILLIS;
 
     @VisibleForTesting
-    static String getRelativeTimeSpanString(long time) {
+    public static String getRelativeTimeSpanString(long time) {
         long now = System.currentTimeMillis();
 
         boolean past = (now >= time);

@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.utils.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;

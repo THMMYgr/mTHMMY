@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <gr.thmmy.mthmmy.utils.CustomRecyclerView
+            <gr.thmmy.mthmmy.views.CustomRecyclerView
                 android:id="@+id/list"
                 android:name="gr.thmmy.mthmmy.sections.unread.UnreadFragment"
                 android:layout_width="match_parent"
@@ -59,6 +59,6 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margins"
         android:layout_marginBottom="@dimen/fab_margins"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_mark_as_read" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

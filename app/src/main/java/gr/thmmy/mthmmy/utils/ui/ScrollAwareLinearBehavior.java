@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.utils.ui;
 
 import android.animation.Animator;
 import android.content.Context;
