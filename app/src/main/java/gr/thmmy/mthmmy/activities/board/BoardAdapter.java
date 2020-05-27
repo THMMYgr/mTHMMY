@@ -39,8 +39,8 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_TYPE_LOADING = 4;
 
     private final Context context;
-    private ArrayList<Board> parsedSubBoards = new ArrayList<>();
-    private ArrayList<Topic> parsedTopics = new ArrayList<>();
+    private ArrayList<Board> parsedSubBoards;
+    private ArrayList<Topic> parsedTopics;
     private final ArrayList<Boolean> boardExpandableVisibility = new ArrayList<>();
     private final ArrayList<Boolean> topicExpandableVisibility = new ArrayList<>();
 

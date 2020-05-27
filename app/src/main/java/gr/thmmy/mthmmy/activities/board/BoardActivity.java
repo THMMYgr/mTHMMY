@@ -21,6 +21,8 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
@@ -158,9 +160,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
     @Override
     public void onLoadMore() {
-        if (pagesLoaded < numberOfPages && parsedTopics.get(parsedTopics.size() - 1) != null) {
+        if (pagesLoaded < numberOfPages && !parsedTopics.isEmpty() && parsedTopics.get(parsedTopics.size() - 1) != null) {
             parsedTopics.add(null);
-            boardAdapter.notifyItemInserted(parsedSubBoards.size() + parsedTopics.size());
+            boardAdapter.notifyItemInserted(parsedSubBoards.size() + parsedTopics.size());  // This gets a warning and should be changed
 
             //Load data
             boardTask = new BoardTask();
@@ -296,15 +298,15 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
                         pLastPost = topicColumns.last().text();
-                        if (pLastPost.contains("by")) {
-                            pLastPostDateTime = pLastPost.substring(0, pLastPost.indexOf("by") -1);
-                            pLastUser = pLastPost.substring(pLastPost.indexOf("by") + 3);
-                        } else if (pLastPost.contains("από")) {
-                            pLastPostDateTime = pLastPost.substring(0, pLastPost.indexOf("από") - 1);
-                            pLastUser = pLastPost.substring(pLastPost.indexOf("από") + 4);
-                        } else {
-                            Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
+                        Pattern pattern = Pattern.compile("(.+)\\s(by|από)\\s(.+)$");
+                        Matcher matcher = pattern.matcher(pLastPost);
+                        if (matcher.find()){
+                            pLastPostDateTime = matcher.group(1);
+                            pLastUser = matcher.group(3);
                         }
+                        else
+                            throw new ParseException("Parsing failed (pLastPost came with: \"" + pLastPost + "\")");
+
                         pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
                         tempTopics.add(new Topic(pTopicUrl, pSubject, pStarter, pLastUser, pLastPostDateTime, pLastPostUrl,
                                 pStats, pLocked, pSticky, pUnread));
