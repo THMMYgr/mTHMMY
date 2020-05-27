@@ -66,11 +66,10 @@ public class WebViewOnTouchClickListener implements View.OnTouchListener {
                 new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
         PhotoView photoView = new PhotoView(context);
-        photoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        photoView.getLayoutParams().width = screenWidth;
-        photoView.getLayoutParams().height = screenHeight;
+        photoView.setLayoutParams(new LayoutParams(screenWidth, screenHeight));
 
         Glide.with(context).load(url).fitCenter().into(photoView);
+
         builder.addContentView(photoView, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
