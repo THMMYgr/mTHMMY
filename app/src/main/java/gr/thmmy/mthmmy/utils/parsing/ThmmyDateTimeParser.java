@@ -99,7 +99,7 @@ public class ThmmyDateTimeParser {
 
     // Converts e.g. 12:16:48 -> 12:16, October 03, 2019, 16:40:18 -> 12:16 October 03, 2019, 16:40
     private static String removeSeconds(String dateTime){
-        return dateTime.replaceAll("(.*):\\d+(.*)", "$1$2");
+        return dateTime.replaceAll("(.*):\\d+($|\\s.*)", "$1$2");
     }
 
     @VisibleForTesting

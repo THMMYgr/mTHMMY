@@ -85,7 +85,6 @@ public class RecentFragment extends BaseFragment {
         if (topicSummaries.isEmpty()) {
             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
             recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
-
         }
         Timber.d("onActivityCreated");
     }
@@ -128,8 +127,13 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recentTask!=null && recentTask.isRunning())
-            recentTask.cancel(true);
+        if (recentTask!=null){
+            try{
+                if(recentTask.isRunning())
+                    recentTask.cancel(true);
+            }    // Yes, it happens even though we checked
+            catch (NullPointerException ignored){ }
+        }
     }
 
 
@@ -190,7 +194,6 @@ public class RecentFragment extends BaseFragment {
                         fetchedRecent.add(new TopicSummary(link, title, lastUser, matcher.group(1)));
                     else
                         throw new ParseException("Parsing failed (dateTime)");
-
 
                 }
                 return fetchedRecent;

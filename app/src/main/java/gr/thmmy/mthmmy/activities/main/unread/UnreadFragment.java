@@ -157,10 +157,20 @@ public class UnreadFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (unreadTask!=null && unreadTask.isRunning())
-            unreadTask.cancel(true);
-        if (markReadTask!=null && markReadTask.isRunning())
-            markReadTask.cancel(true);
+        if (unreadTask!=null){
+            try{
+                if(unreadTask.isRunning())
+                    unreadTask.cancel(true);
+            }    // Yes, it happens even though we checked
+            catch (NullPointerException ignored){ }
+        }
+        if (markReadTask!=null){
+            try{
+                if(markReadTask.isRunning())
+                    markReadTask.cancel(true);
+            }    // Yes, it happens even though we checked
+            catch (NullPointerException ignored){ }
+        }
         if(topicSummaries!=null)
             topicSummaries.clear();
     }
