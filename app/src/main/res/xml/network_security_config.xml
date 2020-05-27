@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- This is needed because some sections of thmmy.gr are responding with cleartext traffic -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">www.thmmy.gr</domain>
+    </domain-config>
+</network-security-config>
