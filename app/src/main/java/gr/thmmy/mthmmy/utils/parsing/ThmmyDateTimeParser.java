@@ -42,7 +42,7 @@ public class ThmmyDateTimeParser {
     private ThmmyDateTimeParser(){}
 
     public static String convertToTimestamp(String thmmyDateTime){
-        Timber.d("Will attempt to convert %s to timestamp.", thmmyDateTime);
+        Timber.v("Will attempt to convert %s to timestamp.", thmmyDateTime);
         String originalDateTime = thmmyDateTime;
         DateTimeZone dtz = getDtz();
 
@@ -67,12 +67,12 @@ public class ThmmyDateTimeParser {
             dateTime=formatter.withZone(dtz).withLocale(englishLocale).parseDateTime(thmmyDateTime);
         }
         catch (IllegalArgumentException e1){
-            Timber.d("Parsing DateTime %s using English Locale failed.", thmmyDateTime);
+            Timber.v("Parsing DateTime %s using English Locale failed.", thmmyDateTime);
             try{
                 DateFormatSymbols dfs = DateTimeUtils.getDateFormatSymbols(greekLocale);
                 thmmyDateTime = thmmyDateTime.replace("am",dfs.getAmPmStrings()[0]);
                 thmmyDateTime = thmmyDateTime.replace("pm",dfs.getAmPmStrings()[1]);
-                Timber.d("Attempting to parse DateTime %s using Greek Locale...", thmmyDateTime);
+                Timber.v("Attempting to parse DateTime %s using Greek Locale...", thmmyDateTime);
                 dateTime=formatter.withZone(dtz).withLocale(greekLocale).parseDateTime(thmmyDateTime);
             }
             catch (IllegalArgumentException e2){
@@ -82,7 +82,7 @@ public class ThmmyDateTimeParser {
             }
         }
         String timestamp = Long.toString(dateTime.getMillis());
-        Timber.d("DateTime %s was converted to %s, or %s", originalDateTime, timestamp, dateTime.toString());
+        Timber.v("DateTime %s was converted to %s, or %s", originalDateTime, timestamp, dateTime.toString());
 
         return timestamp;
     }

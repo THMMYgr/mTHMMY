@@ -37,7 +37,8 @@
         android:layout_height="wrap_content"
         android:visibility="invisible"
         android:text="@string/no_unread_topics"
-        android:textColor="@color/primary_text"
+        android:textColor="@color/accent"
+        android:textSize="@dimen/medium_text"
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center" />
 
