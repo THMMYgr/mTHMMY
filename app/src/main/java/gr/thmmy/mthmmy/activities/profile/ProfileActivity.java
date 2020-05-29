@@ -57,6 +57,7 @@ import timber.log.Timber;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.emojiTagToHtml;
+import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
 
 /**
  * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>
@@ -127,8 +128,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         avatarView = findViewById(R.id.user_thumbnail);
         if (!Objects.equals(avatarUrl, ""))
-            //noinspection ConstantConditions
             loadAvatar(false);
+
         else
             loadAvatar(true);
         usernameView = findViewById(R.id.profile_activity_username);
@@ -215,8 +216,11 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         String avatarUri;
         if(loadDefault)
             avatarUri = "R.drawable.ic_default_user_avatar";
-        else
+        else {
             avatarUri = avatarUrl;
+            if(avatarUrl!=null)
+                avatarView.setOnClickListener(v -> displayPhotoViewImage(ProfileActivity.this, avatarUrl));
+        }
 
         Glide.with(this)
                 .load(avatarUri)
@@ -305,7 +309,6 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     usernameView.setText(usernameSpan);
                 } else if (usernameView.getText() != username) usernameView.setText(username);
                 if (avatarUrl != null && !Objects.equals(avatarUrl, ""))
-                    //noinspection ConstantConditions
                     loadAvatar(false);
                 else
                     loadAvatar(true);

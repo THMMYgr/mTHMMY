@@ -1,28 +1,19 @@
 package gr.thmmy.mthmmy.views;
 
-import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.webkit.WebView;
 import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.github.chrisbanes.photoview.PhotoView;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
 
 public class ReactiveWebView extends WebView {
-    private final static int screenWidth = BaseApplication.getInstance().getWidthInPixels();
-    private final static int screenHeight = BaseApplication.getInstance().getHeightInPixels();
-
     private final static long MAX_TOUCH_DURATION = 100;
     private final Context context;
     private long downTime;
@@ -72,27 +63,9 @@ public class ReactiveWebView extends WebView {
         WebView.HitTestResult result = this.getHitTestResult();
         if(result.getType() == WebView.HitTestResult.IMAGE_TYPE){
             String imageURL = result.getExtra();
-            showImage(imageURL);
+            displayPhotoViewImage(context, imageURL);
         }
         return super.performClick();
-    }
-
-    private void showImage(String url) {
-        Dialog builder = new Dialog(context);
-        builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        builder.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        builder.getWindow().setBackgroundDrawable(
-                new ColorDrawable(android.graphics.Color.TRANSPARENT));
-
-        PhotoView photoView = new PhotoView(context);
-        photoView.setLayoutParams(new ViewGroup.LayoutParams(screenWidth, screenHeight));
-
-        Glide.with(context).load(url).fitCenter().into(photoView);
-
-        builder.addContentView(photoView, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        builder.show();
     }
 
     private void setOnLongClickListener(){
