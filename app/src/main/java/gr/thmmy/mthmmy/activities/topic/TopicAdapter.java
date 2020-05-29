@@ -73,8 +73,8 @@ import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
 import gr.thmmy.mthmmy.utils.ui.CircleTransform;
-import gr.thmmy.mthmmy.utils.ui.WebViewOnTouchClickListener;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
+import gr.thmmy.mthmmy.views.ReactiveWebView;
 import gr.thmmy.mthmmy.views.editorview.EditorView;
 import gr.thmmy.mthmmy.views.editorview.IEmojiKeyboard;
 import timber.log.Timber;
@@ -363,7 +363,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 //Post's WebView parameters
                 holder.post.setClickable(true);
                 holder.post.setWebViewClient(new LinkLauncher());
-                holder.post.setOnTouchListener(new WebViewOnTouchClickListener(context));
 
                 //noinspection ConstantConditions
                 loadAvatar(currentPost.getThumbnailURL(), holder.thumbnail);
@@ -834,7 +833,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final LinearLayout cardChildLinear;
         final TextView postDate, postNum, username, subject;
         final ImageView thumbnail;
-        final public WebView post;
+        final public ReactiveWebView post;
         final ImageButton quoteToggle, overflowButton;
         final RelativeLayout header;
         final LinearLayout userExtraInfo;

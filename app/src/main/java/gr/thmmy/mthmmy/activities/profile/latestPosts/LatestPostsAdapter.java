@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -18,7 +17,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.TopicSummary;
-import gr.thmmy.mthmmy.utils.ui.WebViewOnTouchClickListener;
+import gr.thmmy.mthmmy.views.ReactiveWebView;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**
@@ -81,7 +80,6 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             latestPostViewHolder.post.setBackgroundColor(Color.argb(1, 255, 255, 255));
             latestPostViewHolder.post.loadDataWithBaseURL("file:///android_asset/"
                     , topic.getPost(), "text/html", "UTF-8", null);
-            latestPostViewHolder.post.setOnTouchListener(new WebViewOnTouchClickListener(context));
 
             latestPostViewHolder.latestPostsRow.setOnClickListener(v -> {
                 if (interactionListener != null) {
@@ -106,7 +104,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final RelativeLayout latestPostsRow;
         final TextView postTitle;
         final TextView postDate;
-        final WebView post;
+        final ReactiveWebView post;
 
         LatestPostViewHolder(View itemView) {
             super(itemView);
