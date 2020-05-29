@@ -307,9 +307,12 @@ public class UnreadFragment extends BaseFragment {
                 }
                 Element topBar = document.select("table:not(.bordercolor):not(#bodyarea):has(td.middletext)").first();
 
-                Element pagesElement = null;
-                if (topBar != null)
+                Element pagesElement = null, markRead = null;
+                if (topBar != null) {
                     pagesElement = topBar.select("td.middletext").first();
+                    markRead = document.select("table:not(.bordercolor):not([width])").select("a")
+                            .first();
+                }
 
                 if (numberOfPages == 0 && pagesElement != null) {
                     Elements pages = pagesElement.select("a");
@@ -317,6 +320,14 @@ public class UnreadFragment extends BaseFragment {
                         numberOfPages = Integer.parseInt(pages.last().text());
                     else
                         numberOfPages = 1;
+                }
+
+                if (markRead != null && loadedPages == numberOfPages - 1){
+                    String retrievedMarkAsReadUrl = markRead.attr("href");
+                    if(!retrievedMarkAsReadUrl.equals(markAsReadUrl)) {
+                        markAsReadUrl = retrievedMarkAsReadUrl;
+                        BaseApplication.getInstance().getSessionManager().refreshSescFromUrl(retrievedMarkAsReadUrl);
+                    }
                 }
 
                 return fetchedTopicSummaries;

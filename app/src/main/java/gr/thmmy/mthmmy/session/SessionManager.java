@@ -244,6 +244,15 @@ public class SessionManager {
             guestLogin();
         }
     }
+
+    public void refreshSescFromUrl(String url){
+        String sesc = extractSescFromLink(url);
+        if(sesc!=null){
+            setSesc(sesc);
+            setLogoutLink(generateLogoutLink(sesc));
+            setMarkAsReadLink(sesc);
+        }
+    }
     //--------------------------------------AUTH ENDS-----------------------------------------------
 
     //---------------------------------------GETTERS------------------------------------------------
@@ -271,7 +280,7 @@ public class SessionManager {
     public String getMarkAllAsReadLink() {
         String markAsReadLink = sharedPrefs.getString(MARK_ALL_AS_READ_LINK, null);
         if(markAsReadLink == null){ //For older versions, extract it from logout link (otherwise user would have to login again)
-            String sesc = extractSescFromLogoutLink(getLogoutLink());
+            String sesc = extractSescFromLink(getLogoutLink());
             if(sesc!=null) {
                 setSesc(sesc);
                 markAsReadLink = generateMarkAllAsReadLink(sesc);
@@ -310,6 +319,12 @@ public class SessionManager {
     private void setMarkAsReadLink(String markAllAsReadLink){
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(MARK_ALL_AS_READ_LINK, markAllAsReadLink);
+        editor.apply();
+    }
+
+    private void setLogoutLink(String logoutLink){
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(LOGOUT_LINK, logoutLink);
         editor.apply();
     }
 
@@ -421,16 +436,16 @@ public class SessionManager {
         Elements logoutLink = doc.select("a[href^=https://www.thmmy.gr/smf/index.php?action=logout;sesc=]");
         if (!logoutLink.isEmpty()) {
             String link = logoutLink.first().attr("href");
-            return extractSescFromLogoutLink(link);
+            return extractSescFromLink(link);
         }
         Timber.e(new ParseException("Parsing failed(extractSesc)"),"ParseException");
         return null;
     }
 
-    private String extractSescFromLogoutLink(String logoutLink){
-        if (logoutLink != null){
+    private String extractSescFromLink(String link){
+        if (link != null){
             Pattern pattern = Pattern.compile(".+;sesc=(\\w+)");
-            Matcher matcher = pattern.matcher(logoutLink);
+            Matcher matcher = pattern.matcher(link);
             if (matcher.find())
                 return matcher.group(1);
         }

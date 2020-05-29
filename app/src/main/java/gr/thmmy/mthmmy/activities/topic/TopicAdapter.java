@@ -967,7 +967,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         if (viewModel.getCurrentPageIndex() == viewModel.getPageCount()) {
                             //same page
                             postFocusListener.onPostFocusChange(getItemCount() - 1);
-                            Timber.e("new");
+                            Timber.d("new");
                             return true;
                         }
                     }
@@ -979,7 +979,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         for (int i = 0; i < topicItems.size(); i++) {
                             if (topicItems.get(i) instanceof Post && ((Post) topicItems.get(i)).getPostIndex() == testAgainst) {
                                 //same page
-                                Timber.e(Integer.toString(i));
+                                Timber.d(Integer.toString(i));
                                 postFocusListener.onPostFocusChange(i);
                                 return true;
                             }
