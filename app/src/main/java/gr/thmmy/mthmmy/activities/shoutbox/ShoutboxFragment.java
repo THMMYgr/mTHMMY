@@ -105,6 +105,7 @@ public class ShoutboxFragment extends Fragment {
                 Timber.i("Shoutbox loaded successfully");
                 shoutAdapter.setShouts(shoutbox.getShouts());
                 shoutAdapter.notifyDataSetChanged();
+                editorView.setVisibility(shoutbox.getShoutSend() == null ? View.GONE : View.VISIBLE);
             }
         });
         shoutboxViewModel.setOnShoutboxTaskStarted(this::onShoutboxTaskStarted);
