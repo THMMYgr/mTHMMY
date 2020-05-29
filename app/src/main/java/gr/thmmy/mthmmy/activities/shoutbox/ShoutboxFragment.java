@@ -107,7 +107,7 @@ public class ShoutboxFragment extends Fragment {
                 shoutAdapter.notifyDataSetChanged();
             }
         });
-        shoutboxViewModel.setOnShoutboxTaskStarted(this::onShoutboxTaskSarted);
+        shoutboxViewModel.setOnShoutboxTaskStarted(this::onShoutboxTaskStarted);
         shoutboxViewModel.setOnShoutboxTaskFinished(this::onShoutboxTaskFinished);
         shoutboxViewModel.setOnSendShoutTaskStarted(this::onSendShoutTaskStarted);
         shoutboxViewModel.setOnSendShoutTaskFinished(this::onSendShoutTaskFinished);
@@ -115,9 +115,10 @@ public class ShoutboxFragment extends Fragment {
         shoutboxViewModel.loadShoutbox(false);
     }
 
-    private void onShoutboxTaskSarted() {
+    private void onShoutboxTaskStarted() {
         Timber.i("Starting shoutbox task...");
         progressBar.setVisibility(View.VISIBLE);
+        editorView.setVisibility(View.GONE);
     }
 
     private void onSendShoutTaskStarted() {
