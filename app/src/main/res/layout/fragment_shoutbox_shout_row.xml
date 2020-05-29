@@ -50,7 +50,7 @@
             android:layout_marginBottom="9dp"
             android:background="@color/divider" />
 
-        <WebView
+        <gr.thmmy.mthmmy.views.ReactiveWebView
             android:id="@+id/shout_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
