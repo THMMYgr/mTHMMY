@@ -47,13 +47,15 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -65,6 +67,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
@@ -72,7 +75,6 @@ import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.utils.parsing.ThmmyParser;
-import gr.thmmy.mthmmy.utils.ui.CircleTransform;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
 import gr.thmmy.mthmmy.views.ReactiveWebView;
 import gr.thmmy.mthmmy.views.editorview.EditorView;
@@ -365,7 +367,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.post.setWebViewClient(new LinkLauncher());
 
                 //noinspection ConstantConditions
-                loadAvatar(currentPost.getThumbnailURL(), holder.thumbnail);
+                loadAvatar(currentPost.getThumbnailURL(), holder.thumbnail, holder.itemView.getContext());
 
                 //Sets username,submit date, index number, subject, post's and attached files texts
                 holder.username.setText(currentPost.getAuthor());
@@ -646,7 +648,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Post reply = (Post) topicItems.get(position);
 
                 //noinspection ConstantConditions
-                loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail);
+                loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail, holder.itemView.getContext());
 
                 holder.username.setText(getSessionManager().getUsername());
                 holder.itemView.setAlpha(1f);
@@ -738,7 +740,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 
                 //noinspection ConstantConditions
-                loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail);
+                loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail,  holder.itemView.getContext());
 
                 holder.username.setText(getSessionManager().getUsername());
                 holder.editSubject.setText(currentPost.getSubject());
@@ -808,16 +810,15 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private void loadAvatar(String imageUrl, ImageView imageView) {
-        Picasso.with(context)
+    private void loadAvatar(String imageUrl, ImageView imageView, Context context) {
+        if(imageUrl!=null)
+            imageUrl = imageUrl.trim();
+
+        Glide.with(context)
                 .load(imageUrl)
-                .fit()
-                .centerCrop()
-                .error(Objects.requireNonNull(ResourcesCompat.getDrawable(context.getResources()
-                        , R.drawable.ic_default_user_avatar_darker, null)))
-                .placeholder(Objects.requireNonNull(ResourcesCompat.getDrawable(context.getResources()
-                        , R.drawable.ic_default_user_avatar_darker, null)))
-                .transform(new CircleTransform())
+                .circleCrop()
+                .error(R.drawable.ic_default_user_avatar_darker)
+                .placeholder(R.drawable.ic_default_user_avatar_darker)
                 .into(imageView);
     }
 

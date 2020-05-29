@@ -25,9 +25,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.squareup.picasso.Picasso;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -51,7 +51,6 @@ import gr.thmmy.mthmmy.utils.Parcel;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.ui.CenterVerticalSpan;
-import gr.thmmy.mthmmy.utils.ui.CircleTransform;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -130,9 +129,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         avatarView = findViewById(R.id.user_thumbnail);
         if (!Objects.equals(avatarUrl, ""))
             //noinspection ConstantConditions
-            loadAvatar();
+            loadAvatar(false);
         else
-            loadDefaultAvatar();
+            loadAvatar(true);
         usernameView = findViewById(R.id.profile_activity_username);
         usernameView.setTypeface(Typeface.createFromAsset(this.getAssets()
                 , "fonts/fontawesome-webfont.ttf"));
@@ -213,29 +212,18 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
     }
 
-    private void loadAvatar(){
-        Picasso.with(this)
-                .load(avatarUrl)
-                .fit()
-                .centerCrop()
-                .error(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
-                        , R.drawable.ic_default_user_avatar, null)))
-                .placeholder(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
-                        , R.drawable.ic_default_user_avatar, null)))
-                .transform(new CircleTransform())
-                .into(avatarView);
-    }
+    private void loadAvatar(Boolean loadDefault){
+        String avatarUri;
+        if(loadDefault)
+            avatarUri = "R.drawable.ic_default_user_avatar";
+        else
+            avatarUri = avatarUrl;
 
-    private void loadDefaultAvatar(){
-        Picasso.with(this)
-                .load(R.drawable.ic_default_user_avatar)
-                .fit()
-                .centerCrop()
-                .error(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
-                        , R.drawable.ic_default_user_avatar, null)))
-                .placeholder(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
-                        , R.drawable.ic_default_user_avatar, null)))
-                .transform(new CircleTransform())
+        Glide.with(this)
+                .load(avatarUri)
+                .circleCrop()
+                .error(R.drawable.ic_default_user_avatar)
+                .placeholder(R.drawable.ic_default_user_avatar)
                 .into(avatarView);
     }
 
@@ -319,9 +307,9 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 } else if (usernameView.getText() != username) usernameView.setText(username);
                 if (avatarUrl != null && !Objects.equals(avatarUrl, ""))
                     //noinspection ConstantConditions
-                    loadAvatar();
+                    loadAvatar(false);
                 else
-                    loadDefaultAvatar();
+                    loadAvatar(true);
                 if (personalText != null) {
                     personalTextView.setText(personalText);
                     personalTextView.setVisibility(View.VISIBLE);
