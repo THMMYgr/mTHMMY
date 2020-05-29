@@ -31,19 +31,24 @@ public class ReactiveWebView extends WebView {
     public ReactiveWebView(Context context) {
         super(context);
         this.context = context;
-        setOnLongClickListener();
+        init();
     }
 
     public ReactiveWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-        setOnLongClickListener();
+        init();
     }
 
     public ReactiveWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.context = context;
+        init();
+    }
+
+    private void init(){
         setOnLongClickListener();
+        this.setVerticalScrollBarEnabled(false);
     }
 
     @Override

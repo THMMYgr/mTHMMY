@@ -187,6 +187,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         recyclerView.setLayoutManager(layoutManager);
         topicAdapter = new TopicAdapter(this, emojiKeyboard, topicItems);
         recyclerView.setAdapter(topicAdapter);
+        recyclerView.setItemViewCacheSize(15);  //Every page has maximum 15 posts
 
         replyFAB = findViewById(R.id.topic_fab);
         replyFAB.hide();
@@ -661,11 +662,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 Toast.makeText(this, "Failed to remove vote", Toast.LENGTH_LONG).show();
             }
         });
-        // observe the chages in data
+        // observe the changes in data
         viewModel.getPageIndicatorIndex().observe(this, pageIndicatorIndex -> {
             if (pageIndicatorIndex == null) return;
-            pageIndicator.setText(String.valueOf(pageIndicatorIndex) + "/" +
-                    String.valueOf(viewModel.getPageCount()));
+            pageIndicator.setText(pageIndicatorIndex + "/" +
+                    viewModel.getPageCount());
         });
         viewModel.getTopicTitle().observe(this, newTopicTitle -> {
             if (newTopicTitle == null) return;
@@ -692,6 +693,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         viewModel.getTopicItems().observe(this, postList -> {
             if (postList == null) progressBar.setVisibility(ProgressBar.VISIBLE);
             recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
+            recyclerView.scrollToPosition(0);
             topicItems.clear();
             topicItems.addAll(postList);
             topicAdapter.notifyDataSetChanged();
