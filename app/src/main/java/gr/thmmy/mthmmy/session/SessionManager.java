@@ -188,9 +188,9 @@ public class SessionManager {
      * fragments' data are retrieved).
      */
     void validateSession() {
-        Timber.e("Validating session...");
+        Timber.i("Validating session...");
         if (isLoggedIn()) {
-            Timber.e("Refreshing session...");
+            Timber.i("Refreshing session...");
             int loginResult = login();
             if (loginResult != FAILURE)
                 return;

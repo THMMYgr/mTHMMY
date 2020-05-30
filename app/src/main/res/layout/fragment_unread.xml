@@ -39,6 +39,7 @@
         android:text="@string/no_unread_topics"
         android:textColor="@color/accent"
         android:textSize="@dimen/medium_text"
+        android:textIsSelectable="false"
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center" />
 

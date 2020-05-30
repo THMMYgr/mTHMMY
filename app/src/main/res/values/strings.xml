@@ -105,8 +105,7 @@
 
     <!--Bookmarks-->
     <string name="remove_bookmark">Remove</string>
-    <string name="empty_board_bookmarks">You have no bookmarked boards</string>
-    <string name="empty_topic_bookmarks">You have no bookmarked topics</string>
+    <string name="nothing_bookmarked_here">Nothing bookmarked here!</string>
     <string name="toggle_notification">Toggle Notification</string>
 
     <!--FontAwesome-->

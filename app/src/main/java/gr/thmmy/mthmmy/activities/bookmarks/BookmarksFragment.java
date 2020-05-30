@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.bookmarks;
 
 import android.app.Activity;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,6 +32,8 @@ public class BookmarksFragment extends Fragment {
     static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
     static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
     static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
+
+    private TextView nothingBookmarkedTextView;
 
     private ArrayList<Bookmark> bookmarks = null;
     private Type type;
@@ -100,8 +101,10 @@ public class BookmarksFragment extends Fragment {
         final View rootView = layoutInflater.inflate(R.layout.fragment_bookmarks, container, false);
         //bookmarks container
         final LinearLayout bookmarksLinearView = rootView.findViewById(R.id.bookmarks_container);
+        nothingBookmarkedTextView = rootView.findViewById(R.id.nothing_bookmarked);
 
         if(this.bookmarks != null && !this.bookmarks.isEmpty()) {
+            hideNothingBookmarked();
             for (final Bookmark bookmark : bookmarks) {
                 if (bookmark != null && bookmark.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
@@ -137,38 +140,27 @@ public class BookmarksFragment extends Fragment {
                         row.setVisibility(View.GONE);
 
                         if (bookmarks.isEmpty()){
-                            bookmarksLinearView.addView(bookmarksListEmptyMessage());
+                            showNothingBookmarked();
                         }
                     });
                     bookmarksLinearView.addView(row);
                 }
             }
         } else
-            bookmarksLinearView.addView(bookmarksListEmptyMessage());
+            showNothingBookmarked();
 
         return rootView;
     }
 
-    private TextView bookmarksListEmptyMessage() {
-        TextView emptyBookmarksCategory = new TextView(this.getContext());
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, 12, 0, 0);
-        emptyBookmarksCategory.setLayoutParams(params);
-        if(type==Type.TOPIC)
-            emptyBookmarksCategory.setText(getString(R.string.empty_topic_bookmarks));
-        else if(type==Type.BOARD)
-            emptyBookmarksCategory.setText(getString(R.string.empty_board_bookmarks));
 
-        emptyBookmarksCategory.setTypeface(emptyBookmarksCategory.getTypeface(), Typeface.BOLD);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            emptyBookmarksCategory.setTextColor(this.getContext().getColor(R.color.primary_text));
-        else {
-            //noinspection deprecation
-            emptyBookmarksCategory.setTextColor(this.getContext().getResources().getColor(R.color.primary_text));
-        }
-        emptyBookmarksCategory.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        return emptyBookmarksCategory;
+    private void showNothingBookmarked() {
+        if(nothingBookmarkedTextView!=null)
+            nothingBookmarkedTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void hideNothingBookmarked(){
+        if(nothingBookmarkedTextView!=null)
+            nothingBookmarkedTextView.setVisibility(View.INVISIBLE);
     }
 
 }
