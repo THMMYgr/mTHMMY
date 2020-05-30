@@ -56,9 +56,8 @@ public class ImageDownloadDialogBuilder extends AlertDialog.Builder{
     private BaseActivity getBaseActivity() {
         Context baseActivityContext = context;
         while (baseActivityContext instanceof ContextWrapper) {
-            if (context instanceof BaseActivity) {
+            if (context instanceof BaseActivity)
                 return (BaseActivity) context;
-            }
             baseActivityContext = ((ContextWrapper)context).getBaseContext();
         }
         return null;
