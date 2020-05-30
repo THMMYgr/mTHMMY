@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -21,12 +22,10 @@ import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersisto
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
-import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
-import com.squareup.picasso.Picasso;
 
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
@@ -142,11 +141,6 @@ public class BaseApplication extends Application {
         client = builder.build();
 
         sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs, draftsPrefs);
-        Picasso picasso = new Picasso.Builder(getApplicationContext())
-                .downloader(new OkHttp3Downloader(client))
-                .build();
-
-        Picasso.setSingletonInstance(picasso);  //All following Picasso (with Picasso.with(Context context) requests will use this Picasso object
 
         //Sets up upload service
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
@@ -156,12 +150,12 @@ public class BaseApplication extends Application {
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
             public void set(ImageView imageView, Uri uri, Drawable placeholder, String tag) {
-                Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
+                Glide.with(imageView.getContext()).load(uri).circleCrop().error(placeholder).placeholder(placeholder).into(imageView);
             }
 
             @Override
             public void cancel(ImageView imageView) {
-                Picasso.with(imageView.getContext()).cancelRequest(imageView);
+                Glide.with(imageView.getContext()).clear(imageView);
             }
 
             @Override
