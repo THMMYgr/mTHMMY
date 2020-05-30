@@ -159,7 +159,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     public void onLoadMore() {
         if (pagesLoaded < numberOfPages) {
             parsedDownloads.add(null);
-            downloadsAdapter.notifyItemInserted(parsedDownloads.size());
+            downloadsAdapter.notifyItemInserted(parsedDownloads.size());    //This gets a warning - change it!
 
             //Load data
             parseDownloadPageTask = new ParseDownloadPageTask();
@@ -287,7 +287,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                 OkHttpClient client = BaseApplication.getInstance().getClient();
                 String fileName = null;
                 try {
-                    Response response = client.newCall(new Request.Builder().url(download.getUrl()).build()).execute();
+                    Response response = client.newCall(new Request.Builder().url(download.getUrl()).head().build()).execute();
                     String contentDisposition = response.headers("Content-Disposition").toString();   //check if link provides an attachment
                     if (contentDisposition.contains("attachment"))
                         fileName = contentDisposition.split("\"")[1];
