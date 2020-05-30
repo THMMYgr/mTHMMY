@@ -187,7 +187,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         recyclerView.setLayoutManager(layoutManager);
         topicAdapter = new TopicAdapter(this, emojiKeyboard, topicItems);
         recyclerView.setAdapter(topicAdapter);
-        recyclerView.setItemViewCacheSize(15);  //Every page has maximum 15 posts
+        recyclerView.setItemViewCacheSize(17);  //Every page has maximum 15 posts + Poll + EditorView
 
         replyFAB = findViewById(R.id.topic_fab);
         replyFAB.hide();
@@ -814,7 +814,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 //Make a toast to inform the user that the url was copied
                 Toast.makeText(
                         TopicActivity.this,
-                        TopicActivity.this.getString(R.string.url_copied_msg),
+                        TopicActivity.this.getString(R.string.link_copied_msg),
                         Toast.LENGTH_SHORT).show();
             }
             //Something happened. Probably the device does not support this (report to Firebase)

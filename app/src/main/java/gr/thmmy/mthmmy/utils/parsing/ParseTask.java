@@ -21,7 +21,7 @@ import timber.log.Timber;
  */
 public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.ResultCode> {
     protected String url;
-    protected enum ResultCode {
+    public enum ResultCode {
         SUCCESS, PARSING_ERROR, NETWORK_ERROR, OTHER_ERROR
     }
 

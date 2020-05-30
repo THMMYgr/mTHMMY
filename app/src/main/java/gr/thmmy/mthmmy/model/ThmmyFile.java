@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.model;
 
+import android.webkit.URLUtil;
+
 import java.net.URL;
 
 public class ThmmyFile {
@@ -8,19 +10,28 @@ public class ThmmyFile {
      */
     private static final String TAG = "ThmmyFile";
     private final URL fileUrl;
-    private final String filename, fileInfo;
+    private final String fileName, fileInfo;
 
     /**
      * This constructor only creates a ThmmyFile object and <b>does not download</b> the file.
      *
      * @param fileUrl  {@link URL} object with file's url
-     * @param filename {@link String} with desired file name
+     * @param fileName {@link String} with desired file name
      * @param fileInfo {@link String} with any extra information (like number of downloads)
      */
-    public ThmmyFile(URL fileUrl, String filename, String fileInfo) {
+    public ThmmyFile(URL fileUrl, String fileName, String fileInfo) {
         this.fileUrl = fileUrl;
-        this.filename = filename;
+        if(fileName!=null)
+            this.fileName = fileName;
+        else
+            this.fileName = URLUtil.guessFileName(fileUrl.toString(), null, null);
         this.fileInfo = fileInfo;
+    }
+
+    public ThmmyFile(URL fileUrl) {
+        this.fileUrl = fileUrl;
+        this.fileName = URLUtil.guessFileName(fileUrl.toString(), null, null);
+        this.fileInfo = null;
     }
 
     public URL getFileUrl() {
@@ -28,7 +39,7 @@ public class ThmmyFile {
     }
 
     public String getFilename() {
-        return filename;
+        return fileName;
     }
 
     public String getFileInfo() {

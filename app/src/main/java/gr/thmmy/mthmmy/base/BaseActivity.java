@@ -735,7 +735,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
             , @NonNull int[] grantResults) {
@@ -760,13 +759,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    //Uses temp file - called after permission grant
-    private void downloadFile() {
-        if (checkPerms())
-            prepareDownload(tempThmmyFile);
-    }
-
-    private void prepareDownload(ThmmyFile thmmyFile) {
+    private void prepareDownload(@NonNull ThmmyFile thmmyFile) {
         String fileName = thmmyFile.getFilename();
         if (FileUtils.fileNameExists(fileName))
             openDownloadPrompt(thmmyFile);
@@ -774,7 +767,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             DownloadHelper.enqueueDownload(thmmyFile);
     }
 
-    private void openDownloadPrompt(final ThmmyFile thmmyFile) {
+    private void openDownloadPrompt(@NonNull final ThmmyFile thmmyFile) {
         View view = getLayoutInflater().inflate(R.layout.download_prompt_dialog, null);
         final BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(view);

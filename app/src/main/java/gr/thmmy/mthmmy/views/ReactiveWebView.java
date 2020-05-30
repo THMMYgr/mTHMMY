@@ -8,7 +8,9 @@ import android.view.MotionEvent;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.utils.ui.ImageDownloadDialogBuilder;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
@@ -71,13 +73,21 @@ public class ReactiveWebView extends WebView {
     private void setOnLongClickListener(){
         this.setOnLongClickListener(v -> {
             HitTestResult result = ReactiveWebView.this.getHitTestResult();
-            if(result.getType() == HitTestResult.SRC_ANCHOR_TYPE){
-                ClipboardManager clipboard = (ClipboardManager) BaseApplication.getInstance().getSystemService(CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("ReactiveWebViewCopiedText", result.getExtra());
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(BaseApplication.getInstance().getApplicationContext(),"Link copied",Toast.LENGTH_SHORT).show();
+            if(result.getType() == HitTestResult.SRC_ANCHOR_TYPE)
+                copyUrlToClipboard(result.getExtra());
+            else if(result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
+                String imageURL = result.getExtra();
+                ImageDownloadDialogBuilder builder = new ImageDownloadDialogBuilder(context,imageURL);
+                builder.show();
             }
             return false;
         });
+    }
+
+    private void copyUrlToClipboard(String urlToCopy){
+        ClipboardManager clipboard = (ClipboardManager) BaseApplication.getInstance().getSystemService(CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("ReactiveWebViewCopiedText", urlToCopy);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(BaseApplication.getInstance().getApplicationContext(),context.getString(R.string.link_copied_msg),Toast.LENGTH_SHORT).show();
     }
 }

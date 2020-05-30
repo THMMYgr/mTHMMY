@@ -34,7 +34,7 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_TYPE_LOADING = 1;
 
     private final Context context;
-    private ArrayList<Download> parsedDownloads = new ArrayList<>();
+    private ArrayList<Download> parsedDownloads;
     private final ArrayList<Boolean> downloadExpandableVisibility = new ArrayList<>();
 
     DownloadsAdapter(Context context, ArrayList<Download> parsedDownloads) {
@@ -77,17 +77,14 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             if (download.getType() == Download.DownloadItemType.DOWNLOADS_CATEGORY) {
-                downloadViewHolder.downloadRow.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(context, DownloadsActivity.class);
-                        Bundle extras = new Bundle();
-                        extras.putString(BUNDLE_DOWNLOADS_URL, download.getUrl());
-                        extras.putString(BUNDLE_DOWNLOADS_TITLE, download.getTitle());
-                        intent.putExtras(extras);
-                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
-                    }
+                downloadViewHolder.downloadRow.setOnClickListener(view -> {
+                    Intent intent = new Intent(context, DownloadsActivity.class);
+                    Bundle extras = new Bundle();
+                    extras.putString(BUNDLE_DOWNLOADS_URL, download.getUrl());
+                    extras.putString(BUNDLE_DOWNLOADS_TITLE, download.getTitle());
+                    intent.putExtras(extras);
+                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
                 });
 
                 if (downloadExpandableVisibility.get(downloadViewHolder.getAdapterPosition())) {
@@ -97,20 +94,17 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     downloadViewHolder.informationExpandable.setVisibility(View.GONE);
                     downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                 }
-                downloadViewHolder.informationExpandableBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        final boolean visible = downloadExpandableVisibility.get(downloadViewHolder.
-                                getAdapterPosition());
-                        if (visible) {
-                            downloadViewHolder.informationExpandable.setVisibility(View.GONE);
-                            downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
-                        } else {
-                            downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
-                            downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
-                        }
-                        downloadExpandableVisibility.set(downloadViewHolder.getAdapterPosition(), !visible);
+                downloadViewHolder.informationExpandableBtn.setOnClickListener(view -> {
+                    final boolean visible = downloadExpandableVisibility.get(downloadViewHolder.
+                            getAdapterPosition());
+                    if (visible) {
+                        downloadViewHolder.informationExpandable.setVisibility(View.GONE);
+                        downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                    } else {
+                        downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
+                        downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                     }
+                    downloadExpandableVisibility.set(downloadViewHolder.getAdapterPosition(), !visible);
                 });
                 downloadViewHolder.title.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));
@@ -124,15 +118,12 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     downloadViewHolder.title.setText(tmp);
                 }
             } else {
-                downloadViewHolder.downloadRow.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            ((BaseActivity) context).downloadFile(new ThmmyFile(
-                                    new URL(download.getUrl()), download.getFileName(), null));
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        }
+                downloadViewHolder.downloadRow.setOnClickListener(view -> {
+                    try {
+                        ((BaseActivity) context).downloadFile(new ThmmyFile(
+                                new URL(download.getUrl()), download.getFileName(), null));
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
                     }
                 });
 

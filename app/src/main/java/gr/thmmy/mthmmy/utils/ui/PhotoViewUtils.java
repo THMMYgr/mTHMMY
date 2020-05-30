@@ -15,7 +15,7 @@ public class PhotoViewUtils {
     private final static int screenWidth = BaseApplication.getInstance().getWidthInPixels();
     private final static int screenHeight = BaseApplication.getInstance().getHeightInPixels();
 
-    public static void displayPhotoViewImage(Context context, String url) {
+    public static void displayPhotoViewImage(Context context, String imageURL) {
         Dialog builder = new Dialog(context);
         builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
         builder.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -25,11 +25,20 @@ public class PhotoViewUtils {
         PhotoView photoView = new PhotoView(context);
         photoView.setLayoutParams(new ViewGroup.LayoutParams(screenWidth, screenHeight));
 
-        Glide.with(context).load(url).fitCenter().into(photoView);
+        Glide.with(context)
+                .load(imageURL)
+                .fitCenter()
+                .into(photoView);
 
         builder.addContentView(photoView, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         builder.show();
+
+        photoView.setOnLongClickListener(v -> {
+            ImageDownloadDialogBuilder imageDownloadDialogBuilder = new ImageDownloadDialogBuilder(context, imageURL);
+            imageDownloadDialogBuilder.show();
+            return false;
+        });
     }
 }
