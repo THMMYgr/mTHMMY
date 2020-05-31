@@ -312,7 +312,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     loadAvatar(false);
                 else
                     loadAvatar(true);
-                if (personalText != null) {
+                if (personalText != null && !personalText.isEmpty()) {
                     personalTextView.setText(personalText);
                     personalTextView.setVisibility(View.VISIBLE);
                 }
