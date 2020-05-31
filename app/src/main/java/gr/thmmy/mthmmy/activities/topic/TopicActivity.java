@@ -83,6 +83,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
     private MaterialProgressBar progressBar;
     private TextView toolbarTitle;
+    private CustomLinearLayoutManager layoutManager;
     private RecyclerView recyclerView;
     //Posts related
     private TopicAdapter topicAdapter;
@@ -181,7 +182,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         recyclerView = findViewById(R.id.topic_recycler_view);
         recyclerView.setHasFixedSize(true);
         //LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-        CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(
+        layoutManager = new CustomLinearLayoutManager(
                 getApplicationContext(), topicPageUrl);
 
         recyclerView.setLayoutManager(layoutManager);
@@ -691,12 +692,19 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
         });
         viewModel.getTopicItems().observe(this, postList -> {
-            if (postList == null) progressBar.setVisibility(ProgressBar.VISIBLE);
+            if (postList == null)
+                progressBar.setVisibility(ProgressBar.VISIBLE);
             recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
-            recyclerView.scrollToPosition(0);
             topicItems.clear();
-            topicItems.addAll(postList);
-            topicAdapter.notifyDataSetChanged();
+
+            /* A workaround to avoid automatic scrolling when a new page
+            page is loaded (it happens sometimes only)*/
+            recyclerView.setAdapter(topicAdapter);
+
+            if (postList != null) {
+                topicItems.addAll(postList);
+                topicAdapter.notifyDataSetChanged();
+            }
         });
         /*viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
             if (focusedPostIndex == null) return;
