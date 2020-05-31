@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Selector;
@@ -9,7 +10,6 @@ import org.jsoup.select.Selector;
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -46,7 +46,7 @@ public class PrepareForEditTask extends AsyncTask<String, Void, PrepareForEditRe
             String postText, commitEditURL, numReplies, seqnum, sc, topic, icon;
             OkHttpClient client = BaseApplication.getInstance().getClient();
             Response response = client.newCall(request).execute();
-            document = ParseHelpers.parse(response.body().string());
+            document = Jsoup.parse(response.body().string());
 
             Element form = document.select("form#postmodify").first();
 

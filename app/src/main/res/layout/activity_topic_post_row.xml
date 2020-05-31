@@ -225,7 +225,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginBottom="16dp">
 
-                <WebView
+                <gr.thmmy.mthmmy.views.ReactiveWebView
                     android:id="@+id/post"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

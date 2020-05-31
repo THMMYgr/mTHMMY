@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -21,12 +22,10 @@ import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersisto
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
-import com.jakewharton.picasso.OkHttp3Downloader;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
-import com.squareup.picasso.Picasso;
 
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
@@ -40,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;
-import gr.thmmy.mthmmy.utils.CrashReportingTree;
+import gr.thmmy.mthmmy.utils.crashreporting.CrashReportingTree;
 import io.fabric.sdk.android.Fabric;
 import okhttp3.CipherSuite;
 import okhttp3.ConnectionSpec;
@@ -48,6 +47,8 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import timber.log.Timber;
+
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
 
 public class BaseApplication extends Application {
     private static BaseApplication baseApplication; //BaseApplication singleton
@@ -60,11 +61,15 @@ public class BaseApplication extends Application {
     private OkHttpClient client;
     private SessionManager sessionManager;
 
+    private boolean displayRelativeTime;
+
     //TODO: maybe use PreferenceManager.getDefaultSharedPreferences here as well?
     private static final String SHARED_PREFS = "ThmmySharedPrefs";
 
     //Display Metrics
-    private static float dpWidth;
+    private static float widthDp;
+    private static int widthPxl, heightPxl;
+
     public static BaseApplication getInstance() {
         return baseApplication;
     }
@@ -104,12 +109,11 @@ public class BaseApplication extends Application {
                 .addInterceptor(chain -> {
                     Request request = chain.request();
                     HttpUrl oldUrl = chain.request().url();
-                    if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")) {
-                        if (!oldUrl.toString().contains("theme=4")) {
+                    if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")
+                            && !oldUrl.toString().contains("theme=4")) {
                             //Probably works but needs more testing:
                             HttpUrl newUrl = oldUrl.newBuilder().addQueryParameter("theme", "4").build();
                             request = request.newBuilder().url(newUrl).build();
-                        }
                     }
                     return chain.proceed(request);
                 })
@@ -137,11 +141,6 @@ public class BaseApplication extends Application {
         client = builder.build();
 
         sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs, draftsPrefs);
-        Picasso picasso = new Picasso.Builder(getApplicationContext())
-                .downloader(new OkHttp3Downloader(client))
-                .build();
-
-        Picasso.setSingletonInstance(picasso);  //All following Picasso (with Picasso.with(Context context) requests will use this Picasso object
 
         //Sets up upload service
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
@@ -151,12 +150,12 @@ public class BaseApplication extends Application {
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
             public void set(ImageView imageView, Uri uri, Drawable placeholder, String tag) {
-                Picasso.with(imageView.getContext()).load(uri).placeholder(placeholder).into(imageView);
+                Glide.with(imageView.getContext()).load(uri).circleCrop().error(placeholder).placeholder(placeholder).into(imageView);
             }
 
             @Override
             public void cancel(ImageView imageView) {
-                Picasso.with(imageView.getContext()).cancelRequest(imageView);
+                Glide.with(imageView.getContext()).clear(imageView);
             }
 
             @Override
@@ -172,7 +171,13 @@ public class BaseApplication extends Application {
         });
 
         DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
-        dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
+        widthPxl = displayMetrics.widthPixels;
+        widthDp = widthPxl / displayMetrics.density;
+
+        heightPxl = displayMetrics.heightPixels;
+
+        displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, true);
     }
 
     //Getters
@@ -188,10 +193,21 @@ public class BaseApplication extends Application {
         return sessionManager;
     }
 
-    public float getDpWidth() {
-        return dpWidth;
+    public float getWidthInDp() {
+        return widthDp;
     }
 
+    public int getWidthInPixels() {
+        return widthPxl;
+    }
+
+    public int getHeightInPixels() {
+        return heightPxl;
+    }
+
+    public boolean isDisplayRelativeTimeEnabled() {
+        return displayRelativeTime;
+    }
 
     //--------------------Firebase--------------------
 

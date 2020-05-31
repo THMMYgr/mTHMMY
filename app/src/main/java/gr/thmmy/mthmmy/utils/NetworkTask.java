@@ -10,16 +10,15 @@ import java.io.IOException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.utils.crashreporting.CrashReporter;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
-import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
 public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>> {
-
-    protected OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener;
+    private OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener;
 
     public NetworkTask(OnTaskStartedListener onTaskStartedListener, OnTaskCancelledListener onTaskCancelledListener,
                        OnNetworkTaskFinishedListener<T> onNetworkTaskFinishedListener) {
@@ -47,14 +46,14 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
         try {
             responseBodyString = response.body().string();
         } catch (NullPointerException npe) {
-            Timber.wtf(npe, "Invalid response. Detatails: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Response.html#body--");
+            Timber.wtf(npe, "Invalid response. Details: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Response.html#body--");
             return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         } catch (IOException e) {
             Timber.e(e, "Error getting response body string");
             return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         }
         try {
-            T data = performTask(ParseHelpers.parse(responseBodyString), response);
+            T data = performTask(Jsoup.parse(responseBodyString), response);
             int resultCode = getResultCode(response, data);
             return new Parcel<>(resultCode, data);
         } catch (ParseException pe) {

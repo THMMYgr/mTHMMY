@@ -26,10 +26,10 @@ import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.SessionManager;
-import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.views.CustomRecyclerView;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -85,7 +85,6 @@ public class RecentFragment extends BaseFragment {
         if (topicSummaries.isEmpty()) {
             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
             recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
-
         }
         Timber.d("onActivityCreated");
     }
@@ -100,7 +99,7 @@ public class RecentFragment extends BaseFragment {
         // Set the adapter
         if (rootView instanceof RelativeLayout) {
             progressBar = rootView.findViewById(R.id.progressBar);
-            recentAdapter = new RecentAdapter(getActivity(), topicSummaries, fragmentInteractionListener);
+            recentAdapter = new RecentAdapter(topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext());
@@ -128,8 +127,13 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recentTask.isRunning())
-            recentTask.cancel(true);
+        if (recentTask!=null){
+            try{
+                if(recentTask.isRunning())
+                    recentTask.cancel(true);
+            }    // Yes, it happens even though we checked
+            catch (NullPointerException ignored){ }
+        }
     }
 
 
@@ -186,21 +190,11 @@ public class RecentFragment extends BaseFragment {
                     String dateTime = recent.get(i + 2).text();
                     pattern = Pattern.compile("\\[(.*)]");
                     matcher = pattern.matcher(dateTime);
-                    if (matcher.find()) {
-                        dateTime = matcher.group(1);
-                        if (dateTime.contains(" am") || dateTime.contains(" pm") ||
-                                dateTime.contains(" πμ") || dateTime.contains(" μμ")) {
-                            dateTime = dateTime.replaceAll(":[0-5][0-9] ", " ");
-                        } else {
-                            dateTime = dateTime.substring(0, dateTime.lastIndexOf(":"));
-                        }
-                        if (!dateTime.contains(",")) {
-                            dateTime = dateTime.replaceAll(".+? ([0-9])", "$1");
-                        }
-                    } else
+                    if (matcher.find())
+                        fetchedRecent.add(new TopicSummary(link, title, lastUser, matcher.group(1)));
+                    else
                         throw new ParseException("Parsing failed (dateTime)");
 
-                    fetchedRecent.add(new TopicSummary(link, title, lastUser, dateTime));
                 }
                 return fetchedRecent;
             }

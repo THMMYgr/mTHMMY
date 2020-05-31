@@ -55,6 +55,6 @@
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="@dimen/fab_margins"
         android:layout_marginEnd="@dimen/fab_margins"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_file_upload_white_24dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

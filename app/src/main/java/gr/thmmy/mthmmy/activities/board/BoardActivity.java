@@ -21,6 +21,8 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
@@ -96,7 +98,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         }
 
         thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), true);
-        setBoardBookmark(findViewById(R.id.bookmark));
+        if (boardTitle != null && !Objects.equals(boardTitle, ""))
+            setBoardBookmark(findViewById(R.id.bookmark));
+
         createDrawer();
 
         progressBar = findViewById(R.id.progressBar);
@@ -156,9 +160,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
     @Override
     public void onLoadMore() {
-        if (pagesLoaded < numberOfPages && parsedTopics.get(parsedTopics.size() - 1) != null) {
+        if (pagesLoaded < numberOfPages && !parsedTopics.isEmpty() && parsedTopics.get(parsedTopics.size() - 1) != null) {
             parsedTopics.add(null);
-            boardAdapter.notifyItemInserted(parsedSubBoards.size() + parsedTopics.size());
+            boardAdapter.notifyItemInserted(parsedSubBoards.size() + parsedTopics.size());  // This gets a warning and should be changed
 
             //Load data
             boardTask = new BoardTask();
@@ -275,7 +279,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             if (topicRows != null && !topicRows.isEmpty()) {
                 for (Element topicRow : topicRows) {
                     if (!Objects.equals(topicRow.className(), "titlebg")) {
-                        String pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl, pStats;
+                        String pTopicUrl, pSubject, pStarter, pLastUser="", pLastPostDateTime="00:00:00", pLastPost, pLastPostUrl, pStats;
                         boolean pLocked = false, pSticky = false, pUnread = false;
                         Elements topicColumns = topicRow.select(">td");
                         {
@@ -290,21 +294,21 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             if (column.select("a[id^=newicon]").first() != null)
                                 pUnread = true;
                         }
-                        pStartedBy = topicColumns.get(3).text();
+                        pStarter = topicColumns.get(3).text();
                         pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
                         pLastPost = topicColumns.last().text();
-                        if (pLastPost.contains("by")) {
-                            pLastPost = pLastPost.substring(0, pLastPost.indexOf("by")) +
-                                    "\n" + pLastPost.substring(pLastPost.indexOf("by"));
-                        } else if (pLastPost.contains("από")) {
-                            pLastPost = pLastPost.substring(0, pLastPost.indexOf("από")) +
-                                    "\n" + pLastPost.substring(pLastPost.indexOf("από"));
-                        } else {
-                            Timber.wtf("Board parsing about to fail. pLastPost came with: %s", pLastPost);
+                        Pattern pattern = Pattern.compile("(.+)\\s(by|από)\\s(.+)$");
+                        Matcher matcher = pattern.matcher(pLastPost);
+                        if (matcher.find()){
+                            pLastPostDateTime = matcher.group(1);
+                            pLastUser = matcher.group(3);
                         }
+                        else
+                            throw new ParseException("Parsing failed (pLastPost came with: \"" + pLastPost + "\")");
+
                         pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
-                        tempTopics.add(new Topic(pTopicUrl, pSubject, pStartedBy, pLastPost, pLastPostUrl,
+                        tempTopics.add(new Topic(pTopicUrl, pSubject, pStarter, pLastUser, pLastPostDateTime, pLastPostUrl,
                                 pStats, pLocked, pSticky, pUnread));
                     }
                 }

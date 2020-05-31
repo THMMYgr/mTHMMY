@@ -19,15 +19,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.squareup.picasso.Picasso;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -46,12 +45,11 @@ import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.ThmmyPage;
-import gr.thmmy.mthmmy.utils.CenterVerticalSpan;
-import gr.thmmy.mthmmy.utils.CircleTransform;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.Parcel;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.utils.ui.CenterVerticalSpan;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -59,6 +57,7 @@ import timber.log.Timber;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.emojiTagToHtml;
+import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
 
 /**
  * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>
@@ -129,10 +128,10 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
 
         avatarView = findViewById(R.id.user_thumbnail);
         if (!Objects.equals(avatarUrl, ""))
-            //noinspection ConstantConditions
-            loadAvatar();
+            loadAvatar(false);
+
         else
-            loadDefaultAvatar();
+            loadAvatar(true);
         usernameView = findViewById(R.id.profile_activity_username);
         usernameView.setTypeface(Typeface.createFromAsset(this.getAssets()
                 , "fonts/fontawesome-webfont.ttf"));
@@ -213,29 +212,21 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
     }
 
-    private void loadAvatar(){
-        Picasso.with(this)
-                .load(avatarUrl)
-                .fit()
-                .centerCrop()
-                .error(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
-                        , R.drawable.ic_default_user_avatar, null)))
-                .placeholder(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
-                        , R.drawable.ic_default_user_avatar, null)))
-                .transform(new CircleTransform())
-                .into(avatarView);
-    }
+    private void loadAvatar(Boolean loadDefault){
+        String avatarUri;
+        if(loadDefault)
+            avatarUri = "R.drawable.ic_default_user_avatar";
+        else {
+            avatarUri = avatarUrl;
+            if(avatarUrl!=null)
+                avatarView.setOnClickListener(v -> displayPhotoViewImage(ProfileActivity.this, avatarUrl));
+        }
 
-    private void loadDefaultAvatar(){
-        Picasso.with(this)
-                .load(R.drawable.ic_default_user_avatar)
-                .fit()
-                .centerCrop()
-                .error(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
-                        , R.drawable.ic_default_user_avatar, null)))
-                .placeholder(Objects.requireNonNull(ResourcesCompat.getDrawable(this.getResources()
-                        , R.drawable.ic_default_user_avatar, null)))
-                .transform(new CircleTransform())
+        Glide.with(this)
+                .load(avatarUri)
+                .circleCrop()
+                .error(R.drawable.ic_default_user_avatar)
+                .placeholder(R.drawable.ic_default_user_avatar)
                 .into(avatarView);
     }
 
@@ -318,11 +309,10 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     usernameView.setText(usernameSpan);
                 } else if (usernameView.getText() != username) usernameView.setText(username);
                 if (avatarUrl != null && !Objects.equals(avatarUrl, ""))
-                    //noinspection ConstantConditions
-                    loadAvatar();
+                    loadAvatar(false);
                 else
-                    loadDefaultAvatar();
-                if (personalText != null) {
+                    loadAvatar(true);
+                if (personalText != null && !personalText.isEmpty()) {
                     personalTextView.setText(personalText);
                     personalTextView.setVisibility(View.VISIBLE);
                 }

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,13 +24,12 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.deobfuscateElements;
 
 /**
  * Use the {@link LatestPostsFragment#newInstance} factory method to create an instance of this fragment.
@@ -87,7 +85,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_latest_posts, container, false);
-        latestPostsAdapter = new LatestPostsAdapter(fragmentInteractionListener, parsedTopicSummaries);
+        latestPostsAdapter = new LatestPostsAdapter(this.getContext(), fragmentInteractionListener, parsedTopicSummaries);
         RecyclerView mainContent = rootView.findViewById(R.id.profile_latest_posts_recycler);
         mainContent.setAdapter(latestPostsAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -176,13 +174,9 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
         }
 
         protected void onPostExecute(Boolean result) {
-            if (!result) { //Parse failed!
-                Timber.d("Parse failed!");
-                Toast.makeText(getContext()
-                        , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
-                getActivity().finish();
-            }
-            //Parse was successful
+            if (Boolean.FALSE.equals(result))
+                Timber.e(new ParseException("Parsing failed(latest posts)"),"ParseException");
+
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             latestPostsAdapter.notifyDataSetChanged();
             isLoadingMore = false;
@@ -208,7 +202,6 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                 return true;
             }
 
-            deobfuscateElements(latestPostsRows, false);
             for (Element row : latestPostsRows) {
                 String pTopicUrl, pTopicTitle, pDateTime, pPost;
                 if (Integer.parseInt(row.attr("cellpadding")) == 4) {

@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
@@ -34,7 +36,8 @@ public class DownloadHelper {
             DownloadManager.Request request = new DownloadManager.Request(downloadURI);
 
             Cookie thmmyCookie = BaseApplication.getInstance().getSessionManager().getThmmyCookie();
-            request.addRequestHeader("Cookie", thmmyCookie.name() + "=" + thmmyCookie.value());
+            if(thmmyCookie!=null)
+                request.addRequestHeader("Cookie", thmmyCookie.name() + "=" + thmmyCookie.value());
             request.setTitle(fileName);
             request.setMimeType(getMimeType(fileName));
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -49,6 +52,7 @@ public class DownloadHelper {
         }
     }
 
+    @NonNull
     private static String renameFileIfExists(String originalFileName) {
         final String dirPath = SAVE_DIR.getAbsolutePath();
         File file = new File(dirPath, originalFileName);
@@ -68,7 +72,6 @@ public class DownloadHelper {
 
             file = new File(dirPath, String.format(nameFormat, i));
         }
-
         return file.getName();
     }
 }

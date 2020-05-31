@@ -45,10 +45,7 @@ import com.snatik.storage.Storage;
 
 import net.gotev.uploadservice.UploadService;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
@@ -67,6 +64,7 @@ import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.services.UploadsReceiver;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
+import gr.thmmy.mthmmy.utils.io.AssetUtils;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.OkHttpClient;
@@ -390,7 +388,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         DrawerBuilder drawerBuilder = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
-                .withDrawerWidthDp((int) BaseApplication.getInstance().getDpWidth() / 2)
+                .withDrawerWidthDp((int) BaseApplication.getInstance().getWidthInDp() / 2)
                 .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
                 .withAccountHeader(accountHeader)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
@@ -428,7 +426,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                         if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
                             startLoginActivity();
                         else
-                            new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
+                            showLogoutDialog();
                     } else if (drawerItem.equals(ABOUT_ID)) {
                         if (!(BaseActivity.this instanceof AboutActivity)) {
                             Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
@@ -543,6 +541,17 @@ public abstract class BaseActivity extends AppCompatActivity {
             //}
         }
     }
+
+    private void showLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure that you want to logout?");
+        builder.setPositiveButton("Yep", (dialogInterface, i) -> {
+            new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
+        });
+        builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
+        builder.create().show();
+    }
 //-----------------------------------------LOGOUT END-----------------------------------------------
 
 //---------------------------------------------BOOKMARKS--------------------------------------------
@@ -557,23 +566,20 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void setTopicBookmark(MenuItem thisPageBookmarkMenuButton) {
         this.thisPageBookmarkMenuButton = thisPageBookmarkMenuButton;
-        if (thisPageBookmark.matchExists(topicsBookmarked)) {
+        if (thisPageBookmark.matchExists(topicsBookmarked))
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
-        } else {
+        else
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
-        }
     }
 
     protected void refreshTopicBookmark() {
-        if (thisPageBookmarkMenuButton == null) {
-            return;
-        }
+        if (thisPageBookmarkMenuButton == null) return;
+
         loadSavedBookmarks();
-        if (thisPageBookmark.matchExists(topicsBookmarked)) {
+        if (thisPageBookmark.matchExists(topicsBookmarked))
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
-        } else {
+        else
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
-        }
     }
 
     protected void topicMenuBookmarkClick() {
@@ -729,7 +735,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
             , @NonNull int[] grantResults) {
@@ -754,13 +759,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    //Uses temp file - called after permission grant
-    private void downloadFile() {
-        if (checkPerms())
-            prepareDownload(tempThmmyFile);
-    }
-
-    private void prepareDownload(ThmmyFile thmmyFile) {
+    private void prepareDownload(@NonNull ThmmyFile thmmyFile) {
         String fileName = thmmyFile.getFilename();
         if (FileUtils.fileNameExists(fileName))
             openDownloadPrompt(thmmyFile);
@@ -768,7 +767,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             DownloadHelper.enqueueDownload(thmmyFile);
     }
 
-    private void openDownloadPrompt(final ThmmyFile thmmyFile) {
+    private void openDownloadPrompt(@NonNull final ThmmyFile thmmyFile) {
         View view = getLayoutInflater().inflate(R.layout.download_prompt_dialog, null);
         final BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(view);
@@ -832,32 +831,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         privacyPolicyTextView.setPadding(30, 20, 30, 20);
         privacyPolicyTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_text));
         SpannableConfiguration configuration = SpannableConfiguration.builder(this).linkResolver(new LinkResolverDef()).build();
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(getAssets().open("PRIVACY.md")));
-            String line;
 
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append("\n");
-            }
-            Markwon.setMarkdown(privacyPolicyTextView, configuration, stringBuilder.toString());
+        String privacyPolicy = AssetUtils.readFileToText(BaseActivity.this,"PRIVACY.md");
+        if(privacyPolicy!=null){
+            Markwon.setMarkdown(privacyPolicyTextView, configuration, privacyPolicy);
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
             builder.setView(privacyPolicyTextView);
             builder.setPositiveButton("Close", (dialogInterface, i) -> dialogInterface.dismiss());
             builder.show();
-        } catch (IOException e) {
-            Timber.e(e, "Error reading Privacy Policy from assets.");
-        } catch (Exception e) {
-            Timber.e(e, "Error in Privacy Policy dialog.");
-        } finally {
-            try {
-                if (reader != null)
-                    reader.close();
-            } catch (IOException e) {
-                Timber.e(e, "Error in Privacy Policy dialog (closing reader).");
-            }
         }
     }
 

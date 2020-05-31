@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.utils.parsing;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ import timber.log.Timber;
  */
 public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.ResultCode> {
     protected String url;
-    protected enum ResultCode {
+    public enum ResultCode {
         SUCCESS, PARSING_ERROR, NETWORK_ERROR, OTHER_ERROR
     }
 
@@ -41,7 +42,7 @@ public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.Result
         Request request = prepareRequest(params);
         try {
             Response response = BaseApplication.getInstance().getClient().newCall(request).execute();
-            Document document = ParseHelpers.parse(response.body().string());
+            Document document = Jsoup.parse(response.body().string());
             parse(document);
             postParsing();
             return ResultCode.SUCCESS;

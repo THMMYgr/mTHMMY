@@ -1,10 +1,11 @@
 package gr.thmmy.mthmmy.activities.profile.latestPosts;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -16,6 +17,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.TopicSummary;
+import gr.thmmy.mthmmy.views.ReactiveWebView;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**
@@ -26,11 +28,13 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_EMPTY = -1;
     private static final int VIEW_TYPE_ITEM = 0;
     private static final int VIEW_TYPE_LOADING = 1;
+    private final Context context;
     private final LatestPostsFragment.LatestPostsFragmentInteractionListener interactionListener;
     private final ArrayList<PostSummary> parsedTopicSummaries;
 
-    LatestPostsAdapter(BaseFragment.FragmentInteractionListener interactionListener,
+    LatestPostsAdapter(Context context, BaseFragment.FragmentInteractionListener interactionListener,
                        ArrayList<PostSummary> parsedTopicSummaries) {
+        this.context = context;
         this.interactionListener = (LatestPostsFragment.LatestPostsFragmentInteractionListener) interactionListener;
         this.parsedTopicSummaries = parsedTopicSummaries;
     }
@@ -64,6 +68,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return null;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof LatestPostViewHolder) {
@@ -99,7 +104,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final RelativeLayout latestPostsRow;
         final TextView postTitle;
         final TextView postDate;
-        final WebView post;
+        final ReactiveWebView post;
 
         LatestPostViewHolder(View itemView) {
             super(itemView);

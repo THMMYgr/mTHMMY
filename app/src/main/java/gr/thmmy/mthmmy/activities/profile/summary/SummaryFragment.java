@@ -27,9 +27,6 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.deobfuscateElements;
-
-
 /**
  * Use the {@link SummaryFragment#newInstance} factory method to create an instance of this fragment.
  */
@@ -135,7 +132,6 @@ public class SummaryFragment extends Fragment {
             //Contains all summary's rows
             Elements summaryRows = profile.select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tr");
 
-            deobfuscateElements(summaryRows, false);
             for (Element summaryRow : summaryRows) {
                 String rowText = summaryRow.text(), pHtml = "";
 

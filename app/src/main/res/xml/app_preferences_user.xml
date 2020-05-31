@@ -10,9 +10,15 @@
             android:dialogTitle="@string/pref_app_main_default_tab_dialog_title"
             android:entries="@array/pref_app_main_default_tab_entries"
             android:entryValues="@array/pref_app_main_default_tab_values"
-            android:key="pref_app_main_default_tab_key"
+            android:key="@string/pref_app_main_default_tab_key"
             android:title="@string/pref_title_app_main_default_tab"
             android:summary="@string/pref_summary_app_main_default_tab"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/pref_app_display_relative_time_key"
+            android:title="@string/pref_title_display_relative_time"
+            android:summary="@string/pref_summary_display_relative_time"
             app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 
@@ -21,48 +27,48 @@
         app:iconSpaceReserved="false">
         <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
-            android:key="pref_notification_vibration_enable_key"
+            android:key="@string/pref_notification_vibration_enable_key"
             android:title="@string/pref_title_notification_vibration_enable"
             app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
-            android:key="pref_notification_led_enable_key"
+            android:key="@string/pref_notification_led_enable_key"
             android:title="@string/pref_title_notification_led_enable"
             android:summary="@string/pref_summary_notification_led_enable"
             app:iconSpaceReserved="false" />
         <Preference
-            android:key="pref_notifications_select_sound_key"
+            android:key="@string/pref_notifications_select_sound_key"
             android:title="@string/pref_title_notifications_sound"
             android:summary="@string/pref_summary_notifications_sound"
             app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory
-        android:key="pref_category_posting_key"
+        android:key="@string/pref_category_posting_key"
         android:title="@string/pref_category_posting"
         app:iconSpaceReserved="false">
         <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
-            android:key="pref_posting_app_signature_enable_key"
+            android:key="@string/pref_posting_app_signature_enable_key"
             android:title="@string/pref_title_posting_app_signature_enable"
             android:summary="@string/pref_summary_posting_app_signature_enable"
             app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory
-        android:key="pref_category_uploading_key"
+        android:key="@string/pref_category_uploading_key"
         android:title="@string/pref_category_uploading"
         app:iconSpaceReserved="false">
         <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
-            android:key="pref_uploading_app_signature_enable_key"
+            android:key="@string/pref_uploading_app_signature_enable_key"
             android:title="@string/pref_title_uploading_app_signature_enable"
             android:summary="@string/pref_summary_uploading_app_signature_enable"
             app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory
-        android:key="pref_category_privacy_key"
+        android:key="@string/pref_category_privacy_key"
         android:title="@string/pref_category_privacy"
         app:iconSpaceReserved="false">
         <androidx.preference.SwitchPreferenceCompat

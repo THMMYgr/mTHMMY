@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Selector;
@@ -9,7 +10,6 @@ import org.jsoup.select.Selector;
 import java.io.IOException;
 
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -43,7 +43,7 @@ public class PrepareForReplyTask extends AsyncTask<Integer, Void, PrepareForRepl
         String numReplies, seqnum, sc, topic;
         try {
             Response response = client.newCall(request).execute();
-            document = ParseHelpers.parse(response.body().string());
+            document = Jsoup.parse(response.body().string());
 
             numReplies = replyPageUrl.substring(replyPageUrl.indexOf("num_replies=") + 12);
             seqnum = document.select("input[name=seqnum]").first().attr("value");

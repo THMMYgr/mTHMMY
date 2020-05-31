@@ -1,5 +1,8 @@
 package gr.thmmy.mthmmy.model;
 
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.simplifyDateTime;
+
 /**
  * Class that defines the summary of a topic. All member variables are declared final (thus no
  * setters are supplied). Class has one constructor and getter methods for all variables.
@@ -7,10 +10,12 @@ package gr.thmmy.mthmmy.model;
  * time of this topic's last post.</b>.
  */
 public class TopicSummary {
-    final String topicUrl;
-    final String subject;
-    final String lastUser;
-    final String dateTimeModified;
+    private final String topicUrl;
+    private final String subject;
+    private final String lastUser;
+    private final String lastPostDateTime;
+    private final String lastPostSimplifiedDateTime;
+    private final String lastPostTimestamp;
 
     // Suppresses default constructor
     @SuppressWarnings("unused")
@@ -18,23 +23,27 @@ public class TopicSummary {
         this.topicUrl = null;
         this.subject = null;
         this.lastUser = null;
-        this.dateTimeModified = null;
+        this.lastPostDateTime = null;
+        this.lastPostSimplifiedDateTime = null;
+        this.lastPostTimestamp = null;
     }
 
     /**
-     * Constructor specifying all class variables necessary to summarise this topic. All variables
+     * Constructor specifying all class variables necessary to summarize this topic. All variables
      * are declared final, once assigned they can not change.
      *
      * @param topicUrl         this topic's url
      * @param subject          this topic's subject
-     * @param lastUser         username of this topic's last author
-     * @param dateTimeModified this topic's date and time of last post
+     * @param lastUser         username of this topic's last post's author
+     * @param lastPostDateTime this topic's date and time of last post
      */
-    public TopicSummary(String topicUrl, String subject, String lastUser, String dateTimeModified) {
+    public TopicSummary(String topicUrl, String subject, String lastUser, String lastPostDateTime) {
         this.topicUrl = topicUrl;
         this.subject = subject;
         this.lastUser = lastUser;
-        this.dateTimeModified = dateTimeModified;
+        this.lastPostDateTime = lastPostDateTime;
+        this.lastPostTimestamp = convertToTimestamp(lastPostDateTime);
+        this.lastPostSimplifiedDateTime = simplifyDateTime(lastPostDateTime);
     }
 
     /**
@@ -56,9 +65,9 @@ public class TopicSummary {
     }
 
     /**
-     * Gets username of this topic's last author.
+     * Gets username of this topic's last post's author.
      *
-     * @return username of last author
+     * @return username of last post's author
      */
     public String getLastUser() {
         return lastUser;
@@ -69,7 +78,25 @@ public class TopicSummary {
      *
      * @return this topic's date and time of last post
      */
-    public String getDateTimeModified() {
-        return dateTimeModified;
+    public String getLastPostDateTime() {
+        return lastPostDateTime;
+    }
+
+    /**
+     * Gets this topic's simplified date and time of last post.
+     *
+     * @return this topic's simplified date and time of last post
+     */
+    public String getLastPostSimplifiedDateTime() {
+        return lastPostSimplifiedDateTime;
+    }
+
+    /**
+     * Gets the timestamp of this topic's last post.
+     *
+     * @return the timestamp of this topic's last post
+     */
+    public String getLastPostTimestamp() {
+        return lastPostTimestamp;
     }
 }

@@ -1,17 +1,13 @@
 package gr.thmmy.mthmmy.utils.parsing;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import timber.log.Timber;
 
 /**
  * This class consists exclusively of static classes (enums) and methods (excluding methods of inner
@@ -188,56 +184,6 @@ public class ParseHelpers {
         else return "";
     }
 
-    /**
-     * Method that replaces CloudFlare-obfuscated emails with deobfuscated ones
-     * Replace Jsoup.parse with this wherever needed
-     *
-     * @param html html to parse
-     * @return a document with deobfuscated emails
-     */
-    public static Document parse(String html) {
-        Document document = Jsoup.parse(html);
-        deobfuscateElements(document.select("span.__cf_email__,a.__cf_email__"), true);
-        return document;
-    }
-
-    /**
-     * Use this method instead of parse() if you are targeting specific elements
-     */
-    public static void deobfuscateElements(Elements elements, boolean found) {
-        if (!found)
-            elements = elements.select("span.__cf_email__,a.__cf_email__");
-
-        for (Element obfuscatedElement : elements) {
-            String deobfuscatedEmail = deobfuscateEmail(obfuscatedElement.attr("data-cfemail"));
-            if (obfuscatedElement.is("span")) {
-                Element parent = obfuscatedElement.parent();
-                if (parent.is("a") && parent.attr("href").contains("email-protection"))
-                    parent.attr("href", "mailto:" + deobfuscatedEmail);
-            } else if (obfuscatedElement.attr("href").contains("email-protection"))
-                obfuscatedElement.attr("href", "mailto:" + deobfuscatedEmail);
-
-            obfuscatedElement.replaceWith(new TextNode(deobfuscatedEmail, ""));
-        }
-    }
-
-
-    /**
-     * @param obfuscatedEmail CloudFlare-obfuscated email
-     * @return deobfuscated email
-     */
-    private static String deobfuscateEmail(String obfuscatedEmail) {
-        //Deobfuscate
-        final StringBuilder stringBuilder = new StringBuilder();
-        final int r = Integer.parseInt(obfuscatedEmail.substring(0, 2), 16);
-        for (int n = 2; n < obfuscatedEmail.length(); n += 2) {
-            final int i = Integer.parseInt(obfuscatedEmail.substring(n, n + 2), 16) ^ r;
-            stringBuilder.append(Character.toString((char) i));
-        }
-
-        Timber.d("Email deobfuscated.");
-        return stringBuilder.toString();
-    }
 
     public static String emojiTagToHtml(String emojiTagedString) {
         HashMap<Pattern, String> tagToHtmlMap = new HashMap<>();

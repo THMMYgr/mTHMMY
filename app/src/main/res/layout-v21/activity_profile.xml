@@ -37,7 +37,7 @@
                     android:id="@+id/user_thumbnail"
                     android:layout_width="@dimen/profile_activity_avatar_size"
                     android:layout_height="@dimen/profile_activity_avatar_size"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="6dp"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/post_thumbnail"
@@ -50,6 +50,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="4dp"
+                    android:textAlignment="center"
                     android:textColor="@color/primary_text"
                     android:visibility="gone"/>
             </LinearLayout>
@@ -113,7 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margins"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ScrollAwareFABBehavior"
+        app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_pm_fab"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

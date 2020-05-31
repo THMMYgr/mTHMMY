@@ -19,13 +19,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.editorview.EditorView;
-import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Shout;
 import gr.thmmy.mthmmy.model.Shoutbox;
-import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.ShoutboxViewModel;
+import gr.thmmy.mthmmy.views.CustomRecyclerView;
+import gr.thmmy.mthmmy.views.editorview.EditorView;
+import gr.thmmy.mthmmy.views.editorview.EmojiKeyboard;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
@@ -105,9 +105,10 @@ public class ShoutboxFragment extends Fragment {
                 Timber.i("Shoutbox loaded successfully");
                 shoutAdapter.setShouts(shoutbox.getShouts());
                 shoutAdapter.notifyDataSetChanged();
+                editorView.setVisibility(shoutbox.getShoutSend() == null ? View.GONE : View.VISIBLE);
             }
         });
-        shoutboxViewModel.setOnShoutboxTaskStarted(this::onShoutboxTaskSarted);
+        shoutboxViewModel.setOnShoutboxTaskStarted(this::onShoutboxTaskStarted);
         shoutboxViewModel.setOnShoutboxTaskFinished(this::onShoutboxTaskFinished);
         shoutboxViewModel.setOnSendShoutTaskStarted(this::onSendShoutTaskStarted);
         shoutboxViewModel.setOnSendShoutTaskFinished(this::onSendShoutTaskFinished);
@@ -115,9 +116,10 @@ public class ShoutboxFragment extends Fragment {
         shoutboxViewModel.loadShoutbox(false);
     }
 
-    private void onShoutboxTaskSarted() {
+    private void onShoutboxTaskStarted() {
         Timber.i("Starting shoutbox task...");
         progressBar.setVisibility(View.VISIBLE);
+        editorView.setVisibility(View.GONE);
     }
 
     private void onSendShoutTaskStarted() {

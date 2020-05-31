@@ -132,7 +132,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         int pageRequested = pageIndicatorIndex.getValue() - 1;
         if (pageRequested != currentPageIndex - 1) {
             Timber.i("Changing to page " + pageRequested + 1);
-            loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(pageRequested * 15));
+            loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + pageRequested * 15);
             pageIndicatorIndex.setValue(pageRequested + 1);
         } else {
             stopLoading();

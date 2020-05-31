@@ -2,6 +2,8 @@ package gr.thmmy.mthmmy.activities.topic;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,16 +49,16 @@ import gr.thmmy.mthmmy.activities.topic.tasks.ReplyTask;
 import gr.thmmy.mthmmy.activities.topic.tasks.TopicTask;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
-import gr.thmmy.mthmmy.editorview.EmojiKeyboard;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicItem;
-import gr.thmmy.mthmmy.utils.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.utils.HTMLUtils;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.viewmodel.TopicViewModel;
+import gr.thmmy.mthmmy.views.CustomLinearLayoutManager;
+import gr.thmmy.mthmmy.views.editorview.EmojiKeyboard;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
@@ -81,6 +83,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     public static final String BUNDLE_TOPIC_TITLE = "TOPIC_TITLE";
     private MaterialProgressBar progressBar;
     private TextView toolbarTitle;
+    private CustomLinearLayoutManager layoutManager;
     private RecyclerView recyclerView;
     //Posts related
     private TopicAdapter topicAdapter;
@@ -123,6 +126,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     private Snackbar snackbar;
     private TopicViewModel viewModel;
     private EmojiKeyboard emojiKeyboard;
+    private AlertDialog topicInfoDialog;
 
     //Fix for vector drawables on android <21
     static {
@@ -161,6 +165,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         toolbarTitle.setMarqueeRepeatLimit(-1);
         toolbarTitle.setText(topicTitle);
         toolbarTitle.setSelected(true);
+        this.setToolbarOnLongClickListener(topicPageUrl);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -177,12 +182,13 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         recyclerView = findViewById(R.id.topic_recycler_view);
         recyclerView.setHasFixedSize(true);
         //LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-        CustomLinearLayoutManager layoutManager = new CustomLinearLayoutManager(
+        layoutManager = new CustomLinearLayoutManager(
                 getApplicationContext(), topicPageUrl);
 
         recyclerView.setLayoutManager(layoutManager);
         topicAdapter = new TopicAdapter(this, emojiKeyboard, topicItems);
         recyclerView.setAdapter(topicAdapter);
+        recyclerView.setItemViewCacheSize(17);  //Every page has maximum 15 posts + Poll + EditorView
 
         replyFAB = findViewById(R.id.topic_fab);
         replyFAB.hide();
@@ -253,8 +259,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     usersViewing.setText(HTMLUtils.getSpannableFromHtml(this, topicViewers));
                 });
                 builder.setView(infoDialog);
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                topicInfoDialog = builder.create();
+                topicInfoDialog.show();
                 return true;
             case R.id.menu_share:
                 Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
@@ -312,6 +318,10 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(topicInfoDialog!=null){
+            topicInfoDialog.dismiss();
+            topicInfoDialog=null;
+        }
         recyclerView.setAdapter(null);
         viewModel.stopLoading();
     }
@@ -653,11 +663,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 Toast.makeText(this, "Failed to remove vote", Toast.LENGTH_LONG).show();
             }
         });
-        // observe the chages in data
+        // observe the changes in data
         viewModel.getPageIndicatorIndex().observe(this, pageIndicatorIndex -> {
             if (pageIndicatorIndex == null) return;
-            pageIndicator.setText(String.valueOf(pageIndicatorIndex) + "/" +
-                    String.valueOf(viewModel.getPageCount()));
+            pageIndicator.setText(pageIndicatorIndex + "/" +
+                    viewModel.getPageCount());
         });
         viewModel.getTopicTitle().observe(this, newTopicTitle -> {
             if (newTopicTitle == null) return;
@@ -682,11 +692,19 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
         });
         viewModel.getTopicItems().observe(this, postList -> {
-            if (postList == null) progressBar.setVisibility(ProgressBar.VISIBLE);
+            if (postList == null)
+                progressBar.setVisibility(ProgressBar.VISIBLE);
             recyclerView.getRecycledViewPool().clear(); //Avoid inconsistency detected bug
             topicItems.clear();
-            topicItems.addAll(postList);
-            topicAdapter.notifyDataSetChanged();
+
+            /* A workaround to avoid automatic scrolling when a new page
+            page is loaded (it happens sometimes only)*/
+            recyclerView.setAdapter(topicAdapter);
+
+            if (postList != null) {
+                topicItems.addAll(postList);
+                topicAdapter.notifyDataSetChanged();
+            }
         });
         /*viewModel.getFocusedPostIndex().observe(this, focusedPostIndex -> {
             if (focusedPostIndex == null) return;
@@ -786,6 +804,33 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 Timber.i("Prepare for edit unsuccessful");
                 Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
             }
+        });
+    }
+
+    /**This method sets a long click listener on the title of the topic. Once the
+     * listener gets triggered, it copies the link url of the topic in the clipboard.
+     * This method is getting called on the onCreate() of the TopicActivity*/
+    void setToolbarOnLongClickListener(String url) {
+        toolbar.setOnLongClickListener(view -> {
+            //Try to set the clipboard text
+            try {
+                //Create a ClipboardManager
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+                clipboard.setPrimaryClip(ClipData.newPlainText(BUNDLE_TOPIC_URL, url));
+
+                //Make a toast to inform the user that the url was copied
+                Toast.makeText(
+                        TopicActivity.this,
+                        TopicActivity.this.getString(R.string.link_copied_msg),
+                        Toast.LENGTH_SHORT).show();
+            }
+            //Something happened. Probably the device does not support this (report to Firebase)
+            catch (NullPointerException e) {
+                Timber.e(e, "Error while trying to copy topic's url.");
+            }
+
+            return true;
         });
     }
 }

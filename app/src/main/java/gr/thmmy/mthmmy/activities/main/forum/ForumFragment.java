@@ -30,10 +30,10 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Category;
 import gr.thmmy.mthmmy.session.SessionManager;
-import gr.thmmy.mthmmy.utils.CustomRecyclerView;
 import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
+import gr.thmmy.mthmmy.views.CustomRecyclerView;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -158,19 +158,24 @@ public class ForumFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (forumTask != null && forumTask.getStatus() != AsyncTask.Status.RUNNING)
-            forumTask.cancel(true);
+        if (forumTask!=null){
+            try{
+                if(forumTask.isRunning())
+                    forumTask.cancel(true);
+            }    // Yes, it happens even though we checked
+            catch (NullPointerException ignored){ }
+        }
     }
 
     public interface ForumFragmentInteractionListener extends FragmentInteractionListener {
         void onForumFragmentInteraction(Board board);
     }
 
-    public void onForumTaskStarted() {
+    private void onForumTaskStarted() {
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
-    public void onForumTaskFinished(int resultCode, ArrayList<Category> fetchedCategories) {
+    private void onForumTaskFinished(int resultCode, ArrayList<Category> fetchedCategories) {
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             categories.clear();
             categories.addAll(fetchedCategories);
@@ -191,8 +196,8 @@ public class ForumFragment extends BaseFragment {
     private class ForumTask extends NewParseTask<ArrayList<Category>> {
         private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
 
-        public ForumTask(OnTaskStartedListener onTaskStartedListener,
-                         OnNetworkTaskFinishedListener<ArrayList<Category>> onParseTaskFinishedListener) {
+        ForumTask(OnTaskStartedListener onTaskStartedListener,
+                  OnNetworkTaskFinishedListener<ArrayList<Category>> onParseTaskFinishedListener) {
             super(onTaskStartedListener, onParseTaskFinishedListener);
         }
 

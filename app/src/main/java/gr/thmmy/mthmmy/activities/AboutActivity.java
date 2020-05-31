@@ -1,7 +1,9 @@
 package gr.thmmy.mthmmy.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -26,6 +28,7 @@ import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.utils.io.AssetUtils;
 
 public class AboutActivity extends BaseActivity {
     private static final int TIME_INTERVAL = 1000;
@@ -39,6 +42,7 @@ public class AboutActivity extends BaseActivity {
     private AlertDialog alertDialog;
     private FrameLayout easterEggImage;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,14 +138,41 @@ public class AboutActivity extends BaseActivity {
             hideEasterEgg();
     }
 
-    public void displayApacheLibraries(View v) {
+    public void displayLibraries(View v) {
+        String libraryType = v.getTag().toString();
+        String title="", fileName="";
+        switch(libraryType) {
+            case "APACHE":
+                title=getString(R.string.apache_v2_0_libraries);
+                fileName="apache_libraries.html";
+                break;
+            case "MIT":
+                title=getString(R.string.the_mit_libraries);
+                fileName="mit_libraries.html";
+                break;
+            case "EPL":
+                title=getString(R.string.epl_libraries);
+                fileName="epl_libraries.html";
+                break;
+            case "OTHER":
+                title=getString(R.string.other_libraries);
+                fileName="other_libraries.html";
+                break;
+            default:
+                break;
+        }
+
+        String htmlContent = AssetUtils.readFileToText(this,fileName);
+
         LayoutInflater inflater = LayoutInflater.from(this);
         WebView webView = (WebView) inflater.inflate(R.layout.dialog_licenses, coordinatorLayout, false);
-        webView.loadUrl("file:///android_asset/apache_libraries.html");
+        webView.setBackgroundColor(Color.argb(1, 255, 255, 255));
+        webView.loadDataWithBaseURL("file:///android_asset/", htmlContent, "text/html", "UTF-8", null);
+
         int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
         int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.95);
         alertDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dark_Dialog)
-                .setTitle(getString(R.string.apache_v2_0_libraries))
+                .setTitle(title)
                 .setView(webView)
                 .setPositiveButton(android.R.string.ok, null)
                 .show();
@@ -149,24 +180,10 @@ public class AboutActivity extends BaseActivity {
             alertDialog.getWindow().setLayout(width, height);
     }
 
-    public void displayMITLibraries(View v) {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        WebView webView = (WebView) inflater.inflate(R.layout.dialog_licenses, coordinatorLayout, false);
-        webView.loadUrl("file:///android_asset/mit_libraries.html");
-        int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.95);
-        int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.95);
-        alertDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dark_Dialog)
-                .setTitle(getString(R.string.the_mit_libraries))
-                .setView(webView)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
-        if(alertDialog.getWindow()!=null)
-            alertDialog.getWindow().setLayout(width, height);
-    }
-
+    @SuppressLint("SourceLockedOrientationActivity")
     private void showEasterEgg(){
         if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);  //TODO: why?
             appBar.setVisibility(View.INVISIBLE);
             mainContent.setVisibility(View.INVISIBLE);
             easterEggImage.setVisibility(View.VISIBLE);

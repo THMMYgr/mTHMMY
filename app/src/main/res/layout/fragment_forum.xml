@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <gr.thmmy.mthmmy.utils.CustomRecyclerView
+        <gr.thmmy.mthmmy.views.CustomRecyclerView
             android:id="@+id/list"
             android:name="gr.thmmy.mthmmy.sections.forum.ForumFragment"
             android:layout_width="match_parent"

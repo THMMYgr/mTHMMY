@@ -64,11 +64,11 @@ import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.UploadCategory;
 import gr.thmmy.mthmmy.model.UploadFile;
 import gr.thmmy.mthmmy.services.UploadsReceiver;
-import gr.thmmy.mthmmy.utils.AppCompatSpinnerWithoutDefault;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.utils.TakePhoto;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseTask;
+import gr.thmmy.mthmmy.views.AppCompatSpinnerWithoutDefault;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 

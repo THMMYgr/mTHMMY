@@ -2,10 +2,14 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import android.os.AsyncTask;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.activities.topic.TopicParser;
@@ -41,18 +45,27 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
     @Override
     protected TopicTaskResult doInBackground(String... strings) {
         Document topic = null;
+
         String newPageUrl = strings[0];
+
+        //TODO: Perhaps decode all URLs app-wide (i.e. in BaseApplication)?
+        try {
+            //Decodes e.g. any %3B to ;
+            newPageUrl = URLDecoder.decode(newPageUrl, StandardCharsets.UTF_8.displayName());
+        } catch (UnsupportedEncodingException e) {
+            Timber.e(e, "Unsupported Encoding");
+        }
 
         //Finds the index of message focus if present
         int postFocus = 0;
-        {
-            if (newPageUrl.contains("msg")) {
-                String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
-                if (tmp.contains(";"))
-                    postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(";")));
-                else if (tmp.contains("#"))
-                    postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf("#")));
-            }
+
+        //TODO: Better parseInt handling - may rarely fail
+        if (newPageUrl.contains("msg")) {
+            String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
+            if (tmp.contains(";"))
+                postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(';')));
+            else if (tmp.contains("#"))
+                postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf('#')));
         }
 
         Request request = new Request.Builder()
@@ -60,7 +73,7 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                 .build();
         try {
             Response response = BaseApplication.getInstance().getClient().newCall(request).execute();
-            topic = ParseHelpers.parse(response.body().string());
+            topic = Jsoup.parse(response.body().string());
 
             ParseHelpers.Language language = ParseHelpers.Language.getLanguage(topic);
 
@@ -120,10 +133,10 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
     }
 
     private boolean isUnauthorized(Document document) {
-        return document != null && document.select("body:contains(The topic or board you" +
+        return document != null && !document.select("body:contains(The topic or board you" +
                 " are looking for appears to be either missing or off limits to you.)," +
                 "body:contains(Το θέμα ή πίνακας που ψάχνετε ή δεν υπάρχει ή δεν " +
-                "είναι προσβάσιμο από εσάς.)").size() > 0;
+                "είναι προσβάσιμο από εσάς.)").isEmpty();
     }
 
     @Override

@@ -8,7 +8,7 @@ package gr.thmmy.mthmmy.model;
  * not, whether it's sticky or not and whether it contains an unread post or not.</b>.
  */
 public class Topic extends TopicSummary {
-    private final String lastPostUrl, stats;
+    private final String lastPostUrl, starter, stats;
     private final boolean locked, sticky, unread;
 
     // Suppresses default constructor
@@ -16,6 +16,7 @@ public class Topic extends TopicSummary {
     private Topic() {
         super();
         this.lastPostUrl = null;
+        this.starter = null;
         this.stats = null;
         this.locked = false;
         this.sticky = false;
@@ -29,39 +30,22 @@ public class Topic extends TopicSummary {
      * @param topicUrl    this topic's url
      * @param subject     this topic's subject
      * @param starter     this topic starter's username
-     * @param lastPost    username of topic's last post's author
+     * @param lastUser    username of topic's last post's author
      * @param lastPostUrl url of topic's last post
      * @param stats       this topic's view and reply stats
      * @param locked      whether this topic is locked or not
      * @param sticky      whether this topic is sticky or not
      * @param unread      whether this topic contains an unread post or not
      */
-    public Topic(String topicUrl, String subject, String starter, String lastPost, String lastPostUrl,
+    public Topic(String topicUrl, String subject, String starter, String lastUser, String LastPostDateTime, String lastPostUrl,
                  String stats, boolean locked, boolean sticky, boolean unread) {
-        super(topicUrl, subject, starter, lastPost);
+        super(topicUrl, subject, lastUser, LastPostDateTime);
         this.lastPostUrl = lastPostUrl;
+        this.starter = starter;
         this.stats = stats;
         this.locked = locked;
         this.sticky = sticky;
         this.unread = unread;
-    }
-
-    /**
-     * Gets this topic's url.
-     *
-     * @return this topic's url
-     */
-    public String getUrl() {
-        return topicUrl;
-    }
-
-    /**
-     * Gets this topic's subject.
-     *
-     * @return this topic's subject
-     */
-    public String getSubject() {
-        return subject;
     }
 
     /**
@@ -70,16 +54,7 @@ public class Topic extends TopicSummary {
      * @return this topic's starter username
      */
     public String getStarter() {
-        return lastUser;
-    }
-
-    /**
-     * Gets this topic's last post's date and time.
-     *
-     * @return last post's date and time
-     */
-    public String getLastPostDateAndTime() {
-        return dateTimeModified;
+        return starter;
     }
 
     /**

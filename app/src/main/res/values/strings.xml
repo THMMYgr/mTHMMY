@@ -23,6 +23,7 @@
     <string name="unread">Unread</string>
     <string name="shoutbox">Shoutbox</string>
     <string name="refresh">Refresh</string>
+    <string name="no_unread_topics">No unread topics!</string>
 
     <!--Login Activity-->
     <string name="thmmy_img_description">thmmy.gr</string>
@@ -41,7 +42,7 @@
     <string name="topic_subject">Subject</string>
     <string name="topic_started_by">Started by: %1$s</string>
     <string name="topic_stats">Stats</string>
-    <string name="topic_last_post">Last post on: %1$s</string>
+    <string name="topic_last_post">Last post on: %1$s\nby %2$s</string>
 
     <!--Topic Activity-->
     <string name="share">Share</string>
@@ -93,6 +94,8 @@
     <string name="libraries_text">mTHMMY uses the following open-source libraries:</string>
     <string name="apache_v2_0_libraries"><u>Apache v2.0 License libraries</u></string>
     <string name="the_mit_libraries"><u>The MIT License libraries</u></string>
+    <string name="epl_libraries"><u>Eclipse Public License v1.0 libraries</u></string>
+    <string name="other_libraries"><u>Other libraries</u></string>
     <string name="contact">Contact</string>
     <string name="contact_text">Do not hesitate to contact us for any matter either by email at thmmynolife@gmail.com, or by joining our discord server at https://discord.gg/CVt3yrn.</string>
     <string name="open_source">Open Source</string>
@@ -102,8 +105,7 @@
 
     <!--Bookmarks-->
     <string name="remove_bookmark">Remove</string>
-    <string name="empty_board_bookmarks">You have no bookmarked boards</string>
-    <string name="empty_topic_bookmarks">You have no bookmarked topics</string>
+    <string name="nothing_bookmarked_here">Nothing bookmarked here!</string>
     <string name="toggle_notification">Toggle Notification</string>
 
     <!--FontAwesome-->
@@ -168,26 +170,38 @@
     <string name="title_activity_settings">Settings</string>
 
     <string name="pref_category_app">App</string>
+    <string name="pref_app_main_default_tab_key">pref_app_main_default_tab_key</string>
     <string name="pref_title_app_main_default_tab">Default home tab</string>
     <string name="pref_summary_app_main_default_tab">Sets a home screen tab as default</string>
     <string name="pref_app_main_default_tab_dialog_title">Default home tab</string>
+    <string name="pref_app_display_relative_time_key">pref_app_display_relative_time_key</string>
+    <string name="pref_title_display_relative_time">Display relative time</string>
+    <string name="pref_summary_display_relative_time">Considering that you haven\'t set some weird custom time format</string>
 
     <string name="pref_category_notifications">Notifications</string>
+    <string name="pref_notification_vibration_enable_key">pref_notification_vibration_enable_key</string>
     <string name="pref_title_notification_vibration_enable">Vibration</string>
+    <string name="pref_notification_led_enable_key">pref_notification_led_enable_key</string>
     <string name="pref_title_notification_led_enable">Notifications led</string>
     <string name="pref_summary_notification_led_enable">Enables/disables the notifications led (if the device has one)</string>
+    <string name="pref_notifications_select_sound_key">pref_notifications_select_sound_key</string>
     <string name="pref_title_notifications_sound">Notifications sound</string>
     <string name="pref_summary_notifications_sound">Sets your preferred notification sound</string>
 
     <string name="pref_category_posting">Posting</string>
+    <string name="pref_category_posting_key">pref_category_posting_key</string>
+    <string name="pref_posting_app_signature_enable_key">pref_posting_app_signature_enable_key</string>
     <string name="pref_title_posting_app_signature_enable">App signature</string>
     <string name="pref_summary_posting_app_signature_enable">Appends a \"sent from mTHMMY\" message to your posts</string>
 
     <string name="pref_category_uploading">Uploading</string>
+    <string name="pref_category_uploading_key">pref_category_uploading_key</string>
+    <string name="pref_uploading_app_signature_enable_key">pref_uploading_app_signature_enable_key</string>
     <string name="pref_title_uploading_app_signature_enable">App signature</string>
     <string name="pref_summary_uploading_app_signature_enable">Appends an \"uploaded from mTHMMY\" message to the descriptions of your uploads</string>
 
     <string name="pref_category_privacy">Privacy</string>
+    <string name="pref_category_privacy_key">pref_category_privacy_key</string>
     <string name="pref_privacy_crashlytics_enable_key">pref_privacy_crashlytics_enable_key</string>
     <string name="pref_title_privacy_crashlytics_enable">Crash data reports</string>
     <string name="pref_summary_privacy_crashlytics_enable">Automatically send us anonymized reports of errors and crashes</string>
@@ -218,4 +232,5 @@
     <!-- New topic activity -->
     <string name="new_topic_toolbar">New topic</string>
     <string name="create_topic">Create topic</string>
+    <string name="link_copied_msg">Link copied</string>
 </resources>
