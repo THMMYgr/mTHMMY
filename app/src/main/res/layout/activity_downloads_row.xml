@@ -5,7 +5,7 @@
     android:id="@+id/upper_linear"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/card_background"
+    android:background="@color/background_light"
     android:orientation="vertical">
 
     <LinearLayout

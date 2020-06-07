@@ -156,7 +156,7 @@ a img
 }
 /* A quote, perhaps from another post. */
 .quote
-{	
+{
 	font-family: tahoma, sans-serif;
 	color: #FFFFFF;
 	background-color: #404D50;
@@ -420,16 +420,16 @@ ul#menubox li.m5
 	margin-bottom: 1em;
 	padding-bottom: 1em;
 }
-.clearfix:after 
+.clearfix:after
 {
-	 content: "."; 
-	 display: block; 
-	 height: 0; 
-	 clear: both; 
+	 content: ".";
+	 display: block;
+	 height: 0;
+	 clear: both;
 	 visibility: hidden;
 }
 
-.clearfix 
+.clearfix
 {
 	display: inline-block;
 }
@@ -519,7 +519,7 @@ img
 }
 
 .customSignature{
-    background: #323232;
+    background: #3C3F41;
 }
 
 [style="color: blue;"]
