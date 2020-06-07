@@ -89,7 +89,7 @@ dependencies {
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
     implementation 'com.snatik:storage:2.1.0'
     implementation 'com.squareup.okhttp3:okhttp:3.12.12' //TODO: Warning: okhttp has dropped support for Android v.19 since okhttp 3.13!
-    implementation 'org.jsoup:jsoup:1.10.3' //TODO: Warning: upgrading from 1.10.3 will break stuff!
+    implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'joda-time:joda-time:2.10.4'
     implementation 'com.github.franmontiel:PersistentCookieJar:1.0.1'
     implementation 'com.github.PhilJay:MPAndroidChart:3.0.3'
