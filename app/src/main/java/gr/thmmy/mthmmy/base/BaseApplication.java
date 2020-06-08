@@ -1,6 +1,5 @@
 package gr.thmmy.mthmmy.base;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -11,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
 import androidx.core.content.ContextCompat;
+import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
 
 import com.bumptech.glide.Glide;
@@ -50,7 +50,7 @@ import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
 
-public class BaseApplication extends Application {
+public class BaseApplication extends MultiDexApplication {
     private static BaseApplication baseApplication; //BaseApplication singleton
 
     //Firebase
