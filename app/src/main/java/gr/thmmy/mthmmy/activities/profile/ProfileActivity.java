@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.profile;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -57,6 +59,7 @@ import timber.log.Timber;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.emojiTagToHtml;
+import static gr.thmmy.mthmmy.utils.ui.GlideUtils.isValidContextForGlide;
 import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
 
 /**
@@ -222,12 +225,16 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 avatarView.setOnClickListener(v -> displayPhotoViewImage(ProfileActivity.this, avatarUrl));
         }
 
-        Glide.with(this)
-                .load(avatarUri)
-                .circleCrop()
-                .error(R.drawable.ic_default_user_avatar)
-                .placeholder(R.drawable.ic_default_user_avatar)
-                .into(avatarView);
+        if(isValidContextForGlide(this)){
+            Glide.with(this)
+                    .load(avatarUri)
+                    .circleCrop()
+                    .error(R.drawable.ic_default_user_avatar)
+                    .placeholder(R.drawable.ic_default_user_avatar)
+                    .into(avatarView);
+        }
+        else
+            Timber.d("Will not load Glide image (invalid context)");
     }
 
     /**

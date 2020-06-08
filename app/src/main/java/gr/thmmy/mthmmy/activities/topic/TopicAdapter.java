@@ -88,6 +88,7 @@ import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
 import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
 import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
 import static gr.thmmy.mthmmy.utils.FileUtils.faIconFromFilename;
+import static gr.thmmy.mthmmy.utils.ui.GlideUtils.isValidContextForGlide;
 
 /**
  * Custom {@link RecyclerView.Adapter} used for topics.
@@ -810,12 +811,14 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if(imageUrl!=null)
             imageUrl = imageUrl.trim();
 
-        Glide.with(context)
-                .load(imageUrl)
-                .circleCrop()
-                .error(R.drawable.ic_default_user_avatar_darker)
-                .placeholder(R.drawable.ic_default_user_avatar_darker)
-                .into(imageView);
+        if(isValidContextForGlide(context)) {
+            Glide.with(context)
+                    .load(imageUrl)
+                    .circleCrop()
+                    .error(R.drawable.ic_default_user_avatar_darker)
+                    .placeholder(R.drawable.ic_default_user_avatar_darker)
+                    .into(imageView);
+        }
     }
 
     @Override
