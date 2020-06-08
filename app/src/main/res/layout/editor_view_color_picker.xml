@@ -2,16 +2,18 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/card_background">
+    android:background="@color/background_light">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/black"
-            style="@style/PopupMenuItem.TopItem"
+            style="@style/PopupMenuItem"
             android:text="@string/black"
             android:textColor="@color/black" />
 
@@ -89,7 +91,7 @@
 
         <TextView
             android:id="@+id/lime_green"
-            style="@style/PopupMenuItem.BottomItem"
+            style="@style/PopupMenuItem"
             android:text="@string/lime_green"
             android:textColor="@color/lime_green" />
     </LinearLayout>

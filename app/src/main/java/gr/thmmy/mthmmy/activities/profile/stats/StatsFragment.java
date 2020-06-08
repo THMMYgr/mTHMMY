@@ -36,6 +36,8 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -90,7 +92,7 @@ public class StatsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_stats, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_profile_stats, container, false);
         mainContent = rootView.findViewById(R.id.main_content);
         progressBar = rootView.findViewById(R.id.progressBar);
         if (profileStatsTask!=null && profileStatsTask.getStatus() == AsyncTask.Status.FINISHED)
@@ -172,6 +174,11 @@ public class StatsFragment extends Fragment {
             {
                 Elements titleRows = statsPage.select("table.bordercolor[align]>tbody>tr.titlebg");
                 generalStatisticsTitle = titleRows.first().text();
+                Pattern pattern = Pattern.compile("(.+)\\s-");
+                Matcher matcher = pattern.matcher(generalStatisticsTitle);
+                if (matcher.find())
+                    generalStatisticsTitle = matcher.group(1);
+
                 if (userHasPosts) {
                     postingActivityByTimeTitle = titleRows.get(1).text();
                     mostPopularBoardsByPostsTitle = titleRows.last().select("td").first().text();

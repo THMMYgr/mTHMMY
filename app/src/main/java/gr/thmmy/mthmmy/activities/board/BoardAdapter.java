@@ -77,11 +77,11 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             subBoardTitle.setText(context.getString(R.string.child_board_title));
             subBoardTitle.setTypeface(subBoardTitle.getTypeface(), Typeface.BOLD);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                subBoardTitle.setBackgroundColor(context.getColor(R.color.card_background));
+                subBoardTitle.setBackgroundColor(context.getColor(R.color.background_light));
                 subBoardTitle.setTextColor(context.getColor(R.color.accent));
             } else {
                 //noinspection deprecation
-                subBoardTitle.setBackgroundColor(context.getResources().getColor(R.color.card_background));
+                subBoardTitle.setBackgroundColor(context.getResources().getColor(R.color.background_light));
                 //noinspection deprecation
                 subBoardTitle.setTextColor(context.getResources().getColor(R.color.accent));
             }

@@ -9,7 +9,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,6 +24,7 @@ import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
+import gr.thmmy.mthmmy.views.ReactiveWebView;
 import timber.log.Timber;
 
 /**
@@ -76,7 +76,7 @@ public class SummaryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_summary, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_profile_summary, container, false);
         mainContent = rootView.findViewById(R.id.profile_activity_content);
         if (!parsedProfileSummaryData.isEmpty() && isAdded())
             populateLayout();
@@ -169,7 +169,7 @@ public class SummaryFragment extends Fragment {
         for (String profileSummaryRow : parsedProfileSummaryData) {
             if (profileSummaryRow.contains("Signature")
                     || profileSummaryRow.contains("Υπογραφή")) { //This may contain css
-                WebView signatureEntry = new WebView(this.getContext());
+                ReactiveWebView signatureEntry = new ReactiveWebView(this.getContext());
                 signatureEntry.setBackgroundColor(Color.argb(1, 255, 255, 255));
                 signatureEntry.loadDataWithBaseURL("file:///android_asset/", profileSummaryRow,
                         "text/html", "UTF-8", null);

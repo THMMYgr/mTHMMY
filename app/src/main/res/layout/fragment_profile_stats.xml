@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_light">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -12,7 +13,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
-        android:background="@color/background">
+        android:background="@color/background_light">
 
         <LinearLayout
             android:id="@+id/main_content"
@@ -24,10 +25,11 @@
                 android:id="@+id/general_statistics_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/card_background"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:text="@string/general_statistics_title"
                 android:textAlignment="center"
-                android:textColor="@color/primary_text"
+                android:textColor="@color/accent"
                 android:textStyle="bold"/>
 
             <TextView
@@ -41,10 +43,10 @@
                 android:id="@+id/posting_activity_by_time_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/card_background"
+                android:layout_marginTop="@dimen/profile_stats_category_margin_top"
                 android:text="@string/posting_activity_by_time_title"
                 android:textAlignment="center"
-                android:textColor="@color/primary_text"
+                android:textColor="@color/accent"
                 android:textStyle="bold"/>
 
             <com.github.mikephil.charting.charts.LineChart
@@ -57,10 +59,10 @@
                 android:id="@+id/most_popular_boards_by_posts_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/card_background"
+                android:layout_marginTop="@dimen/profile_stats_category_margin_top"
                 android:text="@string/most_popular_boards_by_posts_title"
                 android:textAlignment="center"
-                android:textColor="@color/primary_text"
+                android:textColor="@color/accent"
                 android:textStyle="bold"/>
 
             <com.github.mikephil.charting.charts.HorizontalBarChart
@@ -73,17 +75,17 @@
                 android:id="@+id/most_popular_boards_by_activity_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/card_background"
+                android:layout_marginTop="@dimen/profile_stats_category_margin_top"
                 android:text="@string/most_popular_boards_by_activity_title"
                 android:textAlignment="center"
-                android:textColor="@color/primary_text"
+                android:textColor="@color/accent"
                 android:textStyle="bold"/>
 
             <com.github.mikephil.charting.charts.HorizontalBarChart
                 android:id="@+id/most_popular_boards_by_activity_chart"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:layout_marginBottom="4dp"/>
+                android:layout_marginBottom="14dp"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

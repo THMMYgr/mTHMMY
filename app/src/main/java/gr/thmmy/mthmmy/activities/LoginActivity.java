@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.preference.PreferenceManager;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import gr.thmmy.mthmmy.R;
@@ -35,6 +37,7 @@ public class LoginActivity extends BaseActivity {
     private AppCompatButton btnLogin;
     private EditText inputUsername;
     private EditText inputPassword;
+    private ImageView logo;
     private String username;
     private String password;
     /* --Graphics End-- */
@@ -56,6 +59,9 @@ public class LoginActivity extends BaseActivity {
         inputPassword = findViewById(R.id.password);
         btnLogin = findViewById(R.id.btnLogin);
         AppCompatButton btnGuest = findViewById(R.id.btnContinueAsGuest);
+        logo = findViewById(R.id.logo);
+
+        Glide.with(this).load(R.drawable.logo_animated).into(logo);
 
         //Login button Click Event
         btnLogin.setOnClickListener(view -> {

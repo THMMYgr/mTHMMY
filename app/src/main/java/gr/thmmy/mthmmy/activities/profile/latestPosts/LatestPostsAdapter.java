@@ -53,12 +53,12 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_EMPTY) {
             View view = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.fragment_latest_posts_empty_message, parent, false);
+                    inflate(R.layout.fragment_profile_latest_posts_empty_message, parent, false);
             return new RecyclerView.ViewHolder(view){};
         }
         if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.fragment_latest_posts_row, parent, false);
+                    inflate(R.layout.fragment_profile_latest_posts_row, parent, false);
             return new LatestPostViewHolder(view);
         } else if (viewType == VIEW_TYPE_LOADING) {
             View view = LayoutInflater.from(parent.getContext()).

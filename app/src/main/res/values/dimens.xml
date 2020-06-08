@@ -14,4 +14,5 @@
     <dimen name="refresh_label_border_radius">12dp</dimen>
     <dimen name="material_drawer_account_header_title">16sp</dimen>
     <dimen name="profile_activity_avatar_size">90dp</dimen>
+    <dimen name="profile_stats_category_margin_top">28dp</dimen>
 </resources>
