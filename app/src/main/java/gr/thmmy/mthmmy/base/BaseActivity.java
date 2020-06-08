@@ -807,8 +807,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         builder.setPositiveButton("Yes, I want to help", (dialogInterface, i) -> {
             addUserConsent();
             FirebaseMessaging.getInstance().setAutoInitEnabled(true);
-            BaseApplication.getInstance().startFirebaseCrashlyticsCollection();
-            BaseApplication.getInstance().setFirebaseAnalyticsCollection(true);
+            BaseApplication.getInstance().setFirebaseCrashlyticsEnabled(true);
+            BaseApplication.getInstance().setFirebaseAnalyticsEnabled(true);
             setUserDataShareEnabled(true);
         });
         builder.setNegativeButton("Nope, leave me alone", (dialogInterface, i) -> {

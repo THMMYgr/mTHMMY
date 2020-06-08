@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.utils.crashreporting;
 
-import com.crashlytics.android.Crashlytics;
+
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -43,12 +44,14 @@ public class CrashReporter {
         else
             languageValue = "Unknown";
 
-        Crashlytics.setString(themeKey, themeValue);
-        Crashlytics.setString(languageKey, languageValue);
-        Crashlytics.setBool("isLoggedIn", BaseApplication.getInstance().getSessionManager().isLoggedIn());
+        FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+        crashlytics.setCustomKey(themeKey, themeValue);
+        crashlytics.setCustomKey(languageKey, languageValue);
+        crashlytics.setCustomKey("isLoggedIn", BaseApplication.getInstance().getSessionManager().isLoggedIn());
     }
 
     public static void reportDocument(Document document, String key) {
+        FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
         String documentString = document.toString();
 
         ParseHelpers.Language language = ParseHelpers.Language.getLanguage(document);
@@ -71,7 +74,7 @@ public class CrashReporter {
                 batch = documentString.substring(i * STRING_BATCH_LENGTH, (i + 1) * STRING_BATCH_LENGTH);
             else
                 batch = documentString.substring(i * STRING_BATCH_LENGTH);
-            Crashlytics.setString(key + "_" + i + 1, batch);
+            crashlytics.setCustomKey(key + "_" + i + 1, batch);
         }
     }
 }

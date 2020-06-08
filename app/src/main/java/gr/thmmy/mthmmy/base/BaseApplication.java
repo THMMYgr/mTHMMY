@@ -14,13 +14,12 @@ import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
 
 import com.bumptech.glide.Glide;
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -40,7 +39,6 @@ import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.crashreporting.CrashReportingTree;
-import io.fabric.sdk.android.Fabric;
 import okhttp3.CipherSuite;
 import okhttp3.ConnectionSpec;
 import okhttp3.HttpUrl;
@@ -52,6 +50,8 @@ import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELAT
 
 public class BaseApplication extends MultiDexApplication {
     private static BaseApplication baseApplication; //BaseApplication singleton
+
+    private CrashReportingTree crashReportingTree;
 
     //Firebase
     private static String firebaseProjectId;
@@ -88,19 +88,23 @@ public class BaseApplication extends MultiDexApplication {
         SharedPreferences settingsSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences draftsPrefs = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
 
-        if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false))
-            startFirebaseCrashlyticsCollection();
-        else
-            Timber.i("Starting app with Crashlytics disabled.");
+        if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false)){
+            Timber.i("Starting app with Firebase Crashlytics enabled.");
+            setFirebaseCrashlyticsEnabled(true);
+        }
+        else {
+            Timber.i("Starting app with Firebase Crashlytics disabled.");
+            setFirebaseCrashlyticsEnabled(false);
+        }
 
         firebaseProjectId = FirebaseApp.getInstance().getOptions().getProjectId();
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         boolean enableAnalytics = settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_analytics_enable_key), false);
         firebaseAnalytics.setAnalyticsCollectionEnabled(enableAnalytics);
         if (enableAnalytics)
-            Timber.i("Starting app with Analytics enabled.");
+            Timber.i("Starting app with Firebase Analytics enabled.");
         else
-            Timber.i("Starting app with Analytics disabled.");
+            Timber.i("Starting app with Firebase Analytics disabled.");
 
         SharedPrefsCookiePersistor sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(getApplicationContext());
         PersistentCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
@@ -215,24 +219,32 @@ public class BaseApplication extends MultiDexApplication {
         firebaseAnalytics.logEvent(event, params);
     }
 
-    public void setFirebaseAnalyticsCollection(boolean enabled) {
+    public void setFirebaseAnalyticsEnabled(boolean enabled) {
         firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
         if (!enabled)
             firebaseAnalytics.resetAnalyticsData();
+
+        if(enabled)
+            Timber.i("Firebase Analytics enabled.");
+        else
+            Timber.i("Firebase Analytics disabled.");
     }
 
-    // Set up Crashlytics, disabled for debug builds
-    public void startFirebaseCrashlyticsCollection() {
-        if (!Fabric.isInitialized()) {
-            Crashlytics crashlyticsKit = new Crashlytics.Builder()
-                    .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-                    .build();
-            // Initialize Fabric with the debug-disabled Crashlytics.
-            Fabric.with(this, crashlyticsKit);
-            Timber.plant(new CrashReportingTree());
-            Timber.i("Crashlytics enabled.");
-        } else
-            Timber.i("Crashlytics were already initialized for this app session.");
+    public void setFirebaseCrashlyticsEnabled(boolean enable) {
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(enable);
+        if(enable){
+            crashReportingTree = new CrashReportingTree();
+            Timber.plant(crashReportingTree);
+            Timber.i("CrashReporting tree planted.");
+            Timber.i("Firebase Crashlytics enabled.");
+        }
+        else{
+            if(crashReportingTree!=null) {
+                Timber.uproot(crashReportingTree);
+                Timber.i("CrashReporting tree uprooted.");
+            }
+            Timber.i("Firebase Crashlytics disabled.");
+        }
     }
 
     public static String getFirebaseProjectId(){
