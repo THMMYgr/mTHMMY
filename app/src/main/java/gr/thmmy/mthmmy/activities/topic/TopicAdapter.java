@@ -982,7 +982,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         for (int i = 0; i < topicItems.size(); i++) {
                             if (topicItems.get(i) instanceof Post && ((Post) topicItems.get(i)).getPostIndex() == testAgainst) {
                                 //same page
-                                Timber.d(Integer.toString(i));
                                 postFocusListener.onPostFocusChange(i);
                                 return true;
                             }

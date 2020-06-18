@@ -62,7 +62,8 @@
                 android:text="@string/child_board_mods"
                 android:textColor="@color/secondary_text"
                 android:textSize="12sp"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/child_board_stats"
@@ -72,7 +73,8 @@
                 android:layout_marginBottom="1dp"
                 android:text="@string/child_board_stats"
                 android:textColor="@color/secondary_text"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/child_board_last_post"
@@ -84,7 +86,8 @@
                 android:focusable="true"
                 android:text="@string/child_board_last_post"
                 android:textColor="@color/primary_text"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

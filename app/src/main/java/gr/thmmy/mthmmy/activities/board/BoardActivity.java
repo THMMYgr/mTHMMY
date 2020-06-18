@@ -80,12 +80,11 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
+
         //Fixes url
-        {
-            String tmpUrlSbstr = boardUrl.replaceAll("(.+)(board=)([0-9]*)(\\.*[0-9]*).*", "$1$2$3");
-            if (!tmpUrlSbstr.substring(tmpUrlSbstr.indexOf("board=")).contains("."))
-                boardUrl = tmpUrlSbstr + ".0";
-        }
+        String tmpUrlSbstr = boardUrl.replaceAll("(.+)(board=)([0-9]*)(\\.*[0-9]*).*", "$1$2$3");
+        if (!tmpUrlSbstr.substring(tmpUrlSbstr.indexOf("board=")).contains("."))
+            boardUrl = tmpUrlSbstr + ".0";
 
         //Initializes graphics
         toolbar = findViewById(R.id.toolbar);
@@ -239,8 +238,12 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                     pLastPost = "No posts yet", pLastPostUrl = "";
                             Elements subBoardColumns = subBoardRow.select(">td");
                             for (Element subBoardCol : subBoardColumns) {
-                                if (Objects.equals(subBoardCol.className(), "windowbg"))
+                                if (Objects.equals(subBoardCol.className(), "windowbg")){
                                     pStats = subBoardCol.text();
+                                    if(pStats.equals("--"))
+                                        pStats = "";
+                                }
+
                                 else if (Objects.equals(subBoardCol.className(), "smalltext")) {
                                     pLastPost = subBoardCol.text();
                                     if (pLastPost.contains(" in ")) {
@@ -257,16 +260,15 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                                 "\n" +
                                                 pLastPost.substring(pLastPost.lastIndexOf(" από ") + 1);
                                         pLastPostUrl = subBoardCol.select("a").first().attr("href");
-                                    } else {
-                                        pLastPost = "No posts yet.";
-                                        pLastPostUrl = "";
-                                    }
+                                    } else if (pLastPost.contains("redirected clicks")||pLastPost.contains("N/A"))
+                                        pLastPost = "";
+                                    else
+                                        pLastPost = "No posts yet";
                                 } else {
                                     pUrl = subBoardCol.select("a").first().attr("href");
                                     pTitle = subBoardCol.select("a").first().text();
-                                    if (subBoardCol.select("div.smalltext").first() != null) {
+                                    if (subBoardCol.select("div.smalltext").first() != null)
                                         pMods = subBoardCol.select("div.smalltext").first().text();
-                                    }
                                 }
                             }
                             tempSubboards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
@@ -282,18 +284,18 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         String pTopicUrl, pSubject, pStarter, pLastUser="", pLastPostDateTime="00:00:00", pLastPost, pLastPostUrl, pStats;
                         boolean pLocked = false, pSticky = false, pUnread = false;
                         Elements topicColumns = topicRow.select(">td");
-                        {
-                            Element column = topicColumns.get(2);
-                            Element tmp = column.select("span[id^=msg_] a").first();
-                            pTopicUrl = tmp.attr("href");
-                            pSubject = tmp.text();
-                            if (column.select("img[id^=stickyicon]").first() != null)
-                                pSticky = true;
-                            if (column.select("img[id^=lockicon]").first() != null)
-                                pLocked = true;
-                            if (column.select("a[id^=newicon]").first() != null)
-                                pUnread = true;
-                        }
+
+                        Element column = topicColumns.get(2);
+                        Element tmp = column.select("span[id^=msg_] a").first();
+                        pTopicUrl = tmp.attr("href");
+                        pSubject = tmp.text();
+                        if (column.select("img[id^=stickyicon]").first() != null)
+                            pSticky = true;
+                        if (column.select("img[id^=lockicon]").first() != null)
+                            pLocked = true;
+                        if (column.select("a[id^=newicon]").first() != null)
+                            pUnread = true;
+
                         pStarter = topicColumns.get(3).text();
                         pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
@@ -304,8 +306,10 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             pLastPostDateTime = matcher.group(1);
                             pLastUser = matcher.group(3);
                         }
-                        else
-                            throw new ParseException("Parsing failed (pLastPost came with: \"" + pLastPost + "\")");
+                        else{
+                            Timber.e("Parsing failed (pLastPost came with: \"%s\", html was \"%s\")", pLastPost, topicColumns);
+                            continue;
+                        }
 
                         pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
                         tempTopics.add(new Topic(pTopicUrl, pSubject, pStarter, pLastUser, pLastPostDateTime, pLastPostUrl,
