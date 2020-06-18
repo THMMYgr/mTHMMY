@@ -236,6 +236,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         if (!Objects.equals(subBoardRow.className(), "titlebg")) {
                             String pUrl = "", pTitle = "", pMods = "", pStats = "",
                                     pLastPost = "No posts yet", pLastPostUrl = "";
+                            boolean parsingFailed = false;
                             Elements subBoardColumns = subBoardRow.select(">td");
                             for (Element subBoardCol : subBoardColumns) {
                                 if (Objects.equals(subBoardCol.className(), "windowbg")){
@@ -246,20 +247,22 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
                                 else if (Objects.equals(subBoardCol.className(), "smalltext")) {
                                     pLastPost = subBoardCol.text();
-                                    if (pLastPost.contains(" in ")) {
-                                        pLastPost = pLastPost.substring(0, pLastPost.indexOf(" in ")) +
-                                                "\n" +
-                                                pLastPost.substring(pLastPost.indexOf(" in ") + 1, pLastPost.indexOf(" by ")) +
-                                                "\n" +
-                                                pLastPost.substring(pLastPost.lastIndexOf(" by ") + 1);
-                                        pLastPostUrl = subBoardCol.select("a").first().attr("href");
-                                    } else if (pLastPost.contains(" σε ")) {
-                                        pLastPost = pLastPost.substring(0, pLastPost.indexOf(" σε ")) +
-                                                "\n" +
-                                                pLastPost.substring(pLastPost.indexOf(" σε ") + 1, pLastPost.indexOf(" από ")) +
-                                                "\n" +
-                                                pLastPost.substring(pLastPost.lastIndexOf(" από ") + 1);
-                                        pLastPostUrl = subBoardCol.select("a").first().attr("href");
+                                    if (pLastPost.contains(" in ") || pLastPost.contains(" σε ")) {
+                                        Pattern pattern = Pattern.compile("(?:Last post on |Τελευταίο μήνυμα στις )((?:(?!(?:in|σε)).)*)\\s(?:in|σε)\\s.*");
+                                        Matcher matcher = pattern.matcher(pLastPost);
+                                        if (matcher.find()){
+                                            String pLastPostDateTime = matcher.group(1);
+                                            String pSubject = subBoardCol.select("a").first().attr("title");
+                                            String pLastUser = subBoardCol.select("a").last().text();
+                                            pLastPost = "Last post on: " + pLastPostDateTime + "\nin: " + pSubject + "\nby " +pLastUser;
+
+                                            pLastPostUrl = subBoardCol.select("a").first().attr("href");
+                                        }
+                                        else{
+                                            parsingFailed = true;
+                                            break;
+                                        }
+
                                     } else if (pLastPost.contains("redirected clicks")||pLastPost.contains("N/A"))
                                         pLastPost = "";
                                     else
@@ -271,7 +274,10 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                         pMods = subBoardCol.select("div.smalltext").first().text();
                                 }
                             }
-                            tempSubboards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
+                            if(!parsingFailed)
+                                tempSubboards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
+                            else
+                                Timber.e("Parsing failed (pLastPost came with: \"%s\", subBoardColumns html was \"%s\")", pLastPost, subBoardColumns);
                         }
                     }
                 }
@@ -300,14 +306,14 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
                         pLastPost = topicColumns.last().text();
-                        Pattern pattern = Pattern.compile("(.+)\\s(by|από)\\s(.+)$");
+                        Pattern pattern = Pattern.compile("((?:(?!(?:by|από)).)*)\\s(?:by|από)\\s(.*)");
                         Matcher matcher = pattern.matcher(pLastPost);
                         if (matcher.find()){
                             pLastPostDateTime = matcher.group(1);
-                            pLastUser = matcher.group(3);
+                            pLastUser = matcher.group(2);
                         }
                         else{
-                            Timber.e("Parsing failed (pLastPost came with: \"%s\", html was \"%s\")", pLastPost, topicColumns);
+                            Timber.e("Parsing failed (pLastPost came with: \"%s\", topicColumns html was \"%s\")", pLastPost, topicColumns);
                             continue;
                         }
 
