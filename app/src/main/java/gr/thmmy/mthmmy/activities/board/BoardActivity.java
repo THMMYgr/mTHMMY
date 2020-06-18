@@ -327,7 +327,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         || !Objects.equals(boardTitle, parsedTitle)) {
                     boardTitle = parsedTitle;
                     toolbar.setTitle(boardTitle);
-                    thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), true);
+                    thisPageBookmark = new Bookmark(boardTitle, thisPageBookmark.getId(), thisPageBookmark.isNotificationsEnabled());
                     setBoardBookmark(findViewById(R.id.bookmark));
                 }
 

@@ -155,6 +155,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         }
 
         topicPageUrl = ThmmyPage.sanitizeTopicUrl(topicPageUrl);
+        //TODO if topicTitle provided is null make bookmark button unclickable until title is fetched (also for BoardActivity)
         thisPageBookmark = new Bookmark(topicTitle, ThmmyPage.getTopicId(topicPageUrl), true);
 
         //Initializes graphics
@@ -671,8 +672,10 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         });
         viewModel.getTopicTitle().observe(this, newTopicTitle -> {
             if (newTopicTitle == null) return;
-            if (!TextUtils.equals(toolbarTitle.getText(), newTopicTitle))
+            if (!TextUtils.equals(toolbarTitle.getText(), newTopicTitle)) {
+                thisPageBookmark = new Bookmark(newTopicTitle, thisPageBookmark.getId(), thisPageBookmark.isNotificationsEnabled());
                 toolbarTitle.setText(newTopicTitle);
+            }
         });
         viewModel.getPageTopicId().observe(this, pageTopicId -> {
             if (pageTopicId == null) return;

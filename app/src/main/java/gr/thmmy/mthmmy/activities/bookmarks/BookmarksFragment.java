@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.model.Bookmark;
 
+//TODO refactor using RecyclerView
 public class BookmarksFragment extends Fragment {
     enum Type {TOPIC, BOARD}
     private static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
