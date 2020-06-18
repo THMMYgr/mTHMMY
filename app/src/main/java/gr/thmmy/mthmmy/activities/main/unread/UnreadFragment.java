@@ -119,16 +119,7 @@ public class UnreadFragment extends BaseFragment {
             progressBar = rootView.findViewById(R.id.progressBar);
             noUnreadTopicsTextView = rootView.findViewById(R.id.no_unread_topics);
             markAsReadFAB = rootView.findViewById(R.id.unread_fab);
-
-            if(topicSummaries.isEmpty()){
-                hideMarkAsReadFAB();
-                noUnreadTopicsTextView.setVisibility(View.VISIBLE);
-            }
-            else{
-                noUnreadTopicsTextView.setVisibility(View.INVISIBLE);
-                showMarkAsReadFAB();
-            }
-
+            
             unreadAdapter = new UnreadAdapter(topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
