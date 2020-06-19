@@ -229,6 +229,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             if (newTopicButton == null)
                 newTopicButton = boardPage.select("a:has(img[alt=Νέο θέμα])").first();
             if (newTopicButton != null) newTopicUrl = newTopicButton.attr("href");
+
+            final Pattern pLastPostPattern = Pattern.compile("((?:(?!(?:by|από)).)*)\\s(?:by|από)\\s(.*)");
+
             if(pagesLoaded == 0) { //Finds sub boards
                 Elements subBoardRows = boardPage.select("div.tborder>table>tbody>tr");
                 if (subBoardRows != null && !subBoardRows.isEmpty()) {
@@ -253,12 +256,25 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                         if (matcher.find()){
                                             String pLastPostDateTime = matcher.group(1);
                                             String pSubject = subBoardCol.select("a").first().attr("title");
-                                            String pLastUser = subBoardCol.select("a").last().text();
+
+                                            // Purification for extreme edge cases
+                                            String pSubjectConcat = subBoardCol.select("a").first().text();
+                                            pLastPost = pLastPost.replaceAll(pSubjectConcat, "");
+
+                                            String pLastUser;
+                                            matcher = pLastPostPattern.matcher(pLastPost);   //Don't even try simply grabbing <a>, user might be guest
+                                            if (matcher.find())
+                                                pLastUser = matcher.group(2);
+                                            else {
+                                                parsingFailed = true;
+                                                break;
+                                            }
+
                                             pLastPost = "Last post on: " + pLastPostDateTime + "\nin: " + pSubject + "\nby " +pLastUser;
 
                                             pLastPostUrl = subBoardCol.select("a").first().attr("href");
                                         }
-                                        else{
+                                        else {
                                             parsingFailed = true;
                                             break;
                                         }
@@ -306,8 +322,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
                         pLastPost = topicColumns.last().text();
-                        Pattern pattern = Pattern.compile("((?:(?!(?:by|από)).)*)\\s(?:by|από)\\s(.*)");
-                        Matcher matcher = pattern.matcher(pLastPost);
+                        Matcher matcher = pLastPostPattern.matcher(pLastPost);
                         if (matcher.find()){
                             pLastPostDateTime = matcher.group(1);
                             pLastUser = matcher.group(2);
