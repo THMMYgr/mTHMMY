@@ -43,15 +43,16 @@ public class SessionManager {
     private static final String baseMarkAllAsReadLink = "https://www.thmmy.gr/smf/index.php?action=markasread;sa=all;sesc=";
     private static final String guestName = "Guest";
 
-    //Response Codes
-    public static final int SUCCESS = 0;
-    public static final int FAILURE = 1;    //Generic Error
-    public static final int WRONG_USER = 2;
-    public static final int WRONG_PASSWORD = 3;
-    public static final int CANCELLED = 4;
-    public static final int CONNECTION_ERROR = 5;
-    public static final int EXCEPTION = 6;
-    public static final int BANNED_USER = 7;
+    //Response Codes - make sure they do not overlap with NetworkResultCodes, just in case
+    public static final int SUCCESS = 20;
+    public static final int FAILURE = 21;    //Generic Error
+    public static final int WRONG_USER = 22;
+    public static final int WRONG_PASSWORD = 23;
+    public static final int CANCELLED = 24;
+    public static final int CONNECTION_ERROR = 25;
+    public static final int EXCEPTION = 26;
+    public static final int BANNED_USER = 27;
+    public static final int INVALID_SESSION = 28;
 
     // Client & Cookies
     private final OkHttpClient client;
@@ -63,12 +64,12 @@ public class SessionManager {
     private final SharedPreferences draftsPrefs;
     private static final String USERNAME = "Username";
     private static final String USER_ID = "UserID";
-    private static final String AVATAR_LINK = "AvatarLink";
-    private static final String HAS_AVATAR = "HasAvatar";
+    public static final String AVATAR_LINK = "AvatarLink";
+    public static final String HAS_AVATAR = "HasAvatar";
     private static final String SESC = "Sesc";
     private static final String LOGOUT_LINK = "LogoutLink";
     private static final String MARK_ALL_AS_READ_LINK = "MarkAllAsReadLink";
-    private static final String LOGGED_IN = "LoggedIn";
+    public static final String LOGGED_IN = "LoggedIn";
     private static final String LOGIN_SCREEN_AS_DEFAULT = "LoginScreenAsDefault";
 
     //Constructor
@@ -224,8 +225,7 @@ public class SessionManager {
             Document document = Jsoup.parse(response.body().string());
 
             Elements loginButton = document.select("[value=Login]");  //Attempt to find login button
-            if (!loginButton.isEmpty()) //If login button exists, logout was successful
-            {
+            if (!loginButton.isEmpty()){ //If login button exists, logout was successful
                 Timber.i("Logout successful!");
                 return SUCCESS;
             } else {
@@ -243,6 +243,16 @@ public class SessionManager {
             clearSessionData();
             guestLogin();
         }
+    }
+
+    public void clearSessionData() {
+        cookieJar.clear();
+        sharedPrefs.edit().clear().apply(); //Clear session data
+        sharedPrefs.edit().putString(USERNAME, guestName).apply();
+        sharedPrefs.edit().putInt(USER_ID, -1).apply();
+        sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
+        draftsPrefs.edit().clear().apply(); //Clear saved drafts
+        Timber.i("Session data cleared.");
     }
 
     public void refreshSescFromUrl(String url){
@@ -356,16 +366,6 @@ public class SessionManager {
 
     }
 
-    private void clearSessionData() {
-        cookieJar.clear();
-        sharedPrefs.edit().clear().apply(); //Clear session data
-        sharedPrefs.edit().putString(USERNAME, guestName).apply();
-        sharedPrefs.edit().putInt(USER_ID, -1).apply();
-        sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
-        draftsPrefs.edit().clear().apply(); //Clear saved drafts
-        Timber.i("Session data cleared.");
-    }
-
     private void setLoginScreenAsDefault(boolean b){
         sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, b).apply();
     }
@@ -421,7 +421,6 @@ public class SessionManager {
         return -1;
     }
 
-
     @Nullable
     private String extractAvatarLink(@NonNull Document doc) {
         Elements avatar = doc.getElementsByClass("avatar");
@@ -461,5 +460,4 @@ public class SessionManager {
         return baseMarkAllAsReadLink + sesc;
     }
     //----------------------------------OTHER FUNCTIONS END-----------------------------------------
-
 }

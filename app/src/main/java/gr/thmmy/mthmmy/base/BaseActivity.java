@@ -463,8 +463,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private void updateDrawer() {
         if (drawer != null) {
-            if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
-            {
+            if (!sessionManager.isLoggedIn()){ //When logged out or if user is guest
                 drawer.removeItem(DOWNLOADS_ID);
                 drawer.removeItem(UPLOAD_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
@@ -486,7 +485,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             }
             accountHeader.updateProfile(profileDrawerItem);
             drawer.updateItem(loginLogoutItem);
-
         }
     }
 

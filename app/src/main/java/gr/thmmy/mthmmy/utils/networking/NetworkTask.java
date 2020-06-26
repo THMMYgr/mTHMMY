@@ -1,4 +1,4 @@
-package gr.thmmy.mthmmy.utils;
+package gr.thmmy.mthmmy.utils.networking;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -10,6 +10,10 @@ import java.io.IOException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
+import gr.thmmy.mthmmy.session.InvalidSessionException;
+import gr.thmmy.mthmmy.session.SessionManager;
+import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
+import gr.thmmy.mthmmy.utils.Parcel;
 import gr.thmmy.mthmmy.utils.crashreporting.CrashReporter;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.OkHttpClient;
@@ -63,7 +67,12 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
                     .getString(R.string.pref_privacy_crashlytics_enable_key), false))
                 CrashReporter.reportForumInfo(Jsoup.parse(responseBodyString));
             return new Parcel<>(NetworkResultCodes.PARSE_ERROR, null);
-        } catch (Exception e) {
+        } catch (InvalidSessionException ise) {
+            //TODO: Uncomment the lines below when UI is ready to auto-adjust to changes in session data
+            // BaseApplication.getInstance().getSessionManager().clearSessionData();
+            // BaseApplication.getInstance().getSessionManager().guestLogin();
+            return new Parcel<>(SessionManager.INVALID_SESSION, null);
+        }catch (Exception e) {
             Timber.e(e);
             return new Parcel<>(NetworkResultCodes.PERFORM_TASK_ERROR, null);
         }

@@ -29,9 +29,10 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
+import gr.thmmy.mthmmy.session.InvalidSessionException;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.session.ValidateSessionTask;
-import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.views.CustomRecyclerView;
@@ -266,6 +267,8 @@ public class UnreadFragment extends BaseFragment {
             hideProgressUI();
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
                 Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            else if (resultCode == SessionManager.INVALID_SESSION)
+                Toast.makeText(getContext(), "Session verification failed. Please try logging in again.", Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(getContext(), "Unexpected error," +
                         " please contact the developers with the details", Toast.LENGTH_LONG).show();
@@ -278,7 +281,10 @@ public class UnreadFragment extends BaseFragment {
         }
 
         @Override
-        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException {
+        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException, InvalidSessionException {
+            if(!document.select("td:containsOwn(Only registered members are allowed to access this section.)").isEmpty())
+                throw new InvalidSessionException();
+
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
             ArrayList<TopicSummary> fetchedTopicSummaries = new ArrayList<>();
             if (!unread.isEmpty()) {
@@ -338,42 +344,42 @@ public class UnreadFragment extends BaseFragment {
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
-    private void onMarkReadTaskFinished(int resultCode,  Boolean isSessionVerified) {
+    private void onMarkReadTaskFinished(int resultCode,  Void isSessionVerified) {
         hideProgressUI();
-        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            if (!isSessionVerified){
-                Toast.makeText(getContext(), "Session verification failed", Toast.LENGTH_SHORT).show();
-                startValidateSessionTask();
-            }
-            else
+        if (resultCode == NetworkResultCodes.SUCCESSFUL)
                 startUnreadTask();
-        }
         else{
             hideProgressUI();
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
                 Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            else if (resultCode == SessionManager.INVALID_SESSION){
+                Toast.makeText(getContext(), "Session verification failed. Please try logging out and back in again", Toast.LENGTH_LONG).show();
+                startValidateSessionTask();
+            }
             else
                 Toast.makeText(getContext(), "Unexpected error," +
                         " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
     }
 
-    private class MarkReadTask extends NewParseTask<Boolean> {
-        MarkReadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Boolean> onParseTaskFinishedListener) {
+    private class MarkReadTask extends NewParseTask<Void> {
+        MarkReadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Void> onParseTaskFinishedListener) {
             super(onTaskStartedListener,  onParseTaskFinishedListener);
         }
 
         @Override
-        protected Boolean parse(Document document, Response response) throws ParseException {
+        protected Void parse(Document document, Response response) throws ParseException {
             Elements sessionVerificationFailed = document.select("td:containsOwn(Session " +
                     "verification failed. Please try logging out and back in again, and then try " +
                     "again.), td:containsOwn(Η επαλήθευση συνόδου απέτυχε. Παρακαλούμε κάντε " +
                     "αποσύνδεση, επανασύνδεση και ξαναδοκιμάστε.)");
-            return sessionVerificationFailed.isEmpty();
+            if(!sessionVerificationFailed.isEmpty())
+                throw new InvalidSessionException();
+            return null;
         }
 
         @Override
-        protected int getResultCode(Response response, Boolean isSessionVerified) {
+        protected int getResultCode(Response response, Void v) {
             return NetworkResultCodes.SUCCESSFUL;
         }
     }

@@ -61,6 +61,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margins"
         android:layout_marginBottom="@dimen/fab_margins"
+        android:visibility="gone"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_mark_as_read" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

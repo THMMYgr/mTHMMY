@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.utils;
 
 public class Parcel<T> {
-
     private int resultCode;
     private T data;
 

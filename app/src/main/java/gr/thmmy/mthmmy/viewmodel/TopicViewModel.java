@@ -30,7 +30,7 @@ import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.ExternalAsyncTask;
-import gr.thmmy.mthmmy.utils.NetworkTask;
+import gr.thmmy.mthmmy.utils.networking.NetworkTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
 
