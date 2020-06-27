@@ -206,7 +206,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     protected void createDrawer() {
         final int primaryColor = ContextCompat.getColor(this, R.color.iron);
-        final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
+        final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_light);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
         PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem, shoutboxItem;
@@ -361,7 +361,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withCompactStyle(true)
                 .withSelectionListEnabledForSingleProfile(false)
-                .withHeaderBackground(R.color.primary)
+                .withHeaderBackground(R.color.primary_dark)
                 .withTextColor(getResources().getColor(R.color.iron))
                 .addProfiles(profileDrawerItem)
                 .withOnAccountHeaderListener((view, profile, currentProfile) -> {
@@ -390,7 +390,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .withDrawerWidthDp((int) BaseApplication.getInstance().getWidthInDp() / 2)
-                .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
+                .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_lighter))
                 .withAccountHeader(accountHeader)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
                     if (drawerItem.equals(HOME_ID)) {
@@ -494,7 +494,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .icon(FontAwesome.Icon.faw_user)
                 .paddingDp(10)
                 .color(ContextCompat.getColor(this, R.color.iron))
-                .backgroundColor(ContextCompat.getColor(this, R.color.primary_light)));
+                .backgroundColor(ContextCompat.getColor(this, R.color.primary_lighter)));
     }
 
 //-------------------------------------------LOGOUT-------------------------------------------------

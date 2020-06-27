@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
-        android:background="@color/primary_light"
+        android:background="@color/primary_lighter"
         android:paddingStart="@dimen/activity_horizontal_margin"
         android:paddingEnd="@dimen/activity_horizontal_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -37,7 +37,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/primary_light"
+            android:background="@color/primary_lighter"
             android:focusableInTouchMode="true"
             android:orientation="vertical">
 
@@ -46,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@color/primary_light"
+                android:background="@color/primary_lighter"
                 android:orientation="vertical">
 
                 <gr.thmmy.mthmmy.views.AppCompatSpinnerWithoutDefault

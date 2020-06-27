@@ -183,7 +183,7 @@ public class BaseApplication extends MultiDexApplication {
                     return new IconicsDrawable(ctx).icon(FontAwesome.Icon.faw_user)
                             .paddingDp(10)
                             .color(ContextCompat.getColor(ctx, R.color.iron))
-                            .backgroundColor(ContextCompat.getColor(ctx, R.color.primary));
+                            .backgroundColor(ContextCompat.getColor(ctx, R.color.primary_lighter));
                 }
                 return super.placeholder(ctx, tag);
             }
