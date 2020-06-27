@@ -179,12 +179,8 @@ public class BaseApplication extends MultiDexApplication {
 
             @Override
             public Drawable placeholder(Context ctx, String tag) {
-                if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)) {
-                    return new IconicsDrawable(ctx).icon(FontAwesome.Icon.faw_user)
-                            .paddingDp(10)
-                            .color(ContextCompat.getColor(ctx, R.color.iron))
-                            .backgroundColor(ContextCompat.getColor(ctx, R.color.primary_lighter));
-                }
+                if (DrawerImageLoader.Tags.PROFILE.name().equals(tag))
+                    return  BaseApplication.getInstance().getResources().getDrawable(R.drawable.ic_default_user_avatar);
                 return super.placeholder(ctx, tag);
             }
         });

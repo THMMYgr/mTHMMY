@@ -490,11 +490,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     private void setDefaultAvatar() {
-        profileDrawerItem.withIcon(new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_user)
-                .paddingDp(10)
-                .color(ContextCompat.getColor(this, R.color.iron))
-                .backgroundColor(ContextCompat.getColor(this, R.color.primary_lighter)));
+        profileDrawerItem.withIcon(R.drawable.ic_default_user_avatar);
     }
 
 //-------------------------------------------LOGOUT-------------------------------------------------
