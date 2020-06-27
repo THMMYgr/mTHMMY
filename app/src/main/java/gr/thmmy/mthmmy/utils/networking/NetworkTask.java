@@ -1,7 +1,8 @@
 package gr.thmmy.mthmmy.utils.networking;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+
+import androidx.preference.PreferenceManager;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -38,7 +39,19 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
     public NetworkTask() {}
 
     @Override
-    protected final Parcel<T> doInBackground(String... input) {
+    protected Parcel<T> doInBackground(String... input) {
+        return executeInBackground(input);
+    }
+
+    @Override
+    protected void onPostExecute(Parcel<T> tParcel) {
+        if (onNetworkTaskFinishedListener != null)
+            onNetworkTaskFinishedListener.onNetworkTaskFinished(tParcel.getResultCode(), tParcel.getData());
+        else
+            super.onPostExecute(tParcel);
+    }
+
+    protected Parcel<T> executeInBackground(String... input) {
         Response response;
         try {
             response = sendRequest(BaseApplication.getInstance().getClient(), input);
@@ -76,14 +89,6 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             Timber.e(e);
             return new Parcel<>(NetworkResultCodes.PERFORM_TASK_ERROR, null);
         }
-    }
-
-    @Override
-    protected void onPostExecute(Parcel<T> tParcel) {
-        if (onNetworkTaskFinishedListener != null)
-            onNetworkTaskFinishedListener.onNetworkTaskFinished(tParcel.getResultCode(), tParcel.getData());
-        else
-            super.onPostExecute(tParcel);
     }
 
     protected Response sendRequest(OkHttpClient client, String... input) throws IOException {

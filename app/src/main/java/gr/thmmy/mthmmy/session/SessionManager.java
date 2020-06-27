@@ -39,8 +39,8 @@ public class SessionManager {
     private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
     public static final HttpUrl unreadUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=unread;all;start=0;theme=4");
     public static final HttpUrl shoutboxUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=tpmod;sa=shoutbox;theme=4");
-    private static final String baseLogoutLink = "https://www.thmmy.gr/smf/index.php?action=logout;sesc=";
-    private static final String baseMarkAllAsReadLink = "https://www.thmmy.gr/smf/index.php?action=markasread;sa=all;sesc=";
+    static final String baseLogoutLink = "https://www.thmmy.gr/smf/index.php?action=logout;sesc=";
+    static final String baseMarkAllAsReadLink = "https://www.thmmy.gr/smf/index.php?action=markasread;sa=all;sesc=";
     private static final String guestName = "Guest";
 
     //Response Codes - make sure they do not overlap with NetworkResultCodes, just in case
@@ -66,9 +66,6 @@ public class SessionManager {
     private static final String USER_ID = "UserID";
     private static final String AVATAR_LINK = "AvatarLink";
     private static final String HAS_AVATAR = "HasAvatar";
-    private static final String SESC = "Sesc";
-    private static final String LOGOUT_LINK = "LogoutLink";
-    private static final String MARK_ALL_AS_READ_LINK = "MarkAllAsReadLink";
     private static final String LOGGED_IN = "LoggedIn";
     private static final String LOGIN_SCREEN_AS_DEFAULT = "LoginScreenAsDefault";
 
@@ -82,37 +79,29 @@ public class SessionManager {
         this.draftsPrefs = draftsPrefs;
     }
 
-    //------------------------------------AUTH BEGINS----------------------------------------------
+    //------------------------------------ AUTH ----------------------------------------------
 
     /**
      * Login function with two options: (username, password) or nothing (using saved cookies).
      * Always call it in a separate thread.
      */
-    public int login(String... strings) {
+    public int login(String username, String password) {
         Timber.d("Logging in...");
 
         //Build the login request for each case
         Request request;
-        if (strings.length == 2) {
-            clearSessionData();
+        clearSessionData();
 
-            String loginName = strings[0];
-            String password = strings[1];
+        RequestBody formBody = new FormBody.Builder()
+                .add("user", username)
+                .add("passwrd", password)
+                .add("cookielength", "-1") //-1 is forever
+                .build();
+        request = new Request.Builder()
+                .url(loginUrl)
+                .post(formBody)
+                .build();
 
-            RequestBody formBody = new FormBody.Builder()
-                    .add("user", loginName)
-                    .add("passwrd", password)
-                    .add("cookielength", "-1") //-1 is forever
-                    .build();
-            request = new Request.Builder()
-                    .url(loginUrl)
-                    .post(formBody)
-                    .build();
-        } else {
-            request = new Request.Builder()
-                    .url(loginUrl)
-                    .build();
-        }
 
         try {
             //Make request & handle response
@@ -133,10 +122,6 @@ public class SessionManager {
                 if (avatar != null)
                     editor.putString(AVATAR_LINK, avatar);
                 editor.putBoolean(HAS_AVATAR, avatar != null);
-                String sesc = extractSesc(document);
-                editor.putString(SESC, sesc);
-                editor.putString(LOGOUT_LINK, generateLogoutLink(sesc));
-                editor.putString(MARK_ALL_AS_READ_LINK, generateMarkAllAsReadLink(sesc));
                 editor.apply();
 
                 return SUCCESS;
@@ -180,29 +165,6 @@ public class SessionManager {
     }
 
     /**
-     * A function that checks the validity of the current saved session (if it exists).
-     * If isLoggedIn() is true, it will call login() with cookies. On failure, this can only return
-     * the code FAILURE. CANCELLED, CONNECTION_ERROR and EXCEPTION are simply considered a SUCCESS
-     * (e.g. no internet connection), at least until a more thorough handling of different
-     * exceptions is implemented (if considered mandatory).
-     * Always call it in a separate thread in a way that won't hinder performance (e.g. after
-     * fragments' data are retrieved).
-     */
-    void validateSession() {
-        Timber.i("Validating session...");
-        if (isLoggedIn()) {
-            Timber.i("Refreshing session...");
-            int loginResult = login();
-            if (loginResult != FAILURE)
-                return;
-        } else if (isLoginScreenDefault())
-            return;
-
-        setLoginScreenAsDefault(true);
-        clearSessionData();
-    }
-
-    /**
      * Call this function when user explicitly chooses to continue as a guest (UI thread).
      */
     public void guestLogin() {
@@ -211,41 +173,12 @@ public class SessionManager {
         setLoginScreenAsDefault(false);
     }
 
-    /**
-     * Logout function. Always call it in a separate thread.
-     */
-    public int logout() {
-        Timber.i("Logging out...");
-        try {
-            Request request = new Request.Builder()
-                    .url(getLogoutLink())
-                    .build();
-            //Make request & handle response
-            Response response = client.newCall(request).execute();
-            Document document = Jsoup.parse(response.body().string());
-
-            Elements loginButton = document.select("[value=Login]");  //Attempt to find login button
-            if (!loginButton.isEmpty()){ //If login button exists, logout was successful
-                Timber.i("Logout successful!");
-                return SUCCESS;
-            } else {
-                Timber.i("Logout failed.");
-                return FAILURE;
-            }
-        } catch (IOException e) {
-            Timber.w(e, "Logout IOException");
-            return CONNECTION_ERROR;
-        } catch (Exception e) {
-            Timber.e(e, "Logout Exception");
-            return EXCEPTION;
-        } finally {
-            //All data should always be cleared from device regardless the result of logout
-            clearSessionData();
-            guestLogin();
-        }
+    void logoutCleanup() {
+        clearSessionData();
+        guestLogin();
     }
 
-    public void clearSessionData() {
+    private void clearSessionData() {
         cookieJar.clear();
         sessionSharedPrefs.edit().clear().apply(); //Clear session data
         sessionSharedPrefs.edit().putString(USERNAME, guestName).apply();
@@ -255,17 +188,7 @@ public class SessionManager {
         Timber.i("Session data cleared.");
     }
 
-    public void refreshSescFromUrl(String url){
-        String sesc = extractSescFromLink(url);
-        if(sesc!=null){
-            setSesc(sesc);
-            setLogoutLink(generateLogoutLink(sesc));
-            setMarkAsReadLink(sesc);
-        }
-    }
-    //--------------------------------------AUTH ENDS-----------------------------------------------
-
-    //---------------------------------------GETTERS------------------------------------------------
+    //--------------------------------------- GETTERS ------------------------------------------------
     public String getUsername() {
         return sessionSharedPrefs.getString(USERNAME, USERNAME);
     }
@@ -287,24 +210,6 @@ public class SessionManager {
         return null;
     }
 
-    public String getMarkAllAsReadLink() {
-        String markAsReadLink = sessionSharedPrefs.getString(MARK_ALL_AS_READ_LINK, null);
-        if(markAsReadLink == null){ //For older versions, extract it from logout link (otherwise user would have to login again)
-            String sesc = extractSescFromLink(getLogoutLink());
-            if(sesc!=null) {
-                setSesc(sesc);
-                markAsReadLink = generateMarkAllAsReadLink(sesc);
-                setMarkAsReadLink(markAsReadLink);
-                return markAsReadLink;
-            }
-        }
-        return markAsReadLink;  // Warning: it can be null
-    }
-
-    private String getLogoutLink() {
-        return sessionSharedPrefs.getString(LOGOUT_LINK, null);
-    }
-
     public boolean hasAvatar() {
         return sessionSharedPrefs.getBoolean(HAS_AVATAR, false);
     }
@@ -317,34 +222,10 @@ public class SessionManager {
         return sessionSharedPrefs.getBoolean(LOGIN_SCREEN_AS_DEFAULT, true);
     }
 
-    //--------------------------------------GETTERS END---------------------------------------------
-
-    //---------------------------------------SETTERS------------------------------------------------
-    private void setSesc(String sesc){
-        SharedPreferences.Editor editor = sessionSharedPrefs.edit();
-        editor.putString(SESC, sesc);
-        editor.apply();
-    }
-
-    private void setMarkAsReadLink(String markAllAsReadLink){
-        SharedPreferences.Editor editor = sessionSharedPrefs.edit();
-        editor.putString(MARK_ALL_AS_READ_LINK, markAllAsReadLink);
-        editor.apply();
-    }
-
-    private void setLogoutLink(String logoutLink){
-        SharedPreferences.Editor editor = sessionSharedPrefs.edit();
-        editor.putString(LOGOUT_LINK, logoutLink);
-        editor.apply();
-    }
-
-    //--------------------------------------SETTERS END---------------------------------------------
-
-    //------------------------------------OTHER FUNCTIONS-------------------------------------------
+    //------------------------------------ OTHER -------------------------------------------
     private boolean validateRetrievedCookies() {
         List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
-        for(Cookie cookie: cookieList)
-        {
+        for(Cookie cookie: cookieList) {
             if(cookie.name().equals("THMMYgrC00ki3"))
                 return true;
         }
@@ -363,7 +244,6 @@ public class SessionManager {
         cookieList.add(builder.build());
         cookiePersistor.clear();
         cookiePersistor.saveAll(cookieList);
-
     }
 
     private void setLoginScreenAsDefault(boolean b){
@@ -430,34 +310,4 @@ public class SessionManager {
         Timber.i("Extracting avatar's link failed!");
         return null;
     }
-
-    private String extractSesc(@NonNull Document doc) {
-        Elements logoutLink = doc.select("a[href^=https://www.thmmy.gr/smf/index.php?action=logout;sesc=]");
-        if (!logoutLink.isEmpty()) {
-            String link = logoutLink.first().attr("href");
-            return extractSescFromLink(link);
-        }
-        Timber.e(new ParseException("Parsing failed(extractSesc)"),"ParseException");
-        return null;
-    }
-
-    private String extractSescFromLink(String link){
-        if (link != null){
-            Pattern pattern = Pattern.compile(".+;sesc=(\\w+)");
-            Matcher matcher = pattern.matcher(link);
-            if (matcher.find())
-                return matcher.group(1);
-        }
-        Timber.e(new ParseException("Parsing failed(extractSescFromLink)"),"ParseException");
-        return null;
-    }
-
-    private String generateLogoutLink(String sesc){
-        return baseLogoutLink + sesc;
-    }
-
-    private String generateMarkAllAsReadLink(String sesc){
-        return baseMarkAllAsReadLink + sesc;
-    }
-    //----------------------------------OTHER FUNCTIONS END-----------------------------------------
 }

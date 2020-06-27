@@ -128,7 +128,6 @@ public class BaseApplication extends MultiDexApplication {
     }
 
     private void initOkHttp(PersistentCookieJar cookieJar){
-
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(chain -> {

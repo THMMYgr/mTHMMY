@@ -62,9 +62,11 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.services.UploadsReceiver;
+import gr.thmmy.mthmmy.session.LogoutTask;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.utils.io.AssetUtils;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.OkHttpClient;
@@ -82,7 +84,6 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
 import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_ID_KEY;
-import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -497,47 +498,35 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 //-------------------------------------------LOGOUT-------------------------------------------------
+    private ProgressDialog progressDialog;
+    private void onLogoutTaskStarted() {
+        progressDialog = new ProgressDialog(BaseActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Logging out...");
+        progressDialog.show();
+    }
 
-    /**
-     * Result toast will always display a success, because when user chooses logout all data are
-     * cleared regardless of the actual outcome
-     */
-    private class LogoutTask extends AsyncTask<Void, Void, Integer> { //Attempt logout
-        ProgressDialog progressDialog;
-
-        protected Integer doInBackground(Void... voids) {
-            return sessionManager.logout();
-        }
-
-        protected void onPreExecute() { //Show a progress dialog until done
-            progressDialog = new ProgressDialog(BaseActivity.this,
-                    R.style.AppTheme_Dark_Dialog);
-            progressDialog.setCancelable(false);
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Logging out...");
-            progressDialog.show();
-        }
-
-        protected void onPostExecute(Integer result) {
-            if (result == SUCCESS) {
-                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                if (sharedPrefs.getString(DEFAULT_HOME_TAB, "0").equals("2")) {
-                    SharedPreferences.Editor editor = sharedPrefs.edit();
-                    editor.putString(DEFAULT_HOME_TAB, "0").apply();
-                }
+    private void onLogoutTaskFinished(int resultCode,  Void v) {
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if (sharedPrefs.getString(DEFAULT_HOME_TAB, "0").equals("2")) {
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.putString(DEFAULT_HOME_TAB, "0").apply();
             }
-
-            updateDrawer();
-            if (mainActivity != null)
-                mainActivity.updateTabs();
-            progressDialog.dismiss();
-            //TODO: Redirect to Main only for some Activities (e.g. Topic, Board, Downloads)
-            //if (BaseActivity.this instanceof TopicActivity){
-            Intent intent = new Intent(BaseActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            //}
         }
+
+        updateDrawer();
+        if (mainActivity != null)
+            mainActivity.updateTabs();
+        progressDialog.dismiss();
+        //TODO: Redirect to Main only for some Activities (e.g. Topic, Board, Downloads)
+        //if (BaseActivity.this instanceof TopicActivity){
+        Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        //}
     }
 
     private void showLogoutDialog() {
@@ -545,7 +534,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         builder.setTitle("Logout");
         builder.setMessage("Are you sure that you want to logout?");
         builder.setPositiveButton("Yep", (dialogInterface, i) -> {
-            new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
+            new LogoutTask(this::onLogoutTaskStarted, this::onLogoutTaskFinished).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
         });
         builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
         builder.create().show();
