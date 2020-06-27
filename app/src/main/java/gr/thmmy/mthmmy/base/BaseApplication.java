@@ -48,6 +48,7 @@ import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
 
+// TODO: Replace MultiDexApplication with Application after KitKat support is dropped
 public class BaseApplication extends MultiDexApplication {
     private static BaseApplication baseApplication; //BaseApplication singleton
 
@@ -62,9 +63,6 @@ public class BaseApplication extends MultiDexApplication {
     private SessionManager sessionManager;
 
     private boolean displayRelativeTime;
-
-    //TODO: maybe use PreferenceManager.getDefaultSharedPreferences here as well?
-    private static final String SHARED_PREFS = "ThmmySharedPrefs";
 
     //Display Metrics
     private static float widthDp;
@@ -84,10 +82,32 @@ public class BaseApplication extends MultiDexApplication {
             Timber.plant(new Timber.DebugTree());
 
         //Shared Preferences
-        SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences sessionSharedPrefs = getSharedPreferences(getString(R.string.session_shared_prefs), MODE_PRIVATE);
         SharedPreferences settingsSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences draftsPrefs = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
 
+        initFirebase(settingsSharedPrefs);
+
+        SharedPrefsCookiePersistor sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(getApplicationContext());
+        PersistentCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
+
+        initOkHttp(cookieJar);
+
+        sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sessionSharedPrefs, draftsPrefs);
+
+        //Sets up upload service
+        UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
+        UploadService.HTTP_STACK = new OkHttpStack(client);
+
+        //Initialize and create the image loader logic for the drawer
+        initDrawerImageLoader();
+
+        setDisplayMetrics();
+
+        displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, true);
+    }
+
+    private void initFirebase(SharedPreferences settingsSharedPrefs){
         if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false)){
             Timber.i("Starting app with Firebase Crashlytics enabled.");
             setFirebaseCrashlyticsEnabled(true);
@@ -105,9 +125,10 @@ public class BaseApplication extends MultiDexApplication {
             Timber.i("Starting app with Firebase Analytics enabled.");
         else
             Timber.i("Starting app with Firebase Analytics disabled.");
+    }
 
-        SharedPrefsCookiePersistor sharedPrefsCookiePersistor = new SharedPrefsCookiePersistor(getApplicationContext());
-        PersistentCookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), sharedPrefsCookiePersistor);
+    private void initOkHttp(PersistentCookieJar cookieJar){
+
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(chain -> {
@@ -115,9 +136,9 @@ public class BaseApplication extends MultiDexApplication {
                     HttpUrl oldUrl = chain.request().url();
                     if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")
                             && !oldUrl.toString().contains("theme=4")) {
-                            //Probably works but needs more testing:
-                            HttpUrl newUrl = oldUrl.newBuilder().addQueryParameter("theme", "4").build();
-                            request = request.newBuilder().url(newUrl).build();
+                        //Probably works but needs more testing:
+                        HttpUrl newUrl = oldUrl.newBuilder().addQueryParameter("theme", "4").build();
+                        request = request.newBuilder().url(newUrl).build();
                     }
                     return chain.proceed(request);
                 })
@@ -143,14 +164,9 @@ public class BaseApplication extends MultiDexApplication {
             builder.addInterceptor(new OkHttpProfilerInterceptor());
 
         client = builder.build();
+    }
 
-        sessionManager = new SessionManager(client, cookieJar, sharedPrefsCookiePersistor, sharedPrefs, draftsPrefs);
-
-        //Sets up upload service
-        UploadService.NAMESPACE = BuildConfig.APPLICATION_ID;
-        UploadService.HTTP_STACK = new OkHttpStack(client);
-
-        //Initialize and create the image loader logic
+    private void initDrawerImageLoader(){
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
             public void set(ImageView imageView, Uri uri, Drawable placeholder, String tag) {
@@ -167,24 +183,25 @@ public class BaseApplication extends MultiDexApplication {
                 if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)) {
                     return new IconicsDrawable(ctx).icon(FontAwesome.Icon.faw_user)
                             .paddingDp(10)
-                            .color(ContextCompat.getColor(ctx, R.color.primary_light))
+                            .color(ContextCompat.getColor(ctx, R.color.iron))
                             .backgroundColor(ContextCompat.getColor(ctx, R.color.primary));
                 }
                 return super.placeholder(ctx, tag);
             }
         });
+    }
 
+    private void setDisplayMetrics(){
         DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
 
         widthPxl = displayMetrics.widthPixels;
         widthDp = widthPxl / displayMetrics.density;
 
         heightPxl = displayMetrics.heightPixels;
-
-        displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, true);
     }
 
-    //Getters
+
+    //-------------------- Getters --------------------
     public Context getContext() {
         return getApplicationContext();
     }
@@ -213,7 +230,7 @@ public class BaseApplication extends MultiDexApplication {
         return displayRelativeTime;
     }
 
-    //--------------------Firebase--------------------
+    //-------------------- Firebase --------------------
 
     public void logFirebaseAnalyticsEvent(String event, Bundle params) {
         firebaseAnalytics.logEvent(event, params);

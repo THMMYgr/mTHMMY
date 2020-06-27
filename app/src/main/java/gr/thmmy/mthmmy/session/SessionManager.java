@@ -60,25 +60,25 @@ public class SessionManager {
     private final SharedPrefsCookiePersistor cookiePersistor; //Used to explicitly edit cookies in cookieJar
 
     //Shared Preferences & its keys
-    private final SharedPreferences sharedPrefs;
+    private final SharedPreferences sessionSharedPrefs;
     private final SharedPreferences draftsPrefs;
     private static final String USERNAME = "Username";
     private static final String USER_ID = "UserID";
-    public static final String AVATAR_LINK = "AvatarLink";
-    public static final String HAS_AVATAR = "HasAvatar";
+    private static final String AVATAR_LINK = "AvatarLink";
+    private static final String HAS_AVATAR = "HasAvatar";
     private static final String SESC = "Sesc";
     private static final String LOGOUT_LINK = "LogoutLink";
     private static final String MARK_ALL_AS_READ_LINK = "MarkAllAsReadLink";
-    public static final String LOGGED_IN = "LoggedIn";
+    private static final String LOGGED_IN = "LoggedIn";
     private static final String LOGIN_SCREEN_AS_DEFAULT = "LoginScreenAsDefault";
 
     //Constructor
     public SessionManager(OkHttpClient client, PersistentCookieJar cookieJar,
-                          SharedPrefsCookiePersistor cookiePersistor, SharedPreferences sharedPrefs, SharedPreferences draftsPrefs) {
+                          SharedPrefsCookiePersistor cookiePersistor, SharedPreferences sessionSharedPrefs, SharedPreferences draftsPrefs) {
         this.client = client;
         this.cookiePersistor = cookiePersistor;
         this.cookieJar = cookieJar;
-        this.sharedPrefs = sharedPrefs;
+        this.sessionSharedPrefs = sessionSharedPrefs;
         this.draftsPrefs = draftsPrefs;
     }
 
@@ -124,7 +124,7 @@ public class SessionManager {
                 setPersistentCookieSession();   //Store cookies
 
                 //Edit SharedPreferences, save session's data
-                SharedPreferences.Editor editor = sharedPrefs.edit();
+                SharedPreferences.Editor editor = sessionSharedPrefs.edit();
                 setLoginScreenAsDefault(false);
                 editor.putBoolean(LOGGED_IN, true);
                 editor.putString(USERNAME, extractUserName(document));
@@ -247,10 +247,10 @@ public class SessionManager {
 
     public void clearSessionData() {
         cookieJar.clear();
-        sharedPrefs.edit().clear().apply(); //Clear session data
-        sharedPrefs.edit().putString(USERNAME, guestName).apply();
-        sharedPrefs.edit().putInt(USER_ID, -1).apply();
-        sharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
+        sessionSharedPrefs.edit().clear().apply(); //Clear session data
+        sessionSharedPrefs.edit().putString(USERNAME, guestName).apply();
+        sessionSharedPrefs.edit().putInt(USER_ID, -1).apply();
+        sessionSharedPrefs.edit().putBoolean(LOGGED_IN, false).apply(); //User logs out
         draftsPrefs.edit().clear().apply(); //Clear saved drafts
         Timber.i("Session data cleared.");
     }
@@ -267,15 +267,15 @@ public class SessionManager {
 
     //---------------------------------------GETTERS------------------------------------------------
     public String getUsername() {
-        return sharedPrefs.getString(USERNAME, USERNAME);
+        return sessionSharedPrefs.getString(USERNAME, USERNAME);
     }
 
     public int getUserId() {
-        return sharedPrefs.getInt(USER_ID, -1);
+        return sessionSharedPrefs.getInt(USER_ID, -1);
     }
 
     public String getAvatarLink() {
-        return sharedPrefs.getString(AVATAR_LINK, AVATAR_LINK);
+        return sessionSharedPrefs.getString(AVATAR_LINK, AVATAR_LINK);
     }
 
     public Cookie getThmmyCookie() {
@@ -288,7 +288,7 @@ public class SessionManager {
     }
 
     public String getMarkAllAsReadLink() {
-        String markAsReadLink = sharedPrefs.getString(MARK_ALL_AS_READ_LINK, null);
+        String markAsReadLink = sessionSharedPrefs.getString(MARK_ALL_AS_READ_LINK, null);
         if(markAsReadLink == null){ //For older versions, extract it from logout link (otherwise user would have to login again)
             String sesc = extractSescFromLink(getLogoutLink());
             if(sesc!=null) {
@@ -302,38 +302,38 @@ public class SessionManager {
     }
 
     private String getLogoutLink() {
-        return sharedPrefs.getString(LOGOUT_LINK, null);
+        return sessionSharedPrefs.getString(LOGOUT_LINK, null);
     }
 
     public boolean hasAvatar() {
-        return sharedPrefs.getBoolean(HAS_AVATAR, false);
+        return sessionSharedPrefs.getBoolean(HAS_AVATAR, false);
     }
 
     public boolean isLoggedIn() {
-        return sharedPrefs.getBoolean(LOGGED_IN, false);
+        return sessionSharedPrefs.getBoolean(LOGGED_IN, false);
     }
 
     public boolean isLoginScreenDefault() {
-        return sharedPrefs.getBoolean(LOGIN_SCREEN_AS_DEFAULT, true);
+        return sessionSharedPrefs.getBoolean(LOGIN_SCREEN_AS_DEFAULT, true);
     }
 
     //--------------------------------------GETTERS END---------------------------------------------
 
     //---------------------------------------SETTERS------------------------------------------------
     private void setSesc(String sesc){
-        SharedPreferences.Editor editor = sharedPrefs.edit();
+        SharedPreferences.Editor editor = sessionSharedPrefs.edit();
         editor.putString(SESC, sesc);
         editor.apply();
     }
 
     private void setMarkAsReadLink(String markAllAsReadLink){
-        SharedPreferences.Editor editor = sharedPrefs.edit();
+        SharedPreferences.Editor editor = sessionSharedPrefs.edit();
         editor.putString(MARK_ALL_AS_READ_LINK, markAllAsReadLink);
         editor.apply();
     }
 
     private void setLogoutLink(String logoutLink){
-        SharedPreferences.Editor editor = sharedPrefs.edit();
+        SharedPreferences.Editor editor = sessionSharedPrefs.edit();
         editor.putString(LOGOUT_LINK, logoutLink);
         editor.apply();
     }
@@ -367,7 +367,7 @@ public class SessionManager {
     }
 
     private void setLoginScreenAsDefault(boolean b){
-        sharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, b).apply();
+        sessionSharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, b).apply();
     }
 
     @NonNull
@@ -448,7 +448,7 @@ public class SessionManager {
             if (matcher.find())
                 return matcher.group(1);
         }
-        Timber.e(new ParseException("Parsing failed(extractSescFromLogoutLink)"),"ParseException");
+        Timber.e(new ParseException("Parsing failed(extractSescFromLink)"),"ParseException");
         return null;
     }
 
