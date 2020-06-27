@@ -92,10 +92,13 @@ public class UnreadFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (topicSummaries.isEmpty()){
+            hideMarkAsReadFAB();
             unreadTask = new UnreadTask(this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskCancelled, this::onUnreadTaskFinished);
             assert SessionManager.unreadUrl != null;
             unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
         }
+        else
+            showMarkAsReadFAB();
         markAsReadTask = new MarkAsReadTask(UnreadFragment.this::onMarkAsReadTaskStarted, UnreadFragment.this::onMarkAsReadTaskFinished);
     }
 
@@ -129,7 +132,6 @@ public class UnreadFragment extends BaseFragment {
                     this::startUnreadTask
             );
         }
-
         return rootView;
     }
 
