@@ -259,7 +259,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
                                             // Purification for extreme edge cases
                                             String pSubjectConcat = subBoardCol.select("a").first().text();
-                                            pLastPost = pLastPost.replaceAll(pSubjectConcat, "");
+                                            pLastPost = pLastPost.replace(pSubjectConcat, "");
 
                                             String pLastUser;
                                             matcher = pLastPostPattern.matcher(pLastPost);   //Don't even try simply grabbing <a>, user might be guest
