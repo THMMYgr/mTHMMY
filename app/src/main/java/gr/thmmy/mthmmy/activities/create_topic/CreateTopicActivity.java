@@ -83,11 +83,14 @@ public class CreateTopicActivity extends BaseActivity implements NewTopicTask.Ne
     }
     @Override
     public void onBackPressed() {
-        if (emojiKeyboard.getVisibility() == View.VISIBLE) {
+        if (drawer.isDrawerOpen()) {
+            drawer.closeDrawer();
+            return;
+        } else if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
-        } else {
-            super.onBackPressed();
+            return;
         }
+        super.onBackPressed();
     }
 
     @Override

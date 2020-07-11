@@ -50,12 +50,14 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Create topic");
+        toolbar.setTitle("Create PM");
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        createDrawer();
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -69,10 +71,6 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
         contentEditor.setEmojiKeyboard(emojiKeyboard);
         emojiKeyboard.registerEmojiInputField(contentEditor);
         contentEditor.setOnSubmitListener(v -> {
-            if (TextUtils.isEmpty(subjectInput.getEditText().getText())) {
-                subjectInput.setError("Required");
-                return;
-            }
             if (TextUtils.isEmpty(contentEditor.getText())) {
                 contentEditor.setError("Required");
                 return;
@@ -97,11 +95,14 @@ public class CreatePMActivity extends BaseActivity implements ExternalAsyncTask.
 
     @Override
     public void onBackPressed() {
-        if (emojiKeyboard.getVisibility() == View.VISIBLE) {
+        if (drawer.isDrawerOpen()) {
+            drawer.closeDrawer();
+            return;
+        } else if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
-        } else {
-            super.onBackPressed();
+            return;
         }
+        super.onBackPressed();
     }
 
 

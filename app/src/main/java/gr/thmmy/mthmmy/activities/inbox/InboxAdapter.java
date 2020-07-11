@@ -142,14 +142,16 @@ public class InboxAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             holder.stars.setVisibility(View.VISIBLE);
         } else holder.stars.setVisibility(View.GONE);
 
-        if (currentPM.isUserMentioned()) {
+        // in the context of inbox there is no point in highlighting quoted PMs
+        /*if (currentPM.isUserMentioned()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 holder.cardChildLinear.setBackground(context.getResources().
                         getDrawable(R.drawable.mention_card, null));
             } else
                 holder.cardChildLinear.setBackground(context.getResources().
                         getDrawable(R.drawable.mention_card));
-        } else if (currentPM.getAuthorColor() == ParseHelpers.USER_COLOR_PINK) {
+        } else */
+        if (currentPM.getAuthorColor() == ParseHelpers.USER_COLOR_PINK) {
             //Special card for special member of the month!
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 holder.cardChildLinear.setBackground(context.getResources().
