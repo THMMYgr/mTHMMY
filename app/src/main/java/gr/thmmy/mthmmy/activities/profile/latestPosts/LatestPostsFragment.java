@@ -175,7 +175,7 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
 
         protected void onPostExecute(Boolean result) {
             if (Boolean.FALSE.equals(result))
-                Timber.e(new ParseException("Parsing failed(latest posts)"),"ParseException");
+                Timber.e(new ParseException("Parsing failed (latest posts)"),"ParseException");   //TODO: This is inaccurate (e.g. can also have an I/O cause)
 
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             latestPostsAdapter.notifyDataSetChanged();

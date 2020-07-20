@@ -36,7 +36,6 @@
                 android:id="@+id/general_statistics"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/general_statistics"
                 android:textColor="@color/primary_text"/>
 
             <TextView

@@ -82,7 +82,6 @@
     <string name="username">Username</string>
     <string name="latest_posts_empty_message">This user has no posts yet</string>
     <string name="general_statistics_title">General Statistics</string>
-    <string name="general_statistics">Statistics</string>
     <string name="posting_activity_by_time_title">Posting Activity</string>
     <string name="most_popular_boards_by_posts_title">Most Popular Boards By Posts</string>
     <string name="most_popular_boards_by_activity_title">Most Popular Boards By Activity</string>
