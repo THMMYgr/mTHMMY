@@ -179,8 +179,16 @@ public class BaseApplication extends MultiDexApplication {
 
             @Override
             public Drawable placeholder(Context ctx, String tag) {
-                if (DrawerImageLoader.Tags.PROFILE.name().equals(tag))
-                    return  BaseApplication.getInstance().getResources().getDrawable(R.drawable.ic_default_user_avatar);
+                if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        return ContextCompat.getDrawable(BaseApplication.getInstance(), R.drawable.ic_default_user_avatar);
+                    else {  // Just for KitKats
+                        return new IconicsDrawable(ctx).icon(FontAwesome.Icon.faw_user)
+                                .paddingDp(10)
+                                .color(ContextCompat.getColor(ctx, R.color.iron))
+                                .backgroundColor(ContextCompat.getColor(ctx, R.color.primary_lighter));
+                    }
+                }
                 return super.placeholder(ctx, tag);
             }
         });
