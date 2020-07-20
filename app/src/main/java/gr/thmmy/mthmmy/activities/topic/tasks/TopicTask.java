@@ -11,6 +11,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.activities.topic.TopicParser;
 import gr.thmmy.mthmmy.base.BaseApplication;
@@ -29,6 +32,8 @@ import timber.log.Timber;
  * parameter.</p>
  */
 public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
+    private static final Pattern msgPattern = Pattern.compile("msg(\\d+)");
+
     private TopicTaskObserver topicTaskObserver;
     private OnTopicTaskCompleted finishListener;
 
@@ -58,15 +63,9 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
         //Finds the index of message focus if present
         int postFocus = 0;
-
-        //TODO: Better parseInt handling - may rarely fail
-        if (newPageUrl.contains("msg")) {
-            String tmp = newPageUrl.substring(newPageUrl.indexOf("msg") + 3);
-            if (tmp.contains(";"))
-                postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf(';')));
-            else if (tmp.contains("#"))
-                postFocus = Integer.parseInt(tmp.substring(0, tmp.indexOf('#')));
-        }
+        Matcher matcher = msgPattern.matcher(newPageUrl);
+        if (matcher.find())
+            postFocus = Integer.parseInt(Objects.requireNonNull(matcher.group(1)));
 
         Request request = new Request.Builder()
                 .url(newPageUrl)

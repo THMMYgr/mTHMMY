@@ -200,14 +200,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         if (key.equals(getString(R.string.pref_privacy_crashlytics_enable_key))) {
             enabled = sharedPreferences.getBoolean(key, false);
             if(enabled)
-                BaseApplication.getInstance().startFirebaseCrashlyticsCollection();
+                BaseApplication.getInstance().setFirebaseCrashlyticsEnabled(true);
             else {
                 Timber.i("Crashlytics collection will be disabled after restarting.");
+                BaseApplication.getInstance().setFirebaseCrashlyticsEnabled(false);
                 displayRestartAppToTakeEffectToast();
             }
         } else if (key.equals(getString(R.string.pref_privacy_analytics_enable_key))) {
             enabled = sharedPreferences.getBoolean(key, false);
-            BaseApplication.getInstance().setFirebaseAnalyticsCollection(enabled);
+            BaseApplication.getInstance().setFirebaseAnalyticsEnabled(enabled);
             if(enabled)
                 Timber.i("Analytics collection enabled.");
             else

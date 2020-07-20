@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.model.Shout;
 import gr.thmmy.mthmmy.model.Shoutbox;
-import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;

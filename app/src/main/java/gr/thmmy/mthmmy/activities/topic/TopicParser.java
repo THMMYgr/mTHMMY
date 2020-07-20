@@ -18,15 +18,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.base.BaseActivity;
-import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Poll;
 import gr.thmmy.mthmmy.model.Post;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.model.TopicItem;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
 
 
 /**
@@ -178,7 +175,6 @@ public class TopicParser {
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate,
                     p_postURL, p_deletePostURL, p_editPostURL;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
-            long p_timestamp;
             boolean p_isDeleted = false, p_isUserMentionedInPost = false;
             ArrayList<ThmmyFile> p_attachedFiles;
 
@@ -195,7 +191,6 @@ public class TopicParser {
             p_postLastEditDate = null;
             p_deletePostURL = null;
             p_editPostURL = null;
-            p_timestamp = 0;
 
             //Language independent parsing
             //Finds thumbnail url
@@ -272,12 +267,6 @@ public class TopicParser {
                 p_postDate = p_postDate.substring(p_postDate.indexOf("στις:") + 6
                         , p_postDate.indexOf(" »"));
 
-                if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled())  {
-                    String timestamp = convertToTimestamp(p_postDate);
-                    if(timestamp!=null)
-                        p_timestamp = Long.valueOf(timestamp);
-                }
-
                 //Finds post's reply index number
                 Element postNum = thisRow.select("div.smalltext:matches(Απάντηση #)").first();
                 if (postNum == null) { //Topic starter
@@ -305,7 +294,7 @@ public class TopicParser {
                             Timber.e(e, "Attached file malformed url");
                             break;
                         }
-                        String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
+                        String attachedFileName = tmpAttachedFileUrlAndName.wholeText().substring(1);
 
                         //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
@@ -377,7 +366,7 @@ public class TopicParser {
                             Timber.e(e, "Attached file malformed url");
                             break;
                         }
-                        String attachedFileName = tmpAttachedFileUrlAndName.text().substring(1);
+                        String attachedFileName = tmpAttachedFileUrlAndName.wholeText().substring(1);
 
                         //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(

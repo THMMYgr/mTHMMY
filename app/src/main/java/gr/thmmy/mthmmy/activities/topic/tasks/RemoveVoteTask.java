@@ -2,8 +2,8 @@ package gr.thmmy.mthmmy.activities.topic.tasks;
 
 import org.jsoup.nodes.Document;
 
-import gr.thmmy.mthmmy.utils.NetworkResultCodes;
-import gr.thmmy.mthmmy.utils.NetworkTask;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.networking.NetworkTask;
 import okhttp3.Response;
 
 public class RemoveVoteTask extends NetworkTask<Void> {

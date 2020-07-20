@@ -45,8 +45,8 @@ import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.ThmmyPage;
-import gr.thmmy.mthmmy.utils.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.Parcel;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.ui.CenterVerticalSpan;
@@ -57,6 +57,7 @@ import timber.log.Timber;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.emojiTagToHtml;
+import static gr.thmmy.mthmmy.utils.ui.GlideUtils.isValidContextForGlide;
 import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
 
 /**
@@ -222,12 +223,16 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 avatarView.setOnClickListener(v -> displayPhotoViewImage(ProfileActivity.this, avatarUrl));
         }
 
-        Glide.with(this)
-                .load(avatarUri)
-                .circleCrop()
-                .error(R.drawable.ic_default_user_avatar)
-                .placeholder(R.drawable.ic_default_user_avatar)
-                .into(avatarView);
+        if(isValidContextForGlide(this)){
+            Glide.with(this)
+                    .load(avatarUri)
+                    .circleCrop()
+                    .error(R.drawable.ic_default_user_avatar)
+                    .placeholder(R.drawable.ic_default_user_avatar)
+                    .into(avatarView);
+        }
+        else
+            Timber.d("Will not load Glide image (invalid context)");
     }
 
     /**

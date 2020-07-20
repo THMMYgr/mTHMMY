@@ -161,9 +161,25 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition() - 1, !visible);
             });
             subBoardViewHolder.boardTitle.setText(subBoard.getTitle());
-            subBoardViewHolder.boardMods.setText(subBoard.getMods());
-            subBoardViewHolder.boardStats.setText(subBoard.getStats());
-            subBoardViewHolder.boardLastPost.setText(subBoard.getLastPost());
+            String mods = subBoard.getMods();
+            String stats = subBoard.getStats();
+            String lastPost = subBoard.getLastPost();
+
+            if(!mods.isEmpty()){
+                subBoardViewHolder.boardMods.setText(mods);
+                subBoardViewHolder.boardMods.setVisibility(View.VISIBLE);
+            }
+
+            if(!stats.isEmpty()){
+                subBoardViewHolder.boardStats.setText(stats);
+                subBoardViewHolder.boardStats.setVisibility(View.VISIBLE);
+            }
+
+            if(!lastPost.isEmpty()){
+                subBoardViewHolder.boardLastPost.setText(lastPost);
+                subBoardViewHolder.boardLastPost.setVisibility(View.VISIBLE);
+            }
+
             if (!Objects.equals(subBoard.getLastPostUrl(), "")) {
                 subBoardViewHolder.boardLastPost.setOnClickListener(view -> {
                     Intent intent = new Intent(context, TopicActivity.class);

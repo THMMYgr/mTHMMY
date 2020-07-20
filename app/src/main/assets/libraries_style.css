@@ -15,7 +15,6 @@ pre {
 
 h4, h5 {
     display: inline;
-    padding: 1em;
 }
 
 a, h4, h5 {
@@ -23,6 +22,14 @@ a, h4, h5 {
     word-wrap: break-word;
 }
 
+h4 {
+    padding: 1em;
+}
+
 li {
     color: #26A69A;
+}
+
+ul a {
+    margin-left: 1em;
 }

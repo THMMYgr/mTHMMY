@@ -209,7 +209,7 @@
     <string name="pref_title_privacy_analytics_enable">Analytics data reports</string>
     <string name="pref_summary_privacy_analytics_enable">Automatically send us anonymized data for analytical purposes</string>
 
-    <!-- EditorView -->
+    <!--EditorView -->
     <string name="black">Black</string>
     <string name="red">Red</string>
     <string name="yellow">Yellow</string>
@@ -229,8 +229,12 @@
     <string name="dialog_link_text_hint">Link text</string>
     <string name="input_field_required">Required</string>
 
-    <!-- New topic activity -->
+    <!--New topic activity-->
     <string name="new_topic_toolbar">New topic</string>
     <string name="create_topic">Create topic</string>
     <string name="link_copied_msg">Link copied</string>
+
+    <!--SessionManager-->
+    <string name="session_shared_prefs">SessionSharedPrefs</string>
+
 </resources>

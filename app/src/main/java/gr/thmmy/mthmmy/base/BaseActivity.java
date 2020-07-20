@@ -62,9 +62,11 @@ import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
 import gr.thmmy.mthmmy.services.UploadsReceiver;
+import gr.thmmy.mthmmy.session.LogoutTask;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.utils.io.AssetUtils;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.OkHttpClient;
@@ -82,7 +84,6 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
 import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_ID_KEY;
-import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -205,7 +206,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     protected void createDrawer() {
         final int primaryColor = ContextCompat.getColor(this, R.color.iron);
-        final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_dark);
+        final int selectedPrimaryColor = ContextCompat.getColor(this, R.color.primary_light);
         final int selectedSecondaryColor = ContextCompat.getColor(this, R.color.accent);
 
         PrimaryDrawerItem homeItem, bookmarksItem, settingsItem, aboutItem, shoutboxItem;
@@ -360,7 +361,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withCompactStyle(true)
                 .withSelectionListEnabledForSingleProfile(false)
-                .withHeaderBackground(R.color.primary)
+                .withHeaderBackground(R.color.primary_dark)
                 .withTextColor(getResources().getColor(R.color.iron))
                 .addProfiles(profileDrawerItem)
                 .withOnAccountHeaderListener((view, profile, currentProfile) -> {
@@ -389,7 +390,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .withDrawerWidthDp((int) BaseApplication.getInstance().getWidthInDp() / 2)
-                .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_light))
+                .withSliderBackgroundColor(ContextCompat.getColor(this, R.color.primary_lighter))
                 .withAccountHeader(accountHeader)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
                     if (drawerItem.equals(HOME_ID)) {
@@ -463,8 +464,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private void updateDrawer() {
         if (drawer != null) {
-            if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
-            {
+            if (!sessionManager.isLoggedIn()){ //When logged out or if user is guest
                 drawer.removeItem(DOWNLOADS_ID);
                 drawer.removeItem(UPLOAD_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
@@ -486,60 +486,43 @@ public abstract class BaseActivity extends AppCompatActivity {
             }
             accountHeader.updateProfile(profileDrawerItem);
             drawer.updateItem(loginLogoutItem);
-
         }
     }
 
     private void setDefaultAvatar() {
-        profileDrawerItem.withIcon(new IconicsDrawable(this)
-                .icon(FontAwesome.Icon.faw_user)
-                .paddingDp(10)
-                .color(ContextCompat.getColor(this, R.color.iron))
-                .backgroundColor(ContextCompat.getColor(this, R.color.primary_light)));
+        profileDrawerItem.withIcon(R.drawable.ic_default_user_avatar);
     }
 
 //-------------------------------------------LOGOUT-------------------------------------------------
+    private ProgressDialog progressDialog;
+    private void onLogoutTaskStarted() {
+        progressDialog = new ProgressDialog(BaseActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Logging out...");
+        progressDialog.show();
+    }
 
-    /**
-     * Result toast will always display a success, because when user chooses logout all data are
-     * cleared regardless of the actual outcome
-     */
-    private class LogoutTask extends AsyncTask<Void, Void, Integer> { //Attempt logout
-        ProgressDialog progressDialog;
-
-        protected Integer doInBackground(Void... voids) {
-            return sessionManager.logout();
-        }
-
-        protected void onPreExecute() { //Show a progress dialog until done
-            progressDialog = new ProgressDialog(BaseActivity.this,
-                    R.style.AppTheme_Dark_Dialog);
-            progressDialog.setCancelable(false);
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Logging out...");
-            progressDialog.show();
-        }
-
-        protected void onPostExecute(Integer result) {
-            if (result == SUCCESS) {
-                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                if (sharedPrefs.getString(DEFAULT_HOME_TAB, "0").equals("2")) {
-                    SharedPreferences.Editor editor = sharedPrefs.edit();
-                    editor.putString(DEFAULT_HOME_TAB, "0").apply();
-                }
+    private void onLogoutTaskFinished(int resultCode,  Void v) {
+        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if (sharedPrefs.getString(DEFAULT_HOME_TAB, "0").equals("2")) {
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.putString(DEFAULT_HOME_TAB, "0").apply();
             }
-
-            updateDrawer();
-            if (mainActivity != null)
-                mainActivity.updateTabs();
-            progressDialog.dismiss();
-            //TODO: Redirect to Main only for some Activities (e.g. Topic, Board, Downloads)
-            //if (BaseActivity.this instanceof TopicActivity){
-            Intent intent = new Intent(BaseActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            //}
         }
+
+        updateDrawer();
+        if (mainActivity != null)
+            mainActivity.updateTabs();
+        progressDialog.dismiss();
+        //TODO: Redirect to Main only for some Activities (e.g. Topic, Board, Downloads)
+        //if (BaseActivity.this instanceof TopicActivity){
+        Intent intent = new Intent(BaseActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        //}
     }
 
     private void showLogoutDialog() {
@@ -547,7 +530,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         builder.setTitle("Logout");
         builder.setMessage("Are you sure that you want to logout?");
         builder.setPositiveButton("Yep", (dialogInterface, i) -> {
-            new LogoutTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
+            new LogoutTask(this::onLogoutTaskStarted, this::onLogoutTaskFinished).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
         });
         builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
         builder.create().show();
@@ -807,8 +790,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         builder.setPositiveButton("Yes, I want to help", (dialogInterface, i) -> {
             addUserConsent();
             FirebaseMessaging.getInstance().setAutoInitEnabled(true);
-            BaseApplication.getInstance().startFirebaseCrashlyticsCollection();
-            BaseApplication.getInstance().setFirebaseAnalyticsCollection(true);
+            BaseApplication.getInstance().setFirebaseCrashlyticsEnabled(true);
+            BaseApplication.getInstance().setFirebaseAnalyticsEnabled(true);
             setUserDataShareEnabled(true);
         });
         builder.setNegativeButton("Nope, leave me alone", (dialogInterface, i) -> {

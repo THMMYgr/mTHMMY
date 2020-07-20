@@ -1,5 +1,6 @@
 # mTHMMY
 
+[![GitHub release](https://img.shields.io/github/release/ThmmyNoLife/mTHMMY.svg)](https://github.com/ThmmyNoLife/mTHMMY/releases)
 [![API](https://img.shields.io/badge/API-19%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=19)
 [![Discord Channel](https://img.shields.io/badge/discord-public@mTHMMY-738bd7.svg?style=flat)][discord-server]
 ![Last Commit](https://img.shields.io/github/last-commit/ThmmyNoLife/mTHMMY/develop.svg?style=flat)

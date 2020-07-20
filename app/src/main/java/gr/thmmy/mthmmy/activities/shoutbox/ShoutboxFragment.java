@@ -21,7 +21,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Shout;
 import gr.thmmy.mthmmy.model.Shoutbox;
-import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.ShoutboxViewModel;
 import gr.thmmy.mthmmy.views.CustomRecyclerView;
 import gr.thmmy.mthmmy.views.editorview.EditorView;

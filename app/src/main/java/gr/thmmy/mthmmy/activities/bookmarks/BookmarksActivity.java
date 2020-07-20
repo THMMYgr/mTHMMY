@@ -26,8 +26,6 @@ import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
-//TODO proper handling with adapter etc.
-//TODO after clicking bookmark and then back button should return to this activity
 public class BookmarksActivity extends BaseActivity {
     private static final String TOPIC_URL = "https://www.thmmy.gr/smf/index.php?topic=";
     private static final String BOARD_URL = "https://www.thmmy.gr/smf/index.php?board=";

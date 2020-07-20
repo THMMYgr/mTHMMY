@@ -28,7 +28,7 @@
         android:id="@+id/pref_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/primary_light"
+        android:background="@color/primary_lighter"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

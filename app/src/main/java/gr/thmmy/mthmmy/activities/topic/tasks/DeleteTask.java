@@ -4,8 +4,8 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
-import gr.thmmy.mthmmy.utils.NetworkResultCodes;
-import gr.thmmy.mthmmy.utils.NetworkTask;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.networking.NetworkTask;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

@@ -2,7 +2,8 @@ package gr.thmmy.mthmmy.utils.parsing;
 
 import org.jsoup.nodes.Document;
 
-import gr.thmmy.mthmmy.utils.NetworkTask;
+import gr.thmmy.mthmmy.session.InvalidSessionException;
+import gr.thmmy.mthmmy.utils.networking.NetworkTask;
 import okhttp3.Response;
 
 public abstract class NewParseTask<T> extends NetworkTask<T> {
@@ -22,8 +23,10 @@ public abstract class NewParseTask<T> extends NetworkTask<T> {
     protected final T performTask(Document document, Response response) {
         try {
             return parse(document, response);
+        } catch (InvalidSessionException ise) {
+            throw ise;
         } catch (Exception e) {
-            throw new ParseException("Parse failed.", e);
+            throw new ParseException("Parsing failed", e);
         }
     }
 

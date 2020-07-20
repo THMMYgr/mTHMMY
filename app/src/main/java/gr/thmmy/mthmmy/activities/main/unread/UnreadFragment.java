@@ -26,18 +26,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
+import gr.thmmy.mthmmy.session.InvalidSessionException;
+import gr.thmmy.mthmmy.session.MarkAsReadTask;
 import gr.thmmy.mthmmy.session.SessionManager;
-import gr.thmmy.mthmmy.session.ValidateSessionTask;
-import gr.thmmy.mthmmy.utils.NetworkResultCodes;
+import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.parsing.NewParseTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.views.CustomRecyclerView;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
-import timber.log.Timber;
 
 /**
  * A {@link BaseFragment} subclass.
@@ -59,13 +58,11 @@ public class UnreadFragment extends BaseFragment {
     private UnreadAdapter unreadAdapter;
 
     private List<TopicSummary> topicSummaries;
-    private String markAsReadUrl;
     private int numberOfPages = 0;
     private int loadedPages = 0;
 
     private UnreadTask unreadTask;
-    private MarkReadTask markReadTask;
-    private ValidateSessionTask validateSessionTask;
+    private MarkAsReadTask markAsReadTask;
 
     // Required empty public constructor
     public UnreadFragment() {}
@@ -89,22 +86,20 @@ public class UnreadFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         topicSummaries = new ArrayList<>();
-        markAsReadUrl = BaseApplication.getInstance().getSessionManager().getMarkAllAsReadLink();
-        if(markAsReadUrl==null){
-            Timber.i("MarkAsRead URL is null.");
-            startValidateSessionTask();
-        }
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (topicSummaries.isEmpty()){
+            hideMarkAsReadFAB();
             unreadTask = new UnreadTask(this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskCancelled, this::onUnreadTaskFinished);
             assert SessionManager.unreadUrl != null;
             unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
         }
-        markReadTask = new MarkReadTask(this::onMarkReadTaskStarted, this::onMarkReadTaskFinished);
+        else
+            showMarkAsReadFAB();
+        markAsReadTask = new MarkAsReadTask(UnreadFragment.this::onMarkAsReadTaskStarted, UnreadFragment.this::onMarkAsReadTaskFinished);
     }
 
 
@@ -119,16 +114,7 @@ public class UnreadFragment extends BaseFragment {
             progressBar = rootView.findViewById(R.id.progressBar);
             noUnreadTopicsTextView = rootView.findViewById(R.id.no_unread_topics);
             markAsReadFAB = rootView.findViewById(R.id.unread_fab);
-
-            if(topicSummaries.isEmpty()){
-                hideMarkAsReadFAB();
-                noUnreadTopicsTextView.setVisibility(View.VISIBLE);
-            }
-            else{
-                noUnreadTopicsTextView.setVisibility(View.INVISIBLE);
-                showMarkAsReadFAB();
-            }
-
+            
             unreadAdapter = new UnreadAdapter(topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
@@ -146,7 +132,6 @@ public class UnreadFragment extends BaseFragment {
                     this::startUnreadTask
             );
         }
-
         return rootView;
     }
 
@@ -154,17 +139,10 @@ public class UnreadFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         cancelUnreadTaskIfRunning();
-        if (markReadTask!=null){
+        if (markAsReadTask !=null){
             try{
-                if(markReadTask.isRunning())
-                    markReadTask.cancel(true);
-            }    // Yes, it happens even though we checked
-            catch (NullPointerException ignored){ }
-        }
-        if (validateSessionTask!=null){
-            try{
-                if(validateSessionTask.isRunning())
-                    validateSessionTask.cancel(true);
+                if(markAsReadTask.isRunning())
+                    markAsReadTask.cancel(true);
             }    // Yes, it happens even though we checked
             catch (NullPointerException ignored){ }
         }
@@ -185,11 +163,6 @@ public class UnreadFragment extends BaseFragment {
             }
             catch (NullPointerException ignored){ }
         }
-    }
-
-    private void startValidateSessionTask(){
-        validateSessionTask = new ValidateSessionTask();
-        validateSessionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private void cancelUnreadTaskIfRunning(){
@@ -223,9 +196,9 @@ public class UnreadFragment extends BaseFragment {
         builder.setTitle("Mark all as read");
         builder.setMessage("Are you sure that you want to mark ALL topics as read?");
         builder.setPositiveButton("Yep", (dialogInterface, i) -> {
-            if (!markReadTask.isRunning() && markAsReadUrl!=null){
-                markReadTask = new MarkReadTask(this::onMarkReadTaskStarted, this::onMarkReadTaskFinished);
-                markReadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, markAsReadUrl);
+            if (!markAsReadTask.isRunning()){
+                markAsReadTask = new MarkAsReadTask(this::onMarkAsReadTaskStarted, this::onMarkAsReadTaskFinished);
+                markAsReadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
         builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
@@ -275,6 +248,8 @@ public class UnreadFragment extends BaseFragment {
             hideProgressUI();
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
                 Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            else if (resultCode == SessionManager.INVALID_SESSION)
+                Toast.makeText(getContext(), "Session verification failed. Please try logging in again.", Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(getContext(), "Unexpected error," +
                         " please contact the developers with the details", Toast.LENGTH_LONG).show();
@@ -287,7 +262,10 @@ public class UnreadFragment extends BaseFragment {
         }
 
         @Override
-        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException {
+        protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException, InvalidSessionException {
+            if(!document.select("td:containsOwn(Only registered members are allowed to access this section.)").isEmpty())
+                throw new InvalidSessionException();
+
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
             ArrayList<TopicSummary> fetchedTopicSummaries = new ArrayList<>();
             if (!unread.isEmpty()) {
@@ -307,12 +285,10 @@ public class UnreadFragment extends BaseFragment {
                 }
                 Element topBar = document.select("table:not(.bordercolor):not(#bodyarea):has(td.middletext)").first();
 
-                Element pagesElement = null, markRead = null;
-                if (topBar != null) {
+                Element pagesElement = null;
+                if (topBar != null)
                     pagesElement = topBar.select("td.middletext").first();
-                    markRead = document.select("table:not(.bordercolor):not([width])").select("a")
-                            .first();
-                }
+
 
                 if (numberOfPages == 0 && pagesElement != null) {
                     Elements pages = pagesElement.select("a");
@@ -320,14 +296,6 @@ public class UnreadFragment extends BaseFragment {
                         numberOfPages = Integer.parseInt(pages.last().text());
                     else
                         numberOfPages = 1;
-                }
-
-                if (markRead != null && loadedPages == numberOfPages - 1){
-                    String retrievedMarkAsReadUrl = markRead.attr("href");
-                    if(!retrievedMarkAsReadUrl.equals(markAsReadUrl)) {
-                        markAsReadUrl = retrievedMarkAsReadUrl;
-                        BaseApplication.getInstance().getSessionManager().refreshSescFromUrl(retrievedMarkAsReadUrl);
-                    }
                 }
 
                 return fetchedTopicSummaries;
@@ -341,49 +309,25 @@ public class UnreadFragment extends BaseFragment {
         }
     }
 
-    //---------------------------------------MARKREAD TASK------------------------------------------
-    private void onMarkReadTaskStarted() {
+    //---------------------------------------MARK AS READ TASK------------------------------------------
+    private void onMarkAsReadTaskStarted() {
         cancelUnreadTaskIfRunning();
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
-    private void onMarkReadTaskFinished(int resultCode,  Boolean isSessionVerified) {
+    private void onMarkAsReadTaskFinished(int resultCode,  Void v) {
         hideProgressUI();
-        if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            if (!isSessionVerified){
-                Toast.makeText(getContext(), "Session verification failed", Toast.LENGTH_SHORT).show();
-                startValidateSessionTask();
-            }
-            else
+        if (resultCode == NetworkResultCodes.SUCCESSFUL)
                 startUnreadTask();
-        }
         else{
             hideProgressUI();
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
                 Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            else if (resultCode == SessionManager.INVALID_SESSION)
+                Toast.makeText(getContext(), "Session verification failed. Please try logging out and back in again", Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(getContext(), "Unexpected error," +
                         " please contact the developers with the details", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private class MarkReadTask extends NewParseTask<Boolean> {
-        MarkReadTask(OnTaskStartedListener onTaskStartedListener, OnNetworkTaskFinishedListener<Boolean> onParseTaskFinishedListener) {
-            super(onTaskStartedListener,  onParseTaskFinishedListener);
-        }
-
-        @Override
-        protected Boolean parse(Document document, Response response) throws ParseException {
-            Elements sessionVerificationFailed = document.select("td:containsOwn(Session " +
-                    "verification failed. Please try logging out and back in again, and then try " +
-                    "again.), td:containsOwn(Η επαλήθευση συνόδου απέτυχε. Παρακαλούμε κάντε " +
-                    "αποσύνδεση, επανασύνδεση και ξαναδοκιμάστε.)");
-            return sessionVerificationFailed.isEmpty();
-        }
-
-        @Override
-        protected int getResultCode(Response response, Boolean isSessionVerified) {
-            return NetworkResultCodes.SUCCESSFUL;
         }
     }
 }
