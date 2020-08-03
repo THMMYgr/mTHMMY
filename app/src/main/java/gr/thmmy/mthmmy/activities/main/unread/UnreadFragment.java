@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.session.InvalidSessionException;
@@ -247,11 +248,11 @@ public class UnreadFragment extends BaseFragment {
         else{
             hideProgressUI();
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
-                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
             else if (resultCode == SessionManager.INVALID_SESSION)
-                Toast.makeText(getContext(), "Session verification failed. Please try logging in again.", Toast.LENGTH_LONG).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Session verification failed. Please try logging in again.", Toast.LENGTH_LONG).show();
             else
-                Toast.makeText(getContext(), "Unexpected error," +
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
                         " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
     }
@@ -322,11 +323,11 @@ public class UnreadFragment extends BaseFragment {
         else{
             hideProgressUI();
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
-                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
             else if (resultCode == SessionManager.INVALID_SESSION)
-                Toast.makeText(getContext(), "Session verification failed. Please try logging out and back in again", Toast.LENGTH_LONG).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Session verification failed. Please try logging out and back in again", Toast.LENGTH_LONG).show();
             else
-                Toast.makeText(getContext(), "Unexpected error," +
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
                         " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
     }

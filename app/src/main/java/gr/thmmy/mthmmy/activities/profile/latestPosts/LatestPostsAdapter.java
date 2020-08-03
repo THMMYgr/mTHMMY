@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -49,13 +50,9 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return parsedTopicSummaries.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_EMPTY) {
-            View view = LayoutInflater.from(parent.getContext()).
-                    inflate(R.layout.fragment_profile_latest_posts_empty_message, parent, false);
-            return new RecyclerView.ViewHolder(view){};
-        }
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.fragment_profile_latest_posts_row, parent, false);
@@ -64,13 +61,16 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.recycler_loading_item, parent, false);
             return new LoadingViewHolder(view);
+        } else {    // viewType == VIEW_TYPE_EMPTY
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.fragment_profile_latest_posts_empty_message, parent, false);
+            return new RecyclerView.ViewHolder(view){};
         }
-        return null;
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof LatestPostViewHolder) {
             PostSummary topic = parsedTopicSummaries.get(position);
             final LatestPostViewHolder latestPostViewHolder = (LatestPostViewHolder) holder;
