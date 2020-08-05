@@ -321,7 +321,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         pStarter = topicColumns.get(3).text();
                         pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
-                        pLastPost = topicColumns.last().text();
+                        pLastPost = topicColumns.get(6).text();
                         Matcher matcher = pLastPostPattern.matcher(pLastPost);
                         if (matcher.find()){
                             pLastPostDateTime = matcher.group(1);
