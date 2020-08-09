@@ -358,7 +358,10 @@ public class StatsFragment extends Fragment {
 
         @Override
         public String getFormattedValue(float value, AxisBase axis) {
-            return mValues.get((int) value);
+            if (((int) value) < mValues.size())
+                return mValues.get((int) value);
+            else
+                return "0";
         }
     }
 }
