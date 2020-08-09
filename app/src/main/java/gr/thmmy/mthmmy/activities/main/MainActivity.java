@@ -31,6 +31,7 @@ import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.model.TopicSummary;
@@ -138,7 +139,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             super.onBackPressed();
             return;
         } else {
-            Toast.makeText(getBaseContext(), "Press back again to exit!"
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Press back again to exit!"
                     , Toast.LENGTH_SHORT).show();
         }
         mBackPressed = System.currentTimeMillis();
@@ -278,10 +279,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                         redirectIntent.putExtra(BUNDLE_DOWNLOADS_TITLE, "");
                         startActivity(redirectIntent);
                     } else if (!page.is(ThmmyPage.PageCategory.INDEX)) {
-                        Toast.makeText(this, "This thmmy sector is not yet supported.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This thmmy sector is not yet supported.", Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(this, "This is not thmmy.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This is not thmmy.", Toast.LENGTH_LONG).show();
                 }
             }
         }

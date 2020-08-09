@@ -268,11 +268,11 @@ public class UploadActivity extends BaseActivity {
                     shouldReturn = true;
                 }
                 if (filesList.isEmpty()) {
-                    Toast.makeText(view.getContext(), "Please choose a file to upload or take a photo", Toast.LENGTH_LONG).show();
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please choose a file to upload or take a photo", Toast.LENGTH_LONG).show();
                     shouldReturn = true;
                 }
                 if (categorySelected.equals("-1")) {
-                    Toast.makeText(view.getContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please choose category first", Toast.LENGTH_SHORT).show();
                     shouldReturn = true;
                 }
                 if (!filesList.isEmpty()) {
@@ -282,7 +282,7 @@ public class UploadActivity extends BaseActivity {
                     }
 
                     if (totalFilesSize > MAX_FILE_SIZE_SUPPORTED) {
-                        Toast.makeText(view.getContext(), "Your files are too powerful for thmmy. Reduce size or split!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Your files are too powerful for thmmy. Reduce size or split!", Toast.LENGTH_LONG).show();
                         shouldReturn = true;
                     }
                 }
@@ -338,7 +338,7 @@ public class UploadActivity extends BaseActivity {
 
                                 if (!storage.rename(uploadFile.getPhotoFile().getAbsolutePath(), destinationFilename)) {
                                     //Something went wrong, abort
-                                    Toast.makeText(this, "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
                                     progressBar.setVisibility(View.GONE);
                                     return;
                                 }
@@ -385,7 +385,7 @@ public class UploadActivity extends BaseActivity {
                                 : tempFileUri)) {
                     finish();
                 } else {
-                    Toast.makeText(this, "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -580,7 +580,7 @@ public class UploadActivity extends BaseActivity {
                     zipTask.execute(filesListArray);
                     finish();
                 } else {
-                    Toast.makeText(this, "Please retry uploading.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please retry uploading.", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
@@ -746,7 +746,7 @@ public class UploadActivity extends BaseActivity {
             Timber.d("Uploading a file with properties: \nTitle: %s\nCategory: %s\nDescription: %s\nIcon: %s\nUploader: %s",
                     uploadTitleText, categorySelected, uploadDescriptionText, fileIcon, uploaderProfileIndex);
             multipartUploadRequest.startUpload();
-            Toast.makeText(context, "Uploading file(s) in the background...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Uploading file(s) in the background...", Toast.LENGTH_SHORT).show();
             return true;
         } catch (Exception exception) {
             Timber.e(exception, "AndroidUploadService: %s", exception.getMessage());
@@ -1041,7 +1041,7 @@ public class UploadActivity extends BaseActivity {
         @Override
         protected void onPreExecute() {
             assert weakActivity != null;
-            Toast.makeText(weakActivity.get(), "Zipping files", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Zipping files", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -1068,7 +1068,7 @@ public class UploadActivity extends BaseActivity {
                 return;
 
             if (!result) {
-                Toast.makeText(weakActivity.get(), "Couldn't create zip!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Couldn't create zip!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -1077,7 +1077,7 @@ public class UploadActivity extends BaseActivity {
                     getConfigForUpload(weakActivity.get(), uploadID, zipFilename), categorySelected,
                     uploadTitleText, uploadDescriptionText, fileIcon, uploaderProfileIndex,
                     zipFileUri)) {
-                Toast.makeText(weakActivity.get(), "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();
             }
         }
     }

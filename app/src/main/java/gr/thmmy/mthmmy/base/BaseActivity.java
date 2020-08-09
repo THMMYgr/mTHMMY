@@ -569,11 +569,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (thisPageBookmark.matchExists(topicsBookmarked)) {
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
             toggleTopicToBookmarks(thisPageBookmark);
-            Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
         } else {
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
             toggleTopicToBookmarks(thisPageBookmark);
-            Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -586,10 +586,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         thisPageBookmarkImageButton.setOnClickListener(view -> {
             if (thisPageBookmark.matchExists(boardsBookmarked)) {
                 thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
-                Toast.makeText(getBaseContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
             } else {
                 thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
-                Toast.makeText(getBaseContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
             }
             toggleBoardToBookmarks(thisPageBookmark);
         });
@@ -771,7 +771,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 BaseActivity.this.startActivity(intent);
             } catch (Exception e) {
                 Timber.e(e, "Couldn't open downloaded file...");
-                Toast.makeText(getBaseContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Couldn't open file...", Toast.LENGTH_SHORT).show();
             }
 
         });

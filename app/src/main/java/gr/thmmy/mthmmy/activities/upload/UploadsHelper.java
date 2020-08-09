@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import timber.log.Timber;
 
@@ -41,7 +42,7 @@ public class UploadsHelper {
 
         if (!tempDirectory.exists() && !tempDirectory.mkdirs()) {
             Timber.w("Temporary directory build returned false in %s", UploadActivity.class.getSimpleName());
-            Toast.makeText(context, "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
             return null;
         }
 

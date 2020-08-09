@@ -15,6 +15,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.settings.SettingsActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.views.editorview.EditorView;
 import gr.thmmy.mthmmy.views.editorview.EmojiKeyboard;
@@ -104,7 +105,7 @@ public class CreateContentActivity extends BaseActivity implements NewTopicTask.
             finish();
         } else {
             Timber.w("New topic creation failed");
-            Toast.makeText(getBaseContext(), "Failed to create new topic!", Toast.LENGTH_LONG).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Failed to create new topic!", Toast.LENGTH_LONG).show();
             finish();
         }
     }

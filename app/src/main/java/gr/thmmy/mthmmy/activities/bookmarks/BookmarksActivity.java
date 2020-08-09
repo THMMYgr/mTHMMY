@@ -19,6 +19,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Bookmark;
 
 import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
@@ -90,7 +91,7 @@ public class BookmarksActivity extends BaseActivity {
                 return toggleNotification(bookmarkedTopic);
             case BookmarksFragment.INTERACTION_REMOVE_TOPIC_BOOKMARK:
                 removeBookmark(bookmarkedTopic);
-                Toast.makeText(BookmarksActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;
@@ -113,7 +114,7 @@ public class BookmarksActivity extends BaseActivity {
                 return toggleNotification(bookmarkedBoard);
             case BookmarksFragment.INTERACTION_REMOVE_BOARD_BOOKMARK:
                 removeBookmark(bookmarkedBoard);
-                Toast.makeText(BookmarksActivity.this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;

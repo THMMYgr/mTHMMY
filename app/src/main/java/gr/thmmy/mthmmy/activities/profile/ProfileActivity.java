@@ -43,6 +43,7 @@ import gr.thmmy.mthmmy.activities.profile.stats.StatsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.Parcel;
@@ -177,7 +178,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(profileUrl));
         if (!target.is(ThmmyPage.PageCategory.PROFILE)) {
             Timber.e("Bundle came with a non profile url!\nUrl:\n%s", profileUrl);
-            Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
         if (target.is(ThmmyPage.PageCategory.PROFILE_STATS)) {
@@ -331,12 +332,12 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 }
             } else if (result == NetworkResultCodes.NETWORK_ERROR) {
                 Timber.w("Network error while excecuting profile activity");
-                Toast.makeText(getBaseContext(), "Network error"
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error"
                         , Toast.LENGTH_LONG).show();
                 finish();
             } else {
                 Timber.d("Parse failed!");
-                Toast.makeText(getBaseContext(), "Fatal error!\n Aborting..."
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Fatal error!\n Aborting..."
                         , Toast.LENGTH_LONG).show();
                 finish();
             }
