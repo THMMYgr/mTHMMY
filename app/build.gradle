@@ -15,8 +15,8 @@ android {
         applicationId "gr.thmmy.mthmmy"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 25
-        versionName "1.8.2"
+        versionCode 26
+        versionName "1.8.3"
         archivesBaseName = "mTHMMY-v$versionName"
         buildConfigField "String", "CURRENT_BRANCH", "\"" + getCurrentBranch() + "\""
         buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
@@ -91,7 +91,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.firebase:firebase-analytics:17.4.4'
     implementation 'com.google.firebase:firebase-crashlytics:17.1.1'
-    implementation 'com.google.firebase:firebase-messaging:20.2.3'
+    implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation 'com.snatik:storage:2.1.0'
     implementation ('com.squareup.okhttp3:okhttp:3.12.12') {  //TODO: Warning: OkHttp has dropped support for Android 19 since OkHttp 3.13!
         force = true    //TODO: Remove when minSdkVersion >= 21
