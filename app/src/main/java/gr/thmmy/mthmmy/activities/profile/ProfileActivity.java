@@ -67,7 +67,7 @@ import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
  * this user's avatar url using the key {@link #BUNDLE_PROFILE_THUMBNAIL_URL} and a <b>String</b> containing
  * the username using the key {@link #BUNDLE_PROFILE_USERNAME}.
  */
-public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener {
+public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener, LatestPostsFragment.OnLoadingListener, StatsFragment.OnLoadingListener{
     /**
      * The key to use when putting profile's url String to {@link ProfileActivity}'s Bundle.
      */
@@ -209,6 +209,24 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         startActivity(i);
     }
 
+    @Override
+    public void onLoadingLatestPosts(boolean loading) {
+        setBarVisibility(loading);
+    }
+
+    @Override
+    public void onLoadingStats(boolean loading) {
+        setBarVisibility(loading);
+    }
+
+    private void setBarVisibility (boolean visible){
+        if(visible)
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+        else
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+
+    }
+
     public void onProfileTaskStarted() {
         progressBar.setVisibility(ProgressBar.VISIBLE);
         if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
@@ -233,7 +251,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     .into(avatarView);
         }
         else
-            Timber.d("Will not load Glide image (invalid context)");
+            Timber.i("Will not load Glide image (invalid context)");
     }
 
     /**
@@ -336,7 +354,6 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                         , Toast.LENGTH_LONG).show();
                 finish();
             } else {
-                Timber.d("Parse failed!");
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Fatal error!\n Aborting..."
                         , Toast.LENGTH_LONG).show();
                 finish();
@@ -358,8 +375,12 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
     private void setupViewPager(ViewPager viewPager, Document profilePage) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(SummaryFragment.newInstance(profilePage), "SUMMARY");
-        adapter.addFrag(LatestPostsFragment.newInstance(profileUrl), "LATEST POSTS");
-        adapter.addFrag(StatsFragment.newInstance(profileUrl), "STATS");
+        LatestPostsFragment latestPostsFragment = LatestPostsFragment.newInstance(profileUrl);
+        latestPostsFragment.setOnLoadingListener(this);
+        adapter.addFrag(latestPostsFragment, "LATEST POSTS");
+        StatsFragment statsFragment = StatsFragment.newInstance(profileUrl);
+        statsFragment.setOnLoadingListener(this);
+        adapter.addFrag(statsFragment, "STATS");
         viewPager.setAdapter(adapter);
     }
 

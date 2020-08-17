@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -43,7 +42,6 @@ import javax.net.ssl.SSLHandshakeException;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -56,13 +54,14 @@ public class StatsFragment extends Fragment {
     private String profileUrl;
     private ProfileStatsTask profileStatsTask;
     private LinearLayout mainContent;
-    private MaterialProgressBar progressBar;
 
     private boolean userHasPosts = true;
     private String generalStatisticsTitle = "", generalStatistics = "", postingActivityByTimeTitle = "", mostPopularBoardsByPostsTitle = "", mostPopularBoardsByActivityTitle = "";
     private final List<Entry> postingActivityByTime = new ArrayList<>();
     private final List<BarEntry> mostPopularBoardsByPosts = new ArrayList<>(), mostPopularBoardsByActivity = new ArrayList<>();
     private final ArrayList<String> mostPopularBoardsByPostsLabels = new ArrayList<>(), mostPopularBoardsByActivityLabels = new ArrayList<>();
+
+    private OnLoadingListener onLoadingListener;
 
     public StatsFragment() {
         // Required empty public constructor
@@ -94,7 +93,6 @@ public class StatsFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_profile_stats, container, false);
         mainContent = rootView.findViewById(R.id.main_content);
-        progressBar = rootView.findViewById(R.id.progressBar);
         if (profileStatsTask!=null && profileStatsTask.getStatus() == AsyncTask.Status.FINISHED)
             populateLayout();
         return rootView;
@@ -117,6 +115,14 @@ public class StatsFragment extends Fragment {
             profileStatsTask.cancel(true);
     }
 
+    public interface OnLoadingListener {
+        void onLoadingStats(boolean loading);
+    }
+
+    public void setOnLoadingListener(OnLoadingListener onLoadingListener) {
+        this.onLoadingListener = onLoadingListener;
+    }
+
     /**
      * An {@link AsyncTask} that handles asynchronous parsing of a profile page's data.
      * {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #()}
@@ -129,7 +135,7 @@ public class StatsFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+            onLoadingListener.onLoadingStats(true);
         }
 
         @Override
@@ -150,7 +156,7 @@ public class StatsFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
+            onLoadingListener.onLoadingStats(false);
             if (!result)
                 Timber.e(new ParseException("Parsing failed (user stats)"),"ParseException");   //TODO: This is inaccurate (e.g. can also have an I/O cause)
             else
@@ -221,7 +227,7 @@ public class StatsFragment extends Fragment {
     }
 
     private void populateLayout() {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
+        onLoadingListener.onLoadingStats(true);;
         ((TextView) mainContent.findViewById(R.id.general_statistics_title))
                 .setText(generalStatisticsTitle);
         ((TextView) mainContent.findViewById(R.id.general_statistics))
@@ -229,6 +235,7 @@ public class StatsFragment extends Fragment {
 
         if (!userHasPosts) {
             mainContent.removeViews(2, mainContent.getChildCount() - 2);
+            onLoadingListener.onLoadingStats(false);
             return;
         }
 
@@ -346,7 +353,7 @@ public class StatsFragment extends Fragment {
         mostPopularBoardsByActivityData.setValueTextColor(Color.WHITE);
         mostPopularBoardsByActivityChart.setData(mostPopularBoardsByActivityData);
         mostPopularBoardsByActivityChart.invalidate();
-        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        onLoadingListener.onLoadingStats(false);
     }
 
     private class MyXAxisValueFormatter implements IAxisValueFormatter {
