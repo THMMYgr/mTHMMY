@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -90,9 +89,6 @@ public class LatestPostsFragment extends BaseFragment {
         recyclerView.setAdapter(latestPostsAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setItemViewCacheSize(15);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -190,7 +186,6 @@ public class LatestPostsFragment extends BaseFragment {
             int prevSize = parsedTopicSummaries.size();
             parsedTopicSummaries.addAll(fetchedParsedTopicSummaries);
             latestPostsAdapter.notifyItemRangeInserted(prevSize, parsedTopicSummaries.size() - prevSize);
-            latestPostsAdapter.notifyDataSetChanged();
             isLoadingMore = false;
             onLoadingListener.onLoadingLatestPosts(false);
         }
@@ -228,13 +223,15 @@ public class LatestPostsFragment extends BaseFragment {
                     else {
                         pTopicTitle = rowHeader.first().text().replaceAll("\\u00a0","").trim();
                         pTopicUrl = rowHeader.first().select("a").last().attr("href");
-                        pDateTime = rowHeader.last().text();
+                        pDateTime = rowHeader.last().text().replaceAll("(on: )|(στις: )","");
                     }
                     pPost = ParseHelpers.youtubeEmbeddedFix(row.select("div.post").first());
 
                     //Add stuff to make it work in WebView
                     //style.css
-                    pPost = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + pPost);
+                    pPost = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />"
+                            + "<link rel=\"stylesheet\" type=\"text/css\" href=\"style_dark.css\" />"
+                            + pPost);
 
                     fetchedParsedTopicSummaries.add(new PostSummary(pTopicUrl, pTopicTitle, pDateTime, pPost));
                 }

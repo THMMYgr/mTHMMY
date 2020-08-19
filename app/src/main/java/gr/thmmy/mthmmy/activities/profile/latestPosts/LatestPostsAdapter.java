@@ -92,7 +92,7 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         LatestPostViewHolder(View itemView) {
             super(itemView);
-            latestPostsRow = itemView.findViewById(R.id.latest_posts_row);
+            latestPostsRow = itemView.findViewById(R.id.latest_posts_row_head);
             postTitle = itemView.findViewById(R.id.title);
             postDate = itemView.findViewById(R.id.date);
             post = itemView.findViewById(R.id.post);

@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -374,17 +375,17 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      */
     private void setupViewPager(ViewPager viewPager, Document profilePage) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(SummaryFragment.newInstance(profilePage), "SUMMARY");
+        adapter.addFragment(SummaryFragment.newInstance(profilePage), "SUMMARY");
         LatestPostsFragment latestPostsFragment = LatestPostsFragment.newInstance(profileUrl);
         latestPostsFragment.setOnLoadingListener(this);
-        adapter.addFrag(latestPostsFragment, "LATEST POSTS");
+        adapter.addFragment(latestPostsFragment, "LATEST POSTS");
         StatsFragment statsFragment = StatsFragment.newInstance(profileUrl);
         statsFragment.setOnLoadingListener(this);
-        adapter.addFrag(statsFragment, "STATS");
+        adapter.addFragment(statsFragment, "STATS");
         viewPager.setAdapter(adapter);
     }
 
-    private class ViewPagerAdapter extends FragmentPagerAdapter {
+    private static class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
@@ -392,6 +393,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             super(manager);
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int position) {
             return mFragmentList.get(position);
@@ -402,7 +404,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             return mFragmentList.size();
         }
 
-        void addFrag(Fragment fragment, String title) {
+        void addFragment(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }

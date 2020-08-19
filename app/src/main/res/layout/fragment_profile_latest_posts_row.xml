@@ -1,61 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/latest_posts_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/background_light">
+    android:layout_marginBottom="2dp">
 
-    <RelativeLayout
-        android:id="@+id/latest_posts_row"
+    <androidx.cardview.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:paddingBottom="6dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="6dp">
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:foreground="?android:attr/selectableItemBackground"
+        card_view:cardBackgroundColor="@color/background"
+        card_view:cardCornerRadius="5dp"
+        card_view:cardElevation="2dp"
+        card_view:cardPreventCornerOverlap="false"
+        card_view:cardUseCompatPadding="true">
 
-        <TextView
-            android:id="@+id/title"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:textColor="@color/primary_text"/>
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/title"
-            android:textColor="@color/secondary_text"/>
-
-
-        <View
-            android:id="@+id/spacer_divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@+id/date"
-            android:layout_marginBottom="3dp"
-            android:layout_marginTop="3dp"
-            android:background="@color/divider"/>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/spacer_divider">
-
-            <gr.thmmy.mthmmy.views.ReactiveWebView
-                android:id="@+id/post"
+            <RelativeLayout
+                android:id="@+id/latest_posts_row_head"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/background_light"
-                android:text="@string/post"/>
-        </FrameLayout>
-    </RelativeLayout>
-</FrameLayout>
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    android:textColor="@color/primary_text"/>
+
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/title"
+                    android:textColor="@color/secondary_text"/>
+
+                <View
+                    android:id="@+id/spacer_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/date"
+                    android:layout_marginTop="6dp"
+                    android:background="@color/secondary_text"/>
+            </RelativeLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/latest_posts_row_head"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="8dp">
+
+                <gr.thmmy.mthmmy.views.ReactiveWebView
+                    android:id="@+id/post"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/background_light"
+                    android:text="@string/post"/>
+            </FrameLayout>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

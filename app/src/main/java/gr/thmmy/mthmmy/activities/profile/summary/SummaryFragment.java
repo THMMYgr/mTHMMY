@@ -143,6 +143,7 @@ public class SummaryFragment extends Fragment {
                     //Add stuff to make it work in WebView
                     //style.css
                     pHtml = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +
+                            "<link rel=\"stylesheet\" type=\"text/css\" href=\"style_light.css\" />\n" +
                             "<div class=\"customSignature\">\n" + pHtml + "\n</div>");
                 } else if (!rowText.contains("Name") && !rowText.contains("Όνομα")) { //Doesn't add username twice
                     if (Objects.equals(summaryRow.select("td").get(1).text(), ""))

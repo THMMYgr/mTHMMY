@@ -16,6 +16,7 @@
     <color name="secondary_text">#757575</color>
     <color name="background">#323232</color>
     <color name="background_light">#3C3F41</color>
+    <color name="background_lighter">#434649</color>
     <color name="divider">#8B8B8B</color>
     <color name="link_color">#FF9800</color>
     <color name="mention_color">#FAA61A</color>
