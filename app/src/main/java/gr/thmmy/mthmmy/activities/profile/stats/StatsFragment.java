@@ -8,9 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -43,7 +41,7 @@ import javax.net.ssl.SSLHandshakeException;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -56,13 +54,14 @@ public class StatsFragment extends Fragment {
     private String profileUrl;
     private ProfileStatsTask profileStatsTask;
     private LinearLayout mainContent;
-    private MaterialProgressBar progressBar;
 
     private boolean userHasPosts = true;
     private String generalStatisticsTitle = "", generalStatistics = "", postingActivityByTimeTitle = "", mostPopularBoardsByPostsTitle = "", mostPopularBoardsByActivityTitle = "";
     private final List<Entry> postingActivityByTime = new ArrayList<>();
     private final List<BarEntry> mostPopularBoardsByPosts = new ArrayList<>(), mostPopularBoardsByActivity = new ArrayList<>();
     private final ArrayList<String> mostPopularBoardsByPostsLabels = new ArrayList<>(), mostPopularBoardsByActivityLabels = new ArrayList<>();
+
+    private OnLoadingListener onLoadingListener;
 
     public StatsFragment() {
         // Required empty public constructor
@@ -94,7 +93,6 @@ public class StatsFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_profile_stats, container, false);
         mainContent = rootView.findViewById(R.id.main_content);
-        progressBar = rootView.findViewById(R.id.progressBar);
         if (profileStatsTask!=null && profileStatsTask.getStatus() == AsyncTask.Status.FINISHED)
             populateLayout();
         return rootView;
@@ -117,6 +115,14 @@ public class StatsFragment extends Fragment {
             profileStatsTask.cancel(true);
     }
 
+    public interface OnLoadingListener {
+        void onLoadingStats(boolean loading);
+    }
+
+    public void setOnLoadingListener(OnLoadingListener onLoadingListener) {
+        this.onLoadingListener = onLoadingListener;
+    }
+
     /**
      * An {@link AsyncTask} that handles asynchronous parsing of a profile page's data.
      * {@link AsyncTask#onPostExecute(Object) OnPostExecute} method calls {@link #()}
@@ -129,7 +135,7 @@ public class StatsFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+            onLoadingListener.onLoadingStats(true);
         }
 
         @Override
@@ -148,94 +154,80 @@ public class StatsFragment extends Fragment {
             return false;
         }
 
-        //TODO: better parse error handling (ParseException etc.)
         @Override
         protected void onPostExecute(Boolean result) {
-            if (!result) { //Parse failed!
-                Timber.d("Parse failed!");
-                Toast.makeText(getContext()
-                        , "Fatal error!\n Aborting...", Toast.LENGTH_LONG).show();
-                getActivity().finish();
-            }
-            //Parse was successful
-            populateLayout();
+            onLoadingListener.onLoadingStats(false);
+            if (!result)
+                Timber.e(new ParseException("Parsing failed (user stats)"),"ParseException");   //TODO: This is inaccurate (e.g. can also have an I/O cause)
+            else
+                populateLayout();
         }
 
+        //TODO: better parse error handling (ParseException etc.)
         private boolean parseStats(Document statsPage) {
             //Doesn't go through all the parsing if this user has no posts
-            if (!statsPage.select("td:contains(No posts to speak of!)").isEmpty()) {
+            if (!statsPage.select("td:contains(No posts to speak of!), td:contains(Δεν υπάρχει καμία αποστολή μηνύματος!)").isEmpty())
                 userHasPosts = false;
-            }
-            if (!statsPage.select("td:contains(Δεν υπάρχει καμία αποστολή μηνύματος!)").isEmpty()) {
-                userHasPosts = false;
-            }
+
             if (statsPage.select("table.bordercolor[align]>tbody>tr").size() != 6)
                 return false;
-            {
-                Elements titleRows = statsPage.select("table.bordercolor[align]>tbody>tr.titlebg");
-                generalStatisticsTitle = titleRows.first().text();
-                Pattern pattern = Pattern.compile("(.+)\\s-");
-                Matcher matcher = pattern.matcher(generalStatisticsTitle);
-                if (matcher.find())
-                    generalStatisticsTitle = matcher.group(1);
 
-                if (userHasPosts) {
-                    postingActivityByTimeTitle = titleRows.get(1).text();
-                    mostPopularBoardsByPostsTitle = titleRows.last().select("td").first().text();
-                    mostPopularBoardsByActivityTitle = titleRows.last().select("td").last().text();
-                }
+            Elements titleRows = statsPage.select("table.bordercolor[align]>tbody>tr.titlebg");
+            generalStatisticsTitle = titleRows.first().text();
+            Pattern pattern = Pattern.compile("(.+)\\s-");
+            Matcher matcher = pattern.matcher(generalStatisticsTitle);
+            if (matcher.find())
+                generalStatisticsTitle = matcher.group(1);
+
+            if (userHasPosts) {
+                postingActivityByTimeTitle = titleRows.get(1).text();
+                mostPopularBoardsByPostsTitle = titleRows.last().select("td").first().text();
+                mostPopularBoardsByActivityTitle = titleRows.last().select("td").last().text();
             }
-            {
-                Elements statsRows = statsPage.select("table.bordercolor[align]>tbody>tr:not(.titlebg)");
-                {
-                    Elements generalStatisticsRows = statsRows.first().select("tbody>tr");
-                    for (Element generalStatisticsRow : generalStatisticsRows)
-                        generalStatistics += generalStatisticsRow.text() + "\n";
-                    generalStatistics = generalStatistics.trim();
+
+            Elements statsRows = statsPage.select("table.bordercolor[align]>tbody>tr:not(.titlebg)");
+            Elements generalStatisticsRows = statsRows.first().select("tbody>tr");
+            for (Element generalStatisticsRow : generalStatisticsRows)
+                generalStatistics += generalStatisticsRow.text() + "\n";
+            generalStatistics = generalStatistics.trim();
+
+            if (userHasPosts) {
+                Elements postingActivityByTimeCols = statsRows.get(1).select(">td").last()
+                        .select("tr").first().select("td[width=4%]");
+                int i = -1;
+                for (Element postingActivityByTimeColumn : postingActivityByTimeCols)
+                    postingActivityByTime.add(new Entry(++i, Float.parseFloat(postingActivityByTimeColumn
+                            .select("img").first().attr("height"))));
+
+                Elements mostPopularBoardsByPostsRows = statsRows.last().select(">td").get(1)
+                        .select(">table>tbody>tr");
+                i = mostPopularBoardsByPostsRows.size();
+                for (Element mostPopularBoardsByPostsRow : mostPopularBoardsByPostsRows) {
+                    Elements dataCols = mostPopularBoardsByPostsRow.select("td");
+                    mostPopularBoardsByPosts.add(new BarEntry(--i,
+                            Integer.parseInt(dataCols.last().text())));
+                    mostPopularBoardsByPostsLabels.add(dataCols.first().text());
                 }
-                if (userHasPosts) {
-                    {
-                        Elements postingActivityByTimeCols = statsRows.get(1).select(">td").last()
-                                .select("tr").first().select("td[width=4%]");
-                        int i = -1;
-                        for (Element postingActivityByTimeColumn : postingActivityByTimeCols) {
-                            postingActivityByTime.add(new Entry(++i, Float.parseFloat(postingActivityByTimeColumn
-                                    .select("img").first().attr("height"))));
-                        }
-                    }
-                    {
-                        Elements mostPopularBoardsByPostsRows = statsRows.last().select(">td").get(1)
-                                .select(">table>tbody>tr");
-                        int i = mostPopularBoardsByPostsRows.size();
-                        for (Element mostPopularBoardsByPostsRow : mostPopularBoardsByPostsRows) {
-                            Elements dataCols = mostPopularBoardsByPostsRow.select("td");
-                            mostPopularBoardsByPosts.add(new BarEntry(--i,
-                                    Integer.parseInt(dataCols.last().text())));
-                            mostPopularBoardsByPostsLabels.add(dataCols.first().text());
-                        }
-                        Collections.reverse(mostPopularBoardsByPostsLabels);
-                    }
-                    {
-                        Elements mostPopularBoardsByActivityRows = statsRows.last().select(">td").last()
-                                .select(">table>tbody>tr");
-                        int i = mostPopularBoardsByActivityRows.size();
-                        for (Element mostPopularBoardsByActivityRow : mostPopularBoardsByActivityRows) {
-                            Elements dataCols = mostPopularBoardsByActivityRow.select("td");
-                            String tmp = dataCols.last().text();
-                            mostPopularBoardsByActivity.add(new BarEntry(--i,
-                                    Float.parseFloat(tmp.substring(0, tmp.indexOf("%")))));
-                            mostPopularBoardsByActivityLabels.add(dataCols.first().text());
-                        }
-                        Collections.reverse(mostPopularBoardsByActivityLabels);
-                    }
+                Collections.reverse(mostPopularBoardsByPostsLabels);
+
+                Elements mostPopularBoardsByActivityRows = statsRows.last().select(">td").last()
+                        .select(">table>tbody>tr");
+                i = mostPopularBoardsByActivityRows.size();
+                for (Element mostPopularBoardsByActivityRow : mostPopularBoardsByActivityRows) {
+                    Elements dataCols = mostPopularBoardsByActivityRow.select("td");
+                    String tmp = dataCols.last().text();
+                    mostPopularBoardsByActivity.add(new BarEntry(--i,
+                            Float.parseFloat(tmp.substring(0, tmp.indexOf("%")))));
+                    mostPopularBoardsByActivityLabels.add(dataCols.first().text());
                 }
+                Collections.reverse(mostPopularBoardsByActivityLabels);
             }
             return true;
         }
     }
 
     private void populateLayout() {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
+        onLoadingListener.onLoadingStats(true);;
         ((TextView) mainContent.findViewById(R.id.general_statistics_title))
                 .setText(generalStatisticsTitle);
         ((TextView) mainContent.findViewById(R.id.general_statistics))
@@ -243,7 +235,7 @@ public class StatsFragment extends Fragment {
 
         if (!userHasPosts) {
             mainContent.removeViews(2, mainContent.getChildCount() - 2);
-            //mainContent.removeViews(2, 6);
+            onLoadingListener.onLoadingStats(false);
             return;
         }
 
@@ -361,7 +353,7 @@ public class StatsFragment extends Fragment {
         mostPopularBoardsByActivityData.setValueTextColor(Color.WHITE);
         mostPopularBoardsByActivityChart.setData(mostPopularBoardsByActivityData);
         mostPopularBoardsByActivityChart.invalidate();
-        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        onLoadingListener.onLoadingStats(false);
     }
 
     private class MyXAxisValueFormatter implements IAxisValueFormatter {
@@ -373,7 +365,10 @@ public class StatsFragment extends Fragment {
 
         @Override
         public String getFormattedValue(float value, AxisBase axis) {
-            return mValues.get((int) value);
+            if (((int) value) < mValues.size())
+                return mValues.get((int) value);
+            else
+                return "0";
         }
     }
 }

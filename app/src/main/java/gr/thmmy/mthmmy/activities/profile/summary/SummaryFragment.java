@@ -25,7 +25,6 @@ import java.util.Objects;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 import gr.thmmy.mthmmy.views.ReactiveWebView;
-import timber.log.Timber;
 
 /**
  * Use the {@link SummaryFragment#newInstance} factory method to create an instance of this fragment.
@@ -69,7 +68,7 @@ public class SummaryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        profileSummaryDocument = Jsoup.parse(getArguments().getString(PROFILE_DOCUMENT));
+        profileSummaryDocument = Jsoup.parse(requireArguments().getString(PROFILE_DOCUMENT));
         parsedProfileSummaryData = new ArrayList<>();
     }
 
@@ -90,7 +89,6 @@ public class SummaryFragment extends Fragment {
             summaryTask = new SummaryTask();
             summaryTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileSummaryDocument);
         }
-        Timber.d("onActivityCreated");
     }
 
     @Override
@@ -145,6 +143,7 @@ public class SummaryFragment extends Fragment {
                     //Add stuff to make it work in WebView
                     //style.css
                     pHtml = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +
+                            "<link rel=\"stylesheet\" type=\"text/css\" href=\"style_light.css\" />\n" +
                             "<div class=\"customSignature\">\n" + pHtml + "\n</div>");
                 } else if (!rowText.contains("Name") && !rowText.contains("Όνομα")) { //Doesn't add username twice
                     if (Objects.equals(summaryRow.select("td").get(1).text(), ""))
@@ -189,13 +188,11 @@ public class SummaryFragment extends Fragment {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 entry.setTextColor(getResources().getColor(R.color.primary_text, null));
             else
-                //noinspection deprecation
                 entry.setTextColor(getResources().getColor(R.color.primary_text));
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 entry.setText(Html.fromHtml(profileSummaryRow, Html.FROM_HTML_MODE_LEGACY));
             } else {
-                //noinspection deprecation
                 entry.setText(Html.fromHtml(profileSummaryRow));
             }
 

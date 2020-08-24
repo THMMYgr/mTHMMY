@@ -96,6 +96,7 @@
         </activity>
         <activity
             android:name=".activities.profile.ProfileActivity"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.board.BoardActivity"

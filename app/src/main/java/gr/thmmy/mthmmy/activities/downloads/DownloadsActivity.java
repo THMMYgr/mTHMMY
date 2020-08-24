@@ -78,7 +78,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(downloadsUrl));
             if (!target.is(ThmmyPage.PageCategory.DOWNLOADS)) {
                 Timber.e("Bundle came with a non downloads url!\nUrl:\n%s", downloadsUrl);
-                Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
                 finish();
             }
         } else downloadsUrl = downloadsIndexUrl;

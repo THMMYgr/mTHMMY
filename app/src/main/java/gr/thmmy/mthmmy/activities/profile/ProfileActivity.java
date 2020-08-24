@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -43,6 +44,7 @@ import gr.thmmy.mthmmy.activities.profile.stats.StatsFragment;
 import gr.thmmy.mthmmy.activities.profile.summary.SummaryFragment;
 import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.ThmmyPage;
 import gr.thmmy.mthmmy.utils.Parcel;
@@ -66,7 +68,7 @@ import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
  * this user's avatar url using the key {@link #BUNDLE_PROFILE_THUMBNAIL_URL} and a <b>String</b> containing
  * the username using the key {@link #BUNDLE_PROFILE_USERNAME}.
  */
-public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener {
+public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener, LatestPostsFragment.OnLoadingListener, StatsFragment.OnLoadingListener{
     /**
      * The key to use when putting profile's url String to {@link ProfileActivity}'s Bundle.
      */
@@ -177,7 +179,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(profileUrl));
         if (!target.is(ThmmyPage.PageCategory.PROFILE)) {
             Timber.e("Bundle came with a non profile url!\nUrl:\n%s", profileUrl);
-            Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
         if (target.is(ThmmyPage.PageCategory.PROFILE_STATS)) {
@@ -208,6 +210,24 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         startActivity(i);
     }
 
+    @Override
+    public void onLoadingLatestPosts(boolean loading) {
+        setBarVisibility(loading);
+    }
+
+    @Override
+    public void onLoadingStats(boolean loading) {
+        setBarVisibility(loading);
+    }
+
+    private void setBarVisibility (boolean visible){
+        if(visible)
+            progressBar.setVisibility(ProgressBar.VISIBLE);
+        else
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
+
+    }
+
     public void onProfileTaskStarted() {
         progressBar.setVisibility(ProgressBar.VISIBLE);
         if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
@@ -232,7 +252,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     .into(avatarView);
         }
         else
-            Timber.d("Will not load Glide image (invalid context)");
+            Timber.i("Will not load Glide image (invalid context)");
     }
 
     /**
@@ -331,12 +351,11 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 }
             } else if (result == NetworkResultCodes.NETWORK_ERROR) {
                 Timber.w("Network error while excecuting profile activity");
-                Toast.makeText(getBaseContext(), "Network error"
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error"
                         , Toast.LENGTH_LONG).show();
                 finish();
             } else {
-                Timber.d("Parse failed!");
-                Toast.makeText(getBaseContext(), "Fatal error!\n Aborting..."
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Fatal error!\n Aborting..."
                         , Toast.LENGTH_LONG).show();
                 finish();
             }
@@ -356,13 +375,17 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
      */
     private void setupViewPager(ViewPager viewPager, Document profilePage) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(SummaryFragment.newInstance(profilePage), "SUMMARY");
-        adapter.addFrag(LatestPostsFragment.newInstance(profileUrl), "LATEST POSTS");
-        adapter.addFrag(StatsFragment.newInstance(profileUrl), "STATS");
+        adapter.addFragment(SummaryFragment.newInstance(profilePage), "SUMMARY");
+        LatestPostsFragment latestPostsFragment = LatestPostsFragment.newInstance(profileUrl);
+        latestPostsFragment.setOnLoadingListener(this);
+        adapter.addFragment(latestPostsFragment, "LATEST POSTS");
+        StatsFragment statsFragment = StatsFragment.newInstance(profileUrl);
+        statsFragment.setOnLoadingListener(this);
+        adapter.addFragment(statsFragment, "STATS");
         viewPager.setAdapter(adapter);
     }
 
-    private class ViewPagerAdapter extends FragmentPagerAdapter {
+    private static class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
@@ -370,6 +393,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             super(manager);
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int position) {
             return mFragmentList.get(position);
@@ -380,7 +404,7 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
             return mFragmentList.size();
         }
 
-        void addFrag(Fragment fragment, String title) {
+        void addFragment(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }

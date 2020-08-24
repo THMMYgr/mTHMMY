@@ -142,7 +142,7 @@ public class ShoutboxFragment extends Fragment {
             shoutboxViewModel.loadShoutbox(true);
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Timber.w("Failed to send shout");
-            Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "NetworkError", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -154,10 +154,10 @@ public class ShoutboxFragment extends Fragment {
                 editorView.setVisibility(View.VISIBLE);
         } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Timber.w("Failed to retreive shoutbox due to network error");
-            Toast.makeText(getContext(), "NetworkError", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "NetworkError", Toast.LENGTH_SHORT).show();
         } else {
             Timber.wtf("Failed to retreive shoutbox due to unknown error");
-            Toast.makeText(getContext(), "Failed to retrieve shoutbox, please contact mthmmy developer team", Toast.LENGTH_LONG).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Failed to retrieve shoutbox, please contact mthmmy developer team", Toast.LENGTH_LONG).show();
         }
     }
 

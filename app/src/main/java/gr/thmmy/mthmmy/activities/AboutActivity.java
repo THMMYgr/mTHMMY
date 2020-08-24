@@ -110,7 +110,7 @@ public class AboutActivity extends BaseActivity {
             }
 
             versionTextView.setOnLongClickListener(view -> {
-                Toast.makeText(getApplicationContext(), BaseApplication.getFirebaseProjectId(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), BaseApplication.getFirebaseProjectId(), Toast.LENGTH_SHORT).show();
                 return true;
             });
         }

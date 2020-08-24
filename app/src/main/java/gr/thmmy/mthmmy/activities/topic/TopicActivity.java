@@ -150,7 +150,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 Uri.parse(topicPageUrl));
         if (!target.is(ThmmyPage.PageCategory.TOPIC)) {
             Timber.e("Bundle came with a non topic url!\nUrl: %s", topicPageUrl);
-            Toast.makeText(this, "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "An error has occurred\n Aborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -516,7 +516,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 viewModel.reloadPage();
             } else {
                 Timber.w("Failed to delete post");
-                Toast.makeText(getBaseContext(), "Delete failed!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Delete failed!", Toast.LENGTH_SHORT).show();
             }
         });
         viewModel.setReplyFinishListener(new ReplyTask.ReplyTaskCallbacks() {
@@ -579,7 +579,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         break;
                     default:
                         Timber.w("Post reply unsuccessful");
-                        Toast.makeText(getBaseContext(), "Post failed!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Post failed!", Toast.LENGTH_SHORT).show();
                         recyclerView.getChildAt(recyclerView.getChildCount() - 1).setAlpha(1f);
                         recyclerView.getChildAt(recyclerView.getChildCount() - 1).setEnabled(true);
                 }
@@ -623,7 +623,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     viewModel.reloadPage();
                 } else {
                     Timber.i("Post edit unsuccessful");
-                    Toast.makeText(getBaseContext(), "Edit failed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Edit failed!", Toast.LENGTH_SHORT).show();
                     recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setAlpha(1);
                     recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setEnabled(true);
                 }
@@ -649,7 +649,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
             else {
                 Timber.w("Failed to send vote");
-                Toast.makeText(this, "Failed to send vote", Toast.LENGTH_LONG).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Failed to send vote", Toast.LENGTH_LONG).show();
             }
         });
         viewModel.setRemoveVoteTaskStartedListener(() -> progressBar.setVisibility(ProgressBar.VISIBLE));
@@ -661,7 +661,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             }
             else {
                 Timber.w("Failed to remove vote");
-                Toast.makeText(this, "Failed to remove vote", Toast.LENGTH_LONG).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Failed to remove vote", Toast.LENGTH_LONG).show();
             }
         });
         // observe the changes in data
@@ -770,7 +770,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 default:
                     //Parse failed - should never happen
                     Timber.wtf("Parse failed!");  //TODO report ParseException!!!
-                    Toast.makeText(getBaseContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Fatal Error", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
             }
@@ -824,7 +824,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
 
                 //Make a toast to inform the user that the url was copied
                 Toast.makeText(
-                        TopicActivity.this,
+                        BaseApplication.getInstance().getApplicationContext(),
                         TopicActivity.this.getString(R.string.link_copied_msg),
                         Toast.LENGTH_SHORT).show();
             }

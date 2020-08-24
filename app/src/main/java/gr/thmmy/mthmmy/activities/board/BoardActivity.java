@@ -28,6 +28,7 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.LoginActivity;
 import gr.thmmy.mthmmy.activities.create_content.CreateContentActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyPage;
@@ -77,7 +78,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         ThmmyPage.PageCategory target = ThmmyPage.resolvePageCategory(Uri.parse(boardUrl));
         if (!target.is(ThmmyPage.PageCategory.BOARD)) {
             Timber.e("Bundle came with a non board url!\nUrl:\n%s", boardUrl);
-            Toast.makeText(this, "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -321,7 +322,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         pStarter = topicColumns.get(3).text();
                         pStats = "Replies: " + topicColumns.get(4).text() + ", Views: " + topicColumns.get(5).text();
 
-                        pLastPost = topicColumns.last().text();
+                        pLastPost = topicColumns.get(6).text();
                         Matcher matcher = pLastPostPattern.matcher(pLastPost);
                         if (matcher.find()){
                             pLastPostDateTime = matcher.group(1);

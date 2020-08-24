@@ -17,6 +17,7 @@ import java.util.Calendar;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseActivity;
+import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
 
 public class UploadFieldsBuilderActivity extends BaseActivity {
@@ -76,7 +77,7 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
             courseGreeklishName = extras.getString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_GREEKLISH_NAME);
             semester = extras.getString(BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER);
             if (courseName == null || courseName.equals("") || semester == null || semester.equals("")) {
-                Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Something went wrong!", Toast.LENGTH_SHORT).show();
                 Timber.e("Bundle came empty in %s", UploadFieldsBuilderActivity.class.getSimpleName());
 
                 Intent returnIntent = new Intent();
@@ -119,13 +120,13 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
             int typeId = typeRadio.getCheckedRadioButtonId(),
                     semesterId = semesterRadio.getCheckedRadioButtonId();
             if (typeId == -1) {
-                Toast.makeText(view.getContext(), "Please choose a type for the upload", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please choose a type for the upload", Toast.LENGTH_SHORT).show();
                 return;
             } else if (semesterChooserLinear.getVisibility() == View.VISIBLE && semesterId == -1) {
-                Toast.makeText(view.getContext(), "Please choose a semester for the upload", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please choose a semester for the upload", Toast.LENGTH_SHORT).show();
                 return;
             } else if (year.getText().toString().isEmpty() || !isValidYear) {
-                Toast.makeText(view.getContext(), "Please choose a valid year for the upload", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please choose a valid year for the upload", Toast.LENGTH_SHORT).show();
                 return;
             }
 

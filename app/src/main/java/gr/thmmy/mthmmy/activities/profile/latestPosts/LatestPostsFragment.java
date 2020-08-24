@@ -5,9 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
-import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +25,6 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
@@ -34,7 +32,7 @@ import timber.log.Timber;
 /**
  * Use the {@link LatestPostsFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class LatestPostsFragment extends BaseFragment implements LatestPostsAdapter.OnLoadMoreListener {
+public class LatestPostsFragment extends BaseFragment {
     /**
      * The key to use when putting profile's url String to {@link LatestPostsFragment}'s Bundle.
      */
@@ -49,11 +47,12 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
     private int pagesLoaded = 0;
     private String profileUrl;
     private LatestPostsTask profileLatestPostsTask;
-    private MaterialProgressBar progressBar;
     private boolean isLoadingMore;
     private boolean userHasPosts = true;
     private static final int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
+
+    private OnLoadingListener onLoadingListener;
 
     public LatestPostsFragment() {
         // Required empty public constructor
@@ -86,18 +85,15 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_profile_latest_posts, container, false);
         latestPostsAdapter = new LatestPostsAdapter(this.getContext(), fragmentInteractionListener, parsedTopicSummaries);
-        RecyclerView mainContent = rootView.findViewById(R.id.profile_latest_posts_recycler);
-        mainContent.setAdapter(latestPostsAdapter);
+        RecyclerView recyclerView = rootView.findViewById(R.id.profile_latest_posts_recycler);
+        recyclerView.setAdapter(latestPostsAdapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        mainContent.setLayoutManager(layoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mainContent.getContext(),
-                layoutManager.getOrientation());
-        mainContent.addItemDecoration(dividerItemDecoration);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemViewCacheSize(15);
 
-        //latestPostsAdapter.setOnLoadMoreListener();
-        mainContent.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 totalItemCount = layoutManager.getItemCount();
                 lastVisibleItem = layoutManager.findLastVisibleItemPosition();
@@ -109,20 +105,15 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                 }
             }
         });
-        progressBar = rootView.findViewById(R.id.progressBar);
         return rootView;
     }
 
-    @Override
     public void onLoadMore() {
         if (pagesLoaded < numberOfPages) {
-            parsedTopicSummaries.add(null);
-            latestPostsAdapter.notifyItemInserted(parsedTopicSummaries.size() - 1);
-
             //Load data
             profileLatestPostsTask = new LatestPostsTask();
             profileLatestPostsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=showPosts;start=" + pagesLoaded * 15);
-            ++pagesLoaded;
+            pagesLoaded++;
         }
     }
 
@@ -147,6 +138,14 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
         void onLatestPostsFragmentInteraction(PostSummary postSummary);
     }
 
+    public interface OnLoadingListener {
+        void onLoadingLatestPosts(boolean loading);
+    }
+
+    public void setOnLoadingListener(OnLoadingListener onLoadingListener) {
+        this.onLoadingListener = onLoadingListener;
+    }
+
     /**
      * An {@link AsyncTask} that handles asynchronous fetching of a profile page and parsing this
      * user's latest posts.
@@ -154,8 +153,16 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
      * parameter!</p>
      */
     private class LatestPostsTask extends AsyncTask<String, Void, Boolean> {
+        private ArrayList<PostSummary> fetchedParsedTopicSummaries;
+
+        @Override
         protected void onPreExecute() {
-            if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
+            onLoadingListener.onLoadingLatestPosts(true);
+        }
+
+        public LatestPostsTask() {
+            super();
+            fetchedParsedTopicSummaries = new ArrayList<>();
         }
 
         protected Boolean doInBackground(String... profileUrl) {
@@ -175,11 +182,12 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
 
         protected void onPostExecute(Boolean result) {
             if (Boolean.FALSE.equals(result))
-                Timber.e(new ParseException("Parsing failed(latest posts)"),"ParseException");
-
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
-            latestPostsAdapter.notifyDataSetChanged();
+                Timber.e(new ParseException("Parsing failed (latest posts)"),"ParseException");   //TODO: This is inaccurate (e.g. can also have an I/O cause)
+            int prevSize = parsedTopicSummaries.size();
+            parsedTopicSummaries.addAll(fetchedParsedTopicSummaries);
+            latestPostsAdapter.notifyItemRangeInserted(prevSize, parsedTopicSummaries.size() - prevSize);
             isLoadingMore = false;
+            onLoadingListener.onLoadingLatestPosts(false);
         }
 
         //TODO: better parse error handling (ParseException etc.)
@@ -191,14 +199,10 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                 latestPostsRows = latestPostsPage.
                         select("td:has(table:Contains(Εμφάνιση μηνυμάτων)):not([style]) > table");
 
-            //Removes loading item
-            if (isLoadingMore)
-                parsedTopicSummaries.remove(parsedTopicSummaries.size() - 1);
-
             if (!latestPostsRows.select("td:contains(Sorry, no matches were found)").isEmpty() ||
                     !latestPostsRows.select("td:contains(Δυστυχώς δεν βρέθηκε τίποτα)").isEmpty()){
                 userHasPosts = false;
-                parsedTopicSummaries.add(null);
+                fetchedParsedTopicSummaries.add(null);
                 return true;
             }
 
@@ -219,15 +223,17 @@ public class LatestPostsFragment extends BaseFragment implements LatestPostsAdap
                     else {
                         pTopicTitle = rowHeader.first().text().replaceAll("\\u00a0","").trim();
                         pTopicUrl = rowHeader.first().select("a").last().attr("href");
-                        pDateTime = rowHeader.last().text();
+                        pDateTime = rowHeader.last().text().replaceAll("(on: )|(στις: )","");
                     }
                     pPost = ParseHelpers.youtubeEmbeddedFix(row.select("div.post").first());
 
                     //Add stuff to make it work in WebView
                     //style.css
-                    pPost = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + pPost);
+                    pPost = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />"
+                            + "<link rel=\"stylesheet\" type=\"text/css\" href=\"style_dark.css\" />"
+                            + pPost);
 
-                    parsedTopicSummaries.add(new PostSummary(pTopicUrl, pTopicTitle, pDateTime, pPost));
+                    fetchedParsedTopicSummaries.add(new PostSummary(pTopicUrl, pTopicTitle, pDateTime, pPost));
                 }
             }
             return true;

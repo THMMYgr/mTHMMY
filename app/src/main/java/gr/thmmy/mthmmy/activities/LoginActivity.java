@@ -105,7 +105,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Login failed", Toast.LENGTH_LONG).show();
         btnLogin.setEnabled(true);
     }
 
@@ -166,7 +166,7 @@ public class LoginActivity extends BaseActivity {
         protected void onPostExecute(Integer result) { //Handle attempt result
             switch (result) {
                 case SUCCESS: //Successful login
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(),
                             "Welcome, " + sessionManager.getUsername() + "!", Toast.LENGTH_LONG)
                             .show();
                     BaseApplication.getInstance().logFirebaseAnalyticsEvent(FirebaseAnalytics.Event.LOGIN, null);
@@ -180,30 +180,30 @@ public class LoginActivity extends BaseActivity {
                     overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
                     break;
                 case WRONG_USER:
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(),
                             "Wrong username!", Toast.LENGTH_LONG).show();
                     inputUsername.requestFocus();
                     break;
                 case WRONG_PASSWORD:
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(),
                             "Wrong password!", Toast.LENGTH_LONG).show();
                     inputPassword.requestFocus();
                     break;
                 case BANNED_USER:
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(),
                             "You are banned!", Toast.LENGTH_LONG).show();
                     inputPassword.requestFocus();
                     break;
                 case FAILURE:
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(),
                             "Login failed...", Toast.LENGTH_LONG).show();
                     break;
                 case CONNECTION_ERROR:
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(),
                             "Connection Error", Toast.LENGTH_LONG).show();
                     break;
                 case EXCEPTION:
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(),
                             "Error", Toast.LENGTH_LONG).show();
                     break;
 

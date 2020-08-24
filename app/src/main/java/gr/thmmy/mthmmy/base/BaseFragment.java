@@ -28,13 +28,11 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof FragmentInteractionListener) {
+        if (context instanceof FragmentInteractionListener)
             fragmentInteractionListener = (FragmentInteractionListener) context;
-
-        } else {
+        else
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
