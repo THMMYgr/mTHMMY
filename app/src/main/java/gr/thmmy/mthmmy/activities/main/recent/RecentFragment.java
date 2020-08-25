@@ -32,8 +32,6 @@ import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import gr.thmmy.mthmmy.views.CustomRecyclerView;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
-import timber.log.Timber;
-
 
 /**
  * A {@link BaseFragment} subclass.
@@ -86,9 +84,7 @@ public class RecentFragment extends BaseFragment {
             recentTask = new RecentTask(this::onRecentTaskStarted, this::onRecentTaskFinished);
             recentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.indexUrl.toString());
         }
-        Timber.d("onActivityCreated");
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

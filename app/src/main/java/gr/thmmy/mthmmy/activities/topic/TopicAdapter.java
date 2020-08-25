@@ -43,7 +43,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -113,7 +113,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.postFocusListener = context;
         this.emojiKeyboard = emojiKeyboard;
 
-        viewModel = ViewModelProviders.of(context).get(TopicViewModel.class);
+        viewModel = new ViewModelProvider(context).get(TopicViewModel.class);
     }
 
     @Override
@@ -137,7 +137,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             quickReplyText.setFocusableInTouchMode(true);
             quickReplyText.setOnFocusChangeListener((v, hasFocus) -> quickReplyText.post(() -> {
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(quickReplyText, InputMethodManager.SHOW_IMPLICIT);
+                if (imm != null)
+                    imm.showSoftInput(quickReplyText, InputMethodManager.SHOW_IMPLICIT);
             }));
             quickReplyText.requestFocus();
 
@@ -150,7 +151,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             editPostEdittext.setFocusableInTouchMode(true);
             editPostEdittext.setOnFocusChangeListener((v, hasFocus) -> editPostEdittext.post(() -> {
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(editPostEdittext, InputMethodManager.SHOW_IMPLICIT);
+                if (imm != null)
+                    imm.showSoftInput(editPostEdittext, InputMethodManager.SHOW_IMPLICIT);
             }));
             editPostEdittext.requestFocus();
 
@@ -215,12 +217,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 for (Poll.Entry entry : entries) {
                     CheckBox checkBox = new CheckBox(context);
                     checkBox.setMovementMethod(LinkMovementMethod.getInstance());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                         checkBox.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
-                    } else {
-                        //noinspection deprecation
+                    else
                         checkBox.setText(Html.fromHtml(entry.getEntryName()));
-                    }
                     checkBox.setTextColor(primaryTextColor);
                     holder.optionsLayout.addView(checkBox);
                 }
@@ -236,10 +236,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     radioButton.setMovementMethod(LinkMovementMethod.getInstance());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         radioButton.setText(Html.fromHtml(entries[i].getEntryName(), Html.FROM_HTML_MODE_LEGACY));
-                    } else {
-                        //noinspection deprecation
+                    } else
                         radioButton.setText(Html.fromHtml(entries[i].getEntryName()));
-                    }
+
                     radioButton.setText(ThmmyParser.html2span(context, entries[i].getEntryName()));
                     radioButton.setTextColor(primaryTextColor);
                     radioGroup.addView(radioButton);
@@ -255,12 +254,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     Poll.Entry entry = entries1[i];
                     TextView textView = new TextView(context);
                     textView.setMovementMethod(LinkMovementMethod.getInstance());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                         textView.setText(Html.fromHtml(entry.getEntryName(), Html.FROM_HTML_MODE_LEGACY));
-                    } else {
-                        //noinspection deprecation
+                    else
                         textView.setText(Html.fromHtml(entry.getEntryName()));
-                    }
+
                     textView.setTextColor(primaryTextColor);
                     if (poll.getSelectedEntryIndex() == i) {
                         // apply bold to the selected entry
@@ -363,7 +361,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.post.setClickable(true);
                 holder.post.setWebViewClient(new LinkLauncher());
 
-                //noinspection ConstantConditions
                 loadAvatar(currentPost.getThumbnailURL(), holder.thumbnail, holder.itemView.getContext());
 
                 //Sets username,submit date, index number, subject, post's and attached files texts
@@ -385,7 +382,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         int filesTextColor;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             filesTextColor = context.getResources().getColor(R.color.accent, null);
-                        } else //noinspection deprecation
+                        } else
                             filesTextColor = context.getResources().getColor(R.color.accent);
 
                         for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
@@ -408,7 +405,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         int lastEditTextColor;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             lastEditTextColor = context.getResources().getColor(R.color.white, null);
-                        } else //noinspection deprecation
+                        } else
                             lastEditTextColor = context.getResources().getColor(R.color.white);
 
                         final TextView lastEdit = new TextView(context);
@@ -492,7 +489,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.mention_card, null));
-                    } else //noinspection deprecation
+                    } else
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.mention_card));
                 } else if (mUserColor == TopicParser.USER_COLOR_PINK) {
@@ -500,7 +497,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.member_of_the_month_card, null));
-                    } else //noinspection deprecation
+                    } else
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.member_of_the_month_card));
                 } else holder.cardChildLinear.setBackground(null);
@@ -623,7 +620,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     popUp.showAsDropDown(holder.overflowButton);
                 });
 
-                //noinspection PointlessBooleanExpression,ConstantConditions
                 if (!BaseActivity.getSessionManager().isLoggedIn() || !viewModel.canReply())
                     holder.quoteToggle.setVisibility(View.GONE);
                 else {
@@ -644,7 +640,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 final QuickReplyViewHolder holder = (QuickReplyViewHolder) currentHolder;
                 Post reply = (Post) topicItems.get(position);
 
-                //noinspection ConstantConditions
                 loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail, holder.itemView.getContext());
 
                 holder.username.setText(getSessionManager().getUsername());
@@ -669,7 +664,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         return;
                     }
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    if (imm != null)
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
                     holder.itemView.setAlpha(0.5f);
                     holder.itemView.setEnabled(false);
                     emojiKeyboard.hide();
@@ -706,7 +703,6 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else if (currentHolder instanceof EditMessageViewHolder) {
                 final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 
-                //noinspection ConstantConditions
                 loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail,  holder.itemView.getContext());
 
                 holder.username.setText(getSessionManager().getUsername());
@@ -729,7 +725,9 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         return;
                     }
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    if (imm != null)
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
                     holder.itemView.setAlpha(0.5f);
                     holder.itemView.setEnabled(false);
                     emojiKeyboard.hide();
@@ -898,9 +896,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      * This class is used to handle link clicks in WebViews. When link url is one that the app can
      * handle internally, it does. Otherwise user is prompt to open the link in a browser.
      */
-    @SuppressWarnings("unchecked")
     private class LinkLauncher extends WebViewClient {
-        @SuppressWarnings("deprecation")
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             final Uri uri = Uri.parse(url);

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -128,7 +129,7 @@ public class BookmarksActivity extends BaseActivity {
      * it may be best to switch to a
      * {@link FragmentStatePagerAdapter}.
      */
-    private class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private static class SectionsPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> fragmentList = new ArrayList<>();
         private final List<String> fragmentTitleList = new ArrayList<>();
 
@@ -142,6 +143,7 @@ public class BookmarksActivity extends BaseActivity {
             notifyDataSetChanged();
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int position) {
             return fragmentList.get(position);
@@ -158,8 +160,7 @@ public class BookmarksActivity extends BaseActivity {
         }
 
         @Override
-        public int getItemPosition(Object object) {
-            @SuppressWarnings("RedundantCast")
+        public int getItemPosition(@NonNull Object object) {
             int position = fragmentList.indexOf((Fragment) object);
             return position == -1 ? POSITION_NONE : position;
         }

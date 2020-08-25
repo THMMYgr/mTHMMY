@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -142,7 +143,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         mainContent.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 totalItemCount = layoutManager.getItemCount();
                 lastVisibleItem = layoutManager.findLastVisibleItemPosition();

@@ -21,6 +21,7 @@ import org.jsoup.select.Elements;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
@@ -68,7 +69,7 @@ public class SummaryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        profileSummaryDocument = Jsoup.parse(requireArguments().getString(PROFILE_DOCUMENT));
+        profileSummaryDocument = Jsoup.parse(Objects.requireNonNull(requireArguments().getString(PROFILE_DOCUMENT)));
         parsedProfileSummaryData = new LinkedHashMap<>();
     }
 

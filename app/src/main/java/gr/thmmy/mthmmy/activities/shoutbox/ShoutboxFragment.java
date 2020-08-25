@@ -56,6 +56,7 @@ public class ShoutboxFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemViewCacheSize(25);
         recyclerView.setOnTouchListener((view, motionEvent) -> {
             editorView.hideMarkdown();
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -82,7 +83,7 @@ public class ShoutboxFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.shoutbox_menu, menu);
     }
 
@@ -100,7 +101,7 @@ public class ShoutboxFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         shoutboxViewModel = ViewModelProviders.of(getActivity()).get(ShoutboxViewModel.class);
-        shoutboxViewModel.getShoutboxMutableLiveData().observe(this, shoutbox -> {
+        shoutboxViewModel.getShoutboxMutableLiveData().observe(getViewLifecycleOwner(), shoutbox -> {
             if (shoutbox != null) {
                 Timber.i("Shoutbox loaded successfully");
                 shoutAdapter.setShouts(shoutbox.getShouts());

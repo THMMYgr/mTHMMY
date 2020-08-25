@@ -61,10 +61,9 @@
     <string name="button_page">Page</string>
     <string name="button_next">next</string>
     <string name="button_last">last</string>
-    <string name="quick_reply">Quick reply&#8230;</string>
-    <string name="subject">Subject&#8230;</string>
+    <string name="subject">Subject</string>
+    <string name="message">Message</string>
     <string name="submit">Submit</string>
-    <string name="post_message">Message&#8230;</string>
     <string name="network_error_retry_prompt">Could not connect to thmmy.gr\n\nTap to retry</string>
     <string name="generic_network_error">Network error</string>
     <string name="retry">retry</string>

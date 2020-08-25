@@ -2,6 +2,8 @@ package gr.thmmy.mthmmy.utils.crashreporting;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import timber.log.Timber.DebugTree;
@@ -14,7 +16,7 @@ public class CrashReportingTree extends DebugTree {
     }
 
     @Override
-    protected void log(int priority, String tag, String message, Throwable t) {
+    protected void log(int priority, String tag, @NonNull String message, Throwable t) {
         if (priority == Log.VERBOSE || priority == Log.DEBUG) {
             return;
         }
