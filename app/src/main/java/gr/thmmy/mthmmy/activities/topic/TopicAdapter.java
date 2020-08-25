@@ -696,43 +696,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 holder.replyEditor.setText(replyText);
                 holder.replyEditor.getEditText().setSelection(holder.replyEditor.getText().length());
-                holder.replyEditor.getEditText().addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        ((Post) topicItems.get(holder.getAdapterPosition())).setBbContent(charSequence.toString());
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-
-                    }
-                });
+                holder.replyEditor.getEditText().addTextChangedListener(createTextWatcher(holder));
 
                 if (backPressHidden) {
                     holder.replyEditor.requestEditTextFocus();
                     backPressHidden = false;
                 }
-                holder.quickReplySubject.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        ((Post) topicItems.get(holder.getAdapterPosition())).setSubject(charSequence.toString());
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-
-                    }
-                });
+                holder.quickReplySubject.addTextChangedListener(createTextWatcher(holder));
             } else if (currentHolder instanceof EditMessageViewHolder) {
                 final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 
@@ -767,44 +737,32 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editEditor.getText().toString());
                 });
 
-                holder.editSubject.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                holder.editSubject.addTextChangedListener(createTextWatcher(holder));
+                holder.editEditor.getEditText().addTextChangedListener(createTextWatcher(holder));
 
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        ((Post) topicItems.get(holder.getAdapterPosition())).setSubject(charSequence.toString());
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-
-                    }
-                });
-                holder.editEditor.getEditText().addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        ((Post) topicItems.get(holder.getAdapterPosition())).setBbContent(charSequence.toString());
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-
-                    }
-                });
                 if (backPressHidden) {
                     holder.editEditor.requestEditTextFocus();
                     backPressHidden = false;
                 }
             }
         }
+    }
+
+    private TextWatcher createTextWatcher(@NonNull final RecyclerView.ViewHolder holder){
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                int position = holder.getAdapterPosition();
+                if (position >= 0 && position < topicItems.size())
+                    ((Post) topicItems.get(position)).setBbContent(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) { }
+        };
     }
 
     private void loadAvatar(String imageUrl, ImageView imageView, Context context) {

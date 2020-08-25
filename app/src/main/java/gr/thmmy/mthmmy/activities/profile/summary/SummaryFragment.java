@@ -21,7 +21,6 @@ import org.jsoup.select.Elements;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
