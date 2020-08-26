@@ -154,14 +154,15 @@ public class ParseHelpers {
                     fixed.substring(fixed.indexOf("<embed"), fixed.indexOf("/noembed>") + 9)
                     , "<div class=\"yt\">"
                             + "<a href=\"https://www.youtube.com/watch?v="
-                            + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
-                            + "<img class=\"embedded-video-play\" "
-                            + "src=\"YouTube_light_color_icon.png\">"
-                            + "</a>"
-                            + "<img src=\"https://img.youtube.com/vi/"
                             + embededVideosUrls.get(tmp_counter)
-                            + "/default.jpg\" alt=\"\" border=\"0\" width=\"40%\">"
-                            + "</div>");
+                            + "\" target=\"_blank\">"
+                            + "<img class=\"embedded-video-play\" "
+                            + "src=\"YouTube_light_color_icon.png\" "
+                            + "style=\"background-image: url('"
+                            + "https://img.youtube.com/vi/"
+                            + embededVideosUrls.get(tmp_counter)
+                            + "/default.jpg');\"></a></div>"
+                    );
             ++tmp_counter;
         }
         return fixed;

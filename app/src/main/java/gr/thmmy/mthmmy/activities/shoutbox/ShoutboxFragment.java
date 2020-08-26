@@ -60,7 +60,8 @@ public class ShoutboxFragment extends Fragment {
         recyclerView.setOnTouchListener((view, motionEvent) -> {
             editorView.hideMarkdown();
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(editorView.getWindowToken(), 0);
+            if (imm != null)
+                imm.hideSoftInputFromWindow(editorView.getWindowToken(), 0);
             return false;
         });
 

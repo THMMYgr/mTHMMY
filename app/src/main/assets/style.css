@@ -1,24 +1,26 @@
 /* TP specific classes */
-.sitemap{
+
+.sitemap {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
-.sitemap_topheader{
+
+.sitemap_topheader {
 	background: #ECEDF3;
 	border-bottom: solid 1px #ffffff;
 	padding: 4px;
 }
 
-.sitemap_header{
+.sitemap_header {
 	background: #ECEDF3;
 	border-bottom: solid 1px #ffffff;
 	padding: 4px;
 	display: block;
 	font-weight: bold;
- }
+}
 
-.sitemap_header_active{
+.sitemap_header_active {
 	background: #C8D6E1;
 	border-bottom: solid 1px #ffffff;
 	padding: 4px;
@@ -26,7 +28,8 @@
 	font-weight: bold;
 }
 
-.sitemap_header:hover , .sitemap_header_active:hover{
+.sitemap_header:hover,
+.sitemap_header_active:hover {
 	background: #DBE4ED;
 	border-bottom: solid 1px #ffffff;
 	padding: 4px;
@@ -34,129 +37,149 @@
 	text-decoration: none;
 }
 
+
 /* TP other styles */
-ul#articlelist
-{
+
+ul#articlelist {
 	margin: 0;
 	padding: 0.5ex 0;
 	list-style: none;
 }
-ul#catlist
-{
+
+ul#catlist {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 	border-top: solid 1px #d0d0d0;
 }
 
-ul#articlelist li
-{
+ul#articlelist li {
 	margin: 0;
 	display: block;
 	padding: 0 0 0 3ex;
 	background: url(images/divider.gif) no-repeat 5px 3px;
 }
-ul#catlist li
-{
+
+ul#catlist li {
 	display: block;
 	padding: 0 0 0 3ex;
 	margin: 0;
 }
 
+
 /* Normal, standard links. */
-a:link, a:visited
-{
+
+a:link,
+a:visited {
 	color: #26A69A;
 	text-decoration: none;
 }
-a:hover
-{
+
+a:hover {
 	text-decoration: underline;
 }
 
+
 /* Navigation links - for the link tree. */
-.nav, .nav:link, .nav:visited
-{
+
+.nav,
+.nav:link,
+.nav:visited {
 	color: #000000;
 	text-decoration: none;
 }
-a.nav:hover
-{
+
+a.nav:hover {
 	color: #cc3333;
 }
 
+
 /* Tables should show empty cells. */
-table
-{
+
+table {
 	empty-cells: show;
 }
+
+
 /* The main body of the entire forum. */
-body
-{
+
+body {
 	background: #3C3F41;
 	margin: 0;
 	padding: 0;
 }
+
+
 /* By default (td, body..) use verdana in black. */
-body, td, th , tr
-{
+
+body,
+td,
+th,
+tr {
 	color: #FFFFFF;
 	font-size: small;
 	font-family: Trebuchet, sans-serif;
 }
 
 
-
 /* Input boxes - just a bit smaller than normal so they align well. */
-input, textarea, button
-{
+
+input,
+textarea,
+button {
 	color: #FFFFFF;
 	font-family: Trebuchet, sans-serif;
 	border: 1px solid #aaa;
 }
-input, button
-{
+
+input,
+button {
 	font-size: 90%;
 }
 
-textarea
-{
+textarea {
 	font-size: 100%;
 	color: #FFFFFF;
 	font-family: Trebuchet, sans-serif;
 }
 
+
 /* All input elements that are checkboxes or radio buttons. */
-input.check
-{
-}
+
+input.check {}
+
 
 /* Selects are a bit smaller, because it makes them look even better 8). */
-select
-{
+
+select {
 	font-size: 90%;
 	font-weight: normal;
 	color: #FFFFFF;
 	font-family: Trebuchet, sans-serif;
 }
 
+
 /* Standard horizontal rule.. ([hr], etc.) */
-hr, .hrcolor
-{
+
+hr,
+.hrcolor {
 	height: 1px;
 	border: 0;
 	color: #666666;
 	background-color: #666666;
 }
 
+
 /* No image should have a border when linked */
-a img
-{
+
+a img {
 	border: 0;
 }
+
+
 /* A quote, perhaps from another post. */
-.quote
-{
+
+.quote {
 	font-family: tahoma, sans-serif;
 	color: #FFFFFF;
 	background-color: #404D50;
@@ -167,9 +190,10 @@ a img
 	line-height: 1.4em;
 }
 
+
 /* A code block - maybe even PHP ;). */
-.code
-{
+
+.code {
 	color: #FFFFFF;
 	background-color: #626566;
 	font-family: "Comic Sans MS", "times new roman", monospace;
@@ -187,9 +211,11 @@ a img
 	max-height: 24em;
 }
 
+
 /* The "Quote:" and "Code:" header parts... */
-.quoteheader, .codeheader
-{
+
+.quoteheader,
+.codeheader {
 	font-family: tahoma, sans-serif;
 	color: #26A69A;
 	text-decoration: none;
@@ -199,156 +225,185 @@ a img
 	line-height: 1.2em;
 }
 
+
 /* Generally, those [?] icons.  This makes your cursor a help icon. */
-.help
-{
+
+.help {
 	cursor: help;
 }
 
+
 /* /me uses this a lot. (emote, try typing /me in a post.) */
-.meaction
-{
+
+.meaction {
 	color: red;
 }
 
+
 /* The main post box - this makes it as wide as possible. */
-.editor
-{
+
+.editor {
 	width: 96%;
 }
 
+
 /* Highlighted text - such as search results. */
-.highlight
-{
+
+.highlight {
 	background-color: yellow;
 	font-weight: bold;
 	color: black;
 }
 
+
 /* Alternating backgrounds for posts, and several other sections of the forum. */
-.windowbg
-{
+
+.windowbg {
 	color: #FFFFFF;
 	background-color: #E3E6E1;
 }
-.windowbg2
-{
+
+.windowbg2 {
 	color: #FFFFFF;
 	background-color: #F2F5F0;
 }
-.windowbg3
-{
+
+.windowbg3 {
 	color: #FFFFFF;
 	background-color: #E1E8E0;
 }
+
+
 /* the today container in calendar */
-.calendar_today
-{
+
+.calendar_today {
 	background-color: #FFFFFF;
 }
 
+
 /* These are used primarily for titles, but also for headers (the row that says what everything in the table is.) */
-.titlebg, tr.titlebg th, tr.titlebg td, .titlebg2, tr.titlebg2 th, tr.titlebg2 td
-{
+
+.titlebg,
+tr.titlebg th,
+tr.titlebg td,
+.titlebg2,
+tr.titlebg2 th,
+tr.titlebg2 td {
 	background-color: #A3A392;
 	padding-top: 10px;
 }
-.titlebg, tr.titlebg th, tr.titlebg td, .titlebg a:link, .titlebg a:visited, .titlebg2, tr.titlebg2 th, tr.titlebg2 td, .titlebg2 a:link, .titlebg2 a:visited
-{
+
+.titlebg,
+tr.titlebg th,
+tr.titlebg td,
+.titlebg a:link,
+.titlebg a:visited,
+.titlebg2,
+tr.titlebg2 th,
+tr.titlebg2 td,
+.titlebg2 a:link,
+.titlebg2 a:visited {
 	color: white;
 	font-style: normal;
 }
-.titlebg a:hover
-{
+
+.titlebg a:hover {
 	color: #dfdfdf;
 }
 
-.catbg, .catbg2, .catbg3
-{
+.catbg,
+.catbg2,
+.catbg3 {
 	font-weight: bold;
 	background-color: #e4e2e0;
 	color: #FFFFFF;
 }
+
+
 /* This is used for tables that have a grid/border background color (such as the topic listing.) */
-.bordercolor
-{
+
+.bordercolor {
 	background-color: white;
 }
 
+
 /* This is used on tables that should just have a border around them. */
-.tborder
-{
+
+.tborder {
 	background-color: #FFFFFF;
 }
 
+
 /* Default font sizes: small (8pt), normal (10pt), and large (14pt). */
-.smalltext
-{
+
+.smalltext {
 	font-size: x-small;
 	font-family: tahoma, sans-serif;
 }
-.middletext
-{
+
+.middletext {
 	font-size: 90%;
 }
-.normaltext
-{
+
+.normaltext {
 	font-size: small;
 }
-.largetext
-{
+
+.largetext {
 	font-size: large;
 }
 
 
 /* Posts and personal messages displayed throughout the forum. */
-.post, .personalmessage
-{
+
+.post,
+.personalmessage {
 	width: 100%;
 	overflow: auto;
 	line-height: 1.3em;
 	color: white;
-    background: #3C3F41 !important;
+	background: #3C3F41 !important;
 }
 
+
 /* All the signatures used in the forum.  If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
-.signature
-{
+
+.signature {
 	width: 100%;
 	overflow: auto;
 	padding-bottom: 3px;
 	line-height: 1.3em;
 }
 
-#left
-{
+#left {
 	background: url(images/img2/leftbg.jpg) repeat-y white;
 	margin: auto;
 }
-#right
-{
+
+#right {
 	background: url(images/img2/rightbg.gif) repeat-y top right;
 }
-#top
-{
+
+#top {
 	background: url(images/img2/top.jpg) repeat-x;
 }
-#topleft
-{
+
+#topleft {
 	background: url(images/img2/lefttop.jpg) no-repeat;
 }
-#topright
-{
+
+#topright {
 	background: url(images/img2/logo.jpg) no-repeat top right;
 }
-#main
-{
+
+#main {
 	padding: 100px 81px 20px 81px;
 }
+
+
 /* #################### */
 
-ul#menubox
-{
+ul#menubox {
 	padding: 0 0 44px 0;
 	margin: 0;
 	list-style: none;
@@ -358,16 +413,15 @@ ul#menubox
 	background: url(images/img2/leftbot.gif) no-repeat bottom left;
 }
 
-ul#menubox li
-{
+ul#menubox li {
 	padding: 0 0 0 8px;
 	width: 65px;
 	height: 44px;
 	margin: 0;
 	background: url(images/img2/left.gif) repeat-y;
 }
-ul#menubox li a
-{
+
+ul#menubox li a {
 	font-family: "Comic Sans MS", serif;
 	display: block;
 	color: black;
@@ -375,74 +429,75 @@ ul#menubox li a
 	height: 42px;
 	padding: 0 0 0 6px;
 }
-ul#menubox li a span
-{
+
+ul#menubox li a span {
 	display: none;
 }
 
-ul#menubox li.m1
-{
+ul#menubox li.m1 {
 	padding-left: 2px;
 }
-ul#menubox li.m2
-{
+
+ul#menubox li.m2 {
 	padding-left: 6px;
 }
-ul#menubox li.m3
-{
+
+ul#menubox li.m3 {
 	padding-left: 10px;
 }
-ul#menubox li.m4
-{
+
+ul#menubox li.m4 {
 	padding-left: 14px;
 }
-ul#menubox li.m5
-{
+
+ul#menubox li.m5 {
 	padding-left: 18px;
 }
 
-
-#myuser
-{
+#myuser {
 	font-size: small;
 	padding-bottom: 1em;
 }
-#ava
-{
+
+#ava {
 	float: right;
 	margin-right: 10px;
 	text-align: right;
 	font-family: "Comic Sans MS", sans-serif;
 }
-#bodyarea
-{
+
+#bodyarea {
 	border-bottom: solid 1px #ddd;
 	margin-bottom: 1em;
 	padding-bottom: 1em;
 }
-.clearfix:after
-{
-	 content: ".";
-	 display: block;
-	 height: 0;
-	 clear: both;
-	 visibility: hidden;
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
 }
 
-.clearfix
-{
+.clearfix {
 	display: inline-block;
 }
 
+
 /* Hides from IE-mac \*/
-* html .clearfix , * html .catbg, * html .catbg2, * html .catbg3
-{
+
+* html .clearfix,
+* html .catbg,
+* html .catbg2,
+* html .catbg3 {
 	height: 1%;
 }
+
+
 /* End hide from IE-mac */
 
-ul#topmenu
-{
+ul#topmenu {
 	position: absolute;
 	top: 45px;
 	margin: 0 195px 0 40px;
@@ -452,12 +507,12 @@ ul#topmenu
 	font-size: 11px;
 	border-bottom: groove 2px #EDF4ED;
 }
-ul#topmenu li
-{
+
+ul#topmenu li {
 	float: left;
 }
-ul#topmenu li a
-{
+
+ul#topmenu li a {
 	display: block;
 	padding: 2px 5px 2px 5px;
 	border-style: solid solid;
@@ -466,31 +521,31 @@ ul#topmenu li a
 	font-size: 11px;
 	color: #004080;
 }
-ul#topmenu li a:hover
-{
+
+ul#topmenu li a:hover {
 	background: #E3E6E1;
 	text-decoration: none;
 	color: #E78E13;
 }
-#pages
-{
+
+#pages {
 	padding-top: 1em;
 }
-#uppersection
-{
+
+#uppersection {
 	padding: 1em;
 	background: url(images/img/upper.jpg) repeat-x;
 }
-.errorbar
-{
+
+.errorbar {
 	color: white;
 	font-size: xx-small;
 	text-align: center;
 	padding: 3px;
 	border-bottom: solid 1px black;
 }
-#errorpanel
-{
+
+#errorpanel {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -498,51 +553,46 @@ ul#topmenu li a:hover
 	width: 100%;
 }
 
+
 /* Additions */
-img
-{
-    max-width:100% !important;
-    height:auto !important;
+
+img {
+	max-width: 100% !important;
+	height: auto !important;
 }
 
 .yt {
-    position: relative;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .embedded-video-play {
-    position: absolute;
-    top: 22%;
-    left: 10%;
-    width: 20%;
-    opacity: 0.7;
-    z-index: 2;
+	width: 25%;
+	padding: 15%;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 100% auto;
 }
 
-.customSignature{
-    background: #3C3F41;
+.customSignature {
+	background: #3C3F41;
 }
 
-[style="color: blue;"]
-{
-  color: #3452fe !important;
+[style="color: blue;"] {
+	color: #3452fe !important;
 }
 
-[style="color: purple;"]
-{
-  color: #a511a5 !important;
+[style="color: purple;"] {
+	color: #a511a5 !important;
 }
 
-[style="color: maroon;"]
-{
-  color: #a51111 !important;
+[style="color: maroon;"] {
+	color: #a51111 !important;
 }
 
-span[style="background-color: yellow;"]
-{
-  color: black !important;
+span[style="background-color: yellow;"] {
+	color: black !important;
 }
 
-[style="color: white;"] > span[style="background-color: yellow;"]
-{
-  color: white !important;
+[style="color: white;"]>span[style="background-color: yellow;"] {
+	color: white !important;
 }
