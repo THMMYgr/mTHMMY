@@ -375,11 +375,13 @@ public class EditorView extends LinearLayout implements EmojiInputField {
             if (emojiKeyboard.onEmojiButtonToggle()) {
                 //prevent system keyboard from appearing when clicking the edittext
                 editText.setTextIsSelectable(true);
-                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+                if (imm != null)
+                    imm.hideSoftInputFromWindow(getWindowToken(), 0);
             }
             else {
                 editText.requestFocus();
-                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                if (imm != null)
+                    imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
             }
             editText.setSelection(selectionStart, selectionEnd);
         });
@@ -398,10 +400,12 @@ public class EditorView extends LinearLayout implements EmojiInputField {
         editText.setOnClickListener(view -> {
             if (!emojiKeyboard.isVisible()) {
                 InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                if (imm != null)
+                    imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
             } else {
                 InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+                if (imm != null)
+                    imm.hideSoftInputFromWindow(getWindowToken(), 0);
                 requestEditTextFocus();
             }
             showMarkdown();

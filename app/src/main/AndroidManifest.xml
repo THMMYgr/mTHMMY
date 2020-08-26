@@ -150,6 +150,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.main.MainActivity" />
         </activity>
+        <activity
+            android:name=".activities.shoutbox.ShoutboxActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".activities.main.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.main.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.create_content.CreateContentActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".activities.main.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -176,20 +190,5 @@
                 <action android:name="gr.thmmy.mthmmy.uploadservice.broadcast.status" />
             </intent-filter>
         </receiver>
-
-        <activity
-            android:name=".activities.create_content.CreateContentActivity"
-            android:configChanges="orientation|screenSize"
-            android:parentActivityName=".activities.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activities.shoutbox.ShoutboxActivity"
-            android:parentActivityName=".activities.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.main.MainActivity" />
-        </activity>
     </application>
-
 </manifest>

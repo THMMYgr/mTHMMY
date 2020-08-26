@@ -15,8 +15,8 @@ android {
         applicationId "gr.thmmy.mthmmy"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 26
-        versionName "1.8.3"
+        versionCode 27
+        versionName "1.8.4"
         archivesBaseName = "mTHMMY-v$versionName"
         buildConfigField "String", "CURRENT_BRANCH", "\"" + getCurrentBranch() + "\""
         buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
@@ -78,7 +78,7 @@ tasks.whenTaskAdded { task ->
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(":emojis")
-    implementation 'androidx.appcompat:appcompat:1.3.0-alpha01'
+    implementation 'androidx.appcompat:appcompat:1.3.0-alpha02'
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

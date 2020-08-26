@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -142,7 +143,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         mainContent.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 totalItemCount = layoutManager.getItemCount();
                 lastVisibleItem = layoutManager.findLastVisibleItemPosition();
@@ -189,7 +190,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
      * parameter!</p>
      */
     private class BoardTask extends ParseTask {
-        ArrayList<Board> tempSubboards = new ArrayList<>();
+        ArrayList<Board> tempSubBoards = new ArrayList<>();
         ArrayList<Topic> tempTopics = new ArrayList<>();
 
         @Override
@@ -200,7 +201,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
         @Override   //TODO should throw ParseException
         public void parse(Document boardPage) throws ParseException {
-            tempSubboards.addAll(parsedSubBoards);
+            tempSubBoards.addAll(parsedSubBoards);
             tempTopics.addAll(parsedTopics);
             //Removes loading item
             if (isLoadingMore && tempTopics.size() > 0)
@@ -292,7 +293,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                 }
                             }
                             if(!parsingFailed)
-                                tempSubboards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
+                                tempSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
                             else
                                 Timber.e("Parsing failed (pLastPost came with: \"%s\", subBoardColumns html was \"%s\")", pLastPost, subBoardColumns);
                         }
@@ -333,7 +334,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             continue;
                         }
 
-                        pLastPostUrl = topicColumns.last().select("a:has(img)").first().attr("href");
+                        pLastPostUrl = topicColumns.get(6).select("a:has(img)").first().attr("href");
                         tempTopics.add(new Topic(pTopicUrl, pSubject, pStarter, pLastUser, pLastPostDateTime, pLastPostUrl,
                                 pStats, pLocked, pSticky, pUnread));
                     }
@@ -356,7 +357,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                 parsedTopics.clear();
                 parsedSubBoards.clear();
                 parsedTopics.addAll(tempTopics);
-                parsedSubBoards.addAll(tempSubboards);
+                parsedSubBoards.addAll(tempSubBoards);
                 boardAdapter.notifyDataSetChanged();
 
                 //Parse was successful

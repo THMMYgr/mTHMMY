@@ -128,6 +128,8 @@ public class ParseHelpers {
         }
     }
 
+    public static final String VIDEO_ID_PARAMETER = "videoId";
+
     /**
      * This method fixes html so that embedded videos will render properly and be lightweight.
      *
@@ -146,23 +148,28 @@ public class ParseHelpers {
         }
 
         String fixed = html.outerHtml();
-        int tmp_counter = 0;
+        int counter = 0;
         while (fixed.contains("<embed")) {
-            if (tmp_counter > embededVideosUrls.size())
+            if (counter > embededVideosUrls.size())
                 break;
+            final String videoId = embededVideosUrls.get(counter);
             fixed = fixed.replace(
                     fixed.substring(fixed.indexOf("<embed"), fixed.indexOf("/noembed>") + 9)
                     , "<div class=\"yt\">"
                             + "<a href=\"https://www.youtube.com/watch?v="
-                            + embededVideosUrls.get(tmp_counter) + "\" target=\"_blank\">"
+                            + videoId
+                            + "\" target=\"_blank\">"
                             + "<img class=\"embedded-video-play\" "
-                            + "src=\"YouTube_light_color_icon.png\">"
-                            + "</a>"
-                            + "<img src=\"https://img.youtube.com/vi/"
-                            + embededVideosUrls.get(tmp_counter)
-                            + "/default.jpg\" alt=\"\" border=\"0\" width=\"40%\">"
-                            + "</div>");
-            ++tmp_counter;
+                            + "src=\"YouTube_light_color_icon.png?"
+                            + VIDEO_ID_PARAMETER
+                            + "="
+                            + videoId          // To grab it in ReactiveWebView
+                            + "\" style=\"background-image: url('"
+                            + "https://img.youtube.com/vi/"
+                            + videoId
+                            + "/default.jpg');\"></a></div>"
+                    );
+            ++counter;
         }
         return fixed;
     }

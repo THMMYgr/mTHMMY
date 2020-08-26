@@ -19,7 +19,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 import gr.thmmy.mthmmy.R;
@@ -35,10 +36,10 @@ public class SummaryFragment extends Fragment {
      */
     private static final String PROFILE_DOCUMENT = "PROFILE_DOCUMENT";
     /**
-     * {@link ArrayList} of Strings used to hold profile's information. Data are added in
+     * {@link HashMap} used to hold profile's information. Data are added in
      * {@link SummaryTask}.
      */
-    private ArrayList<String> parsedProfileSummaryData;
+    private LinkedHashMap<String, String> parsedProfileSummaryData;
     /**
      * A {@link Document} holding this profile's source code.
      */
@@ -68,8 +69,8 @@ public class SummaryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        profileSummaryDocument = Jsoup.parse(requireArguments().getString(PROFILE_DOCUMENT));
-        parsedProfileSummaryData = new ArrayList<>();
+        profileSummaryDocument = Jsoup.parse(Objects.requireNonNull(requireArguments().getString(PROFILE_DOCUMENT)));
+        parsedProfileSummaryData = new LinkedHashMap<>();
     }
 
     @Override
@@ -123,36 +124,42 @@ public class SummaryFragment extends Fragment {
          * @return ArrayList containing this profile's parsed information
          * @see org.jsoup.Jsoup Jsoup
          */
-        ArrayList<String> parseProfileSummary(Document profile) {
-            //Method's variables
-            ArrayList<String> parsedInformation = new ArrayList<>();
+        LinkedHashMap<String, String> parseProfileSummary(Document profile) {
+            LinkedHashMap<String, String> parsedInformation  = new LinkedHashMap<>();
 
             //Contains all summary's rows
-            Elements summaryRows = profile.select(".bordercolor > tbody:nth-child(1) > tr:nth-child(2) tr");
+            Elements summaryRows = profile.select("td.windowbg > table > tbody > tr");
 
             for (Element summaryRow : summaryRows) {
-                String rowText = summaryRow.text(), pHtml = "";
+                String key, value;
 
-                if (summaryRow.select("td").size() == 1) //Horizontal rule rows
-                    pHtml = "";
-                else if (summaryRow.text().contains("Current Status")
-                        || summaryRow.text().contains("Κατάσταση")) continue;
-                else if (rowText.contains("Signature") || rowText.contains("Υπογραφή")) {
-                    //This needs special handling since it may have css
-                    pHtml = ParseHelpers.emojiTagToHtml(ParseHelpers.youtubeEmbeddedFix(summaryRow));
-                    //Add stuff to make it work in WebView
-                    //style.css
-                    pHtml = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +
-                            "<link rel=\"stylesheet\" type=\"text/css\" href=\"style_light.css\" />\n" +
-                            "<div class=\"customSignature\">\n" + pHtml + "\n</div>");
-                } else if (!rowText.contains("Name") && !rowText.contains("Όνομα")) { //Doesn't add username twice
-                    if (Objects.equals(summaryRow.select("td").get(1).text(), ""))
+                int tdSize = summaryRow.select("td").size();
+
+                if (tdSize > 1){
+                    key = summaryRow.select("td").first().text().trim();
+
+                    if (key.startsWith("Name") || key.startsWith("Όνομα"))
                         continue;
-                    //Style parsed information with html
-                    pHtml = "<b>" + summaryRow.select("td").first().text() + "</b> "
-                            + summaryRow.select("td").get(1).text();
+                    else if (key.startsWith("Signature") || key.startsWith("Υπογραφή")){
+                        key = summaryRow.selectFirst("td > table > tbody > tr > td").text().trim();
+                        summaryRow.selectFirst("td > table > tbody > tr").remove(); //key not needed, outer html needed for CSS
+                        value = ParseHelpers.emojiTagToHtml(ParseHelpers.youtubeEmbeddedFix(summaryRow));   // Is emojiTagToHtml() really needed here?
+                        if(summaryRow.text().trim().isEmpty())
+                            continue;
+                        value = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +
+                                "<link rel=\"stylesheet\" type=\"text/css\" href=\"style_light.css\" />\n" +
+                                "<div class=\"customSignature\">\n" + value + "\n</div>");
+                    }
+                    else {
+                        if (summaryRow.select("td").get(1).text().isEmpty())
+                            continue;
+                        if (key.startsWith("Date Registered") || key.startsWith("Ημερομηνία εγγραφής") || key.startsWith("Last Active") || key.startsWith("Τελευταία σύνδεση"))
+                            value = summaryRow.select("td").get(1).text().trim();
+                        else
+                            value = summaryRow.select("td").get(1).html().trim();
+                    }
+                    parsedInformation.put(key, value);
                 }
-                parsedInformation.add(pHtml);
             }
             return parsedInformation;
         }
@@ -165,38 +172,54 @@ public class SummaryFragment extends Fragment {
      * {@link #parsedProfileSummaryData}</p>
      */
     private void populateLayout() {
-        for (String profileSummaryRow : parsedProfileSummaryData) {
-            if (profileSummaryRow.contains("Signature")
-                    || profileSummaryRow.contains("Υπογραφή")) { //This may contain css
-                ReactiveWebView signatureEntry = new ReactiveWebView(this.getContext());
-                signatureEntry.setBackgroundColor(Color.argb(1, 255, 255, 255));
-                signatureEntry.loadDataWithBaseURL("file:///android_asset/", profileSummaryRow,
-                        "text/html", "UTF-8", null);
-                mainContent.addView(signatureEntry);
+        for (LinkedHashMap.Entry<String, String> entry : parsedProfileSummaryData.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            if (key.startsWith("Current Status") || key.startsWith("Κατάσταση")){
+                addEmptyView();
                 continue;
             }
-            TextView entry = new TextView(this.getContext());
 
-            if (profileSummaryRow.contains("@") &&
-                    (profileSummaryRow.contains("Email") || profileSummaryRow.contains("E-mail"))) {
-                String email = profileSummaryRow.substring(profileSummaryRow.indexOf(":</b> ") + 6);
-                profileSummaryRow = profileSummaryRow.replace(email,
-                        "<a href=\"mailto:" + email + "\">" + email + "</a>");
-                entry.setMovementMethod(LinkMovementMethod.getInstance());
-            }
+            TextView textView = new TextView(this.getContext());
+
+            if (((key.startsWith("Email") || key.startsWith("E-mail"))
+                    && value.contains("@")) || key.startsWith("Website") || key.startsWith("Ιστοτόπος"))
+                textView.setMovementMethod(LinkMovementMethod.getInstance());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                entry.setTextColor(getResources().getColor(R.color.primary_text, null));
+                textView.setTextColor(getResources().getColor(R.color.primary_text, null));
             else
-                entry.setTextColor(getResources().getColor(R.color.primary_text));
+                textView.setTextColor(getResources().getColor(R.color.primary_text));
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                entry.setText(Html.fromHtml(profileSummaryRow, Html.FROM_HTML_MODE_LEGACY));
-            } else {
-                entry.setText(Html.fromHtml(profileSummaryRow));
+            String textViewContent = "<b>" + key + "</b> " + value;
+
+            if (key.startsWith("Signature") || key.startsWith("Υπογραφή")){
+                addEmptyView();
+                textViewContent = "<b>" + key + "</b>";
             }
 
-            mainContent.addView(entry);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                textView.setText(Html.fromHtml(textViewContent, Html.FROM_HTML_MODE_LEGACY));
+            else
+                textView.setText(Html.fromHtml(textViewContent));
+
+            mainContent.addView(textView);
+
+            if (key.startsWith("Last Active") || key.startsWith("Τελευταία σύνδεση"))
+                addEmptyView();
+
+            if (key.startsWith("Signature") || key.startsWith("Υπογραφή")) {
+                ReactiveWebView signatureEntry = new ReactiveWebView(this.getContext());
+                signatureEntry.setBackgroundColor(Color.argb(1, 255, 255, 255));
+                signatureEntry.loadDataWithBaseURL("file:///android_asset/", value,
+                        "text/html", "UTF-8", null);
+                mainContent.addView(signatureEntry);
+            }
         }
+    }
+
+    private void addEmptyView(){
+        mainContent.addView(new TextView(this.getContext()));
     }
 }
