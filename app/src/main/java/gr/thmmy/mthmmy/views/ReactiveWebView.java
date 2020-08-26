@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.views;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.webkit.WebView;
@@ -13,6 +14,7 @@ import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.utils.ui.ImageDownloadDialogBuilder;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.VIDEO_ID_PARAMETER;
 import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
 
 public class ReactiveWebView extends WebView {
@@ -77,8 +79,16 @@ public class ReactiveWebView extends WebView {
                 copyUrlToClipboard(result.getExtra());
             else if(result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
                 String imageURL = result.getExtra();
-                ImageDownloadDialogBuilder builder = new ImageDownloadDialogBuilder(context,imageURL);
-                builder.show();
+                showImageDownloadDialog(imageURL);
+            }
+            else if(result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+                final String imageURL = result.getExtra();
+                Uri uri = Uri.parse(imageURL);
+                String videoId = uri.getQueryParameter(VIDEO_ID_PARAMETER);
+                if (videoId!=null)
+                    copyUrlToClipboard("https://www.youtube.com/watch?v=" + videoId);
+                else
+                    showImageDownloadDialog(imageURL);
             }
             return false;
         });
@@ -89,5 +99,10 @@ public class ReactiveWebView extends WebView {
         ClipData clip = ClipData.newPlainText("ReactiveWebViewCopiedText", urlToCopy);
         clipboard.setPrimaryClip(clip);
         Toast.makeText(BaseApplication.getInstance().getApplicationContext(),context.getString(R.string.link_copied_msg),Toast.LENGTH_SHORT).show();
+    }
+
+    private void showImageDownloadDialog(String imageURL){
+        ImageDownloadDialogBuilder builder = new ImageDownloadDialogBuilder(context, imageURL);
+        builder.show();
     }
 }
