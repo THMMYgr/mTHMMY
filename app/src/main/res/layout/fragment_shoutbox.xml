@@ -22,6 +22,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingBottom="8dp"
+        android:descendantFocusability="blocksDescendants"
         tools:listitem="@layout/fragment_shoutbox_shout_row" />
 
     <gr.thmmy.mthmmy.views.editorview.EditorView

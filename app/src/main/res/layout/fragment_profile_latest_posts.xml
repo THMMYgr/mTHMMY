@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:padding="4dp"
         android:clipToPadding = "false"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        android:descendantFocusability="blocksDescendants">
     </androidx.recyclerview.widget.RecyclerView>
 </RelativeLayout>

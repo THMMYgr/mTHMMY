@@ -48,6 +48,7 @@
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
             android:scrollbars="none"
+            android:descendantFocusability="blocksDescendants"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:context="gr.thmmy.mthmmy.activities.topic.TopicActivity" />
 
