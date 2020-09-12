@@ -68,7 +68,8 @@
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:paddingTop="6dp"
-                android:paddingBottom="8dp">
+                android:paddingBottom="8dp"
+                android:descendantFocusability="blocksDescendants">
 
                 <gr.thmmy.mthmmy.views.ReactiveWebView
                     android:id="@+id/post"
