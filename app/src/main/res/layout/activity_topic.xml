@@ -37,7 +37,7 @@
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
+        <gr.thmmy.mthmmy.views.ScrollAwareRecyclerView
             android:id="@+id/topic_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

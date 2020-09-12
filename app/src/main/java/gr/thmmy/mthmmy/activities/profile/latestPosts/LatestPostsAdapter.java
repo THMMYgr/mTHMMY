@@ -19,7 +19,6 @@ import gr.thmmy.mthmmy.base.BaseFragment;
 import gr.thmmy.mthmmy.model.PostSummary;
 import gr.thmmy.mthmmy.model.TopicSummary;
 import gr.thmmy.mthmmy.views.ReactiveWebView;
-import timber.log.Timber;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link TopicSummary} and makes a call to the
