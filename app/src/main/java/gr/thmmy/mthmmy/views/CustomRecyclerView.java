@@ -5,10 +5,9 @@ import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 //Custom RecyclerView, so EdgeEffect and SwipeRefresh both work
-public class CustomRecyclerView extends RecyclerView {
+public class CustomRecyclerView extends ScrollAwareRecyclerView {
     private volatile boolean enableRefreshing = true;
 
     public CustomRecyclerView(Context context) {
@@ -40,7 +39,6 @@ public class CustomRecyclerView extends RecyclerView {
         else if (((LinearLayoutManager) getLayoutManager()).findFirstCompletelyVisibleItemPosition() != 0)
             enableRefreshing = false;
 
-
         super.onScrollStateChanged(state);
     }
 
@@ -51,5 +49,4 @@ public class CustomRecyclerView extends RecyclerView {
         else
             return super.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, 0, offsetInWindow);
     }
-
 }

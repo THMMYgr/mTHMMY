@@ -107,6 +107,7 @@ body {
 	background: #3C3F41;
 	margin: 0;
 	padding: 0;
+	word-wrap: break-word;
 }
 
 

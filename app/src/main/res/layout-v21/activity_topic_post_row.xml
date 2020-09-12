@@ -223,7 +223,8 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                android:descendantFocusability="blocksDescendants">
 
                 <gr.thmmy.mthmmy.views.ReactiveWebView
                     android:id="@+id/post"
@@ -233,8 +234,6 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
                     android:background="@color/background_light"
-                    android:clickable="true"
-                    android:focusable="true"
                     android:text="@string/post" />
             </FrameLayout>
 

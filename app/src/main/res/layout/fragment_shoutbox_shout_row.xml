@@ -12,7 +12,8 @@
     card_view:cardCornerRadius="5dp"
     card_view:cardElevation="2dp"
     card_view:cardPreventCornerOverlap="false"
-    card_view:cardUseCompatPadding="true">
+    card_view:cardUseCompatPadding="true"
+    android:descendantFocusability="blocksDescendants">
 
     <LinearLayout
         android:layout_width="match_parent"
