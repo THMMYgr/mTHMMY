@@ -693,13 +693,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 holder.replyEditor.setText(replyText);
                 holder.replyEditor.getEditText().setSelection(holder.replyEditor.getText().length());
-                holder.replyEditor.getEditText().addTextChangedListener(createTextWatcher(holder));
+                holder.replyEditor.getEditText().addTextChangedListener(createTextWatcher(holder, TextWatcherType.CONTENT));
 
                 if (backPressHidden) {
                     holder.replyEditor.requestEditTextFocus();
                     backPressHidden = false;
                 }
-                holder.quickReplySubject.addTextChangedListener(createTextWatcher(holder));
+                holder.quickReplySubject.addTextChangedListener(createTextWatcher(holder, TextWatcherType.SUBJECT));
             } else if (currentHolder instanceof EditMessageViewHolder) {
                 final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 
@@ -735,8 +735,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     viewModel.editPost(position, holder.editSubject.getText().toString(), holder.editEditor.getText().toString());
                 });
 
-                holder.editSubject.addTextChangedListener(createTextWatcher(holder));
-                holder.editEditor.getEditText().addTextChangedListener(createTextWatcher(holder));
+                holder.editSubject.addTextChangedListener(createTextWatcher(holder, TextWatcherType.SUBJECT));
+                holder.editEditor.getEditText().addTextChangedListener(createTextWatcher(holder, TextWatcherType.CONTENT));
 
                 if (backPressHidden) {
                     holder.editEditor.requestEditTextFocus();
@@ -746,7 +746,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private TextWatcher createTextWatcher(@NonNull final RecyclerView.ViewHolder holder){
+    private enum TextWatcherType {
+        CONTENT, SUBJECT
+    }
+    private TextWatcher createTextWatcher(@NonNull final RecyclerView.ViewHolder holder, TextWatcherType type){
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -754,8 +757,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 int position = holder.getAdapterPosition();
-                if (position >= 0 && position < topicItems.size())
-                    ((Post) topicItems.get(position)).setBbContent(charSequence.toString());
+                if (position >= 0 && position < topicItems.size()){
+                    Post post = ((Post) topicItems.get(position));
+                    if(type == TextWatcherType.CONTENT)
+                        post.setBbContent(charSequence.toString());
+                    else if(type == TextWatcherType.SUBJECT)
+                        post.setSubject(charSequence.toString());
+                }
             }
 
             @Override
