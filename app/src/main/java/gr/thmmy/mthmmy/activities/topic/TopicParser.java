@@ -294,7 +294,7 @@ public class TopicParser {
                             Timber.e(e, "Attached file malformed url");
                             break;
                         }
-                        String attachedFileName = tmpAttachedFileUrlAndName.wholeText().substring(1);
+                        String attachedFileName = tmpAttachedFileUrlAndName.text();
 
                         //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
@@ -366,7 +366,7 @@ public class TopicParser {
                             Timber.e(e, "Attached file malformed url");
                             break;
                         }
-                        String attachedFileName = tmpAttachedFileUrlAndName.wholeText().substring(1);
+                        String attachedFileName = tmpAttachedFileUrlAndName.text();
 
                         //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
