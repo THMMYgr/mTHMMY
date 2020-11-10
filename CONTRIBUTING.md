@@ -27,7 +27,7 @@ Before creating a new issue make sure to **search the tracker** for similar ones
 
 ## Compiling
 
-Due to the app's integration with Firebase, a *google-services.json* file is required inside the *app* directory. To get one, either [set up your own Firebase project][firebase-console] (with or without a self hosted [backend][sisyphus]), or ask us to provide you the one we use for development.
+Due to the app's integration with Firebase, a *google-services.json* file is required inside the *app/src/debug* directory (which you have to create). To get one, either [set up your own Firebase project][firebase-console] (with or without a self hosted [backend][sisyphus]), or ask us to provide you the one we use for development.
 
 ## Pull requests
 
