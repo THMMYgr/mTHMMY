@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -57,6 +59,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     private SectionsPagerAdapter sectionsPagerAdapter;
     private ViewPager viewPager;
     private TabLayout tabLayout;
+    private ImageView drawerButton;
 
     //Fix for vector drawables on android <21
     static {
@@ -89,6 +92,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
         tabLayout = findViewById(R.id.tabs);
         viewPager = findViewById(R.id.container);
+        drawerButton = findViewById(R.id.main_activity_open_drawer_btn);
 
         //Create the adapter that will return a fragment for each section of the activity
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -110,6 +114,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             updateTabIcon(i);
 
         setMainActivity(this);
+        setDrawerButtonListener();
     }
 
     @Override
@@ -286,5 +291,18 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                 }
             }
         }
+    }
+
+
+    private void setDrawerButtonListener()
+    {
+        this.drawerButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                drawer.openDrawer();
+            }
+        });
     }
 }

@@ -234,5 +234,6 @@
 
     <!--SessionManager-->
     <string name="session_shared_prefs">SessionSharedPrefs</string>
+    <string name="drawer_button_cnt_desc">Button to open the drawer menu</string>
 
 </resources>
