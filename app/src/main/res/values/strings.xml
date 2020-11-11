@@ -234,5 +234,4 @@
 
     <!--SessionManager-->
     <string name="session_shared_prefs">SessionSharedPrefs</string>
-
 </resources>

@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -83,6 +85,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
             return; //Avoid executing the code below
         }
+
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
 
         //Initialize drawer
         createDrawer();
