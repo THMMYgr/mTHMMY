@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -52,10 +50,8 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 public class MainActivity extends BaseActivity implements RecentFragment.RecentFragmentInteractionListener, ForumFragment.ForumFragmentInteractionListener, UnreadFragment.UnreadFragmentInteractionListener {
 
     //-----------------------------------------CLASS VARIABLES------------------------------------------
-    private static final int TIME_INTERVAL = 2000;
     private SharedPreferences sharedPrefs;
     private static final String DRAWER_INTRO = "DRAWER_INTRO";
-    private long mBackPressed;
     private SectionsPagerAdapter sectionsPagerAdapter;
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -138,17 +134,9 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
 
     @Override
     public void onBackPressed() {
-        if (drawer.isDrawerOpen()) {
+        if (drawer.isDrawerOpen())
             drawer.closeDrawer();
-            return;
-        } else if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
-            super.onBackPressed();
-            return;
-        } else {
-            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Press back again to exit!"
-                    , Toast.LENGTH_SHORT).show();
-        }
-        mBackPressed = System.currentTimeMillis();
+        super.onBackPressed();
     }
 
     @Override
