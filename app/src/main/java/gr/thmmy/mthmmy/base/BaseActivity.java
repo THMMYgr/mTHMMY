@@ -721,11 +721,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions
             , @NonNull int[] grantResults) {
-        switch (permsRequestCode) {
-            case DOWNLOAD_REQUEST_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    prepareDownload(tempThmmyFile);
-                break;
+        super.onRequestPermissionsResult(permsRequestCode, permissions, grantResults);
+        if (permsRequestCode == DOWNLOAD_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                prepareDownload(tempThmmyFile);
         }
     }
 

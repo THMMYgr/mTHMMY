@@ -57,7 +57,7 @@
 
     <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="android:colorBackground">@color/colorPrimary</item>
+        <item name="android:colorBackground">@color/primary</item>
         <item name="colorControlNormal">@android:color/white</item>
     </style>
 
