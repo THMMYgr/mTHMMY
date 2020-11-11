@@ -22,11 +22,13 @@
 
             <ImageView
                 android:id="@+id/main_activity_open_drawer_btn"
-                android:layout_width="60dp"
+                android:layout_width="35dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
+                android:layout_margin="2sp"
+                android:layout_marginStart="2sp"
                 android:contentDescription="@string/drawer_button_cnt_desc"
-                app:srcCompat="@drawable/ic_launcher_foreground" />
+                app:srcCompat="@drawable/ic_hamburger" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabs"
