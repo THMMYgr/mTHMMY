@@ -119,6 +119,8 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
 
 
                 //Remove Item.
+                //TODO: AFTER DELETION, UPDATE THE ORDER IN THE PREFERENCES OF ALL
+                // ALL THE BOOKMARKS UNDER THIS ONE THAT HAS BEEN DELETED!
                 holder.m_removeView.setOnClickListener(v -> {
 
                     //Get fragment's activity.

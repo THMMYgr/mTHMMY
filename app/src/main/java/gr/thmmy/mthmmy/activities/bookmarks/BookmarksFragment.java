@@ -129,6 +129,7 @@ public class BookmarksFragment extends Fragment {
                 // or closes the app, the order of the bookmarks will be lost.
                 // make sure after the following swapping, to apply the changes
                 // in the actual data model of the bookmarks.
+                // AFTER SWAPPING UPDATE THE ORDER OF THOSE TWO IN THE PREFERENCES.
 
                 if (fromPosition != toPosition)
                 {
