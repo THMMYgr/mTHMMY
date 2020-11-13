@@ -1,19 +1,21 @@
 package gr.thmmy.mthmmy.activities.bookmarks;
 
-import android.app.Activity;
+
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+
+import com.woxthebox.draglistview.DragListView;
 
 import java.util.ArrayList;
 
@@ -37,8 +39,8 @@ public class BookmarksFragment extends Fragment {
     private TextView nothingBookmarkedTextView;
 
     private ArrayList<Bookmark> bookmarks = null;
-    private Type type;
-    private String interactionClick, interactionToggle, interactionRemove;
+    public Type type;
+    public String interactionClick, interactionToggle, interactionRemove;
 
     private Drawable notificationsEnabledButtonImage;
     private Drawable notificationsDisabledButtonImage;
@@ -100,66 +102,70 @@ public class BookmarksFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflates the layout for this fragment
         final View rootView = layoutInflater.inflate(R.layout.fragment_bookmarks, container, false);
-        //bookmarks container
-        final LinearLayout bookmarksLinearView = rootView.findViewById(R.id.bookmarks_container);
+
+        //Get the nothing bookmarked text view.
         nothingBookmarkedTextView = rootView.findViewById(R.id.nothing_bookmarked);
 
-        if(this.bookmarks != null && !this.bookmarks.isEmpty()) {
-            hideNothingBookmarked();
-            for (final Bookmark bookmark : bookmarks) {
-                if (bookmark != null && bookmark.getTitle() != null) {
-                    final LinearLayout row = (LinearLayout) layoutInflater.inflate(
-                            R.layout.fragment_bookmarks_row, bookmarksLinearView, false);
-                    row.setOnClickListener(view -> {
-                        Activity activity = getActivity();
-                        if (activity instanceof BookmarksActivity)
-                            ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionClick, bookmark);
-                    });
-                    ((TextView) row.findViewById(R.id.bookmark_title)).setText(bookmark.getTitle());
+        DragListView mDragListView = (DragListView) rootView.findViewById(R.id.fragment_bookmarks_dragList);
 
-                    final ImageButton notificationsEnabledButton = row.findViewById(R.id.toggle_notification);
-                    if (!bookmark.isNotificationsEnabled()) {
-                        notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
-                    }
+        mDragListView.setDragListListener(new DragListView.DragListListener()
+        {
+            @Override
+            public void onItemDragStarted(int position)
+            {
+            }
 
-                    notificationsEnabledButton.setOnClickListener(view -> {
-                        Activity activity = getActivity();
-                        if (activity instanceof BookmarksActivity) {
-                            if (((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionToggle, bookmark))
-                                notificationsEnabledButton.setImageDrawable(notificationsEnabledButtonImage);
-                            else
-                                notificationsEnabledButton.setImageDrawable(notificationsDisabledButtonImage);
-                        }
-                    });
+            @Override
+            public void onItemDragging(int itemPosition, float x, float y)
+            {
 
-                    (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
-                        Activity activity = getActivity();
-                        if (activity instanceof BookmarksActivity){
-                            ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionRemove, bookmark);
-                            bookmarks.remove(bookmark);
-                        }
-                        row.setVisibility(View.GONE);
+            }
 
-                        if (bookmarks.isEmpty()){
-                            showNothingBookmarked();
-                        }
-                    });
-                    bookmarksLinearView.addView(row);
+            @Override
+            public void onItemDragEnded(int fromPosition, int toPosition)
+            {
+
+                //TODO: This only works locally. If the user exit the bookmarks
+                // or closes the app, the order of the bookmarks will be lost.
+                // make sure after the following swapping, to apply the changes
+                // in the actual data model of the bookmarks.
+
+                if (fromPosition != toPosition)
+                {
+                    Bookmark from = bookmarks.get(fromPosition);
+
+                    bookmarks.set(fromPosition, bookmarks.get(toPosition));
+                    bookmarks.set(toPosition, from);
                 }
             }
-        } else
+        });
+
+        mDragListView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        BookmarksAdapter adapter = new BookmarksAdapter(this, bookmarks, notificationsEnabledButtonImage, notificationsDisabledButtonImage);
+        mDragListView.setAdapter(adapter, false);
+        mDragListView.setCanDragHorizontally(false);
+
+        //Hide Nothing Bookmarked.
+        if(this.bookmarks != null && !this.bookmarks.isEmpty())
+        {
+            hideNothingBookmarked();
+        }
+
+        //Show Nothing Bookmarked.
+        else {
             showNothingBookmarked();
+        }
 
         return rootView;
     }
 
 
-    private void showNothingBookmarked() {
+    public void showNothingBookmarked() {
         if(nothingBookmarkedTextView!=null)
             nothingBookmarkedTextView.setVisibility(View.VISIBLE);
     }
 
-    private void hideNothingBookmarked(){
+    public void hideNothingBookmarked(){
         if(nothingBookmarkedTextView!=null)
             nothingBookmarkedTextView.setVisibility(View.INVISIBLE);
     }

@@ -118,4 +118,5 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
     testImplementation 'net.lachlanmckee:timber-junit-rule:1.0.1'
+    implementation 'com.github.woxthebox:draglistview:1.7.2'
 }
