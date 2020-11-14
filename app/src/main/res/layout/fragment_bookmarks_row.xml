@@ -12,47 +12,51 @@
         android:id="@+id/bookmark_dragable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="@drawable/bookmark_row_bg"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        >
 
         <TextView
             android:id="@+id/bookmark_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingBottom="8dp"
-            android:paddingTop="6dp"
             android:paddingStart="16dp"
+            android:paddingTop="6dp"
             android:paddingEnd="0dp"
+            android:paddingBottom="8dp"
             android:textColor="@color/primary_text"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
         <ImageButton
             android:id="@+id/toggle_notification"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:paddingBottom="3dp"
-            android:paddingTop="3dp"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/toggle_notification"
-            app:srcCompat="@drawable/ic_notification_on"/>
+            android:paddingStart="6dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="3dp"
+            app:srcCompat="@drawable/ic_notification_on" />
 
         <ImageButton
             android:id="@+id/remove_bookmark"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:paddingBottom="3dp"
-            android:paddingTop="3dp"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp"
             android:layout_marginEnd="12dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/remove_bookmark"
-            app:srcCompat="@drawable/ic_delete_accent_24dp"/>
+            android:paddingStart="6dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="3dp"
+            app:srcCompat="@drawable/ic_delete_accent_24dp" />
     </LinearLayout>
 </FrameLayout>
