@@ -129,15 +129,18 @@ public class BookmarksFragment extends Fragment {
                     Bookmark indicator = new Bookmark("Drop Here", "-1", true);
 
                     //Add the indicator followed by the current actual bookmark.
-                    new_bookmarks.add(indicator);
+                    if (position != i-1 && position != i)
+                        new_bookmarks.add(indicator);
+
                     new_bookmarks.add(bookmarks.get(i));
                 }
 
+                //Add one last indicator.
+                if (position != bookmarks.size() - 1)
+                    new_bookmarks.add(new Bookmark("Drop Here", "-1", true));
+
                 //Replace the bookmarks with the new bookmarks that contains the indicators.
                 bookmarks = new_bookmarks;
-
-                //Add one last indicator.
-                bookmarks.add(new Bookmark("Drop Here", "-1", true));
 
                 //Notify the adapter that the bookmarks array has changed!
                 adapter.notifyDataSetChanged();
@@ -152,12 +155,12 @@ public class BookmarksFragment extends Fragment {
             @Override
             public void onItemDragEnded(int fromPosition, int toPosition)
             {
+                //It's hard to explain what this does.
+                int actualPos = fromPosition;
 
-                //This is VERY IMPORTANT: Because I added indicator boxes
-                //in the onItemDragStarted, I need to recalculate the actual position
-                //of the started item (fromPosition) because it has changed!!!
-                int offset    = fromPosition + 1;
-                int actualPos = fromPosition + offset;
+                //It's hard to explain what this does.
+                if (fromPosition != 0)
+                    actualPos = 2 * fromPosition;
 
                 //If the drag and drop is not the same item.
                 if (actualPos != toPosition)
