@@ -22,6 +22,13 @@
         android:layout_marginEnd="8dp"
         >
 
+        <ImageView
+            android:id="@+id/bookmark_drag_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:srcCompat="@drawable/draggable_icon"
+            />
+
         <TextView
             android:id="@+id/bookmark_title"
             android:layout_width="0dp"

@@ -57,6 +57,7 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
         if (m_fragment.bookmarks.get(position).getId().equals("-1"))
         {
             holder.itemView.findViewById(R.id.bookmark_dragable).setBackgroundResource(R.drawable.bookmark_row_dashed_bg);
+            holder.itemView.findViewById(R.id.bookmark_drag_icon).setVisibility(View.GONE);
             holder.itemView.findViewById(R.id.toggle_notification).setVisibility(View.GONE);
             holder.itemView.findViewById(R.id.remove_bookmark).setVisibility(View.GONE);
         }
