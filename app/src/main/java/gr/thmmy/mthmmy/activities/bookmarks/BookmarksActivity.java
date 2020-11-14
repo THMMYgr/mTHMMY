@@ -78,9 +78,9 @@ public class BookmarksActivity extends BaseActivity {
     }
 
 
-    public void swapBookmarksAfterReorder(Bookmark first, Bookmark second)
+    public void updateBookmarks(ArrayList<Bookmark> update_bookmarks)
     {
-        this.swapBookmarks(first, second);
+        this.updateBookmarksOnReorder(update_bookmarks);
     }
 
     private boolean onTopicInteractionListener(String interactionType, Bookmark bookmarkedTopic) {

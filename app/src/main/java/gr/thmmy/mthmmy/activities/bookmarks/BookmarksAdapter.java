@@ -24,14 +24,12 @@ import gr.thmmy.mthmmy.model.Bookmark;
 public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, BookmarksAdapter.BookmarksViewHolder>
 {
     private final BookmarksFragment m_fragment;
-    private final ArrayList<Bookmark> m_bookMarks;
     private final Drawable m_notificationsEnabled;
     private final Drawable m_notificationsDisabled;
 
-    public BookmarksAdapter(BookmarksFragment fragment, ArrayList<Bookmark> bookmarks, Drawable noteEnabled, Drawable noteDisabled)
+    public BookmarksAdapter(BookmarksFragment fragment, Drawable noteEnabled, Drawable noteDisabled)
     {
         this.m_fragment = fragment;
-        this.m_bookMarks = bookmarks;
         this.m_notificationsEnabled = noteEnabled;
         this.m_notificationsDisabled = noteDisabled;
     }
@@ -39,7 +37,7 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
     @Override
     public long getUniqueItemId(int position)
     {
-        return m_bookMarks.get(position).getId().hashCode();
+        return m_fragment.bookmarks.get(position).getId().hashCode();
     }
 
     @NonNull
@@ -55,18 +53,26 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
     {
         super.onBindViewHolder(holder, position);
 
+        //If this is a drop indicator, use the dashed corner background.
+        if (m_fragment.bookmarks.get(position).getId().equals("-1"))
+        {
+            holder.itemView.findViewById(R.id.bookmark_dragable).setBackgroundResource(R.drawable.bookmark_row_dashed_bg);
+            holder.itemView.findViewById(R.id.toggle_notification).setVisibility(View.GONE);
+            holder.itemView.findViewById(R.id.remove_bookmark).setVisibility(View.GONE);
+        }
+
         //Check if bookMarks ArrayList Exists and is not empty.
-        if(m_bookMarks != null && !m_bookMarks.isEmpty())
+        if(m_fragment.bookmarks != null && !m_fragment.bookmarks.isEmpty())
         {
             //Check if the current bookmark exists and has a title.
-            if (m_bookMarks.get(position) != null && m_bookMarks.get(position).getTitle() != null)
+            if (m_fragment.bookmarks.get(position) != null && m_fragment.bookmarks.get(position).getTitle() != null)
             {
 
                 //Set the title.
-                holder.m_textView.setText(m_bookMarks.get(position).getTitle());
+                holder.m_textView.setText(m_fragment.bookmarks.get(position).getTitle());
 
                 //Set Notifications Enabled Image Indicator.
-                if (m_bookMarks.get(position).isNotificationsEnabled())
+                if (m_fragment.bookmarks.get(position).isNotificationsEnabled())
                     holder.m_noteView.setImageDrawable(m_notificationsEnabled);
 
                 //Set Notifications Disabled Image Indicator.
@@ -85,7 +91,7 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
                         ((BookmarksActivity) activity).onFragmentRowInteractionListener(
                                 m_fragment.type,
                                 m_fragment.interactionClick,
-                                m_bookMarks.get(position));
+                                m_fragment.bookmarks.get(position));
                 });
 
 
@@ -93,7 +99,7 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
                 holder.m_noteView.setOnClickListener(v -> {
 
                     //Toggle the current local instance.
-                    m_bookMarks.get(position).toggleNotificationsEnabled();
+                    m_fragment.bookmarks.get(position).toggleNotificationsEnabled();
 
                     //Get the fragment activity.
                     Activity activity = m_fragment.getActivity();
@@ -106,7 +112,7 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
                         if (((BookmarksActivity) activity).onFragmentRowInteractionListener(
                                 m_fragment.type,
                                 m_fragment.interactionToggle,
-                                m_bookMarks.get(position)))
+                                m_fragment.bookmarks.get(position)))
                         {
                             holder.m_noteView.setImageDrawable(m_notificationsEnabled);
                         }
@@ -133,16 +139,16 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
                         ((BookmarksActivity) activity).onFragmentRowInteractionListener(
                                 m_fragment.type,
                                 m_fragment.interactionRemove,
-                                m_bookMarks.get(position));
+                                m_fragment.bookmarks.get(position));
                         {
                             notifyItemRemoved(position);
-                            notifyItemRangeChanged(position, m_bookMarks.size());
-                            m_bookMarks.remove(m_bookMarks.get(position));
+                            notifyItemRangeChanged(position, m_fragment.bookmarks.size());
+                            m_fragment.bookmarks.remove(m_fragment.bookmarks.get(position));
                         }
                     }
 
                     //If the bookmarks are empty then show nothing marked.
-                    if (m_bookMarks.isEmpty())
+                    if (m_fragment.bookmarks.isEmpty())
                     {
                         m_fragment.showNothingBookmarked();
                     }
@@ -155,8 +161,8 @@ public class BookmarksAdapter extends DragItemAdapter<ArrayList<Bookmark>, Bookm
     @Override
     public int getItemCount()
     {
-        if (m_bookMarks != null)
-         return m_bookMarks.size();
+        if (m_fragment.bookmarks != null)
+         return m_fragment.bookmarks.size();
 
         return 0;
     }
