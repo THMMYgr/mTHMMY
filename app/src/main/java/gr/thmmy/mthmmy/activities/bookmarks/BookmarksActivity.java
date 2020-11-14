@@ -77,6 +77,12 @@ public class BookmarksActivity extends BaseActivity {
         return false;
     }
 
+
+    public void swapBookmarksAfterReorder(Bookmark first, Bookmark second)
+    {
+        this.swapBookmarks(first, second);
+    }
+
     private boolean onTopicInteractionListener(String interactionType, Bookmark bookmarkedTopic) {
         switch (interactionType) {
             case BookmarksFragment.INTERACTION_CLICK_TOPIC_BOOKMARK:

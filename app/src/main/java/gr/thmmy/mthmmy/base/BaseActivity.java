@@ -48,6 +48,7 @@ import net.gotev.uploadservice.UploadService;
 import java.io.File;
 import java.util.ArrayList;
 
+import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
@@ -688,6 +689,87 @@ public abstract class BaseActivity extends AppCompatActivity {
         } else
             Timber.w("No bookmark match exists!");
         return false;
+    }
+
+
+    //TODO: Abstract reusable code: find the index of the first and second bookmark.
+    protected void swapBookmarks(Bookmark first, Bookmark second)
+    {
+
+        //No need to check is second is a topics bookmark.
+        //because there is no way to drag and drop between topic and board.
+        if ( first.matchExists(topicsBookmarked) )
+        {
+            //Find the index of the first and second bookmark.
+            int firstIndex = -1, secondIndex = -1;
+            for (int i = 0; i < topicsBookmarked.size(); i++)
+            {
+
+                //Find the first index.
+                if (first.getId().equals(topicsBookmarked.get(i).getId()))
+                    firstIndex = i;
+
+                //Find the second index.
+                else if (second.getId().equals(topicsBookmarked.get(i).getId()))
+                    secondIndex = i;
+
+                //If both indexes found, stop.
+                if (firstIndex != -1 && secondIndex != -1)
+                    break;
+            }
+
+            //Assert, both indexes should have been found.
+            if (BuildConfig.DEBUG && !(firstIndex != -1 && secondIndex != -1)) {
+                throw new AssertionError("firstIndex and secondIndex must exist!");
+            }
+
+            //Temp store the first bookmark.
+            Bookmark firstBookmark = topicsBookmarked.get(firstIndex);
+
+            //Swap the bookmarks.
+            topicsBookmarked.set(firstIndex, topicsBookmarked.get(secondIndex));
+            topicsBookmarked.set(secondIndex, firstBookmark);
+
+            //Update the bookmarks.
+            updateTopicBookmarks();
+        }
+
+        //Swap on Board Bookmarks.
+        else if ( first.matchExists(boardsBookmarked) )
+        {
+            //Find the index of the first and second bookmark.
+            int firstIndex = -1, secondIndex = -1;
+            for (int i = 0; i < boardsBookmarked.size(); i++)
+            {
+
+                //Find the first index.
+                if (first.getId().equals(boardsBookmarked.get(i).getId()))
+                    firstIndex = i;
+
+
+                //Find the second index.
+                else if (second.getId().equals(boardsBookmarked.get(i).getId()))
+                    secondIndex = i;
+
+                //If both indexes found, stop.
+                if (firstIndex != -1 && secondIndex != -1)
+                    break;
+            }
+
+            if (BuildConfig.DEBUG && !(firstIndex != -1 && secondIndex != -1)) {
+                throw new AssertionError("firstIndex and secondIndex must exist!");
+            }
+
+            //Temp store the first bookmark.
+            Bookmark firstBookmark = boardsBookmarked.get(firstIndex);
+
+            //Swap the bookmarks.
+            boardsBookmarked.set(firstIndex, boardsBookmarked.get(secondIndex));
+            boardsBookmarked.set(secondIndex, firstBookmark);
+
+            //Update the bookmarks.
+            updateBoardBookmarks();
+        }
     }
 //-------------------------------------------BOOKMARKS END------------------------------------------
 

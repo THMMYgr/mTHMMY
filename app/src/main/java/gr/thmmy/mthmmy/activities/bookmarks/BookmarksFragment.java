@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.bookmarks;
 
 
+import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -125,26 +126,39 @@ public class BookmarksFragment extends Fragment {
             public void onItemDragEnded(int fromPosition, int toPosition)
             {
 
-                //TODO: This only works locally. If the user exit the bookmarks
-                // or closes the app, the order of the bookmarks will be lost.
-                // make sure after the following swapping, to apply the changes
-                // in the actual data model of the bookmarks.
-                // AFTER SWAPPING UPDATE THE ORDER OF THOSE TWO IN THE PREFERENCES.
-
+                //If the drag and drop is not the same item.
                 if (fromPosition != toPosition)
                 {
+
+                    //Get the from bookmark.
                     Bookmark from = bookmarks.get(fromPosition);
 
+                    //Swap the from and to bookmarks.
                     bookmarks.set(fromPosition, bookmarks.get(toPosition));
                     bookmarks.set(toPosition, from);
+
+                    //Get the fragments activity.
+                    Activity unknownActivity = getActivity();
+
+                    //Update the order of the bookmarks in the preferences.
+                    if (unknownActivity instanceof BookmarksActivity)
+                    {
+                        //Cast to BookmarksActivity.
+                        BookmarksActivity activity = (BookmarksActivity)unknownActivity;
+
+                        //Call the swapBookmarksAfterReorder to apply the swapping changes to the preferences.
+                        activity.swapBookmarksAfterReorder( bookmarks.get(fromPosition), bookmarks.get(toPosition) );
+                    }
                 }
             }
         });
 
+        //====================================This is the code for the Drag and Drop Functionality====================================//
         mDragListView.setLayoutManager(new LinearLayoutManager(getActivity()));
         BookmarksAdapter adapter = new BookmarksAdapter(this, bookmarks, notificationsEnabledButtonImage, notificationsDisabledButtonImage);
         mDragListView.setAdapter(adapter, false);
         mDragListView.setCanDragHorizontally(false);
+        //====================================This is the code for the Drag and Drop Functionality====================================//
 
         //Hide Nothing Bookmarked.
         if(this.bookmarks != null && !this.bookmarks.isEmpty())
@@ -156,6 +170,7 @@ public class BookmarksFragment extends Fragment {
         else {
             showNothingBookmarked();
         }
+
 
         return rootView;
     }
