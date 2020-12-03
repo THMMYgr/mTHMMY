@@ -68,6 +68,7 @@ public class ReplyTask extends AsyncTask<String, Void, Posting.REPLY_STATUS> {
 
     public interface ReplyTaskCallbacks {
         void onReplyTaskStarted();
+
         void onReplyTaskFinished(Posting.REPLY_STATUS result);
     }
 }

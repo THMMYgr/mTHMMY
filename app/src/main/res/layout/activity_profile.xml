@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
@@ -42,7 +41,7 @@
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/post_thumbnail"
                     android:fitsSystemWindows="true"
-                    app:layout_collapseMode="parallax"/>
+                    app:layout_collapseMode="parallax" />
 
                 <TextView
                     android:id="@+id/profile_activity_personal_text"
@@ -55,7 +54,7 @@
                     android:paddingBottom="4dp"
                     android:textAlignment="center"
                     android:textColor="@color/primary_text"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
             </LinearLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -75,7 +74,7 @@
                 android:paddingBottom="2dp"
                 android:text="@string/username"
                 android:textColor="@color/accent"
-                android:textSize="25sp"/>
+                android:textSize="25sp" />
         </androidx.appcompat.widget.Toolbar>
 
         <com.google.android.material.tabs.TabLayout
@@ -86,7 +85,7 @@
             app:tabGravity="fill"
             app:tabMode="fixed"
             app:tabSelectedTextColor="@color/accent"
-            app:tabTextColor="@color/white"/>
+            app:tabTextColor="@color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager.widget.ViewPager
@@ -97,7 +96,7 @@
         android:background="@color/background"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|center"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
@@ -109,7 +108,7 @@
         app:layout_anchor="@id/profile_tab_container"
         app:layout_anchorGravity="top|center"
         app:mpb_indeterminateTint="@color/accent"
-        app:mpb_progressStyle="horizontal"/>
+        app:mpb_progressStyle="horizontal" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/profile_fab"
@@ -118,7 +117,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margins"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
-        app:srcCompat="@drawable/ic_pm_fab"/>
+        app:srcCompat="@drawable/ic_pm_fab" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 

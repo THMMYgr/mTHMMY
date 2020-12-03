@@ -198,7 +198,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         if (!sessionManager.isLoggedIn()) {
             replyFAB.hide();
             replyFAB.setTag(false);
-        } else {
+        }
+        else {
             replyFAB.setOnClickListener(view -> {
                 if (sessionManager.isLoggedIn())
                     viewModel.prepareForReply();
@@ -279,10 +280,12 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         if (drawer.isDrawerOpen()) {
             drawer.closeDrawer();
             return;
-        } else if (emojiKeyboard.getVisibility() == View.VISIBLE) {
+        }
+        else if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
             return;
-        } else if (viewModel.isWritingReply()) {
+        }
+        else if (viewModel.isWritingReply()) {
             // persist reply
             SharedPreferences drafts = getSharedPreferences(getString(R.string.pref_topic_drafts_key), MODE_PRIVATE);
             Post reply = (Post) topicItems.get(topicItems.size() - 1);
@@ -296,7 +299,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             replyFAB.setTag(true);
             bottomNavBar.setVisibility(View.VISIBLE);
             return;
-        } else if (viewModel.isEditingPost()) {
+        }
+        else if (viewModel.isEditingPost()) {
             ((Post) topicItems.get(viewModel.getPostBeingEditedPosition())).setPostType(Post.TYPE_POST);
             topicAdapter.notifyItemChanged(viewModel.getPostBeingEditedPosition());
             topicAdapter.setBackButtonHidden();
@@ -319,9 +323,9 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(topicInfoDialog!=null){
+        if (topicInfoDialog != null) {
             topicInfoDialog.dismiss();
-            topicInfoDialog=null;
+            topicInfoDialog = null;
         }
         recyclerView.setAdapter(null);
         viewModel.stopLoading();
@@ -364,7 +368,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             if (autoIncrement) {
                 viewModel.incrementPageRequestValue(step, false);
                 repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
-            } else if (autoDecrement) {
+            }
+            else if (autoDecrement) {
                 viewModel.decrementPageRequestValue(step, false);
                 repeatUpdateHandler.postDelayed(new RepetitiveUpdater(step), REPEAT_DELAY);
             }
@@ -383,19 +388,23 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             previousPage.setEnabled(false);
             nextPage.setEnabled(false);
             lastPage.setEnabled(false);
-        } else if (exception == previousPage) {
+        }
+        else if (exception == previousPage) {
             firstPage.setEnabled(false);
             nextPage.setEnabled(false);
             lastPage.setEnabled(false);
-        } else if (exception == nextPage) {
+        }
+        else if (exception == nextPage) {
             firstPage.setEnabled(false);
             previousPage.setEnabled(false);
             lastPage.setEnabled(false);
-        } else if (exception == lastPage) {
+        }
+        else if (exception == lastPage) {
             firstPage.setEnabled(false);
             previousPage.setEnabled(false);
             nextPage.setEnabled(false);
-        } else {
+        }
+        else {
             paginationEnabled(false);
         }
     }
@@ -406,7 +415,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         increment.setOnClickListener(v -> {
             if (!autoIncrement && step == LARGE_STEP) {
                 viewModel.setPageIndicatorIndex(viewModel.getPageCount(), true);
-            } else if (!autoIncrement) {
+            }
+            else if (!autoIncrement) {
                 viewModel.incrementPageRequestValue(step, true);
             }
         });
@@ -428,11 +438,13 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-                } else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
+                }
+                else if (rect != null && event.getAction() == MotionEvent.ACTION_UP && autoIncrement) {
                     autoIncrement = false;
                     paginationEnabled(true);
                     viewModel.loadPageIndicated();
-                } else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
+                }
+                else if (rect != null && event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (!rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
                         viewModel.setPageIndicatorIndex(viewModel.getCurrentPageIndex(), false);
@@ -450,7 +462,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         decrement.setOnClickListener(v -> {
             if (!autoDecrement && step == LARGE_STEP) {
                 viewModel.setPageIndicatorIndex(1, true);
-            } else if (!autoDecrement) {
+            }
+            else if (!autoDecrement) {
                 viewModel.decrementPageRequestValue(step, true);
             }
         });
@@ -472,11 +485,13 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-                } else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
+                }
+                else if (event.getAction() == MotionEvent.ACTION_UP && autoDecrement) {
                     autoDecrement = false;
                     paginationEnabled(true);
                     viewModel.loadPageIndicated();
-                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                }
+                else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                     if (rect != null &&
                             !rect.contains(v.getLeft() + (int) event.getX(), v.getTop() + (int) event.getY())) {
                         autoIncrement = false;
@@ -514,7 +529,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             if (resultCode == NetworkResultCodes.SUCCESSFUL) {
                 Timber.i("Post deleted successfully");
                 viewModel.reloadPage();
-            } else {
+            }
+            else {
                 Timber.w("Failed to delete post");
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Delete failed!", Toast.LENGTH_SHORT).show();
             }
@@ -551,7 +567,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                         if ((((Post) topicItems.get(topicItems.size() - 1)).getPostNumber() + 1) % 15 == 0) {
                             Timber.i("Reply was posted in new page. Switching to last page.");
                             viewModel.loadUrl(ParseHelpers.getBaseURL(viewModel.getTopicUrl()) + "." + 2147483647);
-                        } else {
+                        }
+                        else {
                             viewModel.reloadPage();
                         }
                         break;
@@ -621,7 +638,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                     bottomNavBar.setVisibility(View.VISIBLE);
                     viewModel.setEditingPost(false);
                     viewModel.reloadPage();
-                } else {
+                }
+                else {
                     Timber.i("Post edit unsuccessful");
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Edit failed!", Toast.LENGTH_SHORT).show();
                     recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setAlpha(1);
@@ -689,7 +707,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
             if (replyPageUrl == null) {
                 replyFAB.hide();
                 replyFAB.setTag(false);
-            } else {
+            }
+            else {
                 replyFAB.show();
                 replyFAB.setTag(true);
             }
@@ -742,7 +761,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                             errorTextview.setVisibility(View.GONE);
                             recyclerView.setVisibility(View.VISIBLE);
                         });
-                    } else {
+                    }
+                    else {
                         // a page has already been loaded
                         viewModel.setPageIndicatorIndex(viewModel.getCurrentPageIndex(), false);
                         snackbar = Snackbar.make(findViewById(R.id.main_content),
@@ -787,7 +807,8 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 replyFAB.hide();
                 replyFAB.setTag(false);
                 bottomNavBar.setVisibility(View.GONE);
-            } else {
+            }
+            else {
                 Timber.i("Prepare for reply unsuccessful");
                 Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
             }
@@ -803,16 +824,19 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 replyFAB.hide();
                 replyFAB.setTag(false);
                 bottomNavBar.setVisibility(View.GONE);
-            } else {
+            }
+            else {
                 Timber.i("Prepare for edit unsuccessful");
                 Snackbar.make(findViewById(R.id.main_content), getString(R.string.generic_network_error), Snackbar.LENGTH_SHORT).show();
             }
         });
     }
 
-    /**This method sets a long click listener on the title of the topic. Once the
+    /**
+     * This method sets a long click listener on the title of the topic. Once the
      * listener gets triggered, it copies the link url of the topic in the clipboard.
-     * This method is getting called on the onCreate() of the TopicActivity*/
+     * This method is getting called on the onCreate() of the TopicActivity
+     */
     void setToolbarOnLongClickListener(String url) {
         toolbar.setOnLongClickListener(view -> {
             //Try to set the clipboard text

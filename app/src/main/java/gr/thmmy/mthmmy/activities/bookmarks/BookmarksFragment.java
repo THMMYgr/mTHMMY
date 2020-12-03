@@ -23,6 +23,7 @@ import gr.thmmy.mthmmy.model.Bookmark;
 //TODO refactor using RecyclerView
 public class BookmarksFragment extends Fragment {
     enum Type {TOPIC, BOARD}
+
     private static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
     private static final String ARG_BOOKMARKS = "BOOKMARKS";
 
@@ -32,7 +33,7 @@ public class BookmarksFragment extends Fragment {
 
     static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
     static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
-    static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
+    static final String INTERACTION_REMOVE_BOARD_BOOKMARK = "REMOVE_BOARD_BOOKMARK";
 
     private TextView nothingBookmarkedTextView;
 
@@ -46,16 +47,16 @@ public class BookmarksFragment extends Fragment {
     public BookmarksFragment() {/* Required empty public constructor */}
 
     private BookmarksFragment(Type type) {
-        this.type=type;
-        if(type==Type.TOPIC){
-            this.interactionClick=INTERACTION_CLICK_TOPIC_BOOKMARK;
-            this.interactionToggle=INTERACTION_TOGGLE_TOPIC_NOTIFICATION;
-            this.interactionRemove=INTERACTION_REMOVE_TOPIC_BOOKMARK;
+        this.type = type;
+        if (type == Type.TOPIC) {
+            this.interactionClick = INTERACTION_CLICK_TOPIC_BOOKMARK;
+            this.interactionToggle = INTERACTION_TOGGLE_TOPIC_NOTIFICATION;
+            this.interactionRemove = INTERACTION_REMOVE_TOPIC_BOOKMARK;
         }
-        else if (type==Type.BOARD){
-            this.interactionClick=INTERACTION_CLICK_BOARD_BOOKMARK;
-            this.interactionToggle=INTERACTION_TOGGLE_BOARD_NOTIFICATION;
-            this.interactionRemove=INTERACTION_REMOVE_BOARD_BOOKMARK;
+        else if (type == Type.BOARD) {
+            this.interactionClick = INTERACTION_CLICK_BOARD_BOOKMARK;
+            this.interactionToggle = INTERACTION_TOGGLE_BOARD_NOTIFICATION;
+            this.interactionRemove = INTERACTION_REMOVE_BOARD_BOOKMARK;
         }
     }
 
@@ -104,7 +105,7 @@ public class BookmarksFragment extends Fragment {
         final LinearLayout bookmarksLinearView = rootView.findViewById(R.id.bookmarks_container);
         nothingBookmarkedTextView = rootView.findViewById(R.id.nothing_bookmarked);
 
-        if(this.bookmarks != null && !this.bookmarks.isEmpty()) {
+        if (this.bookmarks != null && !this.bookmarks.isEmpty()) {
             hideNothingBookmarked();
             for (final Bookmark bookmark : bookmarks) {
                 if (bookmark != null && bookmark.getTitle() != null) {
@@ -134,20 +135,21 @@ public class BookmarksFragment extends Fragment {
 
                     (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
                         Activity activity = getActivity();
-                        if (activity instanceof BookmarksActivity){
+                        if (activity instanceof BookmarksActivity) {
                             ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionRemove, bookmark);
                             bookmarks.remove(bookmark);
                         }
                         row.setVisibility(View.GONE);
 
-                        if (bookmarks.isEmpty()){
+                        if (bookmarks.isEmpty()) {
                             showNothingBookmarked();
                         }
                     });
                     bookmarksLinearView.addView(row);
                 }
             }
-        } else
+        }
+        else
             showNothingBookmarked();
 
         return rootView;
@@ -155,12 +157,12 @@ public class BookmarksFragment extends Fragment {
 
 
     private void showNothingBookmarked() {
-        if(nothingBookmarkedTextView!=null)
+        if (nothingBookmarkedTextView != null)
             nothingBookmarkedTextView.setVisibility(View.VISIBLE);
     }
 
-    private void hideNothingBookmarked(){
-        if(nothingBookmarkedTextView!=null)
+    private void hideNothingBookmarked() {
+        if (nothingBookmarkedTextView != null)
             nothingBookmarkedTextView.setVisibility(View.INVISIBLE);
     }
 

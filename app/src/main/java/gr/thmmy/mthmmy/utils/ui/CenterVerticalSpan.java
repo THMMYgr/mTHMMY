@@ -15,7 +15,7 @@ public class CenterVerticalSpan extends ReplacementSpan {
     }
 
     @Override
-    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom,@NonNull Paint paint) {
+    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, @NonNull Paint paint) {
         text = text.subSequence(start, end);
         Rect charSize = new Rect();
         paint.getTextBounds(text.toString(), 0, 1, charSize);

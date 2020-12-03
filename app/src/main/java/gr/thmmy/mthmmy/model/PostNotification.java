@@ -30,12 +30,12 @@ public class PostNotification {
      * Constructor specifying all class variables necessary to summarize this post. All variables
      * are declared final, once assigned they cannot change.
      *
-     * @param postId         this post's id
-     * @param topicId         this post's topicId
-     * @param topicTitle          this post's topicTitle
-     * @param poster         username of this post's author
-     * @param boardId         one of this post's boardIds (-1 if it is a topic notification)
-     * @param boardTitle         one of this post's boardTitles (null if it is a topic notification)
+     * @param postId     this post's id
+     * @param topicId    this post's topicId
+     * @param topicTitle this post's topicTitle
+     * @param poster     username of this post's author
+     * @param boardId    one of this post's boardIds (-1 if it is a topic notification)
+     * @param boardTitle one of this post's boardTitles (null if it is a topic notification)
      */
     public PostNotification(int postId, int topicId, String topicTitle, String poster, int boardId, String boardTitle) {
         this.postId = postId;

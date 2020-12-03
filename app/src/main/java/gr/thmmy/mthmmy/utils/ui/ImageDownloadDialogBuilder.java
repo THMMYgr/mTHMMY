@@ -20,7 +20,7 @@ import timber.log.Timber;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
-public class ImageDownloadDialogBuilder extends AlertDialog.Builder{
+public class ImageDownloadDialogBuilder extends AlertDialog.Builder {
     private static final String[] colors = {"Copy image location", "Save Image"};
 
     private Context context;
@@ -32,7 +32,7 @@ public class ImageDownloadDialogBuilder extends AlertDialog.Builder{
         this.imageURL = imageURL;
 
         setItems(colors, (dialog, which) -> {
-            if(which == 0)
+            if (which == 0)
                 copyUrlToClipboard();
             else {
                 try {
@@ -46,11 +46,11 @@ public class ImageDownloadDialogBuilder extends AlertDialog.Builder{
         });
     }
 
-    private void copyUrlToClipboard(){
+    private void copyUrlToClipboard() {
         ClipboardManager clipboard = (ClipboardManager) BaseApplication.getInstance().getSystemService(CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("ReactiveWebViewCopiedText", imageURL);
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(BaseApplication.getInstance().getApplicationContext(),context.getString(R.string.link_copied_msg),Toast.LENGTH_SHORT).show();
+        Toast.makeText(BaseApplication.getInstance().getApplicationContext(), context.getString(R.string.link_copied_msg), Toast.LENGTH_SHORT).show();
     }
 
     private BaseActivity getBaseActivity() {
@@ -58,7 +58,7 @@ public class ImageDownloadDialogBuilder extends AlertDialog.Builder{
         while (baseActivityContext instanceof ContextWrapper) {
             if (context instanceof BaseActivity)
                 return (BaseActivity) context;
-            baseActivityContext = ((ContextWrapper)context).getBaseContext();
+            baseActivityContext = ((ContextWrapper) context).getBaseContext();
         }
         return null;
     }

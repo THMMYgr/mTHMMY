@@ -100,7 +100,7 @@ public class LoginActivity extends BaseActivity {
         if (loginTask != null && loginTask.getStatus() == AsyncTask.Status.RUNNING) {
             loginTask.cancel(true);
         }
-        if(!isTaskRoot())
+        if (!isTaskRoot())
             overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
     }
 
@@ -117,7 +117,8 @@ public class LoginActivity extends BaseActivity {
             inputUsername.setError("Enter a valid username");
             inputUsername.requestFocus();
             valid = false;
-        } else {
+        }
+        else {
             inputUsername.setError(null);
         }
 
@@ -126,7 +127,8 @@ public class LoginActivity extends BaseActivity {
             if (valid)
                 inputPassword.requestFocus();
             valid = false;
-        } else {
+        }
+        else {
             inputPassword.setError(null);
         }
 
@@ -170,10 +172,11 @@ public class LoginActivity extends BaseActivity {
                             "Welcome, " + sessionManager.getUsername() + "!", Toast.LENGTH_LONG)
                             .show();
                     BaseApplication.getInstance().logFirebaseAnalyticsEvent(FirebaseAnalytics.Event.LOGIN, null);
-                    if(initialRedirect){
+                    if (initialRedirect) {
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
-                    } else
+                    }
+                    else
                         onBackPressed();
 
                     finish();

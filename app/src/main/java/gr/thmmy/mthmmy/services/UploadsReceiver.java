@@ -87,7 +87,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
 
     @Override
     public void onProgress(Context context, UploadInfo uploadInfo) {
-        Timber.i("Upload in progress (id: %s)",uploadInfo.getUploadId());
+        Timber.i("Upload in progress (id: %s)", uploadInfo.getUploadId());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
                 uploadInfo.getUploadId().equals(dialogUploadID) &&
                 uploadProgressDialog != null) {
@@ -127,7 +127,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
     @Override
     public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse,
                         Exception exception) {
-        Timber.i("Error while uploading (id: %s)",uploadInfo.getUploadId());
+        Timber.i("Error while uploading (id: %s)", uploadInfo.getUploadId());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
                 uploadInfo.getUploadId().equals(dialogUploadID) &&
                 uploadProgressDialog != null) {
@@ -162,7 +162,8 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
                     uploadProgressDialog.dismiss();
                 }
             }
-        } else {
+        }
+        else {
             cancelNotification(context, uploadInfo.getNotificationID());
             Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
             combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadInfo.getUploadId());
@@ -183,17 +184,17 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
         }
 
         String response = serverResponse.getBodyAsString();
-        if(response.contains("Η προσθήκη του αρχείου ήταν επιτυχημένη.")||response.contains("The upload was successful.")){
-            Timber.i("Upload completed successfully (id: %s)",uploadInfo.getUploadId());
+        if (response.contains("Η προσθήκη του αρχείου ήταν επιτυχημένη.") || response.contains("The upload was successful.")) {
+            Timber.i("Upload completed successfully (id: %s)", uploadInfo.getUploadId());
             Toast.makeText(context.getApplicationContext(), "Upload completed successfully", Toast.LENGTH_SHORT).show();
             BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
         }
         else {
             MultipartUploadException multipartUploadException = new MultipartUploadException(response);
             Timber.e(multipartUploadException);
-            onError(context,uploadInfo,serverResponse,multipartUploadException);
+            onError(context, uploadInfo, serverResponse, multipartUploadException);
         }
-        
+
         if (storage == null) {
             storage = new Storage(context.getApplicationContext());
         }
@@ -224,7 +225,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
         //UploadsReceiver.multipartUploadRetryIntent = multipartUploadRetryIntent;
     }
 
-    private void cancelNotification(Context context, int notificationId){
+    private void cancelNotification(Context context, int notificationId) {
         NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().
                 getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null)

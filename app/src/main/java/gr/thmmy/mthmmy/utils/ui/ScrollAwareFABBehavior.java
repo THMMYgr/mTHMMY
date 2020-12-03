@@ -45,7 +45,8 @@ public class ScrollAwareFABBehavior extends CoordinatorLayout.Behavior<FloatingA
                     fab.setVisibility(View.INVISIBLE);
                 }
             });
-        } else if (child.getTag() != null && (boolean) child.getTag() && (dyConsumed < 0 ||
+        }
+        else if (child.getTag() != null && (boolean) child.getTag() && (dyConsumed < 0 ||
                 !target.canScrollVertically(-1) && dyUnconsumed < -50)) {
             child.show(new FloatingActionButton.OnVisibilityChangedListener() {
                 @Override

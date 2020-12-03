@@ -81,7 +81,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "An error has occurred\nAborting.", Toast.LENGTH_SHORT).show();
                 finish();
             }
-        } else downloadsUrl = downloadsIndexUrl;
+        }
+        else downloadsUrl = downloadsIndexUrl;
 
         //Initialize toolbar
         toolbar = findViewById(R.id.toolbar);
@@ -166,7 +167,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             if (downloadsUrl.contains("tpstart"))
                 parseDownloadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, downloadsUrl.substring(0
                         , downloadsUrl.lastIndexOf(";tpstart=")) + ";tpstart=" + pagesLoaded * 10);
-            else parseDownloadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, downloadsUrl + ";tpstart=" + pagesLoaded * 10);
+            else
+                parseDownloadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, downloadsUrl + ";tpstart=" + pagesLoaded * 10);
         }
     }
 
@@ -237,7 +239,8 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                         int pageNumber = Integer.parseInt(page.text());
                         if (pageNumber > numberOfPages) numberOfPages = pageNumber;
                     }
-                } else numberOfPages = 1;
+                }
+                else numberOfPages = 1;
 
                 Elements rows = downloadPage.select("table.tborder>tbody>tr");
                 if (type == Download.DownloadItemType.DOWNLOADS_CATEGORY) {
@@ -253,20 +256,23 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
 
                                 parsedDownloads.add(new Download(type, url, title, subtitle, null,
                                         true, null));
-                            } else {
+                            }
+                            else {
                                 String stats = row.text();
                                 stats = stats.replace(title, "").replace(subtitle, "").trim();
                                 parsedDownloads.add(new Download(type, url, title, subtitle, stats,
                                         false, null));
                             }
-                        } else {
+                        }
+                        else {
                             String stats = row.text();
                             stats = stats.replace(title, "").replace(subtitle, "").trim();
                             parsedDownloads.add(new Download(type, url, title, subtitle, stats,
                                     false, null));
                         }
                     }
-                } else {
+                }
+                else {
                     download = new Download(type,
                             rows.select("b>a").first().attr("href"),
                             rows.select("b>a").first().text(),

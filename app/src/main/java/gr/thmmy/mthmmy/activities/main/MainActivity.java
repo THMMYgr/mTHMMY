@@ -164,7 +164,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
             i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(i);
-        } else
+        }
+        else
             Timber.e("onUnreadFragmentInteraction TopicSummary came without a link");
     }
 
@@ -256,26 +257,31 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                         redirectIntent.putExtra(BUNDLE_BOARD_URL, uri.toString());
                         redirectIntent.putExtra(BUNDLE_BOARD_TITLE, "");
                         startActivity(redirectIntent);
-                    } else if (page.is(ThmmyPage.PageCategory.TOPIC)) {
+                    }
+                    else if (page.is(ThmmyPage.PageCategory.TOPIC)) {
                         Intent redirectIntent = new Intent(MainActivity.this, TopicActivity.class);
                         redirectIntent.putExtra(BUNDLE_TOPIC_URL, uri.toString());
                         redirectIntent.putExtra(BUNDLE_TOPIC_TITLE, "");
                         startActivity(redirectIntent);
-                    } else if (page.is(ThmmyPage.PageCategory.PROFILE)) {
+                    }
+                    else if (page.is(ThmmyPage.PageCategory.PROFILE)) {
                         Intent redirectIntent = new Intent(MainActivity.this, ProfileActivity.class);
                         redirectIntent.putExtra(BUNDLE_PROFILE_URL, uri.toString());
                         redirectIntent.putExtra(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                         redirectIntent.putExtra(BUNDLE_PROFILE_USERNAME, "");
                         startActivity(redirectIntent);
-                    } else if (page.is(ThmmyPage.PageCategory.DOWNLOADS)) {
+                    }
+                    else if (page.is(ThmmyPage.PageCategory.DOWNLOADS)) {
                         Intent redirectIntent = new Intent(MainActivity.this, DownloadsActivity.class);
                         redirectIntent.putExtra(BUNDLE_DOWNLOADS_URL, uri.toString());
                         redirectIntent.putExtra(BUNDLE_DOWNLOADS_TITLE, "");
                         startActivity(redirectIntent);
-                    } else if (!page.is(ThmmyPage.PageCategory.INDEX)) {
+                    }
+                    else if (!page.is(ThmmyPage.PageCategory.INDEX)) {
                         Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This thmmy sector is not yet supported.", Toast.LENGTH_LONG).show();
                     }
-                } else {
+                }
+                else {
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This is not thmmy.", Toast.LENGTH_LONG).show();
                 }
             }

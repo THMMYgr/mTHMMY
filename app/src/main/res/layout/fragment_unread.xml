@@ -52,7 +52,7 @@
         android:indeterminate="true"
         android:visibility="invisible"
         app:mpb_indeterminateTint="@color/accent"
-        app:mpb_progressStyle="horizontal"/>
+        app:mpb_progressStyle="horizontal" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/unread_fab"

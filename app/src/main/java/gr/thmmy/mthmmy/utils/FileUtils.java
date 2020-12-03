@@ -41,7 +41,8 @@ public class FileUtils {
         }
         if (filename.toLowerCase().endsWith(".tar.gz")) {
             fileExtension = filename.substring(filename.length() - 7);
-        } else {
+        }
+        else {
             fileExtension = filename.substring(filename.lastIndexOf("."));
         }
 

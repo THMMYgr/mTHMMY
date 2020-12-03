@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bookmark_row"
     android:layout_width="match_parent"
@@ -21,7 +20,7 @@
         android:paddingStart="16dp"
         android:paddingEnd="0dp"
         android:textColor="@color/primary_text"
-        android:textSize="18sp"/>
+        android:textSize="18sp" />
 
     <ImageButton
         android:id="@+id/toggle_notification"
@@ -33,7 +32,7 @@
         android:paddingEnd="6dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/toggle_notification"
-        app:srcCompat="@drawable/ic_notification_on"/>
+        app:srcCompat="@drawable/ic_notification_on" />
 
     <ImageButton
         android:id="@+id/remove_bookmark"
@@ -46,5 +45,5 @@
         android:layout_marginEnd="12dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/remove_bookmark"
-        app:srcCompat="@drawable/ic_delete_accent_24dp"/>
+        app:srcCompat="@drawable/ic_delete_accent_24dp" />
 </LinearLayout>

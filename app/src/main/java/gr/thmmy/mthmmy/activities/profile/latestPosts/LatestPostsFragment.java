@@ -182,7 +182,7 @@ public class LatestPostsFragment extends BaseFragment {
 
         protected void onPostExecute(Boolean result) {
             if (Boolean.FALSE.equals(result))
-                Timber.e(new ParseException("Parsing failed (latest posts)"),"ParseException");   //TODO: This is inaccurate (e.g. can also have an I/O cause)
+                Timber.e(new ParseException("Parsing failed (latest posts)"), "ParseException");   //TODO: This is inaccurate (e.g. can also have an I/O cause)
             int prevSize = parsedTopicSummaries.size();
             parsedTopicSummaries.addAll(fetchedParsedTopicSummaries);
             latestPostsAdapter.notifyItemRangeInserted(prevSize, parsedTopicSummaries.size() - prevSize);
@@ -200,7 +200,7 @@ public class LatestPostsFragment extends BaseFragment {
                         select("td:has(table:Contains(Εμφάνιση μηνυμάτων)):not([style]) > table");
 
             if (!latestPostsRows.select("td:contains(Sorry, no matches were found)").isEmpty() ||
-                    !latestPostsRows.select("td:contains(Δυστυχώς δεν βρέθηκε τίποτα)").isEmpty()){
+                    !latestPostsRows.select("td:contains(Δυστυχώς δεν βρέθηκε τίποτα)").isEmpty()) {
                 userHasPosts = false;
                 fetchedParsedTopicSummaries.add(null);
                 return true;
@@ -216,14 +216,15 @@ public class LatestPostsFragment extends BaseFragment {
                                 numberOfPages = Integer.parseInt(page.text());
                         }
                     }
-                } else {
+                }
+                else {
                     Elements rowHeader = row.select("td.middletext");
                     if (rowHeader.size() != 2)
                         return false;
                     else {
-                        pTopicTitle = rowHeader.first().text().replaceAll("\\u00a0","").trim();
+                        pTopicTitle = rowHeader.first().text().replaceAll("\\u00a0", "").trim();
                         pTopicUrl = rowHeader.first().select("a").last().attr("href");
-                        pDateTime = rowHeader.last().text().replaceAll("(on: )|(στις: )","");
+                        pDateTime = rowHeader.last().text().replaceAll("(on: )|(στις: )", "");
                     }
                     pPost = ParseHelpers.youtubeEmbeddedFix(row.select("div.post").first());
 

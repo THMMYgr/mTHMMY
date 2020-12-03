@@ -74,6 +74,7 @@ public class PrepareForEditTask extends AsyncTask<String, Void, PrepareForEditRe
 
     public interface PrepareForEditCallbacks {
         void onPrepareEditStarted();
+
         void onPrepareEditCancelled();
     }
 

@@ -125,7 +125,7 @@ public class SummaryFragment extends Fragment {
          * @see org.jsoup.Jsoup Jsoup
          */
         LinkedHashMap<String, String> parseProfileSummary(Document profile) {
-            LinkedHashMap<String, String> parsedInformation  = new LinkedHashMap<>();
+            LinkedHashMap<String, String> parsedInformation = new LinkedHashMap<>();
 
             //Contains all summary's rows
             Elements summaryRows = profile.select("td.windowbg > table > tbody > tr");
@@ -135,16 +135,16 @@ public class SummaryFragment extends Fragment {
 
                 int tdSize = summaryRow.select("td").size();
 
-                if (tdSize > 1){
+                if (tdSize > 1) {
                     key = summaryRow.select("td").first().text().trim();
 
                     if (key.startsWith("Name") || key.startsWith("Όνομα"))
                         continue;
-                    else if (key.startsWith("Signature") || key.startsWith("Υπογραφή")){
+                    else if (key.startsWith("Signature") || key.startsWith("Υπογραφή")) {
                         key = summaryRow.selectFirst("td > table > tbody > tr > td").text().trim();
                         summaryRow.selectFirst("td > table > tbody > tr").remove(); //key not needed, outer html needed for CSS
                         value = ParseHelpers.emojiTagToHtml(ParseHelpers.youtubeEmbeddedFix(summaryRow));   // Is emojiTagToHtml() really needed here?
-                        if(summaryRow.text().trim().isEmpty())
+                        if (summaryRow.text().trim().isEmpty())
                             continue;
                         value = ("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n" +
                                 "<link rel=\"stylesheet\" type=\"text/css\" href=\"style_light.css\" />\n" +
@@ -176,7 +176,7 @@ public class SummaryFragment extends Fragment {
             String key = entry.getKey();
             String value = entry.getValue();
 
-            if (key.startsWith("Current Status") || key.startsWith("Κατάσταση")){
+            if (key.startsWith("Current Status") || key.startsWith("Κατάσταση")) {
                 addEmptyView();
                 continue;
             }
@@ -194,7 +194,7 @@ public class SummaryFragment extends Fragment {
 
             String textViewContent = "<b>" + key + "</b> " + value;
 
-            if (key.startsWith("Signature") || key.startsWith("Υπογραφή")){
+            if (key.startsWith("Signature") || key.startsWith("Υπογραφή")) {
                 addEmptyView();
                 textViewContent = "<b>" + key + "</b>";
             }
@@ -219,7 +219,7 @@ public class SummaryFragment extends Fragment {
         }
     }
 
-    private void addEmptyView(){
+    private void addEmptyView() {
         mainContent.addView(new TextView(this.getContext()));
     }
 }

@@ -31,7 +31,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <gr.thmmy.mthmmy.views.editorview.EmojiKeyboard
         android:id="@+id/emoji_keyboard"

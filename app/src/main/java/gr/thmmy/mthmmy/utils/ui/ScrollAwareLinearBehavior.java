@@ -45,7 +45,8 @@ public class ScrollAwareLinearBehavior extends CoordinatorLayout.Behavior<View> 
         if (bottomNavBar.getVisibility() == View.VISIBLE && (dyConsumed > 0
                 || (!target.canScrollVertically(-1) && dyConsumed == 0 && dyUnconsumed > 50))) {
             hide(bottomNavBar);
-        } else if (bottomNavBar.getVisibility() == View.INVISIBLE && (dyConsumed < 0
+        }
+        else if (bottomNavBar.getVisibility() == View.INVISIBLE && (dyConsumed < 0
                 || (!target.canScrollVertically(-1) && dyConsumed == 0 && dyUnconsumed < -50))) {
             show(bottomNavBar);
         }

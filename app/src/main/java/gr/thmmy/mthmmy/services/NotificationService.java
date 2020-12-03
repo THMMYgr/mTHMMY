@@ -63,12 +63,12 @@ public class NotificationService extends FirebaseMessagingService {
                     int boardId = -1;
                     String boardTitle = null;
                     int topicId = Integer.parseInt(json.getString("topicId"));
-                    if(remoteMessage.getFrom().contains("b")){
+                    if (remoteMessage.getFrom().contains("b")) {
                         Timber.i("FCM BOARD type message detected.");
 
                         SharedPreferences bookmarksFile = getSharedPreferences(BOOKMARKS_SHARED_PREFS, Context.MODE_PRIVATE);
                         String bookmarkedTopicsString = bookmarksFile.getString(BOOKMARKED_TOPICS_KEY, null);
-                        if (bookmarkedTopicsString != null && matchExistsById(Bookmark.stringToArrayList(bookmarkedTopicsString), topicId)){
+                        if (bookmarkedTopicsString != null && matchExistsById(Bookmark.stringToArrayList(bookmarkedTopicsString), topicId)) {
                             Timber.i("Board notification suppressed (already subscribed to topic).");
                             return;
                         }
@@ -76,12 +76,12 @@ public class NotificationService extends FirebaseMessagingService {
                         boardId = Integer.parseInt(json.getString("boardId"));
 
                         String bookmarkedBoardsString = bookmarksFile.getString(BOOKMARKED_BOARDS_KEY, null);
-                        if (bookmarkedBoardsString != null){
+                        if (bookmarkedBoardsString != null) {
                             ArrayList<Bookmark> boardBookmarks = Bookmark.stringToArrayList(bookmarkedBoardsString);
                             ArrayList<Integer> subBoardIds = getSubBoardIds(json.getString("boardIds"), boardId);
                             //TODO: Also suppress if user has chosen to be notified only for direct children of boardId && !subBoardIds.isEmpty()
-                            for(int subId:subBoardIds){
-                                if(matchExistsById(boardBookmarks, subId)){
+                            for (int subId : subBoardIds) {
+                                if (matchExistsById(boardBookmarks, subId)) {
                                     Timber.i("Board notification suppressed (already subscribed to a subBoard).");
                                     return;
                                 }
@@ -98,7 +98,8 @@ public class NotificationService extends FirebaseMessagingService {
                     String poster = json.getString("poster");
 
                     sendNotification(new PostNotification(postId, topicId, topicTitle, poster, boardId, boardTitle));
-                } else
+                }
+                else
                     Timber.i("Notification suppressed (own userID).");
             } catch (JSONException e) {
                 Timber.e(e, "JSON Exception");
@@ -106,17 +107,17 @@ public class NotificationService extends FirebaseMessagingService {
         }
     }
 
-    private static ArrayList<Integer> getSubBoardIds(String boardIdsString, int boardId){
+    private static ArrayList<Integer> getSubBoardIds(String boardIdsString, int boardId) {
         ArrayList<Integer> subBoardIds = new ArrayList<>();
         Pattern p = Pattern.compile("(\\d+)");
         Matcher m = p.matcher(boardIdsString);
-        boolean boardIdfound=false;
-        while (m.find()){
+        boolean boardIdfound = false;
+        while (m.find()) {
             int subBoardId = Integer.parseInt(m.group());
-            if(boardIdfound)
+            if (boardIdfound)
                 subBoardIds.add(subBoardId);
-            else if(boardId==subBoardId)
-                boardIdfound=true;
+            else if (boardId == subBoardId)
+                boardIdfound = true;
         }
         return subBoardIds;
     }
@@ -154,7 +155,8 @@ public class NotificationService extends FirebaseMessagingService {
         if (notificationsVibrateEnabled) {
             if (notificationDefaultValues != -1) {
                 notificationDefaultValues |= Notification.DEFAULT_VIBRATE;
-            } else {
+            }
+            else {
                 notificationDefaultValues = Notification.DEFAULT_VIBRATE;
             }
 
@@ -162,7 +164,8 @@ public class NotificationService extends FirebaseMessagingService {
         if (notificationSoundUri == null) {
             if (notificationDefaultValues != -1) {
                 notificationDefaultValues = Notification.DEFAULT_SOUND;
-            } else {
+            }
+            else {
                 notificationDefaultValues |= Notification.DEFAULT_SOUND;
             }
         }
@@ -180,15 +183,15 @@ public class NotificationService extends FirebaseMessagingService {
 
         int notificationId;
         String contentText;
-        if(isTopicNotification){
+        if (isTopicNotification) {
             notificationId = postNotification.getTopicId();
             contentText = "New post by " + postNotification.getPoster();
         }
-        else{
+        else {
             // Using Cantor pairing function (plus the minus sign) for id uniqueness
             int k1 = postNotification.getTopicId();
             int k2 = postNotification.getBoardId();
-            notificationId = -(((k1+k2)*(k1+k2+1))/2+k2);
+            notificationId = -(((k1 + k2) * (k1 + k2 + 1)) / 2 + k2);
             contentText = "New post in \"" + postNotification.getTopicTitle() + "\"";
         }
 
@@ -198,7 +201,7 @@ public class NotificationService extends FirebaseMessagingService {
             Notification existingNotification = getActiveNotification(notificationId);
             if (existingNotification != null) {
                 newPostsCount = existingNotification.extras.getInt(NEW_POSTS_COUNT) + 1;
-                if(isTopicNotification)
+                if (isTopicNotification)
                     contentText = newPostsCount + " new posts";
                 else
                     contentText = newPostsCount + " new posts in " + postNotification.getTopicTitle();
@@ -217,7 +220,7 @@ public class NotificationService extends FirebaseMessagingService {
                         .setGroup(GROUP_KEY)
                         .addExtras(notificationExtras);
 
-        if(isTopicNotification)
+        if (isTopicNotification)
             notificationBuilder.setContentTitle(postNotification.getTopicTitle());
 
         else
@@ -262,7 +265,7 @@ public class NotificationService extends FirebaseMessagingService {
 
         // Since Android Oreo notification channel is needed.
         if (buildVersion >= Build.VERSION_CODES.O && notificationManager.getNotificationChannel(CHANNEL_ID) == null)
-                notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
+            notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
 
 
         notificationManager.notify(NEW_POST_TAG, notificationId, notificationBuilder.build());

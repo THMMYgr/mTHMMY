@@ -82,11 +82,13 @@ public class CreateContentActivity extends BaseActivity implements NewTopicTask.
             }
         });
     }
+
     @Override
     public void onBackPressed() {
         if (emojiKeyboard.getVisibility() == View.VISIBLE) {
             emojiKeyboard.setVisibility(View.GONE);
-        } else {
+        }
+        else {
             super.onBackPressed();
         }
     }
@@ -103,7 +105,8 @@ public class CreateContentActivity extends BaseActivity implements NewTopicTask.
         if (success) {
             Timber.i("New topic created successfully");
             finish();
-        } else {
+        }
+        else {
             Timber.w("New topic creation failed");
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Failed to create new topic!", Toast.LENGTH_LONG).show();
             finish();

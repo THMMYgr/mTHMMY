@@ -177,7 +177,7 @@ public class UploadActivity extends BaseActivity {
         generateFieldsButton = findViewById(R.id.upload_title_description_builder);
         generateFieldsButton.setEnabled(false);
         generateFieldsButton.setOnClickListener(view -> {
-            if(uploadsCourse!=null && !uploadsCourse.getName().equals("") && !semester.equals("")){
+            if (uploadsCourse != null && !uploadsCourse.getName().equals("") && !semester.equals("")) {
                 Intent intent = new Intent(UploadActivity.this, UploadFieldsBuilderActivity.class);
                 Bundle builderExtras = new Bundle();
                 builderExtras.putString(BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_NAME, uploadsCourse.getName());
@@ -329,7 +329,8 @@ public class UploadActivity extends BaseActivity {
                                 tempFileUri = UploadsHelper.createTempFile(this, storage,
                                         uploadFile.getFileUri(),
                                         FileUtils.getFilenameWithoutExtension(editTextFilename));
-                            } else {
+                            }
+                            else {
                                 //Renames the photo taken
                                 String photoPath = uploadFile.getPhotoFile().getPath();
                                 photoPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
@@ -348,14 +349,16 @@ public class UploadActivity extends BaseActivity {
                                 uploadFile.setFileUri(FileProvider.getUriForFile(this, getPackageName() +
                                         ".provider", uploadFile.getPhotoFile()));
                             }
-                        } else {
+                        }
+                        else {
                             requestPerms(UPLOAD_REQUEST_STORAGE_CODE);
                             zipTask = null;
                             dialog.cancel();
                             return;
                         }
                     }
-                } else {
+                }
+                else {
                     Uri[] filesListArray = new Uri[filesList.size()];
                     for (int i = 0; i < filesList.size(); ++i) {
                         filesListArray[i] = filesList.get(i).getFileUri();
@@ -368,7 +371,8 @@ public class UploadActivity extends BaseActivity {
                     if (checkPerms()) {
                         zipTask.execute(filesListArray);
                         finish();
-                    } else {
+                    }
+                    else {
                         requestPerms(UPLOAD_REQUEST_STORAGE_CODE);
                         dialog.cancel();
                     }
@@ -384,7 +388,8 @@ public class UploadActivity extends BaseActivity {
                                 ? filesList.get(0).getFileUri()
                                 : tempFileUri)) {
                     finish();
-                } else {
+                }
+                else {
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Couldn't initiate upload.", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -406,7 +411,8 @@ public class UploadActivity extends BaseActivity {
             //Parses the uploads page
             parseUploadPageTask = new ParseUploadPageTask();
             parseUploadPageTask.execute(uploadIndexUrl);
-        } else {
+        }
+        else {
             //Renders the already parsed data
             updateUIElements();
             generateFieldsButton.setEnabled(true);
@@ -465,7 +471,8 @@ public class UploadActivity extends BaseActivity {
                     addFileViewToList(filename);
                     filesList.add(new UploadFile(false, newFileUri, null));
                 }
-            } else {
+            }
+            else {
                 Uri newFileUri = data.getData();
                 if (newFileUri != null) {
                     String filename = FileUtils.filenameFromUri(this, newFileUri);
@@ -481,23 +488,30 @@ public class UploadActivity extends BaseActivity {
                         filename = filename.toLowerCase();
                         if (filename.endsWith(".jpg")) {
                             fileIcon = "jpg_image.gif";
-                        } else if (filename.endsWith(".gif")) {
+                        }
+                        else if (filename.endsWith(".gif")) {
                             fileIcon = "gif_image.gif";
-                        } else if (filename.endsWith(".png")) {
+                        }
+                        else if (filename.endsWith(".png")) {
                             fileIcon = "png_image.gif";
-                        } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
+                        }
+                        else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
                             fileIcon = "html_file.gif";
-                        } else if (filename.endsWith(".pdf") || filename.endsWith(".doc") ||
+                        }
+                        else if (filename.endsWith(".pdf") || filename.endsWith(".doc") ||
                                 filename.endsWith("djvu")) {
                             fileIcon = "text_file.gif";
-                        } else if (filename.endsWith(".zip") || filename.endsWith(".rar") ||
+                        }
+                        else if (filename.endsWith(".zip") || filename.endsWith(".rar") ||
                                 filename.endsWith(".tar") || filename.endsWith(".tar.gz") ||
                                 filename.endsWith(".gz")) {
                             fileIcon = "archive.gif";
-                        } else {
+                        }
+                        else {
                             fileIcon = "blank.gif";
                         }
-                    } else {
+                    }
+                    else {
                         fileIcon = "archive.gif";
                         textWatcher.setFileExtension(".zip");
 
@@ -509,7 +523,8 @@ public class UploadActivity extends BaseActivity {
                     filesList.add(new UploadFile(false, newFileUri, null));
                 }
             }
-        } else if (requestCode == AFR_REQUEST_CODE_CAMERA) {
+        }
+        else if (requestCode == AFR_REQUEST_CODE_CAMERA) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Deletes image file
                 storage.deleteFile(photoFileCreated.getAbsolutePath());
@@ -525,7 +540,8 @@ public class UploadActivity extends BaseActivity {
                 }
 
                 fileIcon = "jpg_image.gif";
-            } else {
+            }
+            else {
                 fileIcon = "archive.gif";
                 textWatcher.setFileExtension(".zip");
 
@@ -538,7 +554,8 @@ public class UploadActivity extends BaseActivity {
             addFileViewToList(FileUtils.getFilenameWithoutExtension(FileUtils.
                     filenameFromUri(this, newFile.getFileUri())));
             filesList.add(newFile);
-        } else if (requestCode == AFR_REQUEST_CODE_FIELDS_BUILDER) {
+        }
+        else if (requestCode == AFR_REQUEST_CODE_FIELDS_BUILDER) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 return;
             }
@@ -546,7 +563,8 @@ public class UploadActivity extends BaseActivity {
             String previousName = uploadFilename.getText().toString();
             if (previousName.isEmpty()) {
                 uploadFilename.setText(data.getStringExtra(RESULT_FILENAME));
-            } else {
+            }
+            else {
                 String extractedExtension = FileUtils.getFileExtension(previousName);
                 String filenameWithExtension = data.getStringExtra(RESULT_FILENAME) +
                         (extractedExtension != null ? extractedExtension : "");
@@ -556,7 +574,8 @@ public class UploadActivity extends BaseActivity {
 
             uploadTitle.setText(data.getStringExtra(RESULT_TITLE));
             uploadDescription.setText(data.getStringExtra(RESULT_DESCRIPTION));
-        } else {
+        }
+        else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -579,14 +598,15 @@ public class UploadActivity extends BaseActivity {
 
                     zipTask.execute(filesListArray);
                     finish();
-                } else {
+                }
+                else {
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please retry uploading.", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
     }
 
-    private void setZipUploadFilename(){
+    private void setZipUploadFilename() {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
         String zipFilename = "mTHMMY_" + timeStamp + ".zip";
         uploadFilename.setText(zipFilename);
@@ -656,7 +676,8 @@ public class UploadActivity extends BaseActivity {
             filesList.remove(fileIndex);
             if (filesList.isEmpty()) {
                 filesListView.setVisibility(View.GONE);
-            } else if (filesList.size() == 1) {
+            }
+            else if (filesList.size() == 1) {
                 textWatcher.setFileExtension(FileUtils.getFileExtension(FileUtils.
                         filenameFromUri(this, filesList.get(0).getFileUri())));
             }
@@ -667,7 +688,7 @@ public class UploadActivity extends BaseActivity {
     }
 
     public UploadNotificationConfig getConfigForUpload(Context context, String uploadID,
-                                                              String filename) {
+                                                       String filename) {
         UploadNotificationConfig uploadNotificationConfig = new UploadNotificationConfig();
         uploadNotificationConfig.setIconForAllStatuses(android.R.drawable.stat_sys_upload);
         uploadNotificationConfig.setTitleForAllStatuses("Uploading " + filename);
@@ -764,7 +785,8 @@ public class UploadActivity extends BaseActivity {
         }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
 
         @Override
         public void afterTextChanged(Editable s) {
@@ -773,7 +795,8 @@ public class UploadActivity extends BaseActivity {
             if (filenameWithoutExtension != null && !filenameWithoutExtension.isEmpty() &&
                     !filenameWithoutExtension.matches("[0-9a-zA-Z~!@#$%^&()_+=\\-`\\[\\]{};',.]+")) {
                 uploadFilenameInfo.setImageResource(R.drawable.ic_info_outline_warning_24dp);
-            } else {
+            }
+            else {
                 uploadFilenameInfo.setImageResource(R.drawable.ic_info_outline_white_24dp);
             }
 
@@ -811,7 +834,8 @@ public class UploadActivity extends BaseActivity {
 
             if (!oldFilename.isEmpty()) {
                 newFilename = FileUtils.getFilenameWithoutExtension(oldFilename) + extension;
-            } else {
+            }
+            else {
                 newFilename = extension;
             }
 
@@ -888,9 +912,10 @@ public class UploadActivity extends BaseActivity {
         }
 
         @Override
-        public void onNothingSelected(AdapterView<?> parent) { }
+        public void onNothingSelected(AdapterView<?> parent) {
+        }
 
-        private void setCourseAndSemester(){
+        private void setCourseAndSemester() {
             uploadsCourse = null;
             semester = "";
             if (categorySelected.equals("-1")) return;
@@ -910,12 +935,14 @@ public class UploadActivity extends BaseActivity {
                             categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
                 }
                 else return;
-            } else if (numberOfSpinners == 4) {
+            }
+            else if (numberOfSpinners == 4) {
                 maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
                         categoriesSpinners.getChildAt(numberOfSpinners - 3)).getSelectedItem();
                 maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
                         categoriesSpinners.getChildAt(numberOfSpinners - 1)).getSelectedItem();
-            } else {
+            }
+            else {
                 maybeSemester = (String) ((AppCompatSpinnerWithoutDefault)
                         categoriesSpinners.getChildAt(numberOfSpinners - 2)).getSelectedItem();
                 maybeCourse = (String) ((AppCompatSpinnerWithoutDefault)
@@ -926,14 +953,14 @@ public class UploadActivity extends BaseActivity {
             if (maybeCourse == null) return;
 
             String retrievedCourse = maybeCourse.replaceAll("-", "")
-                                                .replaceAll("\\((πρώην|πρωην).*\\)","")
-                                                .replace("(ΝΠΣ)", "")
-                                                .trim();
+                    .replaceAll("\\((πρώην|πρωην).*\\)", "")
+                    .replace("(ΝΠΣ)", "")
+                    .trim();
 
-            if(!retrievedCourse.isEmpty()){
+            if (!retrievedCourse.isEmpty()) {
                 UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
 
-                if(foundUploadsCourse != null){
+                if (foundUploadsCourse != null) {
                     uploadsCourse = foundUploadsCourse;
                     semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
                     Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
@@ -974,25 +1001,29 @@ public class UploadActivity extends BaseActivity {
                 if (categoryText.startsWith("- ")) {
                     //This is a level one subcategory
                     uploadRootCategories.get(uploadRootCategories.size() - 1).addSubCategory(categoryValue, categoryText);
-                } else if (categoryText.startsWith("-- ")) {
+                }
+                else if (categoryText.startsWith("-- ")) {
                     //This is a level two subcategory
                     UploadCategory rootLevelCategory = uploadRootCategories.get(uploadRootCategories.size() - 1);
                     UploadCategory firstLevelCategory = rootLevelCategory.getSubCategories().get(rootLevelCategory.getSubCategories().size() - 1);
                     firstLevelCategory.addSubCategory(categoryValue, categoryText);
-                } else if (categoryText.startsWith("--- ")) {
+                }
+                else if (categoryText.startsWith("--- ")) {
                     //This is a level three subcategory
                     UploadCategory rootLevelCategory = uploadRootCategories.get(uploadRootCategories.size() - 1);
                     UploadCategory firstLevelCategory = rootLevelCategory.getSubCategories().get(rootLevelCategory.getSubCategories().size() - 1);
                     UploadCategory secondLevelCategory = firstLevelCategory.getSubCategories().get(firstLevelCategory.getSubCategories().size() - 1);
                     secondLevelCategory.addSubCategory(categoryValue, categoryText);
-                } else if (categoryText.startsWith("---- ")) {
+                }
+                else if (categoryText.startsWith("---- ")) {
                     //This is a level four subcategory
                     UploadCategory rootLevelCategory = uploadRootCategories.get(uploadRootCategories.size() - 1);
                     UploadCategory firstLevelCategory = rootLevelCategory.getSubCategories().get(rootLevelCategory.getSubCategories().size() - 1);
                     UploadCategory secondLevelCategory = firstLevelCategory.getSubCategories().get(firstLevelCategory.getSubCategories().size() - 1);
                     UploadCategory thirdLevelCategory = secondLevelCategory.getSubCategories().get(secondLevelCategory.getSubCategories().size() - 1);
                     thirdLevelCategory.addSubCategory(categoryValue, categoryText);
-                } else {
+                }
+                else {
                     //This is a root category
                     uploadRootCategories.add(new UploadCategory(categoryValue, categoryText));
                 }

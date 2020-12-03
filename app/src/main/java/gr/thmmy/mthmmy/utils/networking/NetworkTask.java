@@ -36,7 +36,8 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
         this.onNetworkTaskFinishedListener = onNetworkTaskFinishedListener;
     }
 
-    public NetworkTask() {}
+    public NetworkTask() {
+    }
 
     @Override
     protected Parcel<T> doInBackground(String... input) {
@@ -85,7 +86,7 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
             // BaseApplication.getInstance().getSessionManager().clearSessionData();
             // BaseApplication.getInstance().getSessionManager().guestLogin();
             return new Parcel<>(SessionManager.INVALID_SESSION, null);
-        }catch (Exception e) {
+        } catch (Exception e) {
             Timber.e(e);
             return new Parcel<>(NetworkResultCodes.PERFORM_TASK_ERROR, null);
         }

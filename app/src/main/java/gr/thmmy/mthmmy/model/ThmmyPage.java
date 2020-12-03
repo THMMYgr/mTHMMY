@@ -153,7 +153,8 @@ public class ThmmyPage {
                 else if (uriString.contains(";sa=statPanel"))
                     return PageCategory.PROFILE_STATS;
                 else return PageCategory.PROFILE_SUMMARY;
-            } else if (uriString.contains("action=unread"))
+            }
+            else if (uriString.contains("action=unread"))
                 return PageCategory.UNREAD_POSTS;
             else if (uriString.contains("action=tpmod;dl=item"))
                 return PageCategory.DOWNLOADS_FILE;
@@ -185,17 +186,19 @@ public class ThmmyPage {
             Matcher topicIdMatcher = Pattern.compile("topic=[0-9]+").matcher(topicUrl);
             if (topicIdMatcher.find()) {
                 return topicUrl.substring(topicIdMatcher.start() + 6, topicIdMatcher.end());
-            } else return null;
+            }
+            else return null;
         }
         return null;
     }
 
     /**
      * This method gets a VALID topic url and strips it off any unnecessary stuff (e.g. wap2).
+     *
      * @param topicUrl a valid topic url
      * @return sanitized topic url
      */
-    public  static String sanitizeTopicUrl(String topicUrl) {
-       return topicUrl.replace("action=printpage;","").replace("wap2","");
+    public static String sanitizeTopicUrl(String topicUrl) {
+        return topicUrl.replace("action=printpage;", "").replace("wap2", "");
     }
 }

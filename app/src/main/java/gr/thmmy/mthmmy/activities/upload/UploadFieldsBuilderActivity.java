@@ -49,7 +49,8 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
                 int inputYear = Integer.parseInt(working);
 
                 isValidYear = inputYear <= currentYear && inputYear > 1980;
-            } else
+            }
+            else
                 isValidYear = false;
 
             if (!isValidYear)
@@ -59,10 +60,12 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
         }
 
         @Override
-        public void afterTextChanged(Editable s) { }
+        public void afterTextChanged(Editable s) {
+        }
 
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
     };
 
     @Override
@@ -111,7 +114,8 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
         typeRadio.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.upload_fields_builder_radio_button_notes) {
                 semesterChooserLinear.setVisibility(View.GONE);
-            } else {
+            }
+            else {
                 semesterChooserLinear.setVisibility(View.VISIBLE);
             }
         });
@@ -122,10 +126,12 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
             if (typeId == -1) {
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please choose a type for the upload", Toast.LENGTH_SHORT).show();
                 return;
-            } else if (semesterChooserLinear.getVisibility() == View.VISIBLE && semesterId == -1) {
+            }
+            else if (semesterChooserLinear.getVisibility() == View.VISIBLE && semesterId == -1) {
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please choose a semester for the upload", Toast.LENGTH_SHORT).show();
                 return;
-            } else if (year.getText().toString().isEmpty() || !isValidYear) {
+            }
+            else if (year.getText().toString().isEmpty() || !isValidYear) {
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please choose a valid year for the upload", Toast.LENGTH_SHORT).show();
                 return;
             }

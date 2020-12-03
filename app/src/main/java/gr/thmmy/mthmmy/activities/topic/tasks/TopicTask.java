@@ -123,7 +123,8 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
             if (isUnauthorized(topic)) {
                 return new TopicTaskResult(ResultCode.UNAUTHORIZED, null, null, null,
                         0, 0, 0, 0, null, null);
-            } else {
+            }
+            else {
                 Timber.e(e, "Topic parse failed");
                 return new TopicTaskResult(ResultCode.PARSING_ERROR, null, null, null,
                         0, 0, 0, 0, null, null);
@@ -149,6 +150,7 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
 
     public interface TopicTaskObserver {
         void onTopicTaskStarted();
+
         void onTopicTaskCancelled();
     }
 

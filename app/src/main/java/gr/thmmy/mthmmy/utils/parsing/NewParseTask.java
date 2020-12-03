@@ -17,7 +17,8 @@ public abstract class NewParseTask<T> extends NetworkTask<T> {
         super(onTaskStartedListener, onParseTaskFinishedListener);
     }
 
-    public NewParseTask() {}
+    public NewParseTask() {
+    }
 
     @Override
     protected final T performTask(Document document, Response response) {
@@ -30,5 +31,5 @@ public abstract class NewParseTask<T> extends NetworkTask<T> {
         }
     }
 
-    protected abstract T parse (Document document, Response response) throws ParseException;
+    protected abstract T parse(Document document, Response response) throws ParseException;
 }

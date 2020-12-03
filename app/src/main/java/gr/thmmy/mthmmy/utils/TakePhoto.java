@@ -86,7 +86,7 @@ public class TakePhoto {
         File imageFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) +
                 File.separator + "mTHMMY");
 
-        if (!imageFolder.exists()&&!imageFolder.mkdirs()) {
+        if (!imageFolder.exists() && !imageFolder.mkdirs()) {
             Timber.w("Photos folder build returned false in %s", TakePhoto.class.getSimpleName());
             Toast.makeText(context, "Couldn't create photos directory", Toast.LENGTH_SHORT).show();
             return null;
