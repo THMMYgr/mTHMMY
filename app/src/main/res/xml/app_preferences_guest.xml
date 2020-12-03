@@ -20,6 +20,12 @@
             android:title="@string/pref_title_display_relative_time"
             android:summary="@string/pref_summary_display_relative_time"
             app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/pref_app_display_compact_tabs_key"
+            android:title="@string/pref_title_display_compact_tabs"
+            android:summary="@string/pref_summary_display_compact_tabs"
+            app:iconSpaceReserved="false" />
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory

@@ -55,6 +55,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     private SectionsPagerAdapter sectionsPagerAdapter;
     private ViewPager viewPager;
     private TabLayout tabLayout;
+    private boolean displayCompactTabs;
 
     //Fix for vector drawables on android <21
     static {
@@ -82,9 +83,13 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             return; //Avoid executing the code below
         }
 
-        toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
+        displayCompactTabs = BaseApplication.getInstance().isDisplayCompactTabsEnabled();
+
+        if(displayCompactTabs) {
+            toolbar = findViewById(R.id.toolbar);
+            toolbar.setTitle("");
+            setSupportActionBar(toolbar);
+        }
 
         //Initialize drawer
         createDrawer();
@@ -108,8 +113,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         if ((preferredTab != 3 && preferredTab != 4) || sessionManager.isLoggedIn())
             tabLayout.getTabAt(preferredTab).select();
 
-        for (int i = 0; i < tabLayout.getTabCount(); i++)
-            updateTabIcon(i);
+        if(!displayCompactTabs)
+            updateTabIcons();
 
         setMainActivity(this);
     }
@@ -189,7 +194,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             fragmentList.add(fragment);
             fragmentTitleList.add(title);
             notifyDataSetChanged();
-            updateTabIcon(fragmentList.size() - 1);
+            if(!displayCompactTabs)
+                updateTabIcon(fragmentList.size() - 1);
         }
 
         void removeFragment(int position) {
@@ -234,6 +240,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             tabLayout.getTabAt(2).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
     }
 
+    private void updateTabIcons (){
+        for (int i = 0; i < tabLayout.getTabCount(); i++)
+            updateTabIcon(i);
+    }
 
     public void updateTabs() {
         if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3)
@@ -241,8 +251,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2)
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
 
-        for (int i = 0; i < tabLayout.getTabCount(); i++)
-            updateTabIcon(i);
+        if(!displayCompactTabs)
+            updateTabIcons();
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
 
