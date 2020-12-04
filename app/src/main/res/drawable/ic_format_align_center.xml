@@ -1,5 +1,10 @@
-<vector android:height="@dimen/editor_format_button_size" android:tint="@color/topic_post_icon"
-    android:viewportHeight="24.0" android:viewportWidth="24.0"
-    android:width="@dimen/editor_format_button_size" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="#FF000000" android:pathData="M7,15v2h10v-2L7,15zM3,21h18v-2L3,19v2zM3,13h18v-2L3,11v2zM7,7v2h10L17,7L7,7zM3,3v2h18L21,3L3,3z"/>
+<vector android:height="@dimen/editor_format_button_size"
+    android:tint="@color/topic_post_icon"
+    android:viewportHeight="24.0"
+    android:viewportWidth="24.0"
+    android:width="@dimen/editor_format_button_size"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7,15v2h10v-2L7,15zM3,21h18v-2L3,19v2zM3,13h18v-2L3,11v2zM7,7v2h10L17,7L7,7zM3,3v2h18L21,3L3,3z" />
 </vector>

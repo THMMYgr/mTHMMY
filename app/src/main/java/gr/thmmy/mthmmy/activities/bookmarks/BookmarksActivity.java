@@ -69,9 +69,9 @@ public class BookmarksActivity extends BaseActivity {
     }
 
     public boolean onFragmentRowInteractionListener(BookmarksFragment.Type type, String interactionType, Bookmark bookmark) {
-        if(type== BookmarksFragment.Type.TOPIC)
+        if (type == BookmarksFragment.Type.TOPIC)
             return onTopicInteractionListener(interactionType, bookmark);
-        else if (type==BookmarksFragment.Type.BOARD)
+        else if (type == BookmarksFragment.Type.BOARD)
             return onBoardInteractionListener(interactionType, bookmark);
 
         return false;

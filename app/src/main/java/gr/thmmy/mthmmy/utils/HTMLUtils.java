@@ -25,13 +25,15 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 
 public class HTMLUtils {
-    private HTMLUtils() {}
+    private HTMLUtils() {
+    }
 
     public static SpannableStringBuilder getSpannableFromHtml(Activity activity, String html) {
         CharSequence sequence;
         if (Build.VERSION.SDK_INT >= 24) {
             sequence = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
-        } else {
+        }
+        else {
             //noinspection deprecation
             sequence = Html.fromHtml(html);
         }
@@ -59,7 +61,8 @@ public class HTMLUtils {
                     intent.putExtras(extras);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
-                } else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
+                }
+                else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
                     Intent intent = new Intent(context, ProfileActivity.class);
                     Bundle extras = new Bundle();
                     extras.putString(BUNDLE_PROFILE_URL, span.getURL());
@@ -68,7 +71,8 @@ public class HTMLUtils {
                     intent.putExtras(extras);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
-                } else if (target.is(ThmmyPage.PageCategory.INDEX)) {
+                }
+                else if (target.is(ThmmyPage.PageCategory.INDEX)) {
                     Intent intent = new Intent(context, MainActivity.class);
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);

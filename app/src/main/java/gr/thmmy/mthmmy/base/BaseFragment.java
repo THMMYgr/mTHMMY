@@ -46,5 +46,6 @@ public abstract class BaseFragment extends Fragment {
      * the activity that contains it, to allow communication upon interaction,
      * between the fragment and the activity/ other fragments
      */
-    public interface FragmentInteractionListener {}
+    public interface FragmentInteractionListener {
+    }
 }

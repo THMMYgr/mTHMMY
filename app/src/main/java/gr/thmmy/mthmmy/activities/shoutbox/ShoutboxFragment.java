@@ -93,7 +93,8 @@ public class ShoutboxFragment extends Fragment {
         if (item.getItemId() == R.id.menu_refresh) {
             shoutboxViewModel.loadShoutbox(true);
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -142,7 +143,8 @@ public class ShoutboxFragment extends Fragment {
             BaseApplication.getInstance().logFirebaseAnalyticsEvent("shout", null);
             editorView.getEditText().getText().clear();
             shoutboxViewModel.loadShoutbox(true);
-        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+        }
+        else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Timber.w("Failed to send shout");
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "NetworkError", Toast.LENGTH_SHORT).show();
         }
@@ -154,10 +156,12 @@ public class ShoutboxFragment extends Fragment {
             shoutboxViewModel.setShoutbox(shoutbox);
             if (shoutbox.getShoutSend() != null)
                 editorView.setVisibility(View.VISIBLE);
-        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+        }
+        else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Timber.w("Failed to retreive shoutbox due to network error");
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "NetworkError", Toast.LENGTH_SHORT).show();
-        } else {
+        }
+        else {
             Timber.wtf("Failed to retreive shoutbox due to unknown error");
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Failed to retrieve shoutbox, please contact mthmmy developer team", Toast.LENGTH_LONG).show();
         }

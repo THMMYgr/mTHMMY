@@ -129,7 +129,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.activity_topic_post_row, parent, false);
             return new PostViewHolder(itemView);
-        } else if (viewType == Post.TYPE_QUICK_REPLY) {
+        }
+        else if (viewType == Post.TYPE_QUICK_REPLY) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_quick_reply_row, parent, false);
 
@@ -143,7 +144,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             quickReplyText.requestFocus();
 
             return new QuickReplyViewHolder(view);
-        } else if (viewType == Post.TYPE_EDIT) {
+        }
+        else if (viewType == Post.TYPE_EDIT) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_edit_row, parent, false);
 
@@ -157,11 +159,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             editPostEdittext.requestFocus();
 
             return new EditMessageViewHolder(view);
-        } else if (viewType == Poll.TYPE_POLL) {
+        }
+        else if (viewType == Poll.TYPE_POLL) {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_topic_poll, parent, false);
             return new PollViewHolder(view);
-        } else {
+        }
+        else {
             throw new IllegalArgumentException("Unknown view type");
         }
     }
@@ -227,7 +231,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setVisibility(View.GONE);
                 holder.selectedEntry.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
-            } else if (poll.getAvailableVoteCount() == 1) {
+            }
+            else if (poll.getAvailableVoteCount() == 1) {
                 // vote single option
                 RadioGroup radioGroup = new RadioGroup(context);
                 for (int i = 0; i < entries.length; i++) {
@@ -236,7 +241,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     radioButton.setMovementMethod(LinkMovementMethod.getInstance());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         radioButton.setText(Html.fromHtml(entries[i].getEntryName(), Html.FROM_HTML_MODE_LEGACY));
-                    } else
+                    }
+                    else
                         radioButton.setText(Html.fromHtml(entries[i].getEntryName()));
 
                     radioButton.setText(ThmmyParser.html2span(context, entries[i].getEntryName()));
@@ -247,7 +253,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setVisibility(View.GONE);
                 holder.selectedEntry.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
-            } else if (poll.isPollResultsHidden()) {
+            }
+            else if (poll.isPollResultsHidden()) {
                 // vote already submitted but results are hidden
                 Poll.Entry[] entries1 = poll.getEntries();
                 for (int i = 0; i < entries1.length; i++) {
@@ -272,7 +279,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.voteChart.setVisibility(View.GONE);
                 holder.selectedEntry.setVisibility(View.GONE);
                 holder.optionsLayout.setVisibility(View.VISIBLE);
-            } else {
+            }
+            else {
                 // Showing results
                 holder.optionsLayout.setVisibility(View.GONE);
 
@@ -331,16 +339,19 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (poll.getRemoveVoteUrl() != null) {
                 holder.removeVotesButton.setOnClickListener(v -> viewModel.removeVote());
                 holder.removeVotesButton.setVisibility(View.VISIBLE);
-            } else holder.removeVotesButton.setVisibility(View.GONE);
+            }
+            else holder.removeVotesButton.setVisibility(View.GONE);
             if (poll.getShowVoteResultsUrl() != null) {
                 holder.showPollResultsButton.setOnClickListener(v -> viewModel.loadUrl(poll.getShowVoteResultsUrl()));
                 holder.showPollResultsButton.setVisibility(View.VISIBLE);
-            } else holder.showPollResultsButton.setVisibility(View.GONE);
+            }
+            else holder.showPollResultsButton.setVisibility(View.GONE);
 
             if (poll.getShowOptionsUrl() != null) {
                 holder.hidePollResultsButton.setOnClickListener(v -> viewModel.loadUrl(poll.getShowOptionsUrl()));
                 holder.hidePollResultsButton.setVisibility(View.VISIBLE);
-            } else holder.hidePollResultsButton.setVisibility(View.GONE);
+            }
+            else holder.hidePollResultsButton.setVisibility(View.GONE);
             if (poll.getPollFormUrl() != null) {
                 holder.submitButton.setOnClickListener(v -> {
                     if (!viewModel.submitVote(holder.optionsLayout)) {
@@ -351,8 +362,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     }
                 });
                 holder.submitButton.setVisibility(View.VISIBLE);
-            } else holder.submitButton.setVisibility(View.GONE);
-        } else {
+            }
+            else holder.submitButton.setVisibility(View.GONE);
+        }
+        else {
             Post currentPost = (Post) topicItems.get(position);
             if (currentHolder instanceof PostViewHolder) {
                 final PostViewHolder holder = (PostViewHolder) currentHolder;
@@ -382,7 +395,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         int filesTextColor;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             filesTextColor = context.getResources().getColor(R.color.accent, null);
-                        } else
+                        }
+                        else
                             filesTextColor = context.getResources().getColor(R.color.accent);
 
                         for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
@@ -405,7 +419,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         int lastEditTextColor;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             lastEditTextColor = context.getResources().getColor(R.color.white, null);
-                        } else
+                        }
+                        else
                             lastEditTextColor = context.getResources().getColor(R.color.white);
 
                         final TextView lastEdit = new TextView(context);
@@ -415,7 +430,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         lastEdit.setPadding(0, 3, 0, 3);
                         holder.postFooter.addView(lastEdit);
                     }
-                } else {
+                }
+                else {
                     holder.bodyFooterDivider.setVisibility(View.GONE);
                     holder.postFooter.removeAllViews();
                 }
@@ -430,7 +446,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     mNumberOfPosts = currentPost.getNumberOfPosts();
                     mPersonalText = currentPost.getPersonalText();
                     mNumberOfStars = currentPost.getNumberOfStars();
-                } else {
+                }
+                else {
                     mSpecialRank = null;
                     mRank = null;
                     mGender = null;
@@ -443,27 +460,32 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (!Objects.equals(mSpecialRank, "") && mSpecialRank != null) {
                     holder.specialRank.setText(mSpecialRank);
                     holder.specialRank.setVisibility(View.VISIBLE);
-                } else
+                }
+                else
                     holder.specialRank.setVisibility(View.GONE);
                 if (!Objects.equals(mRank, "") && mRank != null) {
                     holder.rank.setText(mRank);
                     holder.rank.setVisibility(View.VISIBLE);
-                } else
+                }
+                else
                     holder.rank.setVisibility(View.GONE);
                 if (!Objects.equals(mGender, "") && mGender != null) {
                     holder.gender.setText(mGender);
                     holder.gender.setVisibility(View.VISIBLE);
-                } else
+                }
+                else
                     holder.gender.setVisibility(View.GONE);
                 if (!Objects.equals(mNumberOfPosts, "") && mNumberOfPosts != null) {
                     holder.numberOfPosts.setText(mNumberOfPosts);
                     holder.numberOfPosts.setVisibility(View.VISIBLE);
-                } else
+                }
+                else
                     holder.numberOfPosts.setVisibility(View.GONE);
                 if (!Objects.equals(mPersonalText, "") && mPersonalText != null) {
                     holder.personalText.setText("\"" + mPersonalText + "\"");
                     holder.personalText.setVisibility(View.VISIBLE);
-                } else
+                }
+                else
                     holder.personalText.setVisibility(View.GONE);
                 if (mUserColor != USER_COLOR_YELLOW)
                     holder.username.setTextColor(mUserColor);
@@ -482,25 +504,30 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.stars.setText(usersStars.toString());
                     holder.stars.setTextColor(mUserColor);
                     holder.stars.setVisibility(View.VISIBLE);
-                } else
+                }
+                else
                     holder.stars.setVisibility(View.GONE);
 
                 if (currentPost.isUserMentionedInPost()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.mention_card, null));
-                    } else
+                    }
+                    else
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.mention_card));
-                } else if (mUserColor == TopicParser.USER_COLOR_PINK) {
+                }
+                else if (mUserColor == TopicParser.USER_COLOR_PINK) {
                     //Special card for special member of the month!
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.member_of_the_month_card, null));
-                    } else
+                    }
+                    else
                         holder.cardChildLinear.setBackground(context.getResources().
                                 getDrawable(R.drawable.member_of_the_month_card));
-                } else holder.cardChildLinear.setBackground(null);
+                }
+                else holder.cardChildLinear.setBackground(null);
 
                 //Avoid's view's visibility recycling
                 if (!currentPost.isDeleted() && viewModel.isUserExtraInfoVisible(holder.getAdapterPosition())) {
@@ -513,7 +540,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.subject.setTextColor(Color.parseColor("#FFFFFF"));
                     holder.subject.setMaxLines(Integer.MAX_VALUE);
                     holder.subject.setEllipsize(null);
-                } else {
+                }
+                else {
                     holder.userExtraInfo.setVisibility(View.GONE);
                     holder.userExtraInfo.setAlpha(0.0f);
 
@@ -554,7 +582,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 holder.subject, Color.parseColor("#FFFFFF"),
                                 Color.parseColor("#757575"), (LinearLayout) v);
                     });
-                } else {
+                }
+                else {
                     holder.header.setOnClickListener(null);
                     holder.userExtraInfo.setOnClickListener(null);
                 }
@@ -636,7 +665,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             holder.quoteToggle.setImageResource(R.drawable.ic_format_quote_unchecked_24dp);
                     });
                 }
-            } else if (currentHolder instanceof QuickReplyViewHolder) {
+            }
+            else if (currentHolder instanceof QuickReplyViewHolder) {
                 final QuickReplyViewHolder holder = (QuickReplyViewHolder) currentHolder;
                 Post reply = (Post) topicItems.get(position);
 
@@ -647,7 +677,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.itemView.setEnabled(true);
                 if (reply.getSubject() != null) {
                     holder.quickReplySubject.setText(reply.getSubject());
-                } else {
+                }
+                else {
                     holder.quickReplySubject.setText("Re: " + viewModel.getTopicTitle().getValue());
                 }
                 holder.quickReplySubject.setRawInputType(InputType.TYPE_CLASS_TEXT);
@@ -700,10 +731,11 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     backPressHidden = false;
                 }
                 holder.quickReplySubject.addTextChangedListener(createTextWatcher(holder, TextWatcherType.SUBJECT));
-            } else if (currentHolder instanceof EditMessageViewHolder) {
+            }
+            else if (currentHolder instanceof EditMessageViewHolder) {
                 final EditMessageViewHolder holder = (EditMessageViewHolder) currentHolder;
 
-                loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail,  holder.itemView.getContext());
+                loadAvatar(getSessionManager().getAvatarLink(), holder.thumbnail, holder.itemView.getContext());
 
                 holder.username.setText(getSessionManager().getUsername());
                 holder.editSubject.setText(currentPost.getSubject());
@@ -749,33 +781,36 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private enum TextWatcherType {
         CONTENT, SUBJECT
     }
-    private TextWatcher createTextWatcher(@NonNull final RecyclerView.ViewHolder holder, TextWatcherType type){
+
+    private TextWatcher createTextWatcher(@NonNull final RecyclerView.ViewHolder holder, TextWatcherType type) {
         return new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 int position = holder.getAdapterPosition();
-                if (position >= 0 && position < topicItems.size()){
+                if (position >= 0 && position < topicItems.size()) {
                     Post post = ((Post) topicItems.get(position));
-                    if(type == TextWatcherType.CONTENT)
+                    if (type == TextWatcherType.CONTENT)
                         post.setBbContent(charSequence.toString());
-                    else if(type == TextWatcherType.SUBJECT)
+                    else if (type == TextWatcherType.SUBJECT)
                         post.setSubject(charSequence.toString());
                 }
             }
 
             @Override
-            public void afterTextChanged(Editable editable) { }
+            public void afterTextChanged(Editable editable) {
+            }
         };
     }
 
     private void loadAvatar(String imageUrl, ImageView imageView, Context context) {
-        if(imageUrl!=null)
+        if (imageUrl != null)
             imageUrl = imageUrl.trim();
 
-        if(isValidContextForGlide(context)) {
+        if (isValidContextForGlide(context)) {
             Glide.with(context)
                     .load(imageUrl)
                     .circleCrop()
@@ -948,7 +983,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                 return true;
                             }
                         }
-                    } else if ((Objects.equals(uriString, ParseHelpers.getBaseURL(viewModel.getTopicUrl())) &&
+                    }
+                    else if ((Objects.equals(uriString, ParseHelpers.getBaseURL(viewModel.getTopicUrl())) &&
                             viewModel.getCurrentPageIndex() == 1) ||
                             Integer.parseInt(uriString.substring(ParseHelpers.getBaseURL(viewModel.getTopicUrl()).length() + 1)) / 15 + 1 ==
                                     viewModel.getCurrentPageIndex()) {
@@ -964,7 +1000,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 return true;
-            } else if (target.is(ThmmyPage.PageCategory.BOARD)) {
+            }
+            else if (target.is(ThmmyPage.PageCategory.BOARD)) {
                 Intent intent = new Intent(context, BoardActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_BOARD_URL, uriString);
@@ -973,7 +1010,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 return true;
-            } else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
+            }
+            else if (target.is(ThmmyPage.PageCategory.PROFILE)) {
                 Intent intent = new Intent(context, ProfileActivity.class);
                 Bundle extras = new Bundle();
                 extras.putString(BUNDLE_PROFILE_URL, uriString);

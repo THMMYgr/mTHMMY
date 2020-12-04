@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
@@ -22,8 +21,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:gravity="center"
-            app:popupTheme="@style/ToolbarTheme">
-        </androidx.appcompat.widget.Toolbar>
+            app:popupTheme="@style/ToolbarTheme"></androidx.appcompat.widget.Toolbar>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/bookmark_tabs"
@@ -34,14 +32,14 @@
             app:tabGravity="fill"
             app:tabMode="fixed"
             app:tabSelectedTextColor="@color/accent"
-            app:tabTextColor="@color/white"/>
+            app:tabTextColor="@color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/bookmarks_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
@@ -53,5 +51,5 @@
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|center"
         app:mpb_indeterminateTint="@color/accent"
-        app:mpb_progressStyle="horizontal"/>
+        app:mpb_progressStyle="horizontal" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

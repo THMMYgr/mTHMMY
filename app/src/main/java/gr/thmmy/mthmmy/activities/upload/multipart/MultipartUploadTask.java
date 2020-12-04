@@ -13,8 +13,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 /**
- Extended MultipartUploadTask from gotev/android-upload-service to include a fix for the parameter
- tp_dluploadpic. Also changed Connection to keep-alive.
+ * Extended MultipartUploadTask from gotev/android-upload-service to include a fix for the parameter
+ * tp_dluploadpic. Also changed Connection to keep-alive.
  */
 public class MultipartUploadTask extends HttpUploadTask {
 
@@ -90,7 +90,7 @@ public class MultipartUploadTask extends HttpUploadTask {
     }
 
     private byte[] getMultipartBytes(NameValue parameter) throws UnsupportedEncodingException {
-        if(parameter.getName().equals("tp_dluploadpic")){
+        if (parameter.getName().equals("tp_dluploadpic")) {
             String header = "Content-Disposition: form-data; name=\"" +
                     parameter.getName() + "\"; filename=\"\"" + NEW_LINE +
                     "Content-Type: application/octet-stream" + NEW_LINE + NEW_LINE;
@@ -98,7 +98,7 @@ public class MultipartUploadTask extends HttpUploadTask {
         }
         else
             return ("Content-Disposition: form-data; name=\"" + parameter.getName() + "\""
-                + NEW_LINE + NEW_LINE + parameter.getValue() + NEW_LINE).getBytes(charset);
+                    + NEW_LINE + NEW_LINE + parameter.getValue() + NEW_LINE).getBytes(charset);
     }
 
     private byte[] getMultipartHeader(UploadFile file)

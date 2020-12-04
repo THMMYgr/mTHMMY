@@ -37,7 +37,6 @@ public class SendShoutTask extends NetworkTask<Void> {
     }
 
 
-
     @Override
     protected Void performTask(Document document, Response response) {
         return null;

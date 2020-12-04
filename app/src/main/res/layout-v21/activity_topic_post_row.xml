@@ -84,6 +84,7 @@
                         android:maxLines="1"
                         android:text="@string/post_subject" />
                 </RelativeLayout>
+
                 <ImageButton
                     android:id="@+id/toggle_quote_button"
                     android:layout_width="@dimen/post_image_button"

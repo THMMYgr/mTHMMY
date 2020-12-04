@@ -33,31 +33,31 @@ class UploadsCourse {
         return greeklishName;
     }
 
-    static Map<String, UploadsCourse> generateUploadsCourses(String[] uploadsCoursesRes){
+    static Map<String, UploadsCourse> generateUploadsCourses(String[] uploadsCoursesRes) {
         Map<String, UploadsCourse> uploadsCourses = new HashMap<>();
-        for(String uploadsCourseStr:uploadsCoursesRes) {
+        for (String uploadsCourseStr : uploadsCoursesRes) {
             String[] split = uploadsCourseStr.split(":");
             UploadsCourse uploadsCourse = new UploadsCourse(split[0], split[1], split[2]);
-            uploadsCourses.put(uploadsCourse.getName(),uploadsCourse);
+            uploadsCourses.put(uploadsCourse.getName(), uploadsCourse);
         }
         return uploadsCourses;
     }
 
     static UploadsCourse findCourse(String retrievedCourse,
-                                    Map<String, UploadsCourse> uploadsCourses){
+                                    Map<String, UploadsCourse> uploadsCourses) {
         retrievedCourse = normalizeGreekNumbers(retrievedCourse);
         UploadsCourse uploadsCourse = uploadsCourses.get(retrievedCourse);
-        if(uploadsCourse != null) return uploadsCourse;
+        if (uploadsCourse != null) return uploadsCourse;
 
         String foundKey = null;
         for (Map.Entry<String, UploadsCourse> entry : uploadsCourses.entrySet()) {
             String key = entry.getKey();
             if ((key.contains(retrievedCourse) || retrievedCourse.contains(key))
-                    && (foundKey==null || key.length()>foundKey.length()))
+                    && (foundKey == null || key.length() > foundKey.length()))
                 foundKey = key;
         }
 
-        if(foundKey==null){
+        if (foundKey == null) {
             Timber.w("Couldn't find course that matches %s", retrievedCourse);
             Bundle bundle = new Bundle();
             bundle.putString("course_name", retrievedCourse);

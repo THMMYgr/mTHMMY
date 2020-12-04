@@ -37,7 +37,7 @@ import timber.log.Timber;
 public class TopicParser {
     private static Pattern mentionsPattern = Pattern.
             compile("<div class=\"quoteheader\">\\n\\s+?<a href=.+?>(Quote from|Παράθεση από): "
-                    + BaseActivity.getSessionManager().getUsername() +"\\s(στις|on)");
+                    + BaseActivity.getSessionManager().getUsername() + "\\s(στις|on)");
 
     //User colors
     private static final int USER_COLOR_BLACK = Color.parseColor("#000000");
@@ -87,7 +87,8 @@ public class TopicParser {
                     break;
                 }
             }
-        } else {
+        }
+        else {
             Elements findCurrentPage = topic.select("td:contains(Pages:)>b");
 
             for (Element item : findCurrentPage) {
@@ -125,7 +126,8 @@ public class TopicParser {
                         returnPages = Integer.parseInt(item.text());
                 }
             }
-        } else {
+        }
+        else {
             Elements pages = topic.select("td:contains(Pages:)>a.navPages");
 
             if (pages.size() != 0) {
@@ -220,7 +222,8 @@ public class TopicParser {
             if (postIndex != null) {
                 String tmp = postIndex.attr("name");
                 p_postIndex = Integer.parseInt(tmp.substring(tmp.indexOf("msg") + 3));
-            } else {
+            }
+            else {
                 postIndex = thisRow.select("div[id^=subject]").first();
                 if (postIndex == null)
                     p_postIndex = NO_INDEX;
@@ -246,7 +249,8 @@ public class TopicParser {
                             .first().text();
                     p_userName = p_userName.substring(0, p_userName.indexOf(" Επισκέπτης"));
                     p_userColor = USER_COLOR_YELLOW;
-                } else {
+                }
+                else {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
                 }
@@ -271,7 +275,8 @@ public class TopicParser {
                 Element postNum = thisRow.select("div.smalltext:matches(Απάντηση #)").first();
                 if (postNum == null) { //Topic starter
                     p_postNum = 0;
-                } else {
+                }
+                else {
                     String tmp_str = postNum.text().substring(12);
                     p_postNum = Integer.parseInt(tmp_str.substring(0, tmp_str.indexOf(" στις")));
                 }
@@ -294,7 +299,7 @@ public class TopicParser {
                             Timber.e(e, "Attached file malformed url");
                             break;
                         }
-                        String attachedFileName = tmpAttachedFileUrlAndName.wholeText().substring(1);
+                        String attachedFileName = tmpAttachedFileUrlAndName.text();
 
                         //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
@@ -306,7 +311,8 @@ public class TopicParser {
                         p_attachedFiles.add(new ThmmyFile(attachedUrl, attachedFileName, attachedFileInfo));
                     }
                 }
-            } else {
+            }
+            else {
                 //Finds username
                 userName = thisRow.select("a[title^=View the profile of]").first();
                 if (userName == null) { //Deleted profile
@@ -316,7 +322,8 @@ public class TopicParser {
                             .first().text();
                     p_userName = p_userName.substring(0, p_userName.indexOf(" Guest"));
                     p_userColor = USER_COLOR_YELLOW;
-                } else {
+                }
+                else {
                     p_userName = userName.html();
                     p_profileURL = userName.attr("href");
                 }
@@ -343,7 +350,8 @@ public class TopicParser {
                 Element postNum = thisRow.select("div.smalltext:matches(Reply #)").first();
                 if (postNum == null) { //Topic starter
                     p_postNum = 0;
-                } else {
+                }
+                else {
                     String tmp_str = postNum.text().substring(9);
                     p_postNum = Integer.parseInt(tmp_str.substring(0, tmp_str.indexOf(" on")));
                 }
@@ -366,7 +374,7 @@ public class TopicParser {
                             Timber.e(e, "Attached file malformed url");
                             break;
                         }
-                        String attachedFileName = tmpAttachedFileUrlAndName.wholeText().substring(1);
+                        String attachedFileName = tmpAttachedFileUrlAndName.text();
 
                         //Gets file's info (size and download count)
                         String postAttachmentsTextSbstr = postAttachmentsText.substring(
@@ -409,7 +417,8 @@ public class TopicParser {
                                     .attr("abs:src"));
                         }
                     }
-                } else {
+                }
+                else {
                     for (String line : infoList) {
                         if (line.contains("Posts:")) {
                             postsLineIndex = infoList.indexOf(line);
@@ -437,7 +446,8 @@ public class TopicParser {
                 if (starsLineIndex == -1 || starsLineIndex == 1) {
                     p_rank = infoList.get(0).trim(); //First line has the rank
                     p_specialRank = null; //They don't have a special rank
-                } else if (starsLineIndex == 2) { //This member has a special rank
+                }
+                else if (starsLineIndex == 2) { //This member has a special rank
                     p_specialRank = infoList.get(0).trim(); //First line has the special rank
                     p_rank = infoList.get(1).trim(); //Second line has the rank
                 }
@@ -467,7 +477,8 @@ public class TopicParser {
                         , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL
                         , p_isUserMentionedInPost, Post.TYPE_POST));
 
-            } else { //Deleted user
+            }
+            else { //Deleted user
                 //Add new post in postsList, only standard information needed
                 parsedPostsList.add(new Post(p_thumbnailURL, p_userName, p_subject, p_post
                         , null, p_postIndex, p_postNum, p_postDate, p_userColor, p_attachedFiles
@@ -516,7 +527,8 @@ public class TopicParser {
                         availableVoteCount = Integer.parseInt(prompt.substring(integerMatcher.start(), integerMatcher.end()));
                     }
                     links = formTableRows.get(1).child(1).select("a");
-                } else {
+                }
+                else {
                     availableVoteCount = 1;
                     links = formTableRows.first().child(1).select("a");
                 }
@@ -524,7 +536,8 @@ public class TopicParser {
                 if (links != null && links.size() > 0) {
                     showVoteResultsUrl = links.first().attr("href");
                 }
-            } else {
+            }
+            else {
                 // poll in results mode
                 Elements entryRows = pollColumn.select("table[cellspacing] tr");
                 for (int i = 0; i < entryRows.size(); i++) {

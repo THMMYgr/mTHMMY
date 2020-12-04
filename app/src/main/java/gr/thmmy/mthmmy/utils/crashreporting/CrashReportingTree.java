@@ -9,7 +9,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import timber.log.Timber.DebugTree;
 
 public class CrashReportingTree extends DebugTree {
-    private  FirebaseCrashlytics firebaseCrashlytics;
+    private FirebaseCrashlytics firebaseCrashlytics;
+
     public CrashReportingTree() {
         super();
         firebaseCrashlytics = FirebaseCrashlytics.getInstance();
@@ -27,15 +28,15 @@ public class CrashReportingTree extends DebugTree {
             level = 'I';
         else if (priority == Log.WARN)
             level = 'W';
-        else if(priority == Log.ERROR)
+        else if (priority == Log.ERROR)
             level = 'E';
         else
             level = 'A';
 
         firebaseCrashlytics.log(level + "/" + tag + ": " + message);
 
-        if(priority == Log.ERROR) {
-            if (t!=null)
+        if (priority == Log.ERROR) {
+            if (t != null)
                 firebaseCrashlytics.recordException(t);
             else
                 firebaseCrashlytics.recordException(new Exception(message));

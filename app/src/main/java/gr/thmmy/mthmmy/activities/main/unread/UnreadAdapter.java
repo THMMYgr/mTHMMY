@@ -41,12 +41,11 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final UnreadAdapter.ViewHolder viewHolder = (UnreadAdapter.ViewHolder) holder;
 
         viewHolder.mTitleView.setText(topicSummary.getSubject());
-        if(BaseApplication.getInstance().isDisplayRelativeTimeEnabled()){
+        if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled()) {
             String timestamp = topicSummary.getLastPostTimestamp();
-            try{
+            try {
                 viewHolder.mDateTimeView.setReferenceTime(Long.valueOf(timestamp));
-            }
-            catch(NumberFormatException e){
+            } catch (NumberFormatException e) {
                 Timber.e(e, "Invalid number format: %s", timestamp);
                 viewHolder.mDateTimeView.setText(topicSummary.getLastPostSimplifiedDateTime());
             }

@@ -138,7 +138,8 @@ public class ThmmyParser {
             if (separatorIndex > 0) {
                 attribute = startTag.substring(separatorIndex);
                 name = startTag.substring(0, separatorIndex);
-            } else
+            }
+            else
                 name = startTag;
 
             if (name.startsWith("/")) {
@@ -177,7 +178,8 @@ public class ThmmyParser {
                 attribute = fullAttribute.substring(1, equalsIndex);
                 attributeValue = fullAttribute.substring(equalsIndex + 2, fullAttribute.length() - 1);
                 name = startTag.substring(0, separatorIndex);
-            } else
+            }
+            else
                 name = startTag;
 
             if (name.startsWith("/")) {

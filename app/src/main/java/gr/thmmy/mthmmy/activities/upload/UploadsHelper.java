@@ -87,8 +87,8 @@ public class UploadsHelper {
                 File.separator + "mTHMMY");
 
         if (!zipFolder.exists() && !zipFolder.mkdirs()) {
-                Timber.w("Zip folder build returned false in %s", UploadsHelper.class.getSimpleName());
-                return null;
+            Timber.w("Zip folder build returned false in %s", UploadsHelper.class.getSimpleName());
+            return null;
         }
 
         return new File(zipFolder, zipFilename);

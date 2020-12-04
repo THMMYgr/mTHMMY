@@ -28,7 +28,7 @@ public class LogoutTask extends NetworkTask<Void> {
             Keep in mind, server changes sesc at will over time for a given session!
         */
         Parcel<Void> parcel = executeInBackground(indexUrl.toString());
-        if(parcel.getResultCode() == NetworkResultCodes.SUCCESSFUL)
+        if (parcel.getResultCode() == NetworkResultCodes.SUCCESSFUL)
             return executeInBackground(logoutLink);  // Now we will attempt to logout
         else return parcel;
     }
@@ -36,14 +36,14 @@ public class LogoutTask extends NetworkTask<Void> {
     @Override
     protected Void performTask(Document document, Response response) {
         try {
-            if(logoutLink==null)
+            if (logoutLink == null)
                 logoutLink = extractLogoutLink(document);
             else {   // Just for logging purposes
                 Elements sessionVerificationFailed = document.select("td:containsOwn(Session " +
                         "verification failed. Please try logging out and back in again, and then try " +
                         "again.), td:containsOwn(Η επαλήθευση συνόδου απέτυχε. Παρακαλούμε κάντε " +
                         "αποσύνδεση, επανασύνδεση και ξαναδοκιμάστε.)");
-                if(!sessionVerificationFailed.isEmpty()){
+                if (!sessionVerificationFailed.isEmpty()) {
                     Timber.i("Logout failed (invalid session)");
                     throw new InvalidSessionException();
                 }
@@ -73,7 +73,7 @@ public class LogoutTask extends NetworkTask<Void> {
         return NetworkResultCodes.SUCCESSFUL;
     }
 
-    private String extractLogoutLink(Document document){
+    private String extractLogoutLink(Document document) {
         Elements logoutLink = document.select("a[href^=" + baseLogoutLink + "]");
 
         if (!logoutLink.isEmpty()) {

@@ -68,7 +68,7 @@ import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
  * this user's avatar url using the key {@link #BUNDLE_PROFILE_THUMBNAIL_URL} and a <b>String</b> containing
  * the username using the key {@link #BUNDLE_PROFILE_USERNAME}.
  */
-public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener, LatestPostsFragment.OnLoadingListener, StatsFragment.OnLoadingListener{
+public class ProfileActivity extends BaseActivity implements LatestPostsFragment.LatestPostsFragmentInteractionListener, LatestPostsFragment.OnLoadingListener, StatsFragment.OnLoadingListener {
     /**
      * The key to use when putting profile's url String to {@link ProfileActivity}'s Bundle.
      */
@@ -185,7 +185,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         if (target.is(ThmmyPage.PageCategory.PROFILE_STATS)) {
             profileUrl = profileUrl.substring(0, profileUrl.indexOf(";sa=statPanel"));
             tabSelect = 2;
-        } else if (target.is(ThmmyPage.PageCategory.PROFILE_LATEST_POSTS)) {
+        }
+        else if (target.is(ThmmyPage.PageCategory.PROFILE_LATEST_POSTS)) {
             profileUrl = profileUrl.substring(0, profileUrl.indexOf(";sa=showPosts"));
             tabSelect = 1;
         }
@@ -220,8 +221,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         setBarVisibility(loading);
     }
 
-    private void setBarVisibility (boolean visible){
-        if(visible)
+    private void setBarVisibility(boolean visible) {
+        if (visible)
             progressBar.setVisibility(ProgressBar.VISIBLE);
         else
             progressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -233,17 +234,17 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
         if (pmFAB.getVisibility() != View.GONE) pmFAB.setEnabled(false);
     }
 
-    private void loadAvatar(Boolean loadDefault){
+    private void loadAvatar(Boolean loadDefault) {
         String avatarUri;
-        if(loadDefault)
+        if (loadDefault)
             avatarUri = "R.drawable.ic_default_user_avatar";
         else {
             avatarUri = avatarUrl;
-            if(avatarUrl!=null)
+            if (avatarUrl != null)
                 avatarView.setOnClickListener(v -> displayPhotoViewImage(ProfileActivity.this, avatarUrl));
         }
 
-        if(isValidContextForGlide(this)){
+        if (isValidContextForGlide(this)) {
             Glide.with(this)
                     .load(avatarUri)
                     .circleCrop()
@@ -292,7 +293,8 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 Element tmpEl = profilePage.select("td.windowbg:nth-child(2)").first();
                 if (tmpEl != null) {
                     personalText = emojiTagToHtml(tmpEl.text().trim());
-                } else {
+                }
+                else {
                     //Should never get here!
                     //Something is wrong.
                     Timber.e("An error occurred while trying to find profile's personal text.");
@@ -328,11 +330,13 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                 if (usernameSpan != null) {
                     if (isOnline) {
                         usernameView.setTextColor(Color.parseColor("#4CAF50"));
-                    } else {
+                    }
+                    else {
                         usernameView.setTextColor(Color.GRAY);
                     }
                     usernameView.setText(usernameSpan);
-                } else if (usernameView.getText() != username) usernameView.setText(username);
+                }
+                else if (usernameView.getText() != username) usernameView.setText(username);
                 if (avatarUrl != null && !Objects.equals(avatarUrl, ""))
                     loadAvatar(false);
                 else
@@ -349,12 +353,14 @@ public class ProfileActivity extends BaseActivity implements LatestPostsFragment
                     TabLayout.Tab tab = tabLayout.getTabAt(tabSelect);
                     if (tab != null) tab.select();
                 }
-            } else if (result == NetworkResultCodes.NETWORK_ERROR) {
+            }
+            else if (result == NetworkResultCodes.NETWORK_ERROR) {
                 Timber.w("Network error while excecuting profile activity");
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error"
                         , Toast.LENGTH_LONG).show();
                 finish();
-            } else {
+            }
+            else {
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Fatal error!\n Aborting..."
                         , Toast.LENGTH_LONG).show();
                 finish();

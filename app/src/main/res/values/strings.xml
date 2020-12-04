@@ -175,6 +175,9 @@
     <string name="pref_app_display_relative_time_key">pref_app_display_relative_time_key</string>
     <string name="pref_title_display_relative_time">Display relative time</string>
     <string name="pref_summary_display_relative_time">Considering that you haven\'t set some weird custom time format</string>
+    <string name="pref_app_display_compact_tabs_key">pref_app_display_compact_tabs_key</string>
+    <string name="pref_title_display_compact_tabs">Display compact tabs</string>
+    <string name="pref_summary_display_compact_tabs">Home screen tabs will occupy less space</string>
 
     <string name="pref_category_notifications">Notifications</string>
     <string name="pref_notification_vibration_enable_key">pref_notification_vibration_enable_key</string>
@@ -234,5 +237,4 @@
 
     <!--SessionManager-->
     <string name="session_shared_prefs">SessionSharedPrefs</string>
-
 </resources>

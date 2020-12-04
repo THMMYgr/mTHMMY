@@ -45,7 +45,8 @@ public class ShoutboxActivity extends BaseActivity {
         if (count == 0) {
             if (!shoutboxFragment.onBackPressed())
                 super.onBackPressed();
-        } else {
+        }
+        else {
             getSupportFragmentManager().popBackStack();
         }
     }

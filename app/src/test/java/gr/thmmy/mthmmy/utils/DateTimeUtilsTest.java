@@ -21,7 +21,7 @@ public class DateTimeUtilsTest {
     public TimberTestRule logAllAlwaysRule = TimberTestRule.logAllAlways();
 
     private final long NOW = System.currentTimeMillis();
-    private final String [] expectedRelativeTimeSpans = {
+    private final String[] expectedRelativeTimeSpans = {
             "just now",
             "just now",
             "just now",
@@ -54,7 +54,7 @@ public class DateTimeUtilsTest {
             "a long time ago"
     };
 
-    private final long [] times = {
+    private final long[] times = {
             NOW,
             newDT().minusSeconds(44).getMillis(),
             newDT().minusSeconds(44).minusMillis(500).getMillis(),
@@ -79,15 +79,15 @@ public class DateTimeUtilsTest {
             newDT().minusDays(2).minusHours(10).getMillis(),
             newDT().minusDays(2).minusHours(17).getMillis(),
             newDT().minusDays(16).getMillis(),
-            newDT().minusDays(30+12).getMillis(),
-            newDT().minusDays(2*30+14).getMillis(),
-            newDT().minusDays(14*30).getMillis(),
+            newDT().minusDays(30 + 12).getMillis(),
+            newDT().minusDays(2 * 30 + 14).getMillis(),
+            newDT().minusDays(14 * 30).getMillis(),
             newDT().minusMonths(15).getMillis(),
             newDT().minusMonths(22).getMillis(),
             newDT().minusYears(22).getMillis()
     };
 
-    private DateTime newDT(){
+    private DateTime newDT() {
         return new DateTime(NOW);
     }
 
@@ -98,9 +98,9 @@ public class DateTimeUtilsTest {
 
         String[] timeStrings = new String[times.length];
 
-        for(int i=0; i<times.length; i++)
+        for (int i = 0; i < times.length; i++)
             timeStrings[i] = getRelativeTimeSpanString(times[i]);
 
-        assertArrayEquals(expectedRelativeTimeSpans,timeStrings);
+        assertArrayEquals(expectedRelativeTimeSpans, timeStrings);
     }
 }

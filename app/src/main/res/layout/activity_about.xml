@@ -162,7 +162,7 @@
                 android:text="@string/privacy_policy"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/accent"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/privacy_policy_text"

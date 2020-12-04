@@ -53,7 +53,7 @@ public class PrepareForReplyTask extends AsyncTask<Integer, Void, PrepareForRepl
             // TODO: Convert this task to (New)ParseTask (?) / handle parsing errors in a better way
             Timber.e(e, "Prepare failed (1)");
             return new PrepareForReplyResult(false, null, null, null, null, null);
-        } catch (IOException | Selector.SelectorParseException e){
+        } catch (IOException | Selector.SelectorParseException e) {
             Timber.e(e, "Prepare failed (2)");
             return new PrepareForReplyResult(false, null, null, null, null, null);
         }
@@ -62,7 +62,7 @@ public class PrepareForReplyTask extends AsyncTask<Integer, Void, PrepareForRepl
         for (Integer postIndex : postIndices) {
             request = new Request.Builder()
                     .url("https://www.thmmy.gr/smf/index.php?action=quotefast;quote=" +
-                           postIndex + ";" + "sesc=" + sc + ";xml")
+                            postIndex + ";" + "sesc=" + sc + ";xml")
                     .build();
             try {
                 Response response = client.newCall(request).execute();
@@ -85,6 +85,7 @@ public class PrepareForReplyTask extends AsyncTask<Integer, Void, PrepareForRepl
 
     public interface PrepareForReplyCallbacks {
         void onPrepareForReplyStarted();
+
         void onPrepareForReplyCancelled();
     }
 

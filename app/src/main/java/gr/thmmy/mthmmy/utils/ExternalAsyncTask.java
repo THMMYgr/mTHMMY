@@ -52,7 +52,8 @@ public abstract class ExternalAsyncTask<U, V> extends AsyncTask<U, Void, V> {
         this.onTaskFinishedListener = onTaskFinishedListener;
     }
 
-    public ExternalAsyncTask() { }
+    public ExternalAsyncTask() {
+    }
 
     public void setOnTaskStartedListener(OnTaskStartedListener onTaskStartedListener) {
         this.onTaskStartedListener = onTaskStartedListener;
@@ -78,7 +79,7 @@ public abstract class ExternalAsyncTask<U, V> extends AsyncTask<U, Void, V> {
         void onTaskFinished(V result);
     }
 
-    public boolean isRunning(){
+    public boolean isRunning() {
         return getStatus() == AsyncTask.Status.RUNNING;
     }
 }

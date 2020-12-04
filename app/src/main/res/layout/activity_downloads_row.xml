@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/upper_linear"
     android:layout_width="match_parent"
@@ -36,7 +35,7 @@
                 android:layout_weight="1"
                 android:paddingBottom="2dp"
                 android:textColor="@color/accent"
-                android:textSize="18sp"/>
+                android:textSize="18sp" />
 
             <ImageButton
                 android:id="@+id/download_information_button"
@@ -44,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:contentDescription="@string/child_board_button"
-                app:srcCompat="@drawable/ic_arrow_drop_down_accent_24dp"/>
+                app:srcCompat="@drawable/ic_arrow_drop_down_accent_24dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -59,19 +58,19 @@
                 android:id="@+id/download_sub_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/secondary_text"/>
+                android:textColor="@color/secondary_text" />
 
             <TextView
                 android:id="@+id/download_extra_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/secondary_text"/>
+                android:textColor="@color/secondary_text" />
 
             <TextView
                 android:id="@+id/download_uploader_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/secondary_text"/>
+                android:textColor="@color/secondary_text" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

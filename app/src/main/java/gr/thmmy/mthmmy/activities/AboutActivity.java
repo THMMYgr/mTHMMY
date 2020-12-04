@@ -58,7 +58,7 @@ public class AboutActivity extends BaseActivity {
             gitExists = false;
 
         String versionInfo = "";
-        if(gitExists)
+        if (gitExists)
             versionInfo = "-" + BuildConfig.CURRENT_BRANCH + "-" + commitHash
                     + (BuildConfig.IS_CLEAN ? "" : "-dirty")
                     + " ";  // Avoid last letter being cut in italics styled TextView
@@ -89,7 +89,8 @@ public class AboutActivity extends BaseActivity {
                     showEasterEgg();
                 mVersionLastPressedTime = System.currentTimeMillis();
                 ++mVersionPressedCounter;
-            } else {
+            }
+            else {
                 mVersionLastPressedTime = System.currentTimeMillis();
                 mVersionPressedCounter = 0;
             }
@@ -102,7 +103,7 @@ public class AboutActivity extends BaseActivity {
             else
                 versionTextView.setText(getString(R.string.version, versionName));
 
-            if(gitExists){
+            if (gitExists) {
                 versionTextView.setOnClickListener(view -> {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ThmmyNoLife/mTHMMY/commit/" + BuildConfig.COMMIT_HASH));
                     startActivity(intent);
@@ -132,7 +133,7 @@ public class AboutActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if(easterEggImage.getVisibility()==View.INVISIBLE)
+        if (easterEggImage.getVisibility() == View.INVISIBLE)
             super.onBackPressed();
         else
             hideEasterEgg();
@@ -140,29 +141,29 @@ public class AboutActivity extends BaseActivity {
 
     public void displayLibraries(View v) {
         String libraryType = v.getTag().toString();
-        String title="", fileName="";
-        switch(libraryType) {
+        String title = "", fileName = "";
+        switch (libraryType) {
             case "APACHE":
-                title=getString(R.string.apache_v2_0_libraries);
-                fileName="apache_libraries.html";
+                title = getString(R.string.apache_v2_0_libraries);
+                fileName = "apache_libraries.html";
                 break;
             case "MIT":
-                title=getString(R.string.the_mit_libraries);
-                fileName="mit_libraries.html";
+                title = getString(R.string.the_mit_libraries);
+                fileName = "mit_libraries.html";
                 break;
             case "EPL":
-                title=getString(R.string.epl_libraries);
-                fileName="epl_libraries.html";
+                title = getString(R.string.epl_libraries);
+                fileName = "epl_libraries.html";
                 break;
             case "OTHER":
-                title=getString(R.string.other_libraries);
-                fileName="other_libraries.html";
+                title = getString(R.string.other_libraries);
+                fileName = "other_libraries.html";
                 break;
             default:
                 break;
         }
 
-        String htmlContent = AssetUtils.readFileToText(this,fileName);
+        String htmlContent = AssetUtils.readFileToText(this, fileName);
 
         LayoutInflater inflater = LayoutInflater.from(this);
         WebView webView = (WebView) inflater.inflate(R.layout.dialog_licenses, coordinatorLayout, false);
@@ -176,13 +177,13 @@ public class AboutActivity extends BaseActivity {
                 .setView(webView)
                 .setPositiveButton(android.R.string.ok, null)
                 .show();
-        if(alertDialog.getWindow()!=null)
+        if (alertDialog.getWindow() != null)
             alertDialog.getWindow().setLayout(width, height);
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
-    private void showEasterEgg(){
-        if(getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
+    private void showEasterEgg() {
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);  //TODO: why?
             appBar.setVisibility(View.INVISIBLE);
             mainContent.setVisibility(View.INVISIBLE);
@@ -191,7 +192,7 @@ public class AboutActivity extends BaseActivity {
         }
     }
 
-    private void hideEasterEgg(){
+    private void hideEasterEgg() {
         appBar.setVisibility(View.VISIBLE);
         mainContent.setVisibility(View.VISIBLE);
         easterEggImage.setVisibility(View.INVISIBLE);
