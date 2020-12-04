@@ -224,6 +224,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 && BaseApplication.getInstance().isDisplayRelativeTimeEnabled() != sharedPreferences.getBoolean(key, false)) {
             displayRestartAppToTakeEffectToast();
         }
+        else if (key.equals(getString(R.string.pref_app_display_compact_tabs_key))
+                && BaseApplication.getInstance().isDisplayCompactTabsEnabled() != sharedPreferences.getBoolean(key, false)) {
+            displayRestartAppToTakeEffectToast();
+        }
     }
 
     private void displayRestartAppToTakeEffectToast() {

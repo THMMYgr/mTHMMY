@@ -46,6 +46,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import timber.log.Timber;
 
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_COMPACT_TABS;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
 
 // TODO: Replace MultiDexApplication with Application after KitKat support is dropped
@@ -63,6 +64,7 @@ public class BaseApplication extends MultiDexApplication {
     private SessionManager sessionManager;
 
     private boolean displayRelativeTime;
+    private boolean displayCompactTabs;
 
     //Display Metrics
     private static float widthDp;
@@ -105,6 +107,7 @@ public class BaseApplication extends MultiDexApplication {
         setDisplayMetrics();
 
         displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, true);
+        displayCompactTabs = settingsSharedPrefs.getBoolean(DISPLAY_COMPACT_TABS, true);
     }
 
     private void initFirebase(SharedPreferences settingsSharedPrefs) {
@@ -231,6 +234,10 @@ public class BaseApplication extends MultiDexApplication {
 
     public boolean isDisplayRelativeTimeEnabled() {
         return displayRelativeTime;
+    }
+
+    public boolean isDisplayCompactTabsEnabled() {
+        return displayCompactTabs;
     }
 
     //-------------------- Firebase --------------------
