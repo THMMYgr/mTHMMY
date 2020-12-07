@@ -5,6 +5,8 @@ import androidx.annotation.VisibleForTesting;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
+import org.joda.time.IllegalInstantException;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
@@ -64,8 +66,9 @@ public class ThmmyDateTimeParser {
             thmmyDateTime = thmmyDateTime.replaceAll("\\spm", "");
 
         DateTime dateTime;
+        LocalDateTime localDateTime;
         try {
-            dateTime = formatter.withZone(dtz).withLocale(englishLocale).parseDateTime(thmmyDateTime);
+            localDateTime = formatter.withLocale(englishLocale).parseLocalDateTime(thmmyDateTime);
         } catch (IllegalArgumentException e1) {
             Timber.v("Parsing DateTime %s using English Locale failed.", thmmyDateTime);
             try {
@@ -73,13 +76,23 @@ public class ThmmyDateTimeParser {
                 thmmyDateTime = thmmyDateTime.replace("am", dfs.getAmPmStrings()[0]);
                 thmmyDateTime = thmmyDateTime.replace("pm", dfs.getAmPmStrings()[1]);
                 Timber.v("Attempting to parse DateTime %s using Greek Locale...", thmmyDateTime);
-                dateTime = formatter.withZone(dtz).withLocale(greekLocale).parseDateTime(thmmyDateTime);
+                localDateTime = formatter.withLocale(greekLocale).parseLocalDateTime(thmmyDateTime);
             } catch (IllegalArgumentException e2) {
-                Timber.d("Parsing DateTime %s using Greek Locale failed too.", thmmyDateTime);
+                Timber.v("Parsing DateTime %s using Greek Locale failed too.", thmmyDateTime);
                 Timber.e("Couldn't convert DateTime %s to timestamp!", originalDateTime);
                 return null;
             }
         }
+
+        // Ensure DST time overlaps/ gaps are handled properly
+        try{
+            // For autumn overlaps
+            dateTime = localDateTime.toDateTime(dtz).withEarlierOffsetAtOverlap();
+        } catch (IllegalInstantException e2) {
+            // For spring gaps
+            dateTime = localDateTime.plusHours(1).toDateTime(dtz);
+        }
+
         String timestamp = Long.toString(dateTime.getMillis());
         Timber.v("DateTime %s was converted to %s, or %s", originalDateTime, timestamp, dateTime.toString());
 

@@ -25,7 +25,7 @@ public class ThmmyDateTimeParserTest {
     private static final String TIME_ZONE = "Europe/Athens";
     private static final String GET_DTZ = "getDtz";
 
-    private final String[] expTimestamps = {"1569245936000", "1569191627000", "1570050809000"};
+    private final String[] expTimestamps = {"1569245936000", "1569191627000", "1570050809000", "1553995543000"};
     private final String[][] dateTimes = {
             {
                     "Σεπτεμβρίου 23, 2019, 16:38:56",
@@ -45,6 +45,9 @@ public class ThmmyDateTimeParserTest {
             {
                     "Οκτωβρίου 03, 2019, 12:13:29 am",
                     "Οκτωβρίου 03, 2019, 00:13:29 am"
+            },
+            {
+                    "Μαρτίου 31, 2019, 03:25:43 am"
             }
     };
 
