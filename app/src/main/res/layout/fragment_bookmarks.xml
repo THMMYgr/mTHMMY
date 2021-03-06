@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/bookmarks_nested_scroll"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="top|start"
-        android:background="@color/primary_lighter"
-        android:scrollbars="none"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    <com.woxthebox.draglistview.DragListView
+        android:id="@+id/fragment_bookmarks_dragList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/bookmarks_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:showDividers="middle"
-            android:divider="?android:listDivider"
-            android:dividerPadding="16dp" />
-    </androidx.core.widget.NestedScrollView>
+
 
     <TextView
         android:id="@+id/nothing_bookmarked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="invisible"
-        android:textIsSelectable="false"
         android:text="@string/nothing_bookmarked_here"
         android:textColor="@color/accent"
-        android:textSize="@dimen/medium_text" />
-</FrameLayout>
+
+        android:textIsSelectable="false"
+        android:textSize="@dimen/medium_text"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

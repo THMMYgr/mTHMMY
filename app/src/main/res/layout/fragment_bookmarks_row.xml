@@ -1,49 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bookmark_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+    >
 
-    <TextView
-        android:id="@+id/bookmark_title"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/bookmark_dragable"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingBottom="8dp"
-        android:paddingTop="6dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="0dp"
-        android:textColor="@color/primary_text"
-        android:textSize="18sp" />
 
-    <ImageButton
-        android:id="@+id/toggle_notification"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingBottom="3dp"
-        android:paddingTop="3dp"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/toggle_notification"
-        app:srcCompat="@drawable/ic_notification_on" />
+        android:background="@drawable/bookmark_row_bg"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        >
 
-    <ImageButton
-        android:id="@+id/remove_bookmark"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingBottom="3dp"
-        android:paddingTop="3dp"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp"
-        android:layout_marginEnd="12dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/remove_bookmark"
-        app:srcCompat="@drawable/ic_delete_accent_24dp" />
-</LinearLayout>
+        <ImageView
+            android:id="@+id/bookmark_drag_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:srcCompat="@drawable/draggable_icon"
+            />
+
+        <TextView
+            android:id="@+id/bookmark_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="0dp"
+            android:paddingBottom="8dp"
+            android:textColor="@color/primary_text"
+            android:textSize="18sp" />
+
+        <ImageButton
+            android:id="@+id/toggle_notification"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/toggle_notification"
+            android:paddingStart="6dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="3dp"
+            app:srcCompat="@drawable/ic_notification_on" />
+
+        <ImageButton
+            android:id="@+id/remove_bookmark"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="12dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/remove_bookmark"
+            android:paddingStart="6dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="3dp"
+            app:srcCompat="@drawable/ic_delete_accent_24dp" />
+    </LinearLayout>
+</FrameLayout>

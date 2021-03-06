@@ -48,6 +48,7 @@ import net.gotev.uploadservice.UploadService;
 import java.io.File;
 import java.util.ArrayList;
 
+import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.AboutActivity;
 import gr.thmmy.mthmmy.activities.LoginActivity;
@@ -708,6 +709,46 @@ public abstract class BaseActivity extends AppCompatActivity {
         else
             Timber.w("No bookmark match exists!");
         return false;
+    }
+
+
+    /*
+    * This method should only be called after reordering the bookmarks.
+    * It Re-creates the topicsBookmarked and boardsBookmarked arrays
+    * with the reordered bookmarks.
+    * */
+    protected void updateBookmarksOnReorder(ArrayList<Bookmark> updated_bookmarks)
+    {
+        //Define to empty arrays.
+        ArrayList<Bookmark> newTopicBookmarks = new ArrayList<Bookmark>();
+        ArrayList<Bookmark> newBoardBookmarks = new ArrayList<Bookmark>();
+
+        //For each bookmark in updated_bookmarks.
+        for (int i = 0; i < updated_bookmarks.size(); i++)
+        {
+            //Get the current updated bookamrk.
+            Bookmark book = updated_bookmarks.get(i);
+
+            //Is it a topics bookmark?
+            if ( book.matchExists(topicsBookmarked) )
+                newTopicBookmarks.add(book);
+
+
+            //Is it a board bookmark?
+            else if ( book.matchExists(boardsBookmarked) )
+                newBoardBookmarks.add(book);
+        }
+
+
+        if (newTopicBookmarks.size() > 0)
+            topicsBookmarked = newTopicBookmarks;
+
+        if (newBoardBookmarks.size() > 0)
+            boardsBookmarked = newBoardBookmarks;
+
+        //Update the bookmarks.
+        updateTopicBookmarks();
+        updateBoardBookmarks();
     }
 //-------------------------------------------BOOKMARKS END------------------------------------------
 

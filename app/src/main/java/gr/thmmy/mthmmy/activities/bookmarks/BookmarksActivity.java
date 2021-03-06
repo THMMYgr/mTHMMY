@@ -77,6 +77,12 @@ public class BookmarksActivity extends BaseActivity {
         return false;
     }
 
+
+    public void updateBookmarks(ArrayList<Bookmark> update_bookmarks)
+    {
+        this.updateBookmarksOnReorder(update_bookmarks);
+    }
+
     private boolean onTopicInteractionListener(String interactionType, Bookmark bookmarkedTopic) {
         switch (interactionType) {
             case BookmarksFragment.INTERACTION_CLICK_TOPIC_BOOKMARK:
