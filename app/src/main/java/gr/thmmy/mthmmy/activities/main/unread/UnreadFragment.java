@@ -66,7 +66,8 @@ public class UnreadFragment extends BaseFragment {
     private MarkAsReadTask markAsReadTask;
 
     // Required empty public constructor
-    public UnreadFragment() {}
+    public UnreadFragment() {
+    }
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -92,7 +93,7 @@ public class UnreadFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (topicSummaries.isEmpty()){
+        if (topicSummaries.isEmpty()) {
             hideMarkAsReadFAB();
             unreadTask = new UnreadTask(this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskCancelled, this::onUnreadTaskFinished);
             assert SessionManager.unreadUrl != null;
@@ -115,7 +116,7 @@ public class UnreadFragment extends BaseFragment {
             progressBar = rootView.findViewById(R.id.progressBar);
             noUnreadTopicsTextView = rootView.findViewById(R.id.no_unread_topics);
             markAsReadFAB = rootView.findViewById(R.id.unread_fab);
-            
+
             unreadAdapter = new UnreadAdapter(topicSummaries, fragmentInteractionListener);
 
             CustomRecyclerView recyclerView = rootView.findViewById(R.id.list);
@@ -140,39 +141,41 @@ public class UnreadFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         cancelUnreadTaskIfRunning();
-        if (markAsReadTask !=null){
-            try{
-                if(markAsReadTask.isRunning())
+        if (markAsReadTask != null) {
+            try {
+                if (markAsReadTask.isRunning())
                     markAsReadTask.cancel(true);
             }    // Yes, it happens even though we checked
-            catch (NullPointerException ignored){ }
+            catch (NullPointerException ignored) {
+            }
         }
-        if(topicSummaries!=null)
+        if (topicSummaries != null)
             topicSummaries.clear();
     }
 
-    private void startUnreadTask(){
-        if (unreadTask!=null) {
-            try{
-                if(!unreadTask.isRunning()){
+    private void startUnreadTask() {
+        if (unreadTask != null) {
+            try {
+                if (!unreadTask.isRunning()) {
                     numberOfPages = 0;
                     loadedPages = 0;
                     unreadTask = new UnreadTask(UnreadFragment.this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskCancelled, UnreadFragment.this::onUnreadTaskFinished);
                     assert SessionManager.unreadUrl != null;
                     unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString());
                 }
+            } catch (NullPointerException ignored) {
             }
-            catch (NullPointerException ignored){ }
         }
     }
 
-    private void cancelUnreadTaskIfRunning(){
-        if (unreadTask!=null){
-            try{
-                if(unreadTask.isRunning())
+    private void cancelUnreadTaskIfRunning() {
+        if (unreadTask != null) {
+            try {
+                if (unreadTask.isRunning())
                     unreadTask.cancel(true);
             }    // Yes, it happens even though we checked
-            catch (NullPointerException ignored){ }
+            catch (NullPointerException ignored) {
+            }
         }
     }
 
@@ -197,16 +200,17 @@ public class UnreadFragment extends BaseFragment {
         builder.setTitle("Mark all as read");
         builder.setMessage("Are you sure that you want to mark ALL topics as read?");
         builder.setPositiveButton("Yep", (dialogInterface, i) -> {
-            if (!markAsReadTask.isRunning()){
+            if (!markAsReadTask.isRunning()) {
                 markAsReadTask = new MarkAsReadTask(this::onMarkAsReadTaskStarted, this::onMarkAsReadTaskFinished);
                 markAsReadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
-        builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
+        builder.setNegativeButton("Nope", (dialogInterface, i) -> {
+        });
         builder.create().show();
     }
 
-    private void hideProgressUI(){
+    private void hideProgressUI() {
         progressBar.setVisibility(ProgressBar.INVISIBLE);
         swipeRefreshLayout.setRefreshing(false);
     }
@@ -221,10 +225,10 @@ public class UnreadFragment extends BaseFragment {
         swipeRefreshLayout.setRefreshing(false);
     }
 
-    private void onUnreadTaskFinished(int resultCode,  ArrayList<TopicSummary> fetchedUnread) {
+    private void onUnreadTaskFinished(int resultCode, ArrayList<TopicSummary> fetchedUnread) {
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
-            if(!fetchedUnread.isEmpty()){
-                if(loadedPages==0)
+            if (!fetchedUnread.isEmpty()) {
+                if (loadedPages == 0)
                     topicSummaries.clear();
                 topicSummaries.addAll(fetchedUnread);
                 noUnreadTopicsTextView.setVisibility(View.INVISIBLE);
@@ -245,7 +249,7 @@ public class UnreadFragment extends BaseFragment {
             else
                 hideProgressUI();
         }
-        else{
+        else {
             hideProgressUI();
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
@@ -258,13 +262,13 @@ public class UnreadFragment extends BaseFragment {
     }
 
     private class UnreadTask extends NewParseTask<ArrayList<TopicSummary>> {
-        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnTaskCancelledListener onTaskCancelledListener,  OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
+        UnreadTask(OnTaskStartedListener onTaskStartedListener, OnTaskCancelledListener onTaskCancelledListener, OnNetworkTaskFinishedListener<ArrayList<TopicSummary>> onParseTaskFinishedListener) {
             super(onTaskStartedListener, onTaskCancelledListener, onParseTaskFinishedListener);
         }
 
         @Override
         protected ArrayList<TopicSummary> parse(Document document, Response response) throws ParseException, InvalidSessionException {
-            if(!document.select("td:containsOwn(Only registered members are allowed to access this section.)").isEmpty())
+            if (!document.select("td:containsOwn(Only registered members are allowed to access this section.)").isEmpty())
                 throw new InvalidSessionException();
 
             Elements unread = document.select("table.bordercolor[cellspacing=1] tr:not(.titlebg)");
@@ -316,11 +320,11 @@ public class UnreadFragment extends BaseFragment {
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
 
-    private void onMarkAsReadTaskFinished(int resultCode,  Void v) {
+    private void onMarkAsReadTaskFinished(int resultCode, Void v) {
         hideProgressUI();
         if (resultCode == NetworkResultCodes.SUCCESSFUL)
-                startUnreadTask();
-        else{
+            startUnreadTask();
+        else {
             hideProgressUI();
             if (resultCode == NetworkResultCodes.NETWORK_ERROR)
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();

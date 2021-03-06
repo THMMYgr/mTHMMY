@@ -125,7 +125,8 @@ public class SessionManager {
                 editor.apply();
 
                 return SUCCESS;
-            } else {
+            }
+            else {
                 Timber.i("Login failed.");
 
                 //Investigate login failure
@@ -156,7 +157,7 @@ public class SessionManager {
             Timber.i("Login InterruptedIOException");    //users cancels LoginTask
             return CANCELLED;
         } catch (IOException e) {
-            Timber.w(e ,"Login IOException");
+            Timber.w(e, "Login IOException");
             return CONNECTION_ERROR;
         } catch (Exception e) {
             Timber.e(e, "Login Exception (other)");
@@ -203,8 +204,8 @@ public class SessionManager {
 
     public Cookie getThmmyCookie() {
         List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
-        for(Cookie cookie: cookieList) {
-            if(cookie.name().equals("THMMYgrC00ki3"))
+        for (Cookie cookie : cookieList) {
+            if (cookie.name().equals("THMMYgrC00ki3"))
                 return cookie;
         }
         return null;
@@ -225,8 +226,8 @@ public class SessionManager {
     //------------------------------------ OTHER -------------------------------------------
     private boolean validateRetrievedCookies() {
         List<Cookie> cookieList = cookieJar.loadForRequest(indexUrl);
-        for(Cookie cookie: cookieList) {
-            if(cookie.name().equals("THMMYgrC00ki3"))
+        for (Cookie cookie : cookieList) {
+            if (cookie.name().equals("THMMYgrC00ki3"))
                 return true;
         }
         return false;
@@ -246,7 +247,7 @@ public class SessionManager {
         cookiePersistor.saveAll(cookieList);
     }
 
-    private void setLoginScreenAsDefault(boolean b){
+    private void setLoginScreenAsDefault(boolean b) {
         sessionSharedPrefs.edit().putBoolean(LOGIN_SCREEN_AS_DEFAULT, b).apply();
     }
 
@@ -263,7 +264,8 @@ public class SessionManager {
             Matcher matcher = pattern.matcher(txt);
             if (matcher.find())
                 userName = matcher.group(1);
-        } else {
+        }
+        else {
             //Helios_Multi and SMF_oneBlue
             user = doc.select("td.smalltext[width=100%] b");
             if (user.size() == 1)
@@ -279,12 +281,12 @@ public class SessionManager {
         if (userName != null && !userName.isEmpty())
             return userName;
 
-        Timber.e(new ParseException("Parsing failed(username extraction)"),"ParseException");
+        Timber.e(new ParseException("Parsing failed(username extraction)"), "ParseException");
         return "User"; //return a default username
     }
 
     private int extractUserId(@NonNull Document doc) {
-        try{
+        try {
             Elements elements = doc.select("a:containsOwn(Εμφάνιση των μηνυμάτων σας), a:containsOwn(Show own posts)");
             if (elements.size() == 1) {
                 String link = elements.first().attr("href");
@@ -295,9 +297,9 @@ public class SessionManager {
                     return Integer.parseInt(matcher.group(1));
             }
         } catch (Exception e) {
-            Timber.e(new ParseException("Parsing failed(user id extraction)"),"ParseException");
+            Timber.e(new ParseException("Parsing failed(user id extraction)"), "ParseException");
         }
-        Timber.e(new ParseException("Parsing failed(user id extraction)"),"ParseException");
+        Timber.e(new ParseException("Parsing failed(user id extraction)"), "ParseException");
         return -1;
     }
 

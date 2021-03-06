@@ -74,6 +74,7 @@ public class EditTask extends AsyncTask<String, Void, Boolean> {
 
     public interface EditTaskCallbacks {
         void onEditTaskStarted();
+
         void onEditTaskFinished(boolean result, int position);
     }
 }

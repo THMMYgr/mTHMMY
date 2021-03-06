@@ -116,7 +116,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                         intent.putExtra(CreateContentActivity.EXTRA_NEW_TOPIC_URL, newTopicUrl);
                         startActivity(intent);
                     }
-                } else {
+                }
+                else {
                     new AlertDialog.Builder(BoardActivity.this)
                             .setMessage("You need to be logged in to create a new topic!")
                             .setPositiveButton("Login", (dialogInterface, i) -> {
@@ -234,7 +235,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
             final Pattern pLastPostPattern = Pattern.compile("((?:(?!(?:by|από)).)*)\\s(?:by|από)\\s(.*)");
 
-            if(pagesLoaded == 0) { //Finds sub boards
+            if (pagesLoaded == 0) { //Finds sub boards
                 Elements subBoardRows = boardPage.select("div.tborder>table>tbody>tr");
                 if (subBoardRows != null && !subBoardRows.isEmpty()) {
                     for (Element subBoardRow : subBoardRows) {
@@ -244,9 +245,9 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             boolean parsingFailed = false;
                             Elements subBoardColumns = subBoardRow.select(">td");
                             for (Element subBoardCol : subBoardColumns) {
-                                if (Objects.equals(subBoardCol.className(), "windowbg")){
+                                if (Objects.equals(subBoardCol.className(), "windowbg")) {
                                     pStats = subBoardCol.text();
-                                    if(pStats.equals("--"))
+                                    if (pStats.equals("--"))
                                         pStats = "";
                                 }
 
@@ -255,7 +256,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                     if (pLastPost.contains(" in ") || pLastPost.contains(" σε ")) {
                                         Pattern pattern = Pattern.compile("(?:Last post on |Τελευταίο μήνυμα στις )((?:(?!(?:in|σε)).)*)\\s(?:in|σε)\\s.*");
                                         Matcher matcher = pattern.matcher(pLastPost);
-                                        if (matcher.find()){
+                                        if (matcher.find()) {
                                             String pLastPostDateTime = matcher.group(1);
                                             String pSubject = subBoardCol.select("a").first().attr("title");
 
@@ -272,7 +273,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                                 break;
                                             }
 
-                                            pLastPost = "Last post on: " + pLastPostDateTime + "\nin: " + pSubject + "\nby " +pLastUser;
+                                            pLastPost = "Last post on: " + pLastPostDateTime + "\nin: " + pSubject + "\nby " + pLastUser;
 
                                             pLastPostUrl = subBoardCol.select("a").first().attr("href");
                                         }
@@ -281,18 +282,20 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                             break;
                                         }
 
-                                    } else if (pLastPost.contains("redirected clicks")||pLastPost.contains("N/A"))
+                                    }
+                                    else if (pLastPost.contains("redirected clicks") || pLastPost.contains("N/A"))
                                         pLastPost = "";
                                     else
                                         pLastPost = "No posts yet";
-                                } else {
+                                }
+                                else {
                                     pUrl = subBoardCol.select("a").first().attr("href");
                                     pTitle = subBoardCol.select("a").first().text();
                                     if (subBoardCol.select("div.smalltext").first() != null)
                                         pMods = subBoardCol.select("div.smalltext").first().text();
                                 }
                             }
-                            if(!parsingFailed)
+                            if (!parsingFailed)
                                 tempSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
                             else
                                 Timber.e("Parsing failed (pLastPost came with: \"%s\", subBoardColumns html was \"%s\")", pLastPost, subBoardColumns);
@@ -305,7 +308,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             if (topicRows != null && !topicRows.isEmpty()) {
                 for (Element topicRow : topicRows) {
                     if (!Objects.equals(topicRow.className(), "titlebg")) {
-                        String pTopicUrl, pSubject, pStarter, pLastUser="", pLastPostDateTime="00:00:00", pLastPost, pLastPostUrl, pStats;
+                        String pTopicUrl, pSubject, pStarter, pLastUser = "", pLastPostDateTime = "00:00:00", pLastPost, pLastPostUrl, pStats;
                         boolean pLocked = false, pSticky = false, pUnread = false;
                         Elements topicColumns = topicRow.select(">td");
 
@@ -325,11 +328,11 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
                         pLastPost = topicColumns.get(6).text();
                         Matcher matcher = pLastPostPattern.matcher(pLastPost);
-                        if (matcher.find()){
+                        if (matcher.find()) {
                             pLastPostDateTime = matcher.group(1);
                             pLastUser = matcher.group(2);
                         }
-                        else{
+                        else {
                             Timber.e("Parsing failed (pLastPost came with: \"%s\", topicColumns html was \"%s\")", pLastPost, topicColumns);
                             continue;
                         }

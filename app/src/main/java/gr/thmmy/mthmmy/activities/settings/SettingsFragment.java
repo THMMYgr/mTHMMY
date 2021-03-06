@@ -66,7 +66,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         defaultHomeTabValues.add("0");
         defaultHomeTabValues.add("1");
 
-        if(isLoggedIn = BaseApplication.getInstance().getSessionManager().isLoggedIn()){
+        if (isLoggedIn = BaseApplication.getInstance().getSessionManager().isLoggedIn()) {
             defaultHomeTabEntries.add(UNREAD);
             defaultHomeTabValues.add("2");
         }
@@ -97,11 +97,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public void onCreatePreferences(Bundle bundle, String rootKey) {
         isLoggedIn = BaseApplication.getInstance().getSessionManager().isLoggedIn();    //Ensures it stays updated
         // Add the Preferences from the XML file if needed
-        if(isLoggedIn&&(prefs_type==PREFS_TYPE.GUEST||prefs_type==PREFS_TYPE.NOT_SET)){
+        if (isLoggedIn && (prefs_type == PREFS_TYPE.GUEST || prefs_type == PREFS_TYPE.NOT_SET)) {
             prefs_type = PREFS_TYPE.USER;
             addPreferencesFromResource(R.xml.app_preferences_user);
         }
-        else if(!isLoggedIn&&(prefs_type==PREFS_TYPE.USER||prefs_type==PREFS_TYPE.NOT_SET)){
+        else if (!isLoggedIn && (prefs_type == PREFS_TYPE.USER || prefs_type == PREFS_TYPE.NOT_SET)) {
             prefs_type = PREFS_TYPE.GUEST;
             addPreferencesFromResource(R.xml.app_preferences_guest);
         }
@@ -133,17 +133,20 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 if (existingValue.equals(SILENT_SELECTED)) {
                     //Selects "Silent"
                     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
-                } else {
+                }
+                else {
                     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(existingValue));
                 }
-            } else {
+            }
+            else {
                 //No ringtone has been selected, set to the default
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
             }
 
             startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
             return true;
-        } else {
+        }
+        else {
             return super.onPreferenceTreeClick(preference);
         }
     }
@@ -155,11 +158,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             SharedPreferences.Editor editor = settingsFile.edit();
             if (ringtone != null) {
                 editor.putString(SELECTED_RINGTONE, ringtone.toString()).apply();
-            } else {
+            }
+            else {
                 //"Silent" was selected
                 editor.putString(SELECTED_RINGTONE, SILENT_SELECTED).apply();
             }
-        } else {
+        }
+        else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -169,19 +174,19 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         updatePreferenceVisibility();
     }
 
-    private void updatePreferenceVisibility(){
-        if(isLoggedIn&& prefs_type==PREFS_TYPE.GUEST) {
+    private void updatePreferenceVisibility() {
+        if (isLoggedIn && prefs_type == PREFS_TYPE.GUEST) {
             prefs_type = PREFS_TYPE.USER;
             setPreferencesFromResource(R.xml.app_preferences_user, getPreferenceScreen().getKey());
-            if(!defaultHomeTabEntries.contains(UNREAD)){
+            if (!defaultHomeTabEntries.contains(UNREAD)) {
                 defaultHomeTabEntries.add(UNREAD);
                 defaultHomeTabValues.add("2");
             }
         }
-        else if(!isLoggedIn&&prefs_type==PREFS_TYPE.USER){
+        else if (!isLoggedIn && prefs_type == PREFS_TYPE.USER) {
             prefs_type = PREFS_TYPE.GUEST;
-            setPreferencesFromResource(R.xml.app_preferences_guest,getPreferenceScreen().getKey());
-            if(defaultHomeTabEntries.contains(UNREAD)){
+            setPreferencesFromResource(R.xml.app_preferences_guest, getPreferenceScreen().getKey());
+            if (defaultHomeTabEntries.contains(UNREAD)) {
                 defaultHomeTabEntries.remove(UNREAD);
                 defaultHomeTabValues.remove("2");
             }
@@ -199,27 +204,33 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         boolean enabled;
         if (key.equals(getString(R.string.pref_privacy_crashlytics_enable_key))) {
             enabled = sharedPreferences.getBoolean(key, false);
-            if(enabled)
+            if (enabled)
                 BaseApplication.getInstance().setFirebaseCrashlyticsEnabled(true);
             else {
                 Timber.i("Crashlytics collection will be disabled after restarting.");
                 BaseApplication.getInstance().setFirebaseCrashlyticsEnabled(false);
                 displayRestartAppToTakeEffectToast();
             }
-        } else if (key.equals(getString(R.string.pref_privacy_analytics_enable_key))) {
+        }
+        else if (key.equals(getString(R.string.pref_privacy_analytics_enable_key))) {
             enabled = sharedPreferences.getBoolean(key, false);
             BaseApplication.getInstance().setFirebaseAnalyticsEnabled(enabled);
-            if(enabled)
+            if (enabled)
                 Timber.i("Analytics collection enabled.");
             else
                 Timber.i("Analytics collection disabled.");
-        } else if (key.equals(getString(R.string.pref_app_display_relative_time_key))
-                && BaseApplication.getInstance().isDisplayRelativeTimeEnabled()!=sharedPreferences.getBoolean(key, false)){
-                displayRestartAppToTakeEffectToast();
+        }
+        else if (key.equals(getString(R.string.pref_app_display_relative_time_key))
+                && BaseApplication.getInstance().isDisplayRelativeTimeEnabled() != sharedPreferences.getBoolean(key, false)) {
+            displayRestartAppToTakeEffectToast();
+        }
+        else if (key.equals(getString(R.string.pref_app_display_compact_tabs_key))
+                && BaseApplication.getInstance().isDisplayCompactTabsEnabled() != sharedPreferences.getBoolean(key, false)) {
+            displayRestartAppToTakeEffectToast();
         }
     }
 
-    private void displayRestartAppToTakeEffectToast(){
+    private void displayRestartAppToTakeEffectToast() {
         Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This change will take effect once you restart the app.", Toast.LENGTH_SHORT).show();
     }
 }

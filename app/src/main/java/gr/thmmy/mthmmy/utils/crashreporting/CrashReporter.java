@@ -13,7 +13,8 @@ import gr.thmmy.mthmmy.utils.parsing.ParseHelpers;
 public class CrashReporter {
     private static final int STRING_BATCH_LENGTH = 250;
 
-    private CrashReporter() {}
+    private CrashReporter() {
+    }
 
     public static void reportForumInfo(Document document) {
         ParseHelpers.Theme theme = ParseHelpers.parseTheme(document);

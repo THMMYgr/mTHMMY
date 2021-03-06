@@ -21,7 +21,7 @@ public class ThmmyFile {
      */
     public ThmmyFile(URL fileUrl, String fileName, String fileInfo) {
         this.fileUrl = fileUrl;
-        if(fileName!=null)
+        if (fileName != null)
             this.fileName = fileName;
         else
             this.fileName = URLUtil.guessFileName(fileUrl.toString(), null, null);

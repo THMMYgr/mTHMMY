@@ -12,8 +12,8 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 /**
- From MultipartUploadRequest gotev/android-upload-service in order to use the local custom
- MultipartUploadTask.
+ * From MultipartUploadRequest gotev/android-upload-service in order to use the local custom
+ * MultipartUploadTask.
  */
 public class MultipartUploadRequest extends HttpUploadRequest<MultipartUploadRequest> {
 
@@ -61,7 +61,8 @@ public class MultipartUploadRequest extends HttpUploadRequest<MultipartUploadReq
             contentType = file.getContentType(context);
             Logger.debug(LOG_TAG, "Auto-detected MIME type for " + filePath
                     + " is: " + contentType);
-        } else {
+        }
+        else {
             Logger.debug(LOG_TAG, "Content Type set for " + filePath
                     + " is: " + contentType);
         }
@@ -71,7 +72,8 @@ public class MultipartUploadRequest extends HttpUploadRequest<MultipartUploadReq
         if (fileName == null || "".equals(fileName)) {
             fileName = file.getName(context);
             Logger.debug(LOG_TAG, "Using original file name: " + fileName);
-        } else {
+        }
+        else {
             Logger.debug(LOG_TAG, "Using custom file name: " + fileName);
         }
 

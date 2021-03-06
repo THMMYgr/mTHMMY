@@ -93,7 +93,7 @@ public class StatsFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_profile_stats, container, false);
         mainContent = rootView.findViewById(R.id.main_content);
-        if (profileStatsTask!=null && profileStatsTask.getStatus() == AsyncTask.Status.FINISHED)
+        if (profileStatsTask != null && profileStatsTask.getStatus() == AsyncTask.Status.FINISHED)
             populateLayout();
         return rootView;
     }
@@ -101,7 +101,7 @@ public class StatsFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (profileStatsTask==null) {
+        if (profileStatsTask == null) {
             profileStatsTask = new ProfileStatsTask();
             profileStatsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileUrl + ";sa=statPanel");
         }
@@ -158,7 +158,7 @@ public class StatsFragment extends Fragment {
         protected void onPostExecute(Boolean result) {
             onLoadingListener.onLoadingStats(false);
             if (!result)
-                Timber.e(new ParseException("Parsing failed (user stats)"),"ParseException");   //TODO: This is inaccurate (e.g. can also have an I/O cause)
+                Timber.e(new ParseException("Parsing failed (user stats)"), "ParseException");   //TODO: This is inaccurate (e.g. can also have an I/O cause)
             else
                 populateLayout();
         }
@@ -227,7 +227,8 @@ public class StatsFragment extends Fragment {
     }
 
     private void populateLayout() {
-        onLoadingListener.onLoadingStats(true);;
+        onLoadingListener.onLoadingStats(true);
+        ;
         ((TextView) mainContent.findViewById(R.id.general_statistics_title))
                 .setText(generalStatisticsTitle);
         ((TextView) mainContent.findViewById(R.id.general_statistics))
@@ -261,7 +262,8 @@ public class StatsFragment extends Fragment {
         if (isAdded()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient, null));
-            } else
+            }
+            else
                 //noinspection deprecation
                 postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient));
         }
@@ -300,7 +302,8 @@ public class StatsFragment extends Fragment {
         if (isAdded()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mostPopularBoardsByPostsDataSet.setColors(getResources().getColor(R.color.accent, null));
-            } else
+            }
+            else
                 //noinspection deprecation
                 mostPopularBoardsByPostsDataSet.setColors(getResources().getColor(R.color.accent));
         }
@@ -341,7 +344,8 @@ public class StatsFragment extends Fragment {
         if (isAdded()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mostPopularBoardsByActivityDataSet.setColors(getResources().getColor(R.color.accent, null));
-            } else
+            }
+            else
                 //noinspection deprecation
                 mostPopularBoardsByActivityDataSet.setColors(getResources().getColor(R.color.accent));
         }

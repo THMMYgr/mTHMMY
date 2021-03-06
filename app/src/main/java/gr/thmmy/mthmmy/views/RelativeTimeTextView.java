@@ -67,6 +67,7 @@ public class RelativeTimeTextView extends TextView {
      * Sets the reference time for this view. At any moment, the view will render a relative time period relative to the time set here.
      * <p/>
      * This value can also be set with the XML attribute {@code reference_time}
+     *
      * @param referenceTime The timestamp (in milliseconds since epoch) that will be the reference point for this view.
      */
     public void setReferenceTime(long referenceTime) {
@@ -120,13 +121,14 @@ public class RelativeTimeTextView extends TextView {
         super.onVisibilityChanged(changedView, visibility);
         if (visibility == GONE || visibility == INVISIBLE) {
             stopTaskForPeriodicallyUpdatingRelativeTime();
-        } else {
+        }
+        else {
             startTaskForPeriodicallyUpdatingRelativeTime();
         }
     }
 
     private void startTaskForPeriodicallyUpdatingRelativeTime() {
-        if(mUpdateTimeTask.isDetached()) initUpdateTimeTask();
+        if (mUpdateTimeTask.isDetached()) initUpdateTimeTask();
         mHandler.post(mUpdateTimeTask);
         isUpdateTaskRunning = true;
     }
@@ -136,7 +138,7 @@ public class RelativeTimeTextView extends TextView {
     }
 
     private void stopTaskForPeriodicallyUpdatingRelativeTime() {
-        if(isUpdateTaskRunning) {
+        if (isUpdateTaskRunning) {
             mUpdateTimeTask.detach();
             mHandler.removeCallbacks(mUpdateTimeTask);
             isUpdateTaskRunning = false;
@@ -158,7 +160,7 @@ public class RelativeTimeTextView extends TextView {
             return;
         }
 
-        SavedState ss = (SavedState)state;
+        SavedState ss = (SavedState) state;
         mReferenceTime = ss.referenceTime;
         super.onRestoreInstanceState(ss.getSuperState());
     }
@@ -219,9 +221,11 @@ public class RelativeTimeTextView extends TextView {
             long interval = INITIAL_UPDATE_INTERVAL;
             if (difference > DateUtils.WEEK_IN_MILLIS) {
                 interval = DateUtils.WEEK_IN_MILLIS;
-            } else if (difference > DateUtils.DAY_IN_MILLIS) {
+            }
+            else if (difference > DateUtils.DAY_IN_MILLIS) {
                 interval = DateUtils.DAY_IN_MILLIS;
-            } else if (difference > DateUtils.HOUR_IN_MILLIS) {
+            }
+            else if (difference > DateUtils.HOUR_IN_MILLIS) {
                 interval = DateUtils.HOUR_IN_MILLIS;
             }
             rttv.updateTextDisplay();

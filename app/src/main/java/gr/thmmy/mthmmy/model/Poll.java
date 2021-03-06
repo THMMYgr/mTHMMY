@@ -91,8 +91,7 @@ public class Poll extends TopicItem {
         /**
          * Constructor for entry with unknown number of votes
          *
-         * @param entryName
-         * The name of the entry
+         * @param entryName The name of the entry
          */
         public Entry(String entryName) {
             this.entryName = entryName;

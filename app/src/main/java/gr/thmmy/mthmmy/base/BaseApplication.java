@@ -46,6 +46,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import timber.log.Timber;
 
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_COMPACT_TABS;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
 
 // TODO: Replace MultiDexApplication with Application after KitKat support is dropped
@@ -63,6 +64,7 @@ public class BaseApplication extends MultiDexApplication {
     private SessionManager sessionManager;
 
     private boolean displayRelativeTime;
+    private boolean displayCompactTabs;
 
     //Display Metrics
     private static float widthDp;
@@ -105,10 +107,11 @@ public class BaseApplication extends MultiDexApplication {
         setDisplayMetrics();
 
         displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, true);
+        displayCompactTabs = settingsSharedPrefs.getBoolean(DISPLAY_COMPACT_TABS, true);
     }
 
-    private void initFirebase(SharedPreferences settingsSharedPrefs){
-        if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false)){
+    private void initFirebase(SharedPreferences settingsSharedPrefs) {
+        if (settingsSharedPrefs.getBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), false)) {
             Timber.i("Starting app with Firebase Crashlytics enabled.");
             setFirebaseCrashlyticsEnabled(true);
         }
@@ -127,7 +130,7 @@ public class BaseApplication extends MultiDexApplication {
             Timber.i("Starting app with Firebase Analytics disabled.");
     }
 
-    private void initOkHttp(PersistentCookieJar cookieJar){
+    private void initOkHttp(PersistentCookieJar cookieJar) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(chain -> {
@@ -165,7 +168,7 @@ public class BaseApplication extends MultiDexApplication {
         client = builder.build();
     }
 
-    private void initDrawerImageLoader(){
+    private void initDrawerImageLoader() {
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
             public void set(ImageView imageView, Uri uri, Drawable placeholder, String tag) {
@@ -179,7 +182,7 @@ public class BaseApplication extends MultiDexApplication {
 
             @Override
             public Drawable placeholder(Context ctx, String tag) {
-                if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)){
+                if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                         return ContextCompat.getDrawable(BaseApplication.getInstance(), R.drawable.ic_default_user_avatar);
                     else {  // Just for KitKats
@@ -194,7 +197,7 @@ public class BaseApplication extends MultiDexApplication {
         });
     }
 
-    private void setDisplayMetrics(){
+    private void setDisplayMetrics() {
         DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
 
         widthPxl = displayMetrics.widthPixels;
@@ -233,6 +236,10 @@ public class BaseApplication extends MultiDexApplication {
         return displayRelativeTime;
     }
 
+    public boolean isDisplayCompactTabsEnabled() {
+        return displayCompactTabs;
+    }
+
     //-------------------- Firebase --------------------
 
     public void logFirebaseAnalyticsEvent(String event, Bundle params) {
@@ -244,7 +251,7 @@ public class BaseApplication extends MultiDexApplication {
         if (!enabled)
             firebaseAnalytics.resetAnalyticsData();
 
-        if(enabled)
+        if (enabled)
             Timber.i("Firebase Analytics enabled.");
         else
             Timber.i("Firebase Analytics disabled.");
@@ -252,14 +259,14 @@ public class BaseApplication extends MultiDexApplication {
 
     public void setFirebaseCrashlyticsEnabled(boolean enable) {
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(enable);
-        if(enable){
+        if (enable) {
             crashReportingTree = new CrashReportingTree();
             Timber.plant(crashReportingTree);
             Timber.i("CrashReporting tree planted.");
             Timber.i("Firebase Crashlytics enabled.");
         }
-        else{
-            if(crashReportingTree!=null) {
+        else {
+            if (crashReportingTree != null) {
                 Timber.uproot(crashReportingTree);
                 Timber.i("CrashReporting tree uprooted.");
             }
@@ -267,7 +274,7 @@ public class BaseApplication extends MultiDexApplication {
         }
     }
 
-    public static String getFirebaseProjectId(){
+    public static String getFirebaseProjectId() {
         return firebaseProjectId;
     }
 }

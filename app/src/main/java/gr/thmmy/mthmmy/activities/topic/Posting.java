@@ -62,7 +62,7 @@ public class Posting {
         if (finalUrl.contains("action=post")) {
             Document postErrorPage = Jsoup.parse(response.body().string());
             Element errorsElement = postErrorPage.select("tr[id=errors] div[id=error_list]").first();
-            if(errorsElement!=null){
+            if (errorsElement != null) {
                 String[] errors = errorsElement.toString().split("<br>");
                 for (int i = 0; i < errors.length; ++i) { //TODO test
                     Timber.d(String.valueOf(i));

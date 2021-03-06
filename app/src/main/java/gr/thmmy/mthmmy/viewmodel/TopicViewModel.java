@@ -100,7 +100,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void reloadPage() {
-        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        if (topicUrl == null)
+            throw new NullPointerException("No topic task has been requested yet!");
         Timber.i("Reloading page");
         loadUrl(topicUrl);
     }
@@ -110,13 +111,15 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
      * in the url before refreshing
      */
     public void resetPage() {
-        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        if (topicUrl == null)
+            throw new NullPointerException("No topic task has been requested yet!");
         Timber.i("Resetting page");
         loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + String.valueOf(currentPageIndex * 15));
     }
 
     public void resetPageThen(Runnable runnable) {
-        if (topicUrl == null) throw new NullPointerException("No topic task has been requested yet!");
+        if (topicUrl == null)
+            throw new NullPointerException("No topic task has been requested yet!");
         Timber.i("Resetting page");
         stopLoading();
         currentTopicTask = new TopicTask(topicTaskObserver, result -> {
@@ -134,18 +137,21 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             Timber.i("Changing to page " + pageRequested + 1);
             loadUrl(ParseHelpers.getBaseURL(topicUrl) + "." + pageRequested * 15);
             pageIndicatorIndex.setValue(pageRequested + 1);
-        } else {
+        }
+        else {
             stopLoading();
         }
     }
 
     public boolean submitVote(LinearLayout optionsLayout) {
-        if (topicItems.getValue() == null) throw new NullPointerException("Topic task has not finished yet!");
+        if (topicItems.getValue() == null)
+            throw new NullPointerException("Topic task has not finished yet!");
         ArrayList<Integer> votes = new ArrayList<>();
         if (optionsLayout.getChildAt(0) instanceof RadioGroup) {
             RadioGroup optionsRadioGroup = (RadioGroup) optionsLayout.getChildAt(0);
             votes.add(optionsRadioGroup.getCheckedRadioButtonId());
-        } else if (optionsLayout.getChildAt(0) instanceof CheckBox) {
+        }
+        else if (optionsLayout.getChildAt(0) instanceof CheckBox) {
             for (int i = 0; i < optionsLayout.getChildCount(); i++) {
                 CheckBox checkBox = (CheckBox) optionsLayout.getChildAt(i);
                 if (checkBox.isChecked())
@@ -164,7 +170,8 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public void removeVote() {
-        if (topicItems.getValue() == null) throw new NullPointerException("Topic task has not finished yet!");
+        if (topicItems.getValue() == null)
+            throw new NullPointerException("Topic task has not finished yet!");
         RemoveVoteTask removeVoteTask = new RemoveVoteTask();
         removeVoteTask.setOnTaskStartedListener(removeVoteTaskStartedListener);
         removeVoteTask.setOnNetworkTaskFinishedListener(removeVoteTaskFinishedListener);
@@ -308,14 +315,15 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
             throw new NullPointerException("No page has been loaded yet!");
         int oldIndicatorIndex = this.pageIndicatorIndex.getValue();
         this.pageIndicatorIndex.setValue(pageIndicatorIndex);
-        if (changePage && oldIndicatorIndex != this.pageIndicatorIndex.getValue()) loadPageIndicated();
+        if (changePage && oldIndicatorIndex != this.pageIndicatorIndex.getValue())
+            loadPageIndicated();
     }
 
     // <-------------Just getters, setters and helper methods below here---------------->
 
     public int getTopicId() {
         if (pageTopicId.getValue() == null)
-            throw  new NullPointerException("No page has been loaded yet!");
+            throw new NullPointerException("No page has been loaded yet!");
         return pageTopicId.getValue();
     }
 
@@ -461,12 +469,12 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
     }
 
     public int getCurrentPageIndex() {
-        if (currentPageIndex == 0) throw  new NullPointerException("No page has been loaded yet!");
+        if (currentPageIndex == 0) throw new NullPointerException("No page has been loaded yet!");
         return currentPageIndex;
     }
 
     public int getPageCount() {
-        if (pageCount == 0) throw  new NullPointerException("No page has been loaded yet!");
+        if (pageCount == 0) throw new NullPointerException("No page has been loaded yet!");
         return pageCount;
     }
 
@@ -484,7 +492,7 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
 
     public int postCount() {
         if (topicItems.getValue() == null)
-            throw  new NullPointerException("No page has been loaded yet!");
+            throw new NullPointerException("No page has been loaded yet!");
         return topicItems.getValue().size();
     }
 }

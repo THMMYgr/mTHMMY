@@ -51,17 +51,19 @@ class LatestPostsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.fragment_profile_latest_posts_row, parent, false);
             return new LatestPostViewHolder(view);
-        } else {    // viewType == VIEW_TYPE_EMPTY
+        }
+        else {    // viewType == VIEW_TYPE_EMPTY
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.fragment_profile_latest_posts_empty_message, parent, false);
-            return new RecyclerView.ViewHolder(view){};
+            return new RecyclerView.ViewHolder(view) {
+            };
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof LatestPostViewHolder){
+        if (holder instanceof LatestPostViewHolder) {
             PostSummary topic = parsedTopicSummaries.get(position);
             final LatestPostViewHolder latestPostViewHolder = (LatestPostViewHolder) holder;
             latestPostViewHolder.postTitle.setText(topic.getSubject());

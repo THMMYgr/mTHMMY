@@ -24,7 +24,7 @@ import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 public class DownloadHelper {
     public static final File SAVE_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
-    public static void enqueueDownload(ThmmyFile thmmyFile){
+    public static void enqueueDownload(ThmmyFile thmmyFile) {
         Context applicationContext = BaseApplication.getInstance().getApplicationContext();
         Toast.makeText(applicationContext, "Download started!", Toast.LENGTH_SHORT).show();
 
@@ -32,11 +32,11 @@ public class DownloadHelper {
             String fileName = renameFileIfExists(thmmyFile.getFilename());
             Uri downloadURI = Uri.parse(thmmyFile.getFileUrl().toString());
 
-            DownloadManager downloadManager = (DownloadManager)applicationContext.getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager downloadManager = (DownloadManager) applicationContext.getSystemService(Context.DOWNLOAD_SERVICE);
             DownloadManager.Request request = new DownloadManager.Request(downloadURI);
 
             Cookie thmmyCookie = BaseApplication.getInstance().getSessionManager().getThmmyCookie();
-            if(thmmyCookie!=null)
+            if (thmmyCookie != null)
                 request.addRequestHeader("Cookie", thmmyCookie.name() + "=" + thmmyCookie.value());
             request.setTitle(fileName);
             request.setMimeType(getMimeType(fileName));
@@ -63,7 +63,8 @@ public class DownloadHelper {
         if (tokens.length != 2) {
             Timber.w("Couldn't get file extension...");
             nameFormat = originalFileName + "(%d)";
-        } else
+        }
+        else
             nameFormat = tokens[0] + "-%d." + tokens[1];
 
         for (int i = 1; ; i++) {

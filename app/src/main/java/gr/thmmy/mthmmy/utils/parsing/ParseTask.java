@@ -21,14 +21,17 @@ import timber.log.Timber;
  */
 public abstract class ParseTask extends AsyncTask<String, Void, ParseTask.ResultCode> {
     protected String url;
+
     public enum ResultCode {
         SUCCESS, PARSING_ERROR, NETWORK_ERROR, OTHER_ERROR
     }
 
-    protected abstract void parse (Document document) throws ParseException;
+    protected abstract void parse(Document document) throws ParseException;
+
     protected abstract void postExecution(ParseTask.ResultCode result);  //ResultCode.NETWORK_ERROR is handled automatically
 
-    protected void postParsing (){}
+    protected void postParsing() {
+    }
 
     protected Request prepareRequest(String... params) {
         url = params[0];

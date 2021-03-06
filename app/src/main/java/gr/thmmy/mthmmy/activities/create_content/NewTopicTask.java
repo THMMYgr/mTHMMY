@@ -22,7 +22,7 @@ public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
     private NewTopicTaskCallbacks listener;
     private boolean includeAppSignature;
 
-    public NewTopicTask(NewTopicTaskCallbacks listener, boolean includeAppSignature){
+    public NewTopicTask(NewTopicTaskCallbacks listener, boolean includeAppSignature) {
         this.listener = listener;
         this.includeAppSignature = includeAppSignature;
     }
@@ -96,6 +96,7 @@ public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
 
     public interface NewTopicTaskCallbacks {
         void onNewTopicTaskStarted();
+
         void onNewTopicTaskFinished(boolean success);
     }
 }

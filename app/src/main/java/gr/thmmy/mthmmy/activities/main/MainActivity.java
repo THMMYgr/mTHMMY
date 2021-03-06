@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -55,6 +57,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     private SectionsPagerAdapter sectionsPagerAdapter;
     private ViewPager viewPager;
     private TabLayout tabLayout;
+    private boolean displayCompactTabs;
 
     //Fix for vector drawables on android <21
     static {
@@ -82,9 +85,15 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             return; //Avoid executing the code below
         }
 
-        toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
+        displayCompactTabs = BaseApplication.getInstance().isDisplayCompactTabsEnabled();
+
+        if (displayCompactTabs) {
+            toolbar = findViewById(R.id.toolbar);
+            ViewGroup.LayoutParams currentParams = toolbar.getLayoutParams();
+            toolbar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, currentParams.height));
+            toolbar.setTitle("");
+            setSupportActionBar(toolbar);
+        }
 
         //Initialize drawer
         createDrawer();
@@ -108,8 +117,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         if ((preferredTab != 3 && preferredTab != 4) || sessionManager.isLoggedIn())
             tabLayout.getTabAt(preferredTab).select();
 
-        for (int i = 0; i < tabLayout.getTabCount(); i++)
-            updateTabIcon(i);
+        if (!displayCompactTabs)
+            updateTabIcons();
 
         setMainActivity(this);
     }
@@ -164,7 +173,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             i.putExtra(BUNDLE_TOPIC_TITLE, topicSummary.getSubject());
             i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(i);
-        } else
+        }
+        else
             Timber.e("onUnreadFragmentInteraction TopicSummary came without a link");
     }
 
@@ -188,7 +198,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             fragmentList.add(fragment);
             fragmentTitleList.add(title);
             notifyDataSetChanged();
-            updateTabIcon(fragmentList.size() - 1);
+            if (!displayCompactTabs)
+                updateTabIcon(fragmentList.size() - 1);
         }
 
         void removeFragment(int position) {
@@ -233,6 +244,10 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
             tabLayout.getTabAt(2).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
     }
 
+    private void updateTabIcons() {
+        for (int i = 0; i < tabLayout.getTabCount(); i++)
+            updateTabIcon(i);
+    }
 
     public void updateTabs() {
         if (!sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 3)
@@ -240,8 +255,8 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
         else if (sessionManager.isLoggedIn() && sectionsPagerAdapter.getCount() == 2)
             sectionsPagerAdapter.addFragment(UnreadFragment.newInstance(3), "UNREAD");
 
-        for (int i = 0; i < tabLayout.getTabCount(); i++)
-            updateTabIcon(i);
+        if (!displayCompactTabs)
+            updateTabIcons();
     }
 //-------------------------------FragmentPagerAdapter END-------------------------------------------
 
@@ -256,26 +271,31 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                         redirectIntent.putExtra(BUNDLE_BOARD_URL, uri.toString());
                         redirectIntent.putExtra(BUNDLE_BOARD_TITLE, "");
                         startActivity(redirectIntent);
-                    } else if (page.is(ThmmyPage.PageCategory.TOPIC)) {
+                    }
+                    else if (page.is(ThmmyPage.PageCategory.TOPIC)) {
                         Intent redirectIntent = new Intent(MainActivity.this, TopicActivity.class);
                         redirectIntent.putExtra(BUNDLE_TOPIC_URL, uri.toString());
                         redirectIntent.putExtra(BUNDLE_TOPIC_TITLE, "");
                         startActivity(redirectIntent);
-                    } else if (page.is(ThmmyPage.PageCategory.PROFILE)) {
+                    }
+                    else if (page.is(ThmmyPage.PageCategory.PROFILE)) {
                         Intent redirectIntent = new Intent(MainActivity.this, ProfileActivity.class);
                         redirectIntent.putExtra(BUNDLE_PROFILE_URL, uri.toString());
                         redirectIntent.putExtra(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                         redirectIntent.putExtra(BUNDLE_PROFILE_USERNAME, "");
                         startActivity(redirectIntent);
-                    } else if (page.is(ThmmyPage.PageCategory.DOWNLOADS)) {
+                    }
+                    else if (page.is(ThmmyPage.PageCategory.DOWNLOADS)) {
                         Intent redirectIntent = new Intent(MainActivity.this, DownloadsActivity.class);
                         redirectIntent.putExtra(BUNDLE_DOWNLOADS_URL, uri.toString());
                         redirectIntent.putExtra(BUNDLE_DOWNLOADS_TITLE, "");
                         startActivity(redirectIntent);
-                    } else if (!page.is(ThmmyPage.PageCategory.INDEX)) {
+                    }
+                    else if (!page.is(ThmmyPage.PageCategory.INDEX)) {
                         Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This thmmy sector is not yet supported.", Toast.LENGTH_LONG).show();
                     }
-                } else {
+                }
+                else {
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This is not thmmy.", Toast.LENGTH_LONG).show();
                 }
             }

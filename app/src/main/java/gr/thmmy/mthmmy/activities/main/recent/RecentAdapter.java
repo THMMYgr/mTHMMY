@@ -44,12 +44,11 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         TopicSummary topicSummary = recentList.get(position);
         holder.mTitleView.setText(topicSummary.getSubject());
-        if(BaseApplication.getInstance().isDisplayRelativeTimeEnabled()){
+        if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled()) {
             String timestamp = topicSummary.getLastPostTimestamp();
-            try{
+            try {
                 holder.mDateTimeView.setReferenceTime(Long.valueOf(timestamp));
-            }
-            catch(NumberFormatException e){
+            } catch (NumberFormatException e) {
                 Timber.e(e, "Invalid number format: %s", timestamp);
                 holder.mDateTimeView.setText(topicSummary.getLastPostSimplifiedDateTime());
             }

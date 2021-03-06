@@ -28,7 +28,8 @@ public class ShoutboxViewModel extends ViewModel {
     }
 
     public void sendShout(String shout) {
-        if (shoutboxMutableLiveData.getValue() == null) throw new IllegalStateException("Shoutbox task has not finished yet!");
+        if (shoutboxMutableLiveData.getValue() == null)
+            throw new IllegalStateException("Shoutbox task has not finished yet!");
         Shoutbox shoutbox = shoutboxMutableLiveData.getValue();
         new SendShoutTask(onSendShoutTaskStarted, onSendShoutTaskFinished)
                 .execute(shoutbox.getSendShoutUrl(), shout, shoutbox.getSc(),

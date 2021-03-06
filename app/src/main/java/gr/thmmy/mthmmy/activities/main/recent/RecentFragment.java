@@ -54,7 +54,8 @@ public class RecentFragment extends BaseFragment {
     private RecentTask recentTask;
 
     // Required empty public constructor
-    public RecentFragment() {}
+    public RecentFragment() {
+    }
 
     /**
      * Use ONLY this factory method to create a new instance of
@@ -123,12 +124,13 @@ public class RecentFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (recentTask!=null){
-            try{
-                if(recentTask.isRunning())
+        if (recentTask != null) {
+            try {
+                if (recentTask.isRunning())
                     recentTask.cancel(true);
             }    // Yes, it happens even though we checked
-            catch (NullPointerException ignored){ }
+            catch (NullPointerException ignored) {
+            }
         }
     }
 
@@ -146,9 +148,11 @@ public class RecentFragment extends BaseFragment {
             topicSummaries.clear();
             topicSummaries.addAll(fetchedRecent);
             recentAdapter.notifyDataSetChanged();
-        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+        }
+        else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
-        } else {
+        }
+        else {
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
                     " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }

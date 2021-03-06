@@ -81,7 +81,8 @@ public class Post extends TopicItem {
      * Constructor for active user's posts. All variables are declared final, once assigned they
      * can not change. Parameters notated as {@link Nullable} can either pass null or empty
      * (strings/ArrayList).
-     *  @param thumbnailUrl  author's thumbnail url
+     *
+     * @param thumbnailUrl  author's thumbnail url
      * @param author        author's username
      * @param subject       post's subject
      * @param content       post itself
@@ -139,7 +140,8 @@ public class Post extends TopicItem {
      * Constructor for deleted user's posts. All variables are declared final, once assigned they
      * can not change. Parameters notated as {@link Nullable} can either pass null or empty
      * (strings/ArrayList).
-     *  @param thumbnailUrl  author's thumbnail url
+     *
+     * @param thumbnailUrl  author's thumbnail url
      * @param author        author's username
      * @param subject       post's subject
      * @param content       post itself

@@ -22,7 +22,7 @@ public class MarkAsReadTask extends NetworkTask<Void> {
     @Override
     protected Parcel<Void> doInBackground(String... input) {
         Parcel<Void> parcel = executeInBackground(unreadUrl.toString());
-        if(parcel.getResultCode() == NetworkResultCodes.SUCCESSFUL)
+        if (parcel.getResultCode() == NetworkResultCodes.SUCCESSFUL)
             return executeInBackground(markAsReadLink);
         else return parcel;
     }
@@ -34,9 +34,9 @@ public class MarkAsReadTask extends NetworkTask<Void> {
                     "verification failed. Please try logging out and back in again, and then try " +
                     "again.), td:containsOwn(Η επαλήθευση συνόδου απέτυχε. Παρακαλούμε κάντε " +
                     "αποσύνδεση, επανασύνδεση και ξαναδοκιμάστε.)");
-            if(!sessionVerificationFailed.isEmpty())
+            if (!sessionVerificationFailed.isEmpty())
                 throw new InvalidSessionException();
-            if(markAsReadLink==null)
+            if (markAsReadLink == null)
                 markAsReadLink = extractMarkAsReadLink(document);
 
         } catch (InvalidSessionException ise) {
@@ -52,7 +52,7 @@ public class MarkAsReadTask extends NetworkTask<Void> {
         return NetworkResultCodes.SUCCESSFUL;
     }
 
-    private String extractMarkAsReadLink(Document document){
+    private String extractMarkAsReadLink(Document document) {
         Elements markAllAsReadLink = document.select("a[href^=" + baseMarkAllAsReadLink + "]");
 
         if (!markAllAsReadLink.isEmpty()) {

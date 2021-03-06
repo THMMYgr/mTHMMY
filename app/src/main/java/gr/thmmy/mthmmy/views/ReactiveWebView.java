@@ -41,7 +41,7 @@ public class ReactiveWebView extends WebView {
         init();
     }
 
-    private void init(){
+    private void init() {
         setOnLongClickListener();
         this.setVerticalScrollBarEnabled(false);
     }
@@ -53,7 +53,7 @@ public class ReactiveWebView extends WebView {
                 downTime = event.getEventTime();
                 break;
             case MotionEvent.ACTION_UP:
-                if(event.getEventTime() - downTime <= MAX_TOUCH_DURATION)
+                if (event.getEventTime() - downTime <= MAX_TOUCH_DURATION)
                     performClick();
                 break;
             default:
@@ -65,27 +65,27 @@ public class ReactiveWebView extends WebView {
     @Override
     public boolean performClick() {
         WebView.HitTestResult result = this.getHitTestResult();
-        if(result.getType() == WebView.HitTestResult.IMAGE_TYPE){
+        if (result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
             String imageURL = result.getExtra();
             displayPhotoViewImage(context, imageURL);
         }
         return super.performClick();
     }
 
-    private void setOnLongClickListener(){
+    private void setOnLongClickListener() {
         this.setOnLongClickListener(v -> {
             HitTestResult result = ReactiveWebView.this.getHitTestResult();
-            if(result.getType() == HitTestResult.SRC_ANCHOR_TYPE)
+            if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE)
                 copyUrlToClipboard(result.getExtra());
-            else if(result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
+            else if (result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
                 String imageURL = result.getExtra();
                 showImageDownloadDialog(imageURL);
             }
-            else if(result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+            else if (result.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
                 final String imageURL = result.getExtra();
                 Uri uri = Uri.parse(imageURL);
                 String videoId = uri.getQueryParameter(VIDEO_ID_PARAMETER);
-                if (videoId!=null)
+                if (videoId != null)
                     copyUrlToClipboard("https://www.youtube.com/watch?v=" + videoId);
                 else
                     showImageDownloadDialog(imageURL);
@@ -94,14 +94,14 @@ public class ReactiveWebView extends WebView {
         });
     }
 
-    private void copyUrlToClipboard(String urlToCopy){
+    private void copyUrlToClipboard(String urlToCopy) {
         ClipboardManager clipboard = (ClipboardManager) BaseApplication.getInstance().getSystemService(CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("ReactiveWebViewCopiedText", urlToCopy);
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(BaseApplication.getInstance().getApplicationContext(),context.getString(R.string.link_copied_msg),Toast.LENGTH_SHORT).show();
+        Toast.makeText(BaseApplication.getInstance().getApplicationContext(), context.getString(R.string.link_copied_msg), Toast.LENGTH_SHORT).show();
     }
 
-    private void showImageDownloadDialog(String imageURL){
+    private void showImageDownloadDialog(String imageURL) {
         ImageDownloadDialogBuilder builder = new ImageDownloadDialogBuilder(context, imageURL);
         builder.show();
     }

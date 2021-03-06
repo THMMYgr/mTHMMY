@@ -24,11 +24,13 @@ public class LaunchType {
         if (currentVersionCode == savedVersionCode) {
             //This is just a normal run
             return LAUNCH_TYPE.NORMAL_LAUNCH;
-        } else if (savedVersionCode == notThere) {
+        }
+        else if (savedVersionCode == notThere) {
             //Updates the shared preferences with the current version code
             prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
             return LAUNCH_TYPE.FIRST_LAUNCH_EVER;
-        } else if (currentVersionCode > savedVersionCode) {
+        }
+        else if (currentVersionCode > savedVersionCode) {
             //Updates the shared preferences with the current version code
             prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
             return LAUNCH_TYPE.FIRST_LAUNCH_AFTER_UPDATE;

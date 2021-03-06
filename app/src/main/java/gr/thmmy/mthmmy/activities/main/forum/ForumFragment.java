@@ -158,12 +158,13 @@ public class ForumFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (forumTask!=null){
-            try{
-                if(forumTask.isRunning())
+        if (forumTask != null) {
+            try {
+                if (forumTask.isRunning())
                     forumTask.cancel(true);
             }    // Yes, it happens even though we checked
-            catch (NullPointerException ignored){ }
+            catch (NullPointerException ignored) {
+            }
         }
     }
 
@@ -180,9 +181,11 @@ public class ForumFragment extends BaseFragment {
             categories.clear();
             categories.addAll(fetchedCategories);
             forumAdapter.notifyParentDataSetChanged(false);
-        } else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
+        }
+        else if (resultCode == NetworkResultCodes.NETWORK_ERROR) {
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Network error", Toast.LENGTH_SHORT).show();
-        } else {
+        }
+        else {
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Unexpected error," +
                     " please contact the developers with the details", Toast.LENGTH_LONG).show();
         }
@@ -218,13 +221,15 @@ public class ForumFragment extends BaseFragment {
                             Board board = new Board(boardElement.attr("href"), boardElement.text(), null, null, null, null);
                             category.getBoards().add(board);
                         }
-                    } else
+                    }
+                    else
                         category.setExpanded(false);
 
                     fetchedCategories.add(category);
                 }
                 return fetchedCategories;
-            } else
+            }
+            else
                 throw new ParseException("Parsing failed");
         }
 

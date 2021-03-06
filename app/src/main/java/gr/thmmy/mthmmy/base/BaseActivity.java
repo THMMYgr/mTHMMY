@@ -319,7 +319,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                     .withName(R.string.logout)
                     .withIcon(logoutIcon)
                     .withSelectable(false);
-        } else
+        }
+        else
             loginLogoutItem = new PrimaryDrawerItem()
                     .withTextColor(primaryColor)
                     .withSelectedColor(selectedSecondaryColor)
@@ -379,7 +380,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                         return false;
-                    } else
+                    }
+                    else
                         startLoginActivity();
                     return true;
 
@@ -399,12 +401,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                             Intent intent = new Intent(BaseActivity.this, MainActivity.class);
                             startActivity(intent);
                         }
-                    } else if (drawerItem.equals(SHOUTBOX_ID)) {
+                    }
+                    else if (drawerItem.equals(SHOUTBOX_ID)) {
                         if (!(BaseActivity.this instanceof ShoutboxActivity)) {
                             Intent intent = new Intent(BaseActivity.this, ShoutboxActivity.class);
                             startActivity(intent);
                         }
-                    } else if (drawerItem.equals(DOWNLOADS_ID)) {
+                    }
+                    else if (drawerItem.equals(DOWNLOADS_ID)) {
                         if (!(BaseActivity.this instanceof DownloadsActivity)) {
                             Intent intent = new Intent(BaseActivity.this, DownloadsActivity.class);
                             Bundle extras = new Bundle();
@@ -413,29 +417,34 @@ public abstract class BaseActivity extends AppCompatActivity {
                             intent.putExtras(extras);
                             startActivity(intent);
                         }
-                    } else if (drawerItem.equals(UPLOAD_ID)) {
+                    }
+                    else if (drawerItem.equals(UPLOAD_ID)) {
                         if (!(BaseActivity.this instanceof UploadActivity)) {
                             Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
                             startActivity(intent);
                         }
-                    } else if (drawerItem.equals(BOOKMARKS_ID)) {
+                    }
+                    else if (drawerItem.equals(BOOKMARKS_ID)) {
                         if (!(BaseActivity.this instanceof BookmarksActivity)) {
                             Intent intent = new Intent(BaseActivity.this, BookmarksActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(intent);
                         }
-                    } else if (drawerItem.equals(LOG_ID)) {
+                    }
+                    else if (drawerItem.equals(LOG_ID)) {
                         if (!sessionManager.isLoggedIn()) //When logged out or if user is guest
                             startLoginActivity();
                         else
                             showLogoutDialog();
-                    } else if (drawerItem.equals(ABOUT_ID)) {
+                    }
+                    else if (drawerItem.equals(ABOUT_ID)) {
                         if (!(BaseActivity.this instanceof AboutActivity)) {
                             Intent intent = new Intent(BaseActivity.this, AboutActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(intent);
                         }
-                    } else if (drawerItem.equals(SETTINGS_ID)) {
+                    }
+                    else if (drawerItem.equals(SETTINGS_ID)) {
                         if (!(BaseActivity.this instanceof SettingsActivity)) {
                             Intent intent = new Intent(BaseActivity.this, SettingsActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -465,13 +474,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private void updateDrawer() {
         if (drawer != null) {
-            if (!sessionManager.isLoggedIn()){ //When logged out or if user is guest
+            if (!sessionManager.isLoggedIn()) { //When logged out or if user is guest
                 drawer.removeItem(DOWNLOADS_ID);
                 drawer.removeItem(UPLOAD_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername());
                 setDefaultAvatar();
-            } else {
+            }
+            else {
                 if (!drawer.getDrawerItems().contains(downloadsItem)) {
                     drawer.addItemAtPosition(downloadsItem, 4);
                 }
@@ -494,8 +504,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         profileDrawerItem.withIcon(R.drawable.ic_default_user_avatar);
     }
 
-//-------------------------------------------LOGOUT-------------------------------------------------
+    //-------------------------------------------LOGOUT-------------------------------------------------
     private ProgressDialog progressDialog;
+
     private void onLogoutTaskStarted() {
         progressDialog = new ProgressDialog(BaseActivity.this,
                 R.style.AppTheme_Dark_Dialog);
@@ -505,7 +516,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
-    private void onLogoutTaskFinished(int resultCode,  Void v) {
+    private void onLogoutTaskFinished(int resultCode, Void v) {
         if (resultCode == NetworkResultCodes.SUCCESSFUL) {
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             if (sharedPrefs.getString(DEFAULT_HOME_TAB, "0").equals("2")) {
@@ -533,7 +544,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         builder.setPositiveButton("Yep", (dialogInterface, i) -> {
             new LogoutTask(this::onLogoutTaskStarted, this::onLogoutTaskFinished).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //Avoid delays between onPreExecute() and doInBackground()
         });
-        builder.setNegativeButton("Nope", (dialogInterface, i) -> {});
+        builder.setNegativeButton("Nope", (dialogInterface, i) -> {
+        });
         builder.create().show();
     }
 //-----------------------------------------LOGOUT END-----------------------------------------------
@@ -571,7 +583,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_false_accent_24dp);
             toggleTopicToBookmarks(thisPageBookmark);
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
-        } else {
+        }
+        else {
             thisPageBookmarkMenuButton.setIcon(R.drawable.ic_bookmark_true_accent_24dp);
             toggleTopicToBookmarks(thisPageBookmark);
             Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
@@ -581,14 +594,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void setBoardBookmark(final ImageButton thisPageBookmarkImageButton) {
         if (thisPageBookmark.matchExists(boardsBookmarked)) {
             thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
-        } else {
+        }
+        else {
             thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
         }
         thisPageBookmarkImageButton.setOnClickListener(view -> {
             if (thisPageBookmark.matchExists(boardsBookmarked)) {
                 thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
-            } else {
+            }
+            else {
                 thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark added", Toast.LENGTH_SHORT).show();
             }
@@ -602,7 +617,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         loadSavedBookmarks();
         if (thisPageBookmark.matchExists(boardsBookmarked)) {
             thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_true_accent_24dp);
-        } else {
+        }
+        else {
             thisPageBookmarkImageButton.setImageResource(R.drawable.ic_bookmark_false_accent_24dp);
         }
     }
@@ -627,7 +643,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (bookmark.matchExists(boardsBookmarked)) {
             boardsBookmarked.remove(bookmark.findIndex(boardsBookmarked));
             FirebaseMessaging.getInstance().unsubscribeFromTopic("b" + bookmark.getId());
-        } else {
+        }
+        else {
             boardsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), true));
             FirebaseMessaging.getInstance().subscribeToTopic("b" + bookmark.getId());
         }
@@ -639,7 +656,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (bookmark.matchExists(topicsBookmarked)) {
             topicsBookmarked.remove(bookmark.findIndex(topicsBookmarked));
             FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
-        } else {
+        }
+        else {
             topicsBookmarked.add(new Bookmark(bookmark.getTitle(), bookmark.getId(), true));
             FirebaseMessaging.getInstance().subscribeToTopic(bookmark.getId());
         }
@@ -676,7 +694,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(bookmark.getId());
 
             return topicsBookmarked.get(bookmark.findIndex(topicsBookmarked)).isNotificationsEnabled();
-        } else if (bookmark.matchExists(boardsBookmarked)) {
+        }
+        else if (bookmark.matchExists(boardsBookmarked)) {
             boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).toggleNotificationsEnabled();
             updateBoardBookmarks();
 
@@ -686,7 +705,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 FirebaseMessaging.getInstance().unsubscribeFromTopic("b" + bookmark.getId());
 
             return boardsBookmarked.get(bookmark.findIndex(boardsBookmarked)).isNotificationsEnabled();
-        } else
+        }
+        else
             Timber.w("No bookmark match exists!");
         return false;
     }
@@ -855,8 +875,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         privacyPolicyTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_text));
         SpannableConfiguration configuration = SpannableConfiguration.builder(this).linkResolver(new LinkResolverDef()).build();
 
-        String privacyPolicy = AssetUtils.readFileToText(BaseActivity.this,"PRIVACY.md");
-        if(privacyPolicy!=null){
+        String privacyPolicy = AssetUtils.readFileToText(BaseActivity.this, "PRIVACY.md");
+        if (privacyPolicy != null) {
             Markwon.setMarkdown(privacyPolicyTextView, configuration, privacyPolicy);
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
             builder.setView(privacyPolicyTextView);
@@ -943,7 +963,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                         dialogProgressText.setText(getString(R.string.upload_failed));
 
                         uploadsProgressDialog.show();
-                    } else {
+                    }
+                    else {
                         //Empty buttons are needed, they are updated with correct values in the receiver
                         uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "placeholder", (progressDialog, progressWhich) -> {
                         });
@@ -954,7 +975,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                         //UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
                         uploadsProgressDialog.show();
                     }
-                } else {
+                }
+                else {
                     UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, null);
                     //UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
                     uploadsProgressDialog.show();

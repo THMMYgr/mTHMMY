@@ -1,4 +1,9 @@
-<vector android:height="@dimen/editor_format_button_size" android:viewportHeight="24.0"
-    android:viewportWidth="24.0" android:width="@dimen/editor_format_button_size" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="@color/topic_post_icon" android:pathData="M10,4v3h2.21l-3.42,8H6v3h8v-3h-2.21l3.42,-8H18V4z"/>
+<vector android:height="@dimen/editor_format_button_size"
+    android:viewportHeight="24.0"
+    android:viewportWidth="24.0"
+    android:width="@dimen/editor_format_button_size"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <path
+        android:fillColor="@color/topic_post_icon"
+        android:pathData="M10,4v3h2.21l-3.42,8H6v3h8v-3h-2.21l3.42,-8H18V4z" />
 </vector>

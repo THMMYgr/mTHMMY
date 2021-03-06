@@ -57,7 +57,8 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View download = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_downloads_row, parent, false);
             return new DownloadViewHolder(download);
-        } else if (viewType == VIEW_TYPE_LOADING) {
+        }
+        else if (viewType == VIEW_TYPE_LOADING) {
             View loading = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.recycler_loading_item, parent, false);
             return new LoadingViewHolder(loading);
@@ -90,7 +91,8 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (downloadExpandableVisibility.get(downloadViewHolder.getAdapterPosition())) {
                     downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
                     downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
-                } else {
+                }
+                else {
                     downloadViewHolder.informationExpandable.setVisibility(View.GONE);
                     downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                 }
@@ -100,7 +102,8 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     if (visible) {
                         downloadViewHolder.informationExpandable.setVisibility(View.GONE);
                         downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
-                    } else {
+                    }
+                    else {
                         downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
                         downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                     }
@@ -112,12 +115,14 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     String tmp = context.getResources().getString(R.string.fa_folder) + " "
                             + download.getTitle();
                     downloadViewHolder.title.setText(tmp);
-                } else {
+                }
+                else {
                     String tmp = context.getResources().getString(R.string.fa_file) + " "
                             + download.getTitle();
                     downloadViewHolder.title.setText(tmp);
                 }
-            } else {
+            }
+            else {
                 downloadViewHolder.downloadRow.setOnClickListener(view -> {
                     try {
                         ((BaseActivity) context).downloadFile(new ThmmyFile(
@@ -129,7 +134,8 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background, null));
-                } else {
+                }
+                else {
                     //noinspection deprecation
                     downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background));
                 }
@@ -148,7 +154,8 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (tmp != null && !Objects.equals(tmp, ""))
                 downloadViewHolder.uploaderDate.setText(tmp);
             else downloadViewHolder.uploaderDate.setVisibility(View.GONE);
-        } else if (holder instanceof LoadingViewHolder) {
+        }
+        else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.progressBar.setIndeterminate(true);
         }

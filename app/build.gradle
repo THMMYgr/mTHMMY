@@ -15,8 +15,8 @@ android {
         applicationId "gr.thmmy.mthmmy"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 28
-        versionName "1.8.5"
+        versionCode 29
+        versionName "1.9.0"
         archivesBaseName = "mTHMMY-v$versionName"
         buildConfigField "String", "CURRENT_BRANCH", "\"" + getCurrentBranch() + "\""
         buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
@@ -53,23 +53,21 @@ tasks.whenTaskAdded { task ->
     if (task.name.contains("assembleRelease")) {
         task.getDependsOn().add({
             def googleServicesFile = new File("app/src/release/google-services.json")
-            if(googleServicesFile.exists()){
+            if (googleServicesFile.exists()) {
                 def json = new JsonSlurper().parseText(googleServicesFile.text)
                 if (json.project_info.project_id != firebaseReleaseProjectId)
                     throw new GradleException('Please supply the correct google-services.json for release in app/src/release/ directory!')
-            }
-            else
+            } else
                 throw new GradleException('Please add the release google-services.json in app/src/release/ directory!')
         })
     } else if (task.name.contains("assembleDebug")) {
         task.getDependsOn().add({
             def googleServicesFile = new File("app/src/debug/google-services.json")
-            if(googleServicesFile.exists()){
+            if (googleServicesFile.exists()) {
                 def json = new JsonSlurper().parseText(googleServicesFile.text)
                 if (json.project_info.project_id == firebaseReleaseProjectId)
                     throw new GradleException('Please replace google-services.json in app/src/debug/ with a debug one!')
-            }
-            else
+            } else
                 throw new GradleException('Please add a debug google-services.json in app/src/debug/ directory!')
         })
     }
@@ -85,19 +83,20 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.exifinterface:exifinterface:1.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'  //TODO: Remove when minSdkVersion >= 21
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.firebase:firebase-analytics:17.4.4'
-    implementation 'com.google.firebase:firebase-crashlytics:17.1.1'
-    implementation 'com.google.firebase:firebase-messaging:20.2.4'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
+    implementation 'com.google.firebase:firebase-messaging:21.0.0'
     implementation 'com.snatik:storage:2.1.0'
-    implementation ('com.squareup.okhttp3:okhttp:3.12.12') {  //TODO: Warning: OkHttp has dropped support for Android 19 since OkHttp 3.13!
+    implementation('com.squareup.okhttp3:okhttp:3.12.12') {
+        //TODO: Warning: OkHttp has dropped support for Android 19 since OkHttp 3.13!
         force = true    //TODO: Remove when minSdkVersion >= 21
     }
     implementation 'org.jsoup:jsoup:1.13.1'
-    implementation 'joda-time:joda-time:2.10.4'
+    implementation 'joda-time:joda-time:2.10.8'
     implementation 'com.github.franmontiel:PersistentCookieJar:1.0.1'
     implementation 'com.github.PhilJay:MPAndroidChart:3.0.3'
     implementation 'com.mikepenz:materialdrawer:6.1.1'
@@ -109,8 +108,10 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'ru.noties:markwon:2.0.2'
     implementation 'net.gotev:uploadservice:3.5.2'
-    implementation 'net.gotev:uploadservice-okhttp:3.4.2' //TODO: Warning: v.3.5 depends on okhttp 3.13!
-    implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.7' //Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
+    implementation 'net.gotev:uploadservice-okhttp:3.4.2'
+    //TODO: Warning: v.3.5 depends on okhttp 3.13!
+    implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.7'
+    //Plugin: https://plugins.jetbrains.com/plugin/11249-okhttp-profiler
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     testImplementation 'junit:junit:4.12'

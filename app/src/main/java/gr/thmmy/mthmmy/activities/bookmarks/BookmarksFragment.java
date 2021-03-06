@@ -26,6 +26,7 @@ import gr.thmmy.mthmmy.model.Bookmark;
 //TODO refactor using RecyclerView
 public class BookmarksFragment extends Fragment {
     enum Type {TOPIC, BOARD}
+
     private static final String ARG_SECTION_NUMBER = "SECTION_NUMBER";
     private static final String ARG_BOOKMARKS = "BOOKMARKS";
 
@@ -35,7 +36,7 @@ public class BookmarksFragment extends Fragment {
 
     static final String INTERACTION_CLICK_BOARD_BOOKMARK = "CLICK_BOARD_BOOKMARK";
     static final String INTERACTION_TOGGLE_BOARD_NOTIFICATION = "TOGGLE_BOARD_NOTIFICATION";
-    static final String INTERACTION_REMOVE_BOARD_BOOKMARK= "REMOVE_BOARD_BOOKMARK";
+    static final String INTERACTION_REMOVE_BOARD_BOOKMARK = "REMOVE_BOARD_BOOKMARK";
 
     private TextView nothingBookmarkedTextView;
 
@@ -49,16 +50,16 @@ public class BookmarksFragment extends Fragment {
     public BookmarksFragment() {/* Required empty public constructor */}
 
     private BookmarksFragment(Type type) {
-        this.type=type;
-        if(type==Type.TOPIC){
-            this.interactionClick=INTERACTION_CLICK_TOPIC_BOOKMARK;
-            this.interactionToggle=INTERACTION_TOGGLE_TOPIC_NOTIFICATION;
-            this.interactionRemove=INTERACTION_REMOVE_TOPIC_BOOKMARK;
+        this.type = type;
+        if (type == Type.TOPIC) {
+            this.interactionClick = INTERACTION_CLICK_TOPIC_BOOKMARK;
+            this.interactionToggle = INTERACTION_TOGGLE_TOPIC_NOTIFICATION;
+            this.interactionRemove = INTERACTION_REMOVE_TOPIC_BOOKMARK;
         }
-        else if (type==Type.BOARD){
-            this.interactionClick=INTERACTION_CLICK_BOARD_BOOKMARK;
-            this.interactionToggle=INTERACTION_TOGGLE_BOARD_NOTIFICATION;
-            this.interactionRemove=INTERACTION_REMOVE_BOARD_BOOKMARK;
+        else if (type == Type.BOARD) {
+            this.interactionClick = INTERACTION_CLICK_BOARD_BOOKMARK;
+            this.interactionToggle = INTERACTION_TOGGLE_BOARD_NOTIFICATION;
+            this.interactionRemove = INTERACTION_REMOVE_BOARD_BOOKMARK;
         }
     }
 
@@ -107,11 +108,13 @@ public class BookmarksFragment extends Fragment {
         //Get the nothing bookmarked text view.
         nothingBookmarkedTextView = rootView.findViewById(R.id.nothing_bookmarked);
 
+
         //Create the adapter.
         BookmarksAdapter adapter = new BookmarksAdapter(this, notificationsEnabledButtonImage, notificationsDisabledButtonImage);
 
         //Get the drag list view.
         DragListView mDragListView = (DragListView) rootView.findViewById(R.id.fragment_bookmarks_dragList);
+
 
         //Set the Drag List Listener.
         mDragListView.setDragListListener(new DragListView.DragListListener()
@@ -217,6 +220,7 @@ public class BookmarksFragment extends Fragment {
                 //Notify the adapter, because I made changes to the bookmarks array.
                 adapter.notifyDataSetChanged();
             }
+
         });
 
         //====================================This is the code for the Drag and Drop Functionality====================================//
@@ -241,6 +245,7 @@ public class BookmarksFragment extends Fragment {
     }
 
 
+
     public void showNothingBookmarked() {
         if(nothingBookmarkedTextView!=null)
             nothingBookmarkedTextView.setVisibility(View.VISIBLE);
@@ -248,6 +253,7 @@ public class BookmarksFragment extends Fragment {
 
     public void hideNothingBookmarked(){
         if(nothingBookmarkedTextView!=null)
+
             nothingBookmarkedTextView.setVisibility(View.INVISIBLE);
     }
 

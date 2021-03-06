@@ -14,10 +14,10 @@ public class FormatButtonsAdapter extends RecyclerView.Adapter<FormatButtonsAdap
     private OnFormatButtonClickListener listener;
 
     public static final int[] FORMAT_BUTTON_IDS = {R.drawable.ic_format_bold, R.drawable.ic_format_italic,
-    R.drawable.ic_format_underlined, R.drawable.ic_strikethrough_s, R.drawable.ic_format_color_text,
-    R.drawable.ic_format_size, R.drawable.ic_text_format, R.drawable.ic_format_list_bulleted,
-    R.drawable.ic_format_align_left, R.drawable.ic_format_align_center, R.drawable.ic_format_align_right,
-    R.drawable.ic_insert_link, R.drawable.ic_format_quote, R.drawable.ic_code, R.drawable.ic_functions};
+            R.drawable.ic_format_underlined, R.drawable.ic_strikethrough_s, R.drawable.ic_format_color_text,
+            R.drawable.ic_format_size, R.drawable.ic_text_format, R.drawable.ic_format_list_bulleted,
+            R.drawable.ic_format_align_left, R.drawable.ic_format_align_center, R.drawable.ic_format_align_right,
+            R.drawable.ic_insert_link, R.drawable.ic_format_quote, R.drawable.ic_code, R.drawable.ic_functions};
 
     public FormatButtonsAdapter(OnFormatButtonClickListener listener) {
         this.listener = listener;
@@ -45,6 +45,7 @@ public class FormatButtonsAdapter extends RecyclerView.Adapter<FormatButtonsAdap
 
     static class FormatButtonViewHolder extends RecyclerView.ViewHolder {
         AppCompatImageButton formatButton;
+
         FormatButtonViewHolder(AppCompatImageButton formatButton) {
             super(formatButton);
             this.formatButton = formatButton;

@@ -28,7 +28,7 @@ public class Bookmark implements java.io.Serializable {
         return isNotificationsEnabled;
     }
 
-    public void toggleNotificationsEnabled(){
+    public void toggleNotificationsEnabled() {
         this.isNotificationsEnabled = !this.isNotificationsEnabled;
     }
 

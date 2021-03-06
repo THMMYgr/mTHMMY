@@ -56,7 +56,8 @@ public class ParseHelpers {
                 if (welcomingGuest != null && welcomingGuest.text().contains("Welcome"))
                     return ENGLISH;
                 return PAGE_INCOMPLETE;
-            } else if (welcoming.text().contains("Καλώς ορίσατε")) return GREEK;
+            }
+            else if (welcoming.text().contains("Καλώς ορίσατε")) return GREEK;
             else if (welcoming.text().contains("Hey")) return ENGLISH;
             else return UNKNOWN_LANGUAGE;
         }
@@ -72,7 +73,7 @@ public class ParseHelpers {
 
     public static Theme parseTheme(Document page) {
         Element stylesheet = page.select("link[rel=stylesheet]").first();
-        if(stylesheet!=null){
+        if (stylesheet != null) {
             if (stylesheet.attr("href").contains("scribbles2"))
                 return Theme.SCRIBBLES2;
             else if (stylesheet.attr("href").contains("helios_multi"))
@@ -168,7 +169,7 @@ public class ParseHelpers {
                             + "https://img.youtube.com/vi/"
                             + videoId
                             + "/default.jpg');\"></a></div>"
-                    );
+            );
             ++counter;
         }
         return fixed;
