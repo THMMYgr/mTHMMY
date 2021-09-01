@@ -1,7 +1,7 @@
 # mTHMMY
 
 [![GitHub release](https://img.shields.io/github/release/ThmmyNoLife/mTHMMY.svg?color=orange)](https://github.com/ThmmyNoLife/mTHMMY/releases)
-[![API](https://img.shields.io/badge/API-19%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=19)
+[![API](https://img.shields.io/badge/API-21%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=21)
 [![Discord Channel](https://img.shields.io/discord/252539000571559947?style=flat&color=738bd7&label=discord)][discord-server]
 ![Last Commit](https://img.shields.io/github/last-commit/ThmmyNoLife/mTHMMY/develop.svg?style=flat)
 
@@ -11,7 +11,7 @@ A mobile app for [thmmy.gr](https://www.thmmy.gr).
 
 ## Requirements
 
-mTHMMY can be installed on any smartphone with Android 4.4 KitKat or newer.
+mTHMMY can be installed on any smartphone with Android 5.0 Lollipop or newer.
 
 ## Download
 

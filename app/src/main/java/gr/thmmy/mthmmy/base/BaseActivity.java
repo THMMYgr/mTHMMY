@@ -2,22 +2,18 @@ package gr.thmmy.mthmmy.base;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,8 +39,6 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.snatik.storage.Storage;
 
-import net.gotev.uploadservice.UploadService;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -61,14 +55,12 @@ import gr.thmmy.mthmmy.activities.upload.UploadActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import gr.thmmy.mthmmy.services.DownloadHelper;
-import gr.thmmy.mthmmy.services.UploadsReceiver;
 import gr.thmmy.mthmmy.session.LogoutTask;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.FileUtils;
 import gr.thmmy.mthmmy.utils.io.AssetUtils;
 import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.viewmodel.BaseViewModel;
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.OkHttpClient;
 import ru.noties.markwon.LinkResolverDef;
 import ru.noties.markwon.Markwon;
@@ -83,7 +75,6 @@ import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_
 import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
-import static gr.thmmy.mthmmy.services.UploadsReceiver.UPLOAD_ID_KEY;
 import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -110,8 +101,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //Common UI elements
     protected Toolbar toolbar;
     protected Drawer drawer;
-    //Uploads progress dialog
-    UploadsShowDialogReceiver uploadsShowDialogReceiver;
+
     AlertDialog uploadsProgressDialog;
 
     private MainActivity mainActivity;
@@ -152,13 +142,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             isUserConsentDialogShown = true;
             showUserConsentDialog();
         }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            if (uploadsShowDialogReceiver == null) {
-                uploadsShowDialogReceiver = new UploadsShowDialogReceiver(this);
-            }
-            this.registerReceiver(uploadsShowDialogReceiver, new IntentFilter(UploadsReceiver.ACTION_COMBINED_UPLOAD));
-        }
     }
 
     @Override
@@ -166,10 +149,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onPause();
         if (drawer != null)    //close drawer animation after returning to activity
             drawer.closeDrawer();
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && uploadsShowDialogReceiver != null) {
-            this.unregisterReceiver(uploadsShowDialogReceiver);
-        }
     }
 
 
@@ -853,95 +832,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(getString(R.string.pref_privacy_crashlytics_enable_key), enabled).apply();
         editor.putBoolean(getString(R.string.pref_privacy_analytics_enable_key), enabled).apply();
-    }
-
-    //------------------------------------------ UPLOADS -------------------------------------------
-    private class UploadsShowDialogReceiver extends BroadcastReceiver {
-        private final Context activityContext;
-
-        UploadsShowDialogReceiver(Context activityContext) {
-            this.activityContext = activityContext;
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Bundle intentBundle = intent.getExtras();
-            if (intentBundle == null) {
-                return;
-            }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                String dialogUploadID = intentBundle.getString(UPLOAD_ID_KEY);
-
-                /*String retryFilename = intentBundle.getString(UPLOAD_RETRY_FILENAME);
-                String retryCategory = intentBundle.getString(UPLOAD_RETRY_CATEGORY);
-                String retryTitleText = intentBundle.getString(UPLOAD_RETRY_TITLE);
-                String retryDescription = intentBundle.getString(UPLOAD_RETRY_DESCRIPTION);
-                String retryIcon = intentBundle.getString(UPLOAD_RETRY_ICON);
-                String retryUploaderProfile = intentBundle.getString(UPLOAD_RETRY_UPLOADER);
-                Uri retryFileUri = (Uri) intentBundle.get(UPLOAD_RETRY_FILE_URI);
-
-                Intent retryIntent = new Intent(context, UploadsReceiver.class);
-                retryIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
-
-                retryIntent.putExtra(UPLOAD_RETRY_FILENAME, retryFilename);
-                retryIntent.putExtra(UPLOAD_RETRY_CATEGORY, retryCategory);
-                retryIntent.putExtra(UPLOAD_RETRY_TITLE, retryTitleText);
-                retryIntent.putExtra(UPLOAD_RETRY_DESCRIPTION, retryDescription);
-                retryIntent.putExtra(UPLOAD_RETRY_ICON, retryIcon);
-                retryIntent.putExtra(UPLOAD_RETRY_UPLOADER, retryUploaderProfile);
-                retryIntent.putExtra(UPLOAD_RETRY_FILE_URI, retryFileUri);*/
-
-                if (uploadsProgressDialog == null) {
-                    AlertDialog.Builder progressDialogBuilder = new AlertDialog.Builder(activityContext);
-                    LayoutInflater inflater = LayoutInflater.from(activityContext);
-                    LinearLayout progressDialogLayout = (LinearLayout) inflater.inflate(R.layout.dialog_upload_progress, null);
-
-                    MaterialProgressBar dialogProgressBar = progressDialogLayout.findViewById(R.id.dialogProgressBar);
-                    dialogProgressBar.setMax(100);
-
-                    progressDialogBuilder.setView(progressDialogLayout);
-
-                    uploadsProgressDialog = progressDialogBuilder.create();
-                    if (!UploadService.getTaskList().contains(dialogUploadID)) {
-                        //Upload probably failed at this point
-                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "", (progressDialog, progressWhich) -> {
-                            /*LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context.getApplicationContext());
-                            localBroadcastManager.sendBroadcast(multipartUploadRetryIntent);*/
-                            //uploadsProgressDialog.dismiss();
-
-                            //context.sendBroadcast(retryIntent);
-                        });
-                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.cancel), (progressDialog, progressWhich) -> {
-                            uploadsProgressDialog.dismiss();
-                        });
-
-                        TextView dialogProgressText = progressDialogLayout.findViewById(R.id.dialog_upload_progress_text);
-                        dialogProgressBar.setVisibility(View.GONE);
-                        dialogProgressText.setText(getString(R.string.upload_failed));
-
-                        uploadsProgressDialog.show();
-                    }
-                    else {
-                        //Empty buttons are needed, they are updated with correct values in the receiver
-                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "placeholder", (progressDialog, progressWhich) -> {
-                        });
-                        uploadsProgressDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "placeholder", (progressDialog, progressWhich) -> {
-                        });
-
-                        UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, null);
-                        //UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
-                        uploadsProgressDialog.show();
-                    }
-                }
-                else {
-                    UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, null);
-                    //UploadsReceiver.setDialogDisplay(uploadsProgressDialog, dialogUploadID, retryIntent);
-                    uploadsProgressDialog.show();
-                }
-            }
-        }
     }
 
     //----------------------------------MISC----------------------

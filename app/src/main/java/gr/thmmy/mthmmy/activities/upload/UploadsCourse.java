@@ -11,9 +11,9 @@ import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
 
 class UploadsCourse {
-    private String name;
-    private String minifiedName;
-    private String greeklishName;
+    private final String name;
+    private final String minifiedName;
+    private final String greeklishName;
 
     private UploadsCourse(String fullName, String minifiedName, String greeklishName) {
         this.name = fullName;
@@ -36,7 +36,7 @@ class UploadsCourse {
     static Map<String, UploadsCourse> generateUploadsCourses(String[] uploadsCoursesRes) {
         Map<String, UploadsCourse> uploadsCourses = new HashMap<>();
         for (String uploadsCourseStr : uploadsCoursesRes) {
-            String[] split = uploadsCourseStr.split(":");
+            String[] split = uploadsCourseStr.split("\\|");
             UploadsCourse uploadsCourse = new UploadsCourse(split[0], split[1], split[2]);
             uploadsCourses.put(uploadsCourse.getName(), uploadsCourse);
         }

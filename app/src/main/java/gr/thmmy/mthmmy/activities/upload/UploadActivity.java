@@ -11,7 +11,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
@@ -603,6 +602,8 @@ public class UploadActivity extends BaseActivity {
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please retry uploading.", Toast.LENGTH_SHORT).show();
                 }
                 break;
+            default:
+                super.onRequestPermissionsResult(permsRequestCode, permissions, grantResults);
         }
     }
 
@@ -697,50 +698,30 @@ public class UploadActivity extends BaseActivity {
         uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
         uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
         uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            uploadNotificationConfig.getError().message = "Error during upload. Click for options";
-        }
+
         uploadNotificationConfig.getCancelled().iconColorResourceID = android.R.drawable.stat_sys_upload_done;
         uploadNotificationConfig.getCancelled().autoClear = true;
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
-            combinedActionsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
+        Intent retryIntent = new Intent(context, UploadsReceiver.class);
+        retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
+        retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
 
-            /*combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_FILENAME, filename);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_CATEGORY, retryCategory);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_TITLE, retryTitleText);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_DESCRIPTION, retryDescription);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_ICON, retryIcon);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_UPLOADER, retryUploaderProfile);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_FILE_URI, retryFileUri);*/
+        Intent cancelIntent = new Intent(context, UploadsReceiver.class);
+        cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
+        cancelIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
 
-            uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
-                    1, combinedActionsIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-        }
-        else {
-            Intent retryIntent = new Intent(context, UploadsReceiver.class);
-            retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
-            retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
-
-            Intent cancelIntent = new Intent(context, UploadsReceiver.class);
-            cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
-            cancelIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
-
-            uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
-                    R.drawable.ic_cancel_accent_24dp,
-                    context.getString(R.string.cancel),
-                    PendingIntent.getBroadcast(context, 0, cancelIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT)
-            ));
-            uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
-                    R.drawable.ic_notification,
-                    context.getString(R.string.upload_retry),
-                    PendingIntent.getBroadcast(context, 0, retryIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT)
-            ));
-        }
+        uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
+                R.drawable.ic_cancel_accent_24dp,
+                context.getString(R.string.cancel),
+                PendingIntent.getBroadcast(context, 0, cancelIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT)
+        ));
+        uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
+                R.drawable.ic_notification,
+                context.getString(R.string.upload_retry),
+                PendingIntent.getBroadcast(context, 0, retryIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT)
+        ));
 
         return uploadNotificationConfig;
     }

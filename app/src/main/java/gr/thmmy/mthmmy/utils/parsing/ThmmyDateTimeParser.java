@@ -35,9 +35,8 @@ public class ThmmyDateTimeParser {
             .append(null, parsers)
             .toFormatter();
 
-    //TODO: Replace with Locale.forLanguageTag() (with "el-GR","en-US") when KitKat support is dropped
-    private static final Locale greekLocale = new Locale("el", "GR");
-    private static final Locale englishLocale = new Locale("en", "US");
+    private static final Locale greekLocale = Locale.forLanguageTag("el-GR");
+    private static final Locale englishLocale = Locale.forLanguageTag("en-US");
 
     private static final Pattern pattern = Pattern.compile("\\s((1[3-9]|2[0-3]):)");
 

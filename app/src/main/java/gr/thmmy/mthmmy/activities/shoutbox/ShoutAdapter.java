@@ -1,11 +1,9 @@
 package gr.thmmy.mthmmy.activities.shoutbox;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,8 +97,6 @@ public class ShoutAdapter extends CustomRecyclerView.Adapter<ShoutAdapter.ShoutV
     }
 
     class LinkLauncher extends WebViewClient {
-
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             final Uri uri = request.getUrl();
