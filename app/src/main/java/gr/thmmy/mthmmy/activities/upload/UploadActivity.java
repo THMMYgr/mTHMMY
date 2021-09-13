@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -38,10 +37,13 @@ import androidx.core.content.FileProvider;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import net.gotev.uploadservice.UploadNotificationAction;
 import net.gotev.uploadservice.UploadNotificationConfig;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -86,6 +88,8 @@ public class UploadActivity extends BaseActivity {
      * The key to use when putting upload's category String to {@link UploadActivity}'s Bundle.
      */
     public static final String BUNDLE_UPLOAD_CATEGORY = "UPLOAD_CATEGORY";
+    public static final String firebaseConfigUploadsCoursesKey = "uploads_courses";
+
     private static final String uploadIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl=upload";
     private static final String uploadedFromTHMMYPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
     /**
@@ -103,7 +107,7 @@ public class UploadActivity extends BaseActivity {
 
     private static final int MAX_FILE_SIZE_SUPPORTED = 45000000;
 
-    private HashMap<String, UploadsCourse> uploadsCourses;
+    private HashMap<Integer, UploadsCourse> uploadsCourses;
 
     private ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     private ParseUploadPageTask parseUploadPageTask;
@@ -416,10 +420,16 @@ public class UploadActivity extends BaseActivity {
             updateUIElements();
             generateFieldsButton.setEnabled(true);
         }
-
-        Resources res = getResources();
-        uploadsCourses = new HashMap<>(UploadsCourse
-                .generateUploadsCourses(res.getStringArray(R.array.string_array_uploads_courses)));
+        FirebaseRemoteConfig firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        String uploadsCoursesString = firebaseRemoteConfig.getString(firebaseConfigUploadsCoursesKey);
+        JSONObject uploadsCoursesJSON;
+        try {
+            uploadsCoursesJSON = new JSONObject(uploadsCoursesString);
+            uploadsCourses = UploadsCourse.generateCoursesFromJSON(uploadsCoursesJSON);
+        } catch (JSONException e) {
+            uploadsCourses = new HashMap<>();
+            Timber.e(e, "JSONException in uploads courses.");
+        }
     }
 
     @Override
@@ -939,13 +949,19 @@ public class UploadActivity extends BaseActivity {
                     .trim();
 
             if (!retrievedCourse.isEmpty()) {
-                UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
-
-                if (foundUploadsCourse != null) {
-                    uploadsCourse = foundUploadsCourse;
-                    semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
-                    Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
-                    generateFieldsButton.setEnabled(true);
+                try {
+                    int categoryValue = Integer.parseInt(categorySelected);
+                    if(uploadsCourses.containsKey(categoryValue)){
+                        UploadsCourse foundUploadsCourse = uploadsCourses.get(categoryValue);
+                        if (foundUploadsCourse != null) {
+                            uploadsCourse = foundUploadsCourse;
+                            semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
+                            Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
+                            generateFieldsButton.setEnabled(true);
+                        }
+                    }
+                } catch (final NumberFormatException e) {
+                    Timber.e(e, "Invalid category value!");
                 }
             }
         }

@@ -84,8 +84,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation platform('com.google.firebase:firebase-bom:28.4.0')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-config'
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.code.gson:gson:2.8.8'
     implementation 'com.snatik:storage:2.1.0'
     implementation 'com.squareup.okhttp3:okhttp:3.14.9'
     implementation 'org.jsoup:jsoup:1.14.2'
@@ -111,4 +113,5 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
     testImplementation 'net.lachlanmckee:timber-junit-rule:1.0.1'
+    testImplementation 'org.json:json:20210307'
 }

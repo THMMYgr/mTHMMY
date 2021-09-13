@@ -102,8 +102,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected Toolbar toolbar;
     protected Drawer drawer;
 
-    AlertDialog uploadsProgressDialog;
-
     private MainActivity mainActivity;
     private boolean isMainActivity;
     private boolean isUserConsentDialogShown;   //Needed because sometimes onResume is being called twice

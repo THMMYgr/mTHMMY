@@ -19,6 +19,8 @@ import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersisto
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
@@ -26,7 +28,11 @@ import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import gr.thmmy.mthmmy.BuildConfig;
@@ -40,8 +46,10 @@ import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_COMPACT_TABS;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
+import static gr.thmmy.mthmmy.activities.upload.UploadActivity.firebaseConfigUploadsCoursesKey;
+import static gr.thmmy.mthmmy.utils.io.ResourceUtils.readJSONResourceToString;
 
-public class BaseApplication extends Application {
+public class BaseApplication extends Application implements Executor{
     private static BaseApplication baseApplication; //BaseApplication singleton
 
     private CrashReportingTree crashReportingTree;
@@ -49,6 +57,7 @@ public class BaseApplication extends Application {
     //Firebase
     private static String firebaseProjectId;
     private FirebaseAnalytics firebaseAnalytics;
+    private FirebaseRemoteConfig firebaseRemoteConfig;
 
     //Client & SessionManager
     private OkHttpClient client;
@@ -119,6 +128,27 @@ public class BaseApplication extends Application {
             Timber.i("Starting app with Firebase Analytics enabled.");
         else
             Timber.i("Starting app with Firebase Analytics disabled.");
+
+        // Firebase Remote Config (uploads courses)
+        InputStream inputStream = getApplicationContext().getResources().openRawResource(R.raw.uploads_courses);
+        String uploadsCourses = readJSONResourceToString(inputStream);
+        Map<String, Object> uploadsCoursesMap = new HashMap<>();
+        uploadsCoursesMap.put(firebaseConfigUploadsCoursesKey, uploadsCourses);
+
+        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(3600)
+                .build();
+        firebaseRemoteConfig.setConfigSettingsAsync(configSettings);
+        firebaseRemoteConfig.setDefaultsAsync(uploadsCoursesMap);
+        firebaseRemoteConfig.fetchAndActivate()
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        boolean updated = task.getResult();
+                        Timber.i("Firebase remote config params updated: %s", updated);
+                    } else
+                        Timber.e("Fetching Firebase remote config params failed!");
+                });
     }
 
     private void initOkHttp(PersistentCookieJar cookieJar) {
@@ -246,5 +276,11 @@ public class BaseApplication extends Application {
 
     public static String getFirebaseProjectId() {
         return firebaseProjectId;
+    }
+
+    // Implement Executor (for Firebase remote config)
+    @Override
+    public void execute(Runnable runnable) {
+        runnable.run();
     }
 }

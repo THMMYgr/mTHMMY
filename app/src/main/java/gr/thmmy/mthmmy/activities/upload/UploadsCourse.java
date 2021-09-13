@@ -1,79 +1,60 @@
 package gr.thmmy.mthmmy.activities.upload;
 
-import android.os.Bundle;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import gr.thmmy.mthmmy.base.BaseApplication;
-import timber.log.Timber;
+public class UploadsCourse {
+    private final int id;
+    private final String name, minifiedName, greeklishName;
 
-class UploadsCourse {
-    private final String name;
-    private final String minifiedName;
-    private final String greeklishName;
-
-    private UploadsCourse(String fullName, String minifiedName, String greeklishName) {
-        this.name = fullName;
+    private UploadsCourse(int id, String name, String minifiedName, String greeklishName) {
+        this.id = id;
+        this.name = name;
         this.minifiedName = minifiedName;
         this.greeklishName = greeklishName;
     }
 
-    String getName() {
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
         return name;
     }
 
-    String getMinifiedName() {
+    public String getMinifiedName() {
         return minifiedName;
     }
 
-    String getGreeklishName() {
+    public String getGreeklishName() {
         return greeklishName;
     }
 
-    static Map<String, UploadsCourse> generateUploadsCourses(String[] uploadsCoursesRes) {
-        Map<String, UploadsCourse> uploadsCourses = new HashMap<>();
-        for (String uploadsCourseStr : uploadsCoursesRes) {
-            String[] split = uploadsCourseStr.split("\\|");
-            UploadsCourse uploadsCourse = new UploadsCourse(split[0], split[1], split[2]);
-            uploadsCourses.put(uploadsCourse.getName(), uploadsCourse);
-        }
-        return uploadsCourses;
-    }
-
-    static UploadsCourse findCourse(String retrievedCourse,
-                                    Map<String, UploadsCourse> uploadsCourses) {
-        retrievedCourse = normalizeGreekNumbers(retrievedCourse);
-        UploadsCourse uploadsCourse = uploadsCourses.get(retrievedCourse);
-        if (uploadsCourse != null) return uploadsCourse;
-
-        String foundKey = null;
-        for (Map.Entry<String, UploadsCourse> entry : uploadsCourses.entrySet()) {
-            String key = entry.getKey();
-            if ((key.contains(retrievedCourse) || retrievedCourse.contains(key))
-                    && (foundKey == null || key.length() > foundKey.length()))
-                foundKey = key;
+    public static HashMap<Integer, UploadsCourse> generateCoursesFromJSON(JSONObject json) throws JSONException {
+        HashMap<Integer, UploadsCourse> coursesHashMap = new HashMap<>();
+        if(json.has("courses")){
+            JSONArray coursesArray = json.getJSONArray("courses");
+            for(int i=0, size = coursesArray.length(); i<size; i++) {
+                JSONObject course = coursesArray.getJSONObject(i);
+                int id = course.getInt("id");
+                String name = course.getString("name");
+                String minifiedName = course.getString("minified");
+                String greeklisName = course.getString("greeklish");
+                coursesHashMap.put(course.getInt("id"), new UploadsCourse(id, name, minifiedName, greeklisName));
+            }
         }
 
-        if (foundKey == null) {
-            Timber.w("Couldn't find course that matches %s", retrievedCourse);
-            Bundle bundle = new Bundle();
-            bundle.putString("course_name", retrievedCourse);
-            BaseApplication.getInstance().logFirebaseAnalyticsEvent("unsupported_uploads_course", bundle);
-            return null;
+        if(json.has("categories")){
+            JSONArray categoriesArray = json.getJSONArray("categories");
+            for(int i=0, size = categoriesArray.length(); i<size; i++) {
+                JSONObject category = categoriesArray.getJSONObject(i);
+                coursesHashMap.putAll(generateCoursesFromJSON(category));
+            }
         }
 
-        return uploadsCourses.get(foundKey);
-    }
-
-    private static String normalizeGreekNumbers(String stringWithGreekNumbers) {
-        StringBuilder normalizedStrBuilder = new StringBuilder(stringWithGreekNumbers);
-        Pattern pattern = Pattern.compile("(Ι+)(?:\\s|\\(|\\)|$)");
-        Matcher matcher = pattern.matcher(stringWithGreekNumbers);
-        while (matcher.find())
-            normalizedStrBuilder.replace(matcher.start(1), matcher.end(1), matcher.group(1).replaceAll("Ι", "I"));
-        return normalizedStrBuilder.toString();
+        return coursesHashMap;
     }
 }
