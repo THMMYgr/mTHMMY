@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.topic.TopicActivity;
+import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.PostNotification;
@@ -172,7 +172,7 @@ public class NotificationService extends FirebaseMessagingService {
 
         //Builds notification
         String topicUrl = "https://www.thmmy.gr/smf/index.php?topic=" + postNotification.getTopicId() + "." + postNotification.getPostId();
-        Intent intent = new Intent(this, TopicActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         Bundle extras = new Bundle();
         extras.putString(BUNDLE_TOPIC_URL, topicUrl);
         extras.putString(BUNDLE_TOPIC_TITLE, postNotification.getTopicTitle());

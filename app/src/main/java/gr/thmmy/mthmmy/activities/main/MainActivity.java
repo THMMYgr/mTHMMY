@@ -254,6 +254,7 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     private void redirectToActivityFromIntent(Intent intent) {
         if (intent != null) {
             Uri uri = intent.getData();
+            Bundle extras = intent.getExtras();
             if (uri != null) {
                 ThmmyPage.PageCategory page = ThmmyPage.resolvePageCategory(uri);
                 if (!page.is(ThmmyPage.PageCategory.NOT_THMMY)) {
@@ -288,6 +289,16 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
                 }
                 else {
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "This is not thmmy.", Toast.LENGTH_LONG).show();
+                }
+            }
+            else if(extras!=null){
+                String topicTitle = extras.getString(BUNDLE_TOPIC_TITLE);
+                String topicPageUrl = extras.getString(BUNDLE_TOPIC_URL);
+                if(topicTitle!=null && topicPageUrl!=null){
+                    Intent redirectIntent = new Intent(MainActivity.this, TopicActivity.class);
+                    redirectIntent.putExtra(BUNDLE_TOPIC_URL, topicPageUrl);
+                    redirectIntent.putExtra(BUNDLE_TOPIC_TITLE, topicTitle);
+                    startActivity(redirectIntent);
                 }
             }
         }
