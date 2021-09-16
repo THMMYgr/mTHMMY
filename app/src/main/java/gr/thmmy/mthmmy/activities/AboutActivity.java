@@ -133,7 +133,7 @@ public class AboutActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (easterEggImage.getVisibility() == View.INVISIBLE)
+        if (easterEggImage.getVisibility() == View.GONE)
             super.onBackPressed();
         else
             hideEasterEgg();
@@ -184,9 +184,9 @@ public class AboutActivity extends BaseActivity {
     @SuppressLint("SourceLockedOrientationActivity")
     private void showEasterEgg() {
         if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);  //TODO: why?
-            appBar.setVisibility(View.INVISIBLE);
-            mainContent.setVisibility(View.INVISIBLE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            appBar.setVisibility(View.GONE);
+            mainContent.setVisibility(View.GONE);
             easterEggImage.setVisibility(View.VISIBLE);
             drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
@@ -195,7 +195,7 @@ public class AboutActivity extends BaseActivity {
     private void hideEasterEgg() {
         appBar.setVisibility(View.VISIBLE);
         mainContent.setVisibility(View.VISIBLE);
-        easterEggImage.setVisibility(View.INVISIBLE);
+        easterEggImage.setVisibility(View.GONE);
         drawer.getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
