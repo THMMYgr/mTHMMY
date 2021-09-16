@@ -421,7 +421,7 @@ public class UploadActivity extends BaseActivity {
             generateFieldsButton.setEnabled(true);
         }
         FirebaseRemoteConfig firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-        String uploadsCoursesString = firebaseRemoteConfig.getString(firebaseConfigUploadsCoursesKey);
+        String uploadsCoursesString = firebaseRemoteConfig.getValue(firebaseConfigUploadsCoursesKey).asString();
         JSONObject uploadsCoursesJSON;
         try {
             uploadsCoursesJSON = new JSONObject(uploadsCoursesString);

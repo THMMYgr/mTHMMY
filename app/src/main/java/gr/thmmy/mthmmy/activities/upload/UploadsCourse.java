@@ -6,6 +6,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import timber.log.Timber;
+
 public class UploadsCourse {
     private final int id;
     private final String name, minifiedName, greeklishName;
@@ -43,7 +45,9 @@ public class UploadsCourse {
                 String name = course.getString("name");
                 String minifiedName = course.getString("minified");
                 String greeklisName = course.getString("greeklish");
-                coursesHashMap.put(course.getInt("id"), new UploadsCourse(id, name, minifiedName, greeklisName));
+                if(coursesHashMap.containsKey(id))
+                    Timber.w("Added a duplicate id (%d) in uploads courses!", id);
+                coursesHashMap.put(id, new UploadsCourse(id, name, minifiedName, greeklisName));
             }
         }
 
