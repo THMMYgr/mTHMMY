@@ -1,5 +1,4 @@
 <resources>
-    <!-- Base Theme to also be inherited in v21 -->
     <style name="BaseAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_light</item>
@@ -21,14 +20,19 @@
     </style>
 
     <!-- Dark application theme. -->
-    <style name="AppTheme" parent="BaseAppTheme" />
+    <style name="AppTheme" parent="BaseAppTheme">
+        <item name="android:windowContentTransitions">true</item>
+    </style>
 
     <style name="BaseAppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" parent="BaseAppTheme.NoActionBar" />
+    <style name="AppTheme.NoActionBar" parent="BaseAppTheme.NoActionBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
 
     <style name="AppTheme.PreferenceTheme" parent="AppTheme.NoActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>

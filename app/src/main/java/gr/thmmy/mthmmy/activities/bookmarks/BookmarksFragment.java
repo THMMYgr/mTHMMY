@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.bookmarks;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import java.util.ArrayList;
 
@@ -85,15 +83,10 @@ public class BookmarksFragment extends Fragment {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            notificationsEnabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_on, null);
-        else
-            notificationsEnabledButtonImage = VectorDrawableCompat.create(getResources(), R.drawable.ic_notification_on, null);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            notificationsDisabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_off, null);
-        else
-            notificationsDisabledButtonImage = VectorDrawableCompat.create(getResources(), R.drawable.ic_notification_off, null);
+        notificationsEnabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_on, null);
+        notificationsDisabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_off, null);
+
     }
 
     @Override

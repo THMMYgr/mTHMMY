@@ -509,23 +509,13 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.stars.setVisibility(View.GONE);
 
                 if (currentPost.isUserMentionedInPost()) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        holder.cardChildLinear.setBackground(context.getResources().
-                                getDrawable(R.drawable.mention_card, null));
-                    }
-                    else
-                        holder.cardChildLinear.setBackground(context.getResources().
-                                getDrawable(R.drawable.mention_card));
+                    holder.cardChildLinear.setBackground(context.getResources().
+                            getDrawable(R.drawable.mention_card, null));
                 }
                 else if (mUserColor == TopicParser.USER_COLOR_PINK) {
                     //Special card for special member of the month!
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        holder.cardChildLinear.setBackground(context.getResources().
-                                getDrawable(R.drawable.member_of_the_month_card, null));
-                    }
-                    else
-                        holder.cardChildLinear.setBackground(context.getResources().
-                                getDrawable(R.drawable.member_of_the_month_card));
+                    holder.cardChildLinear.setBackground(context.getResources().
+                            getDrawable(R.drawable.member_of_the_month_card, null));
                 }
                 else holder.cardChildLinear.setBackground(null);
 

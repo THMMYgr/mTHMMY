@@ -41,6 +41,7 @@
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/post_thumbnail"
                     android:fitsSystemWindows="true"
+                    android:transitionName="user_thumbnail"
                     app:layout_collapseMode="parallax" />
 
                 <TextView

@@ -58,6 +58,7 @@
                             android:layout_gravity="center"
                             android:adjustViewBounds="true"
                             android:contentDescription="@string/post_thumbnail"
+                            android:transitionName="user_thumbnail"
                             app:srcCompat="@drawable/ic_default_user_avatar_darker" />
                     </FrameLayout>
 
@@ -197,8 +198,7 @@
                     android:gravity="start"
                     android:text=""
                     android:textColor="@color/accent"
-                    android:textSize="11sp"
-                    tools:text="date" />
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/post_number"

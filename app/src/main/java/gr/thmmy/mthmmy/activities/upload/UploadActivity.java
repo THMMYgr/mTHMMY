@@ -6,12 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
@@ -39,10 +37,13 @@ import androidx.core.content.FileProvider;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import net.gotev.uploadservice.UploadNotificationAction;
 import net.gotev.uploadservice.UploadNotificationConfig;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -87,6 +88,8 @@ public class UploadActivity extends BaseActivity {
      * The key to use when putting upload's category String to {@link UploadActivity}'s Bundle.
      */
     public static final String BUNDLE_UPLOAD_CATEGORY = "UPLOAD_CATEGORY";
+    public static final String firebaseConfigUploadsCoursesKey = "uploads_courses";
+
     private static final String uploadIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl=upload";
     private static final String uploadedFromTHMMYPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
     /**
@@ -104,7 +107,7 @@ public class UploadActivity extends BaseActivity {
 
     private static final int MAX_FILE_SIZE_SUPPORTED = 45000000;
 
-    private HashMap<String, UploadsCourse> uploadsCourses;
+    private HashMap<Integer, UploadsCourse> uploadsCourses;
 
     private ArrayList<UploadCategory> uploadRootCategories = new ArrayList<>();
     private ParseUploadPageTask parseUploadPageTask;
@@ -417,10 +420,16 @@ public class UploadActivity extends BaseActivity {
             updateUIElements();
             generateFieldsButton.setEnabled(true);
         }
-
-        Resources res = getResources();
-        uploadsCourses = new HashMap<>(UploadsCourse
-                .generateUploadsCourses(res.getStringArray(R.array.string_array_uploads_courses)));
+        FirebaseRemoteConfig firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        String uploadsCoursesString = firebaseRemoteConfig.getValue(firebaseConfigUploadsCoursesKey).asString();
+        JSONObject uploadsCoursesJSON;
+        try {
+            uploadsCoursesJSON = new JSONObject(uploadsCoursesString);
+            uploadsCourses = UploadsCourse.generateCoursesFromJSON(uploadsCoursesJSON);
+        } catch (JSONException e) {
+            uploadsCourses = new HashMap<>();
+            Timber.e(e, "JSONException in uploads courses.");
+        }
     }
 
     @Override
@@ -603,6 +612,8 @@ public class UploadActivity extends BaseActivity {
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please retry uploading.", Toast.LENGTH_SHORT).show();
                 }
                 break;
+            default:
+                super.onRequestPermissionsResult(permsRequestCode, permissions, grantResults);
         }
     }
 
@@ -697,50 +708,30 @@ public class UploadActivity extends BaseActivity {
         uploadNotificationConfig.getCompleted().iconResourceID = android.R.drawable.stat_sys_upload_done;
         uploadNotificationConfig.getError().iconResourceID = android.R.drawable.stat_sys_upload_done;
         uploadNotificationConfig.getError().iconColorResourceID = R.color.error_red;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            uploadNotificationConfig.getError().message = "Error during upload. Click for options";
-        }
+
         uploadNotificationConfig.getCancelled().iconColorResourceID = android.R.drawable.stat_sys_upload_done;
         uploadNotificationConfig.getCancelled().autoClear = true;
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Intent combinedActionsIntent = new Intent(UploadsReceiver.ACTION_COMBINED_UPLOAD);
-            combinedActionsIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
+        Intent retryIntent = new Intent(context, UploadsReceiver.class);
+        retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
+        retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
 
-            /*combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_FILENAME, filename);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_CATEGORY, retryCategory);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_TITLE, retryTitleText);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_DESCRIPTION, retryDescription);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_ICON, retryIcon);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_UPLOADER, retryUploaderProfile);
-            combinedActionsIntent.putExtra(UploadsReceiver.UPLOAD_RETRY_FILE_URI, retryFileUri);*/
+        Intent cancelIntent = new Intent(context, UploadsReceiver.class);
+        cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
+        cancelIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
 
-            uploadNotificationConfig.setClickIntentForAllStatuses(PendingIntent.getBroadcast(context,
-                    1, combinedActionsIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-        }
-        else {
-            Intent retryIntent = new Intent(context, UploadsReceiver.class);
-            retryIntent.setAction(UploadsReceiver.ACTION_RETRY_UPLOAD);
-            retryIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
-
-            Intent cancelIntent = new Intent(context, UploadsReceiver.class);
-            cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
-            cancelIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
-
-            uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
-                    R.drawable.ic_cancel_accent_24dp,
-                    context.getString(R.string.cancel),
-                    PendingIntent.getBroadcast(context, 0, cancelIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT)
-            ));
-            uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
-                    R.drawable.ic_notification,
-                    context.getString(R.string.upload_retry),
-                    PendingIntent.getBroadcast(context, 0, retryIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT)
-            ));
-        }
+        uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
+                R.drawable.ic_cancel_accent_24dp,
+                context.getString(R.string.cancel),
+                PendingIntent.getBroadcast(context, 0, cancelIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT)
+        ));
+        uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
+                R.drawable.ic_notification,
+                context.getString(R.string.upload_retry),
+                PendingIntent.getBroadcast(context, 0, retryIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT)
+        ));
 
         return uploadNotificationConfig;
     }
@@ -958,13 +949,19 @@ public class UploadActivity extends BaseActivity {
                     .trim();
 
             if (!retrievedCourse.isEmpty()) {
-                UploadsCourse foundUploadsCourse = UploadsCourse.findCourse(retrievedCourse, uploadsCourses);
-
-                if (foundUploadsCourse != null) {
-                    uploadsCourse = foundUploadsCourse;
-                    semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
-                    Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
-                    generateFieldsButton.setEnabled(true);
+                try {
+                    int categoryValue = Integer.parseInt(categorySelected);
+                    if(uploadsCourses.containsKey(categoryValue)){
+                        UploadsCourse foundUploadsCourse = uploadsCourses.get(categoryValue);
+                        if (foundUploadsCourse != null) {
+                            uploadsCourse = foundUploadsCourse;
+                            semester = maybeSemester.replaceAll("-", "").trim().substring(0, 1);
+                            Timber.d("Selected course: %s, semester: %s", uploadsCourse.getName(), semester);
+                            generateFieldsButton.setEnabled(true);
+                        }
+                    }
+                } catch (final NumberFormatException e) {
+                    Timber.e(e, "Invalid category value!");
                 }
             }
         }

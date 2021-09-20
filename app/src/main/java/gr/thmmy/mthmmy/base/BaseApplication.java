@@ -1,16 +1,15 @@
 package gr.thmmy.mthmmy.base;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
 import androidx.core.content.ContextCompat;
-import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
 
 import com.bumptech.glide.Glide;
@@ -20,27 +19,26 @@ import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersisto
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
-import com.mikepenz.fontawesome_typeface_library.FontAwesome;
-import com.mikepenz.iconics.IconicsDrawable;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
+import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import gr.thmmy.mthmmy.BuildConfig;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.session.SessionManager;
 import gr.thmmy.mthmmy.utils.crashreporting.CrashReportingTree;
-import okhttp3.CipherSuite;
-import okhttp3.ConnectionSpec;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -48,9 +46,10 @@ import timber.log.Timber;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_COMPACT_TABS;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
+import static gr.thmmy.mthmmy.activities.upload.UploadActivity.firebaseConfigUploadsCoursesKey;
+import static gr.thmmy.mthmmy.utils.io.ResourceUtils.readJSONResourceToString;
 
-// TODO: Replace MultiDexApplication with Application after KitKat support is dropped
-public class BaseApplication extends MultiDexApplication {
+public class BaseApplication extends Application implements Executor{
     private static BaseApplication baseApplication; //BaseApplication singleton
 
     private CrashReportingTree crashReportingTree;
@@ -58,6 +57,7 @@ public class BaseApplication extends MultiDexApplication {
     //Firebase
     private static String firebaseProjectId;
     private FirebaseAnalytics firebaseAnalytics;
+    private FirebaseRemoteConfig firebaseRemoteConfig;
 
     //Client & SessionManager
     private OkHttpClient client;
@@ -128,6 +128,27 @@ public class BaseApplication extends MultiDexApplication {
             Timber.i("Starting app with Firebase Analytics enabled.");
         else
             Timber.i("Starting app with Firebase Analytics disabled.");
+
+        // Firebase Remote Config (uploads courses)
+        InputStream inputStream = getApplicationContext().getResources().openRawResource(R.raw.uploads_courses);
+        String uploadsCourses = readJSONResourceToString(inputStream);
+        Map<String, Object> uploadsCoursesMap = new HashMap<>();
+        uploadsCoursesMap.put(firebaseConfigUploadsCoursesKey, uploadsCourses);
+
+        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(3600)
+                .build();
+        firebaseRemoteConfig.setConfigSettingsAsync(configSettings);
+        firebaseRemoteConfig.setDefaultsAsync(uploadsCoursesMap);
+        firebaseRemoteConfig.fetchAndActivate()
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        boolean updated = task.getResult();
+                        Timber.i("Firebase remote config params updated: %s", updated);
+                    } else
+                        Timber.e("Fetching Firebase remote config params failed!");
+                });
     }
 
     private void initOkHttp(PersistentCookieJar cookieJar) {
@@ -147,20 +168,6 @@ public class BaseApplication extends MultiDexApplication {
                 .connectTimeout(40, TimeUnit.SECONDS)
                 .writeTimeout(40, TimeUnit.SECONDS)
                 .readTimeout(40, TimeUnit.SECONDS);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { // Just for KitKats
-            // Necessary because our servers don't have the right cipher suites.
-            // https://github.com/square/okhttp/issues/4053
-            List<CipherSuite> cipherSuites = new ArrayList<>(ConnectionSpec.MODERN_TLS.cipherSuites());
-            cipherSuites.add(CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA);
-            cipherSuites.add(CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA);
-
-            ConnectionSpec legacyTls = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                    .cipherSuites(cipherSuites.toArray(new CipherSuite[0]))
-                    .build();
-
-            builder.connectionSpecs(Arrays.asList(legacyTls, ConnectionSpec.CLEARTEXT));
-        }
 
         if (BuildConfig.DEBUG)
             builder.addInterceptor(new OkHttpProfilerInterceptor());
@@ -183,14 +190,7 @@ public class BaseApplication extends MultiDexApplication {
             @Override
             public Drawable placeholder(Context ctx, String tag) {
                 if (DrawerImageLoader.Tags.PROFILE.name().equals(tag)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        return ContextCompat.getDrawable(BaseApplication.getInstance(), R.drawable.ic_default_user_avatar);
-                    else {  // Just for KitKats
-                        return new IconicsDrawable(ctx).icon(FontAwesome.Icon.faw_user)
-                                .paddingDp(10)
-                                .color(ContextCompat.getColor(ctx, R.color.iron))
-                                .backgroundColor(ContextCompat.getColor(ctx, R.color.primary_lighter));
-                    }
+                    return ContextCompat.getDrawable(BaseApplication.getInstance(), R.drawable.ic_default_user_avatar);
                 }
                 return super.placeholder(ctx, tag);
             }
@@ -276,5 +276,11 @@ public class BaseApplication extends MultiDexApplication {
 
     public static String getFirebaseProjectId() {
         return firebaseProjectId;
+    }
+
+    // Implement Executor (for Firebase remote config)
+    @Override
+    public void execute(Runnable runnable) {
+        runnable.run();
     }
 }

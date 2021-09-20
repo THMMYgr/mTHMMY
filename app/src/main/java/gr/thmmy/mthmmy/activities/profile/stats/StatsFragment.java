@@ -260,12 +260,7 @@ public class StatsFragment extends Fragment {
 
         LineDataSet postingActivityByTimeDataSet = new LineDataSet(postingActivityByTime, null);
         if (isAdded()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient, null));
-            }
-            else
-                //noinspection deprecation
-                postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient));
+            postingActivityByTimeDataSet.setFillDrawable(getResources().getDrawable(R.drawable.line_chart_gradient, null));
         }
         postingActivityByTimeDataSet.setDrawFilled(true);
         postingActivityByTimeDataSet.setDrawCircles(false);
