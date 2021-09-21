@@ -147,7 +147,7 @@ public class BaseApplication extends Application implements Executor{
                         boolean updated = task.getResult();
                         Timber.i("Firebase remote config params updated: %s", updated);
                     } else
-                        Timber.e("Fetching Firebase remote config params failed!");
+                        Timber.w("Fetching Firebase remote config params failed!");
                 });
     }
 
