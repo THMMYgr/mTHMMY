@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Spannable;
@@ -327,30 +328,20 @@ public class UploadActivity extends BaseActivity {
                         //File should be uploaded with a different name
 
                         if (checkPerms()) {
-                            if (!uploadFile.isCameraPhoto()) {
-                                //Temporarily copies the file to a another location and renames it
-                                tempFileUri = UploadsHelper.createTempFile(this, storage,
-                                        uploadFile.getFileUri(),
-                                        FileUtils.getFilenameWithoutExtension(editTextFilename));
-                            }
-                            else {
-                                //Renames the photo taken
-                                String photoPath = uploadFile.getPhotoFile().getPath();
-                                photoPath = photoPath.substring(0, photoPath.lastIndexOf(File.separator));
-                                String destinationFilename = photoPath + File.separator +
-                                        FileUtils.getFilenameWithoutExtension(editTextFilename) + ".jpg";
+                            String newFileName = FileUtils.getFilenameWithoutExtension(editTextFilename);
 
-                                if (!storage.rename(uploadFile.getPhotoFile().getAbsolutePath(), destinationFilename)) {
-                                    //Something went wrong, abort
-                                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Could not create temporary file for renaming", Toast.LENGTH_SHORT).show();
-                                    progressBar.setVisibility(View.GONE);
-                                    return;
-                                }
+                            if(uploadFile.isCameraPhoto())
+                                newFileName = newFileName + ".jpg";
 
-                                //Points photoFile and fileUri to the new copied and renamed file
-                                uploadFile.setPhotoFile(storage.getFile(destinationFilename));
-                                uploadFile.setFileUri(FileProvider.getUriForFile(this, getPackageName() +
-                                        ".provider", uploadFile.getPhotoFile()));
+                            //Temporarily copies the file to another location (external cache) and renames it
+                            tempFileUri = UploadsHelper.createTempFile(this, storage,
+                                    uploadFile.getFileUri(),
+                                    newFileName);
+
+                            //Something went wrong while creating temporary file, abort
+                            if(tempFileUri == null){
+                                progressBar.setVisibility(View.GONE);
+                                return;
                             }
                         }
                         else {
@@ -561,7 +552,7 @@ public class UploadActivity extends BaseActivity {
             UploadFile newFile = new UploadFile(true, TakePhoto.processResult(this,
                     photoFileCreated), photoFileCreated);
             addFileViewToList(FileUtils.getFilenameWithoutExtension(FileUtils.
-                    filenameFromUri(this, newFile.getFileUri())));
+                    filenameFromUri(this, newFile.getFileUri())) + ".jpg");
             filesList.add(newFile);
         }
         else if (requestCode == AFR_REQUEST_CODE_FIELDS_BUILDER) {
@@ -596,6 +587,10 @@ public class UploadActivity extends BaseActivity {
             case UPLOAD_REQUEST_CAMERA_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     takePhoto();
+                else {
+                    Timber.w("Take photo failed (permission denied).");
+                    Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Take photo failed (storage permission denied)", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case UPLOAD_REQUEST_STORAGE_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
@@ -609,6 +604,7 @@ public class UploadActivity extends BaseActivity {
                     finish();
                 }
                 else {
+                    Timber.w("Zip task failed (permission denied).");
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Please retry uploading.", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -720,17 +716,23 @@ public class UploadActivity extends BaseActivity {
         cancelIntent.setAction(UploadsReceiver.ACTION_CANCEL_UPLOAD);
         cancelIntent.putExtra(UploadsReceiver.UPLOAD_ID_KEY, uploadID);
 
+        int pendingIntentFlags;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            pendingIntentFlags = PendingIntent.FLAG_MUTABLE |PendingIntent.FLAG_UPDATE_CURRENT;
+        else
+            pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+
         uploadNotificationConfig.getProgress().actions.add(new UploadNotificationAction(
                 R.drawable.ic_cancel_accent_24dp,
                 context.getString(R.string.cancel),
                 PendingIntent.getBroadcast(context, 0, cancelIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT)
+                        pendingIntentFlags)
         ));
         uploadNotificationConfig.getError().actions.add(new UploadNotificationAction(
                 R.drawable.ic_notification,
                 context.getString(R.string.upload_retry),
                 PendingIntent.getBroadcast(context, 0, retryIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT)
+                        pendingIntentFlags)
         ));
 
         return uploadNotificationConfig;
@@ -1069,7 +1071,7 @@ public class UploadActivity extends BaseActivity {
         @Override
         protected void onPreExecute() {
             assert weakActivity != null;
-            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Zipping files", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Zipping files...", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -1077,7 +1079,7 @@ public class UploadActivity extends BaseActivity {
             if (weakActivity == null || zipFilename == null)
                 return false;
 
-            File zipFile = UploadsHelper.createZipFile(zipFilename);
+            File zipFile = UploadsHelper.createZipFile(weakActivity.get(), zipFilename);
 
             if (zipFile == null)
                 return false;

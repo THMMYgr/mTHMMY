@@ -694,6 +694,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //True if permissions are OK
     protected boolean checkPerms() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+            Timber.i("Checking storage permissions.");
             String[] PERMISSIONS_STORAGE = {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -705,12 +706,14 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     //Display popup for user to grant permission
-    protected void requestPerms(int code) { //Runtime permissions request for devices with API >= 23
+    protected void requestPerms(int code) {
+        //Runtime permissions request for devices with API >= 23
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             String[] PERMISSIONS_STORAGE = {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
+            Timber.i("Requesting storage permissions (code %d).", code);
             requestPermissions(PERMISSIONS_STORAGE, code);
         }
     }
@@ -722,9 +725,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (permsRequestCode == DOWNLOAD_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 prepareDownload(tempThmmyFile);
+            else {
+                Timber.w("Download failed (permission denied).");
+                Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Download failed (storage permission denied)", Toast.LENGTH_SHORT).show();
+            }
         }
     }
-
 
     //----------------------------------DOWNLOAD----------------------
     private ThmmyFile tempThmmyFile;
