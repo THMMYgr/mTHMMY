@@ -188,7 +188,7 @@ a img {
 	margin: 1px;
 	padding: 1px;
 	font-size: x-small;
-	line-height: 1.4em;
+	line-height: 1.4;
 }
 
 
@@ -199,7 +199,7 @@ a img {
 	background-color: #626566;
 	font-family: "Comic Sans MS", "times new roman", monospace;
 	font-size: x-small;
-	line-height: 1.3em;
+	line-height: 1.3;
 	/* Put a nice border around it. */
 	border: 1px solid #FFFFFF;
 	margin: 1px auto 1px auto;
@@ -223,7 +223,7 @@ a img {
 	font-style: normal;
 	font-weight: bold;
 	font-size: x-small;
-	line-height: 1.2em;
+	line-height: 1.2;
 }
 
 
@@ -361,7 +361,7 @@ tr.titlebg2 td,
 .personalmessage {
 	width: 100%;
 	overflow: auto;
-	line-height: 1.3em;
+	line-height: 1.3;
 	color: white;
 	background: #3C3F41 !important;
 }
@@ -373,7 +373,7 @@ tr.titlebg2 td,
 	width: 100%;
 	overflow: auto;
 	padding-bottom: 3px;
-	line-height: 1.3em;
+	line-height: 1.3;
 }
 
 #left {
@@ -596,4 +596,8 @@ span[style="background-color: yellow;"] {
 
 [style="color: white;"]>span[style="background-color: yellow;"] {
 	color: white !important;
+}
+
+span[style*="line-height: 1.3em;"] {
+	line-height: 1.3 !important;
 }
