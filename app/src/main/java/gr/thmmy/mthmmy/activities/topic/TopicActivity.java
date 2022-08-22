@@ -633,8 +633,11 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
                 else {
                     Timber.i("Post edit unsuccessful");
                     Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Edit failed!", Toast.LENGTH_SHORT).show();
-                    recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setAlpha(1);
-                    recyclerView.getChildAt(viewModel.getPostBeingEditedPosition()).setEnabled(true);
+                    View postBeingEditedView = recyclerView.getChildAt(viewModel.getPostBeingEditedPosition());
+                    if (postBeingEditedView != null) {
+                        postBeingEditedView.setAlpha(1);
+                        postBeingEditedView.setEnabled(true);
+                    }
                 }
             }
         });
