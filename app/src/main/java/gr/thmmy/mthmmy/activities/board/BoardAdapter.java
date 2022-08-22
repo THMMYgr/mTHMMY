@@ -32,11 +32,9 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
  * {@link RecyclerView.Adapter} that can display a {@link gr.thmmy.mthmmy.model.Board}.
  */
 class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final int VIEW_TYPE_SUB_BOARD_TITLE = 0;
-    private final int VIEW_TYPE_SUB_BOARD = 1;
-    private final int VIEW_TYPE_TOPIC_TITLE = 2;
-    private final int VIEW_TYPE_TOPIC = 3;
-    private final int VIEW_TYPE_LOADING = 4;
+    private final int VIEW_TYPE_SUB_BOARD = 0;
+    private final int VIEW_TYPE_TOPIC = 1;
+    private final int VIEW_TYPE_LOADING = 2;
 
     private final Context context;
     private ArrayList<Board> parsedSubBoards;
@@ -56,13 +54,11 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (position <= parsedSubBoards.size()) {
-            if (position == 0) return VIEW_TYPE_SUB_BOARD_TITLE;
+        if (position < parsedSubBoards.size()) {
             return VIEW_TYPE_SUB_BOARD;
         }
-        else if (position <= parsedSubBoards.size() + parsedTopics.size() + 1) {
-            if (position == parsedSubBoards.size() + 1) return VIEW_TYPE_TOPIC_TITLE;
-            if (parsedTopics.get(position - parsedSubBoards.size() - 1 - 1) != null)
+        else if (position < parsedSubBoards.size() + parsedTopics.size()) {
+            if (parsedTopics.get(position - parsedSubBoards.size()) != null)    //??
                 return VIEW_TYPE_TOPIC;
         }
         return VIEW_TYPE_LOADING;
@@ -70,51 +66,10 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_SUB_BOARD_TITLE) {
-            TextView subBoardTitle = new TextView(context);
-            subBoardTitle.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                    , LinearLayout.LayoutParams.WRAP_CONTENT));
-            subBoardTitle.setText(context.getString(R.string.child_board_title));
-            subBoardTitle.setTypeface(subBoardTitle.getTypeface(), Typeface.BOLD);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                subBoardTitle.setBackgroundColor(context.getColor(R.color.background_light));
-                subBoardTitle.setTextColor(context.getColor(R.color.accent));
-            }
-            else {
-                //noinspection deprecation
-                subBoardTitle.setBackgroundColor(context.getResources().getColor(R.color.background_light));
-                //noinspection deprecation
-                subBoardTitle.setTextColor(context.getResources().getColor(R.color.accent));
-            }
-            subBoardTitle.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            subBoardTitle.setTextSize(20f);
-
-            return new TitlesViewHolder(subBoardTitle);
-        }
-        else if (viewType == VIEW_TYPE_SUB_BOARD) {
+        if (viewType == VIEW_TYPE_SUB_BOARD) {
             View subBoard = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.activity_board_sub_board_row, parent, false);
             return new SubBoardViewHolder(subBoard);
-        }
-        else if (viewType == VIEW_TYPE_TOPIC_TITLE) {
-            TextView topicTitle = new TextView(context);
-            topicTitle.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                    , LinearLayout.LayoutParams.WRAP_CONTENT));
-            topicTitle.setText(context.getString(R.string.topic_title));
-            topicTitle.setTypeface(topicTitle.getTypeface(), Typeface.BOLD);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                topicTitle.setTextColor(context.getColor(R.color.primary_text));
-            }
-            else {
-                //noinspection deprecation
-                topicTitle.setTextColor(context.getResources().getColor(R.color.primary_text));
-            }
-            topicTitle.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            topicTitle.setTextSize(20f);
-
-            return new TitlesViewHolder(topicTitle);
         }
         else if (viewType == VIEW_TYPE_TOPIC) {
             View topic = LayoutInflater.from(parent.getContext()).
@@ -132,7 +87,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof SubBoardViewHolder) {
-            final Board subBoard = parsedSubBoards.get(position - 1);
+            final Board subBoard = parsedSubBoards.get(position);
             final SubBoardViewHolder subBoardViewHolder = (SubBoardViewHolder) holder;
 
             if (boardExpandableVisibility.size() != parsedSubBoards.size()) {
@@ -149,7 +104,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             });
-            if (boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1)) {
+            if (boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition())) {
                 subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
                 subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
             }
@@ -158,7 +113,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
             subBoardViewHolder.showHideExpandable.setOnClickListener(view -> {
-                final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition() - 1);
+                final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition());
                 if (visible) {
                     subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
                     subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
@@ -167,7 +122,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
                     subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                 }
-                boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition() - 1, !visible);
+                boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition(), !visible);
             });
             subBoardViewHolder.boardTitle.setText(subBoard.getTitle());
             String mods = subBoard.getMods();
@@ -202,7 +157,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }
         else if (holder instanceof TopicViewHolder) {
-            final Topic topic = parsedTopics.get(position - parsedSubBoards.size() - 1 - 1);
+            final Topic topic = parsedTopics.get(position - parsedSubBoards.size());
             final TopicViewHolder topicViewHolder = (TopicViewHolder) holder;
 
             if (topicExpandableVisibility.size() != parsedTopics.size()) {
@@ -220,7 +175,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 context.startActivity(intent);
             });
             if (topicExpandableVisibility.get(topicViewHolder.getAdapterPosition() - parsedSubBoards
-                    .size() - 2)) {
+                    .size())) {
                 topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
                 topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
             }
@@ -230,7 +185,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             topicViewHolder.showHideExpandable.setOnClickListener(view -> {
                 final boolean visible = topicExpandableVisibility.get(topicViewHolder.
-                        getAdapterPosition() - parsedSubBoards.size() - 2);
+                        getAdapterPosition() - parsedSubBoards.size());
                 if (visible) {
                     topicViewHolder.topicExpandable.setVisibility(View.GONE);
                     topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
@@ -240,7 +195,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                 }
                 topicExpandableVisibility.set(topicViewHolder.getAdapterPosition() -
-                        parsedSubBoards.size() - 2, !visible);
+                        parsedSubBoards.size(), !visible);
             });
             topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()
                     , "fonts/fontawesome-webfont.ttf"));
@@ -280,8 +235,8 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemCount() {
         int items = 0;
-        if (parsedSubBoards != null) items += parsedSubBoards.size() + 1;
-        if (parsedTopics != null) items += parsedTopics.size() + 1;
+        if (parsedSubBoards != null) items += parsedSubBoards.size();
+        if (parsedTopics != null) items += parsedTopics.size();
         return items;
     }
 
@@ -317,12 +272,6 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             topicStartedBy = topic.findViewById(R.id.topic_started_by);
             topicStats = topic.findViewById(R.id.topic_stats);
             topicLastPost = topic.findViewById(R.id.topic_last_post);
-        }
-    }
-
-    private static class TitlesViewHolder extends RecyclerView.ViewHolder {
-        TitlesViewHolder(View title) {
-            super(title);
         }
     }
 
