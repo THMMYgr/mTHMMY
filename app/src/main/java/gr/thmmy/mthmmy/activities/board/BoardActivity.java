@@ -250,7 +250,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                     if (pStats.equals("--"))
                                         pStats = "";
                                 }
-
                                 else if (Objects.equals(subBoardCol.className(), "smalltext")) {
                                     pLastPost = subBoardCol.text();
                                     if (pLastPost.contains(" in ") || pLastPost.contains(" σε ")) {
@@ -281,7 +280,6 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                             parsingFailed = true;
                                             break;
                                         }
-
                                     }
                                     else if (pLastPost.contains("redirected clicks") || pLastPost.contains("N/A"))
                                         pLastPost = "";
@@ -289,10 +287,17 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                                         pLastPost = "No posts yet";
                                 }
                                 else {
-                                    pUrl = subBoardCol.select("a").first().attr("href");
-                                    pTitle = subBoardCol.select("a").first().text();
-                                    if (subBoardCol.select("div.smalltext").first() != null)
-                                        pMods = subBoardCol.select("div.smalltext").first().text();
+                                    Element subBoardTitleElement = subBoardCol.select("a").first();
+                                    if (subBoardTitleElement != null) {
+                                        pUrl = subBoardTitleElement.attr("href");
+                                        pTitle = subBoardTitleElement.text();
+                                        if (subBoardCol.select("div.smalltext").first() != null)
+                                            pMods = subBoardCol.select("div.smalltext").first().text();
+                                    }
+                                    else {
+                                        parsingFailed = true;
+                                        break;
+                                    }
                                 }
                             }
                             if (!parsingFailed)
