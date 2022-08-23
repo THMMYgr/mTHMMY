@@ -1,6 +1,7 @@
 package gr.thmmy.mthmmy.activities.bookmarks;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,11 +12,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
+import gr.thmmy.mthmmy.activities.LoginActivity;
+import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 
 //TODO refactor using RecyclerView
@@ -83,10 +87,8 @@ public class BookmarksFragment extends Fragment {
             }
         }
 
-
         notificationsEnabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_on, null);
         notificationsDisabledButtonImage = getResources().getDrawable(R.drawable.ic_notification_off, null);
-
     }
 
     @Override
@@ -104,7 +106,7 @@ public class BookmarksFragment extends Fragment {
                 if (bookmark != null && bookmark.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
                             R.layout.fragment_bookmarks_row, bookmarksLinearView, false);
-                    row.setOnClickListener(view -> {
+                    row.findViewById(R.id.bookmark_card).setOnClickListener(view -> {
                         Activity activity = getActivity();
                         if (activity instanceof BookmarksActivity)
                             ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionClick, bookmark);
@@ -129,13 +131,19 @@ public class BookmarksFragment extends Fragment {
                     (row.findViewById(R.id.remove_bookmark)).setOnClickListener(view -> {
                         Activity activity = getActivity();
                         if (activity instanceof BookmarksActivity) {
-                            ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionRemove, bookmark);
-                            bookmarks.remove(bookmark);
-                        }
-                        row.setVisibility(View.GONE);
-
-                        if (bookmarks.isEmpty()) {
-                            showNothingBookmarked();
+                            new AlertDialog.Builder(activity)
+                                    .setMessage("Are you sure that you want to remove this bookmark?")
+                                    .setPositiveButton("Yes", (dialogInterface, i) -> {
+                                        ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionRemove, bookmark);
+                                        bookmarks.remove(bookmark);
+                                        row.setVisibility(View.GONE);
+                                        if (bookmarks.isEmpty()) {
+                                            showNothingBookmarked();
+                                        }
+                                    })
+                                    .setNegativeButton("No", (dialogInterface, i) -> {
+                                    })
+                                    .show();
                         }
                     });
                     bookmarksLinearView.addView(row);

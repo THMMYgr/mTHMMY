@@ -125,7 +125,7 @@ public class TopicTask extends AsyncTask<String, Void, TopicTaskResult> {
                         0, 0, 0, 0, null, null);
             }
             else {
-                Timber.e(e, "Topic parse failed");
+                Timber.e(e, "Topic parsing failed (%s)!", newPageUrl);
                 return new TopicTaskResult(ResultCode.PARSING_ERROR, null, null, null,
                         0, 0, 0, 0, null, null);
             }

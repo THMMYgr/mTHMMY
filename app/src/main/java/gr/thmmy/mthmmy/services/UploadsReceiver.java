@@ -105,7 +105,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
         String response = serverResponse.getBodyAsString();
         if (response.contains("Η προσθήκη του αρχείου ήταν επιτυχημένη.") || response.contains("The upload was successful.")) {
             Timber.i("Upload completed successfully (id: %s)", uploadInfo.getUploadId());
-            Toast.makeText(context.getApplicationContext(), "Upload completed successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context.getApplicationContext(), "Upload completed successfully!", Toast.LENGTH_SHORT).show();
             BaseApplication.getInstance().logFirebaseAnalyticsEvent("file_upload", null);
         }
         else {
@@ -118,7 +118,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             storage = new Storage(context.getApplicationContext());
         }
 
-        UploadsHelper.deleteTempFiles(storage);
+        UploadsHelper.deleteTempFiles(context, storage);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class UploadsReceiver extends UploadServiceBroadcastReceiver {
             storage = new Storage(context.getApplicationContext());
 
         //cancelNotification(context, uploadInfo.getNotificationID());
-        UploadsHelper.deleteTempFiles(storage);
+        UploadsHelper.deleteTempFiles(context, storage);
     }
 
     public static void setDialogDisplay(AlertDialog uploadProgressDialog, String dialogUploadID,

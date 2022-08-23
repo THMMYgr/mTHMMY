@@ -2,7 +2,6 @@ package gr.thmmy.mthmmy.activities.upload;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Environment;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,24 +26,19 @@ import timber.log.Timber;
 
 public class UploadsHelper {
     private static final int BUFFER = 4096;
-    private static final String TEMP_FILES_DIRECTORY = "~tmp_mTHMMY_uploads";
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Nullable
     static Uri createTempFile(Context context, Storage storage, Uri fileUri, String newFilename) {
+        Timber.i("Creating new temporary file (%s)", newFilename);
         String oldFilename = FileUtils.filenameFromUri(context, fileUri);
         String fileExtension = oldFilename.substring(oldFilename.indexOf('.'));
-        String destinationFilename = Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + TEMP_FILES_DIRECTORY + File.separatorChar + newFilename + fileExtension;
 
-        File tempDirectory = new File(android.os.Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + TEMP_FILES_DIRECTORY);
-
-        if (!tempDirectory.exists() && !tempDirectory.mkdirs()) {
-            Timber.w("Temporary directory build returned false in %s", UploadActivity.class.getSimpleName());
-            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Couldn't create temporary directory", Toast.LENGTH_SHORT).show();
+        File tempFilesDirectory = createTempFilesDir(context);
+        if (tempFilesDirectory==null)
             return null;
-        }
+
+        String destinationFilename = tempFilesDirectory.getAbsolutePath() + File.separatorChar + newFilename + fileExtension;
 
         InputStream inputStream;
         BufferedInputStream bufferedInputStream = null;
@@ -53,7 +47,7 @@ public class UploadsHelper {
         try {
             inputStream = context.getContentResolver().openInputStream(fileUri);
             if (inputStream == null) {
-                Timber.w("Input stream was null, %s", UploadActivity.class.getSimpleName());
+                Timber.e("Input stream was null, %s", UploadActivity.class.getSimpleName());
                 return null;
             }
 
@@ -81,20 +75,19 @@ public class UploadsHelper {
     }
 
     @Nullable
-    static File createZipFile(@NonNull String zipFilename) {
-        // Create a zip file name
-        File zipFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) +
-                File.separator + "mTHMMY");
+    static File createZipFile(Context context, @NonNull String zipFilename) {
+        // Create a zip file in temp directory
+        Timber.i("Creating temporary zip file %s", zipFilename);
 
-        if (!zipFolder.exists() && !zipFolder.mkdirs()) {
-            Timber.w("Zip folder build returned false in %s", UploadsHelper.class.getSimpleName());
+        File tempFilesDirectory = createTempFilesDir(context);
+        if (tempFilesDirectory==null)
             return null;
-        }
 
-        return new File(zipFolder, zipFilename);
+        return new File(tempFilesDirectory, zipFilename);
     }
 
     static void zip(Context context, Uri[] files, Uri zipFile) {
+        Timber.i("Adding files to %s...", zipFile.getPath());
         try {
             BufferedInputStream origin;
             OutputStream dest = context.getContentResolver().openOutputStream(zipFile);
@@ -117,21 +110,45 @@ public class UploadsHelper {
                 origin.close();
             }
 
+            Timber.i("Files added successfully to %s.", zipFile.getPath());
+
             out.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void deleteTempFiles(Storage storage) {
-        File tempFilesDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
-                File.separatorChar + TEMP_FILES_DIRECTORY);
+    private static File createTempFilesDir(Context context){
+        File tempFilesDirectory = context.getExternalCacheDir();
 
-        if (storage.isDirectoryExists(tempFilesDirectory.getAbsolutePath())) {
-            for (File tempFile : storage.getFiles(tempFilesDirectory.getAbsolutePath())) {
-                storage.deleteFile(tempFile.getAbsolutePath());
-            }
-            storage.deleteDirectory(tempFilesDirectory.getAbsolutePath());
+        if (tempFilesDirectory == null){
+            Timber.e("Temporary files directory error (%s)!", UploadActivity.class.getSimpleName());
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Temporary files directory error (%s)!", Toast.LENGTH_SHORT).show();
+            return null;
         }
+
+        if (!tempFilesDirectory.exists() && !tempFilesDirectory.mkdirs()) {
+            Timber.e("Temporary directory %s creation returned false (%s)", tempFilesDirectory.getAbsolutePath(), UploadActivity.class.getSimpleName());
+            Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Couldn't create temporary directory for file renaming!", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        return tempFilesDirectory;
+    }
+
+    public static void deleteTempFiles(Context context, Storage storage) {
+        File tempFilesDirectory = context.getExternalCacheDir();
+
+        if (tempFilesDirectory != null){
+            if (storage.isDirectoryExists(tempFilesDirectory.getAbsolutePath())) {
+                for (File tempFile : storage.getFiles(tempFilesDirectory.getAbsolutePath())) {
+                    storage.deleteFile(tempFile.getAbsolutePath());
+                }
+                storage.deleteDirectory(tempFilesDirectory.getAbsolutePath());
+                Timber.i("Deleted temp files from cache.");
+            }
+        }
+        else
+            Timber.e("Couldn't delete temp files!");
     }
 }

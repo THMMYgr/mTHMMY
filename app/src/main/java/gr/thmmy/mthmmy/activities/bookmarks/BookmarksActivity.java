@@ -89,7 +89,9 @@ public class BookmarksActivity extends BaseActivity {
                 startActivity(intent);
                 break;
             case BookmarksFragment.INTERACTION_TOGGLE_TOPIC_NOTIFICATION:
-                return toggleNotification(bookmarkedTopic);
+                boolean notificationsEnabled = toggleNotification(bookmarkedTopic);
+                displayNotificationsToggleToast(notificationsEnabled);
+                return notificationsEnabled;
             case BookmarksFragment.INTERACTION_REMOVE_TOPIC_BOOKMARK:
                 removeBookmark(bookmarkedTopic);
                 Toast.makeText(BaseApplication.getInstance().getApplicationContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
@@ -112,7 +114,9 @@ public class BookmarksActivity extends BaseActivity {
                 startActivity(intent);
                 break;
             case BookmarksFragment.INTERACTION_TOGGLE_BOARD_NOTIFICATION:
-                return toggleNotification(bookmarkedBoard);
+                boolean notificationsEnabled = toggleNotification(bookmarkedBoard);
+                displayNotificationsToggleToast(notificationsEnabled);
+                return notificationsEnabled;
             case BookmarksFragment.INTERACTION_REMOVE_BOARD_BOOKMARK:
                 removeBookmark(bookmarkedBoard);
                 Toast.makeText(getApplicationContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
@@ -121,6 +125,11 @@ public class BookmarksActivity extends BaseActivity {
                 break;
         }
         return true;
+    }
+
+    private void displayNotificationsToggleToast (boolean notificationsEnabled){
+        String toastText = notificationsEnabled ? "Notifications enabled" : "Notifications disabled";
+        Toast.makeText(BaseApplication.getInstance().getApplicationContext(), toastText, Toast.LENGTH_SHORT).show();
     }
 
     /**

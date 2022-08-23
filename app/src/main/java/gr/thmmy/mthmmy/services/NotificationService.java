@@ -178,8 +178,15 @@ public class NotificationService extends FirebaseMessagingService {
         extras.putString(BUNDLE_TOPIC_TITLE, postNotification.getTopicTitle());
         intent.putExtras(extras);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        int pendingIntentFlags;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
+            pendingIntentFlags = PendingIntent.FLAG_IMMUTABLE |PendingIntent.FLAG_ONE_SHOT;
+        else
+            pendingIntentFlags = PendingIntent.FLAG_ONE_SHOT;
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this, requestCode++, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+                pendingIntentFlags);
 
         int notificationId;
         String contentText;
