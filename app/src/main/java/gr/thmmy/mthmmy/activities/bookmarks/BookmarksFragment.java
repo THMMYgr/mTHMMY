@@ -106,7 +106,7 @@ public class BookmarksFragment extends Fragment {
                 if (bookmark != null && bookmark.getTitle() != null) {
                     final LinearLayout row = (LinearLayout) layoutInflater.inflate(
                             R.layout.fragment_bookmarks_row, bookmarksLinearView, false);
-                    row.setOnClickListener(view -> {
+                    row.findViewById(R.id.bookmark_card).setOnClickListener(view -> {
                         Activity activity = getActivity();
                         if (activity instanceof BookmarksActivity)
                             ((BookmarksActivity) activity).onFragmentRowInteractionListener(type, interactionClick, bookmark);

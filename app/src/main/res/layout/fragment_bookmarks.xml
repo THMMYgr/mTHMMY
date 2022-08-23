@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top|start"
-        android:background="@color/primary_lighter"
+        android:background="@color/primary_lighter_2"
         android:scrollbars="none"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -17,10 +17,8 @@
             android:id="@+id/bookmarks_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:showDividers="middle"
-            android:divider="?android:listDivider"
-            android:dividerPadding="16dp" />
+            android:layout_margin="2dp"
+            android:orientation="vertical" />
     </androidx.core.widget.NestedScrollView>
 
     <TextView

@@ -1,49 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/bookmark_row"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/bookmark_title"
-        android:layout_width="0dp"
+    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/bookmark_card"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingBottom="8dp"
-        android:paddingTop="6dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="0dp"
-        android:textColor="@color/primary_text"
-        android:textSize="18sp" />
+        android:foreground="?android:attr/selectableItemBackground"
+        card_view:cardBackgroundColor="@color/background"
+        card_view:cardCornerRadius="5dp"
+        card_view:cardElevation="2dp"
+        card_view:cardPreventCornerOverlap="false"
+        card_view:cardUseCompatPadding="true"
+        android:clickable="true"
+        android:focusable="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-    <ImageButton
-        android:id="@+id/toggle_notification"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingBottom="3dp"
-        android:paddingTop="3dp"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/toggle_notification"
-        app:srcCompat="@drawable/ic_notification_on" />
+            <TextView
+                android:id="@+id/bookmark_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingBottom="8dp"
+                android:paddingTop="6dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="0dp"
+                android:textColor="@color/primary_text"
+                android:textSize="18sp" />
 
-    <ImageButton
-        android:id="@+id/remove_bookmark"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingBottom="3dp"
-        android:paddingTop="3dp"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp"
-        android:layout_marginEnd="12dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/remove_bookmark"
-        app:srcCompat="@drawable/ic_delete_accent_24dp" />
+            <ImageButton
+                android:id="@+id/toggle_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingBottom="3dp"
+                android:paddingTop="3dp"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/toggle_notification"
+                app:srcCompat="@drawable/ic_notification_on" />
+
+            <ImageButton
+                android:id="@+id/remove_bookmark"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingBottom="3dp"
+                android:paddingTop="3dp"
+                android:paddingStart="6dp"
+                android:paddingEnd="12dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/remove_bookmark"
+                app:srcCompat="@drawable/ic_delete_accent_24dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>
