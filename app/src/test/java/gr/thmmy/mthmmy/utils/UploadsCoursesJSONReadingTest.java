@@ -33,7 +33,7 @@ public class UploadsCoursesJSONReadingTest {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath);
         assertNotNull(is);
         String uploadsCoursesJSON = ResourceUtils.readJSONResourceToString(is);
-        assertNotNull(uploadsCoursesJSON);;
+        assertNotNull(uploadsCoursesJSON);
         JSONObject jsonObject = new JSONObject(uploadsCoursesJSON);
         assertTrue(jsonObject.has("categories"));
         HashMap<Integer, UploadsCourse> coursesHashMap = generateCoursesFromJSON(jsonObject);

@@ -40,8 +40,7 @@ public class ThmmyDateTimeParser {
 
     private static final Pattern pattern = Pattern.compile("\\s((1[3-9]|2[0-3]):)");
 
-    private ThmmyDateTimeParser() {
-    }
+    private ThmmyDateTimeParser() {}
 
     public static String convertToTimestamp(String thmmyDateTime) {
         Timber.v("Will attempt to convert %s to timestamp.", thmmyDateTime);
@@ -78,7 +77,8 @@ public class ThmmyDateTimeParser {
                 localDateTime = formatter.withLocale(greekLocale).parseLocalDateTime(thmmyDateTime);
             } catch (IllegalArgumentException e2) {
                 Timber.v("Parsing DateTime %s using Greek Locale failed too.", thmmyDateTime);
-                Timber.e("Couldn't convert DateTime %s to timestamp!", originalDateTime);
+                Timber.e("Couldn't convert DateTime to timestamp (original: \"%s\", modified: \"%s\")!",
+                        originalDateTime, thmmyDateTime);
                 return null;
             }
         }

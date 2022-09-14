@@ -61,8 +61,12 @@ public class PrepareForEditTask extends AsyncTask<String, Void, PrepareForEditRe
             icon = form.select("select[name=icon]>option[selected]").first().attr("value");
 
             return new PrepareForEditResult(postText, commitEditURL, numReplies, seqnum, sc, topic, icon, position, true);
-        } catch (IOException | Selector.SelectorParseException e) {
-            Timber.e(e, "Prepare failed.");
+        } catch (NullPointerException | Selector.SelectorParseException e) {
+            // TODO: Convert this task to (New)ParseTask (?) / handle parsing errors in a better way
+            Timber.e(e, "Preparing for edit failed (parsing error).");
+            return new PrepareForEditResult(null, null, null, null, null, null, null, position, false);
+        } catch (Exception e) {
+            Timber.i("Preparing for edit failed (other error).");
             return new PrepareForEditResult(null, null, null, null, null, null, null, position, false);
         }
     }

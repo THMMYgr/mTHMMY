@@ -47,7 +47,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
         if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled()) {
             String timestamp = topicSummary.getLastPostTimestamp();
             try {
-                holder.mDateTimeView.setReferenceTime(Long.valueOf(timestamp));
+                holder.mDateTimeView.setReferenceTime(Long.parseLong(timestamp));
             } catch (NumberFormatException e) {
                 Timber.e(e, "Invalid number format: %s", timestamp);
                 holder.mDateTimeView.setText(topicSummary.getLastPostSimplifiedDateTime());

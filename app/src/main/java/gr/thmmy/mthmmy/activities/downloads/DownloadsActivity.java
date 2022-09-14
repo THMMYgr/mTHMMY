@@ -283,7 +283,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                     parsedDownloads.add(download);
                 }
             } catch (Exception e) {
-                throw new ParseException("Parsing failed (DownloadsActivity)");
+                throw new ParseException("Parsing failed (DownloadsActivity) for url " + downloadsUrl);
             }
         }
 

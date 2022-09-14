@@ -709,8 +709,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     SharedPreferences drafts = context.getSharedPreferences(context.getString(R.string.pref_topic_drafts_key),
                             Context.MODE_PRIVATE);
                     replyText += drafts.getString(String.valueOf(viewModel.getTopicId()), "");
-                    if (viewModel.getBuildedQuotes() != null && !viewModel.getBuildedQuotes().isEmpty())
-                        replyText += viewModel.getBuildedQuotes();
+                    if (viewModel.getBuiltQuotes() != null && !viewModel.getBuiltQuotes().isEmpty())
+                        replyText += viewModel.getBuiltQuotes();
                 }
                 holder.replyEditor.setText(replyText);
                 holder.replyEditor.getEditText().setSelection(holder.replyEditor.getText().length());
