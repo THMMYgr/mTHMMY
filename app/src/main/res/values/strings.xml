@@ -76,6 +76,7 @@
     </plurals>
     <string name="show_vote_options_button">hide results</string>
     <string name="pref_topic_drafts_key">preference-topic-drafts-key</string>
+    <string name="reply_button">Reply</string>
 
     <!--Profile Activity-->
     <string name="username">Username</string>

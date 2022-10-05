@@ -5,5 +5,5 @@
         android:id="@+id/menu_upload"
         android:icon="@drawable/ic_file_upload_white_24dp"
         app:showAsAction="ifRoom"
-        android:title="@string/upload_button"></item>
+        android:title="@string/upload_button" />
 </menu>

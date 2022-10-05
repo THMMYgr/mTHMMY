@@ -21,7 +21,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:gravity="center"
-            app:popupTheme="@style/ToolbarTheme"></androidx.appcompat.widget.Toolbar>
+            app:popupTheme="@style/ToolbarTheme" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/bookmark_tabs"
