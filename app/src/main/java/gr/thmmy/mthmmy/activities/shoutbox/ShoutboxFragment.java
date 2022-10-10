@@ -14,7 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import gr.thmmy.mthmmy.R;
@@ -100,9 +100,9 @@ public class ShoutboxFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        shoutboxViewModel = ViewModelProviders.of(getActivity()).get(ShoutboxViewModel.class);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        shoutboxViewModel = new ViewModelProvider(getActivity()).get(ShoutboxViewModel.class);
         shoutboxViewModel.getShoutboxMutableLiveData().observe(getViewLifecycleOwner(), shoutbox -> {
             if (shoutbox != null) {
                 Timber.i("Shoutbox loaded successfully");

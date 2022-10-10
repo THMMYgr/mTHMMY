@@ -31,7 +31,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -131,7 +131,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
         // get TopicViewModel instance
-        viewModel = ViewModelProviders.of(this).get(TopicViewModel.class);
+        viewModel = new ViewModelProvider(this).get(TopicViewModel.class);
         subscribeUI();
 
         Bundle extras = getIntent().getExtras();

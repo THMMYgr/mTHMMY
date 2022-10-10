@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import org.jsoup.Jsoup;
@@ -84,8 +86,8 @@ public class SummaryFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         if (parsedProfileSummaryData.isEmpty()) {
             summaryTask = new SummaryTask();
             summaryTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, profileSummaryDocument);
