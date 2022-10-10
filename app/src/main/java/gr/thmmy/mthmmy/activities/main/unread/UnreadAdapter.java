@@ -37,16 +37,16 @@ class UnreadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
-        TopicSummary topicSummary = unreadList.get(holder.getAdapterPosition());
+        TopicSummary topicSummary = unreadList.get(holder.getBindingAdapterPosition());
         final UnreadAdapter.ViewHolder viewHolder = (UnreadAdapter.ViewHolder) holder;
 
         viewHolder.mTitleView.setText(topicSummary.getSubject());
         if (BaseApplication.getInstance().isDisplayRelativeTimeEnabled()) {
             String timestamp = topicSummary.getLastPostTimestamp();
             try {
-                viewHolder.mDateTimeView.setReferenceTime(Long.valueOf(timestamp));
+                viewHolder.mDateTimeView.setReferenceTime(Long.parseLong(timestamp));
             } catch (NumberFormatException e) {
-                Timber.e(e, "Invalid number format: %s", timestamp);
+                Timber.e(e, "Invalid number format \"%s\" for %s", timestamp, topicSummary.getTopicUrl());
                 viewHolder.mDateTimeView.setText(topicSummary.getLastPostSimplifiedDateTime());
             }
         }

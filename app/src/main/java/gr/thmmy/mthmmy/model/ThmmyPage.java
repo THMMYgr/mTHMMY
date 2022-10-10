@@ -184,10 +184,8 @@ public class ThmmyPage {
     public static String getTopicId(String topicUrl) {
         if (resolvePageCategory(Uri.parse(topicUrl)) == PageCategory.TOPIC) {
             Matcher topicIdMatcher = Pattern.compile("topic=[0-9]+").matcher(topicUrl);
-            if (topicIdMatcher.find()) {
+            if (topicIdMatcher.find())
                 return topicUrl.substring(topicIdMatcher.start() + 6, topicIdMatcher.end());
-            }
-            else return null;
         }
         return null;
     }
