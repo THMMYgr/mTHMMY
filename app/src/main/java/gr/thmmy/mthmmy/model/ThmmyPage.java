@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
 
 /**
@@ -19,6 +20,14 @@ public class ThmmyPage {
      */
     @SuppressWarnings("unused")
     private static final String TAG = "LinkTarget";
+
+    private static final String forumUrl = BaseApplication.getForumUrl();
+    private static final String forumHost = BaseApplication.getForumHost();
+    private static final String forumHostHttp = "http://" + forumHost;
+    private static final String forumHostHttps = "https://" + forumHost;
+    private static final String forumHostSimple = BaseApplication.getForumHostSimple();
+    private static final String forumHostSimpleHttp = "http://" + forumHostSimple;
+    private static final String forumHostSimpleHttps = "https://" + forumHostSimple;
 
     /**
      * An enum describing a link's target by defining the types:<ul>
@@ -142,9 +151,9 @@ public class ThmmyPage {
         final String host = uri.getHost();
         final String uriString = uri.toString();
 
-        if (Objects.equals(uriString, "http://thmmy.gr")
-                || Objects.equals(uriString, "https://thmmy.gr")) return PageCategory.INDEX;
-        if (Objects.equals(host, "www.thmmy.gr")) {
+        if (Objects.equals(uriString, forumHostSimpleHttp)
+                || Objects.equals(uriString, forumHostSimpleHttps)) return PageCategory.INDEX;
+        if (Objects.equals(host, forumHost)) {
             if (uriString.contains("topic=")) return PageCategory.TOPIC;
             else if (uriString.contains("board=")) return PageCategory.BOARD;
             else if (uriString.contains("action=profile")) {
@@ -160,12 +169,12 @@ public class ThmmyPage {
                 return PageCategory.DOWNLOADS_FILE;
             else if (uriString.contains("action=tpmod;dl"))
                 return PageCategory.DOWNLOADS_CATEGORY;
-            else if (uriString.contains("action=forum") || Objects.equals(uriString, "www.thmmy.gr")
-                    || Objects.equals(uriString, "http://www.thmmy.gr")
-                    || Objects.equals(uriString, "https://www.thmmy.gr")
-                    || Objects.equals(uriString, "https://www.thmmy.gr/smf/index.php"))
+            else if (uriString.contains("action=forum") || Objects.equals(uriString, forumHost)
+                    || Objects.equals(uriString, forumHostHttp)
+                    || Objects.equals(uriString, forumHostHttps)
+                    || Objects.equals(uriString, forumUrl + "index.php"))
                 return PageCategory.INDEX;
-            Timber.v("Unknown thmmy link found, link: %s", uriString);
+            Timber.v("Unknown thmmy link found, link: %s", uriString);  //TODO: maybe report this?
             return PageCategory.UNKNOWN_THMMY;
         }
         return PageCategory.NOT_THMMY;

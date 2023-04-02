@@ -199,7 +199,7 @@ public class ForumFragment extends BaseFragment {
     //---------------------------------------ASYNC TASK-----------------------------------
 
     private class ForumTask extends NewParseTask<ArrayList<Category>> {
-        private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
+        private HttpUrl forumUrl = SessionManager.getForumUrl();   //may change upon collapse/expand
 
         ForumTask(OnTaskStartedListener onTaskStartedListener,
                   OnNetworkTaskFinishedListener<ArrayList<Category>> onParseTaskFinishedListener) {

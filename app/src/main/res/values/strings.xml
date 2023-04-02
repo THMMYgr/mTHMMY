@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">mTHMMY</string>
+    <string name="forum_url">https://www.thmmy.gr/smf/</string>
+    <string name="forum_host">www.thmmy.gr</string>
+    <string name="forum_host_simple">thmmy.gr</string>
 
     <!--Base Activity-->
     <string name="login">Login</string>
@@ -26,7 +29,7 @@
     <string name="no_unread_topics">No unread topics!</string>
 
     <!--Login Activity-->
-    <string name="thmmy_img_description">thmmy.gr</string>
+    <string name="mthmmy_logo">mTHMMY</string>
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="btn_login">LOGIN</string>

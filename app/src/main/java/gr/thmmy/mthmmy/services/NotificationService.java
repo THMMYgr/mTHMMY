@@ -171,7 +171,7 @@ public class NotificationService extends FirebaseMessagingService {
         }
 
         //Builds notification
-        String topicUrl = "https://www.thmmy.gr/smf/index.php?topic=" + postNotification.getTopicId() + "." + postNotification.getPostId();
+        String topicUrl = BaseApplication.getForumUrl() + "index.php?topic=" + postNotification.getTopicId() + "." + postNotification.getPostId();
         Intent intent = new Intent(this, MainActivity.class);
         Bundle extras = new Bundle();
         extras.putString(BUNDLE_TOPIC_URL, topicUrl);

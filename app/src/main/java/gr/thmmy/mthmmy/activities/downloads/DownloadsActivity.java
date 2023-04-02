@@ -48,7 +48,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
      * The key to use when putting download's title String to {@link DownloadsActivity}'s Bundle.
      */
     public static final String BUNDLE_DOWNLOADS_TITLE = "DOWNLOADS_TITLE";
-    private static final String downloadsIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl;";
+    private static final String downloadsIndexUrl = forumUrl + "index.php?action=tpmod;dl;";
     private String downloadsUrl;
     private String downloadsNav;
     private String downloadsTitle;

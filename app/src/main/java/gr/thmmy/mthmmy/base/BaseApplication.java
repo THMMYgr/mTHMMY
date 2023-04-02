@@ -3,6 +3,7 @@ package gr.thmmy.mthmmy.base;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -70,8 +71,25 @@ public class BaseApplication extends Application implements Executor{
     private static float widthDp;
     private static int widthPxl, heightPxl;
 
+    private static String forumUrl;
+    private static String forumHost;
+    private static String forumHostSimple;
+
     public static BaseApplication getInstance() {
         return baseApplication;
+    }
+
+    public static String getForumUrl() {
+        return forumUrl;
+    }
+
+    public static String getForumHost() {
+        return forumHost;
+    }
+
+
+    public static String getForumHostSimple() {
+        return forumHostSimple;
     }
 
     @Override
@@ -82,6 +100,11 @@ public class BaseApplication extends Application implements Executor{
         // Initialize Timber
         if (BuildConfig.DEBUG)
             Timber.plant(new Timber.DebugTree());
+
+        Resources resources = getApplicationContext().getResources();
+        forumUrl = resources.getString(R.string.forum_url);
+        forumHost = resources.getString(R.string.forum_host);
+        forumHostSimple= resources.getString(R.string.forum_host_simple);
 
         //Shared Preferences
         SharedPreferences sessionSharedPrefs = getSharedPreferences(getString(R.string.session_shared_prefs), MODE_PRIVATE);
@@ -157,7 +180,7 @@ public class BaseApplication extends Application implements Executor{
                 .addInterceptor(chain -> {
                     Request request = chain.request();
                     HttpUrl oldUrl = chain.request().url();
-                    if (Objects.equals(chain.request().url().host(), "www.thmmy.gr")
+                    if (Objects.equals(chain.request().url().host(), forumHost)
                             && !oldUrl.toString().contains("theme=4")) {
                         //Probably works but needs more testing:
                         HttpUrl newUrl = oldUrl.newBuilder().addQueryParameter("theme", "4").build();

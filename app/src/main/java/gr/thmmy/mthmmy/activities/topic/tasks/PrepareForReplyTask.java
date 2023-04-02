@@ -61,7 +61,7 @@ public class PrepareForReplyTask extends AsyncTask<Integer, Void, PrepareForRepl
         StringBuilder builtQuotes = new StringBuilder();
         for (Integer postIndex : postIndices) {
             request = new Request.Builder()
-                    .url("https://www.thmmy.gr/smf/index.php?action=quotefast;quote=" +
+                    .url(BaseApplication.getForumUrl() + "index.php?action=quotefast;quote=" +
                             postIndex + ";" + "sesc=" + sc + ";xml")
                     .build();
             try {

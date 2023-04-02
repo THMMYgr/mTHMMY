@@ -91,7 +91,7 @@ public class UploadActivity extends BaseActivity {
     public static final String BUNDLE_UPLOAD_CATEGORY = "UPLOAD_CATEGORY";
     public static final String firebaseConfigUploadsCoursesKey = "uploads_courses";
 
-    private static final String uploadIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl=upload";
+    private static final String uploadIndexUrl = forumUrl + "index.php?action=tpmod;dl=upload";
     private static final String uploadedFromTHMMYPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
     /**
      * Request codes used in activities for result (AFR) calls

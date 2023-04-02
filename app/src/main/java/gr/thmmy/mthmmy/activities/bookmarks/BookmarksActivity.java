@@ -29,8 +29,8 @@ import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
 import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 public class BookmarksActivity extends BaseActivity {
-    private static final String TOPIC_URL = "https://www.thmmy.gr/smf/index.php?topic=";
-    private static final String BOARD_URL = "https://www.thmmy.gr/smf/index.php?board=";
+    private static final String TOPIC_URL = forumUrl + "index.php?topic=";
+    private static final String BOARD_URL = forumUrl + "index.php?board=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

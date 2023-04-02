@@ -106,6 +106,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     private boolean isMainActivity;
     private boolean isUserConsentDialogShown;   //Needed because sometimes onResume is being called twice
 
+    protected static String forumUrl = BaseApplication.getForumUrl();   // For convenience
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -346,7 +348,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     if (sessionManager.isLoggedIn()) {
                         Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
                         Bundle extras = new Bundle();
-                        extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
+                        extras.putString(BUNDLE_PROFILE_URL, forumUrl + "index.php?action=profile");
                         if (!sessionManager.hasAvatar())
                             extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                         else

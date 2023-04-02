@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:contentDescription="@string/thmmy_img_description" />
+                android:contentDescription="@string/mthmmy_logo" />
 
             <Space
                 android:layout_width="match_parent"

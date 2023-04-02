@@ -45,7 +45,7 @@ public class ReplyTask extends AsyncTask<String, Void, Posting.REPLY_STATUS> {
                 .addFormDataPart("icon", "xx")
                 .build();
         Request post = new Request.Builder()
-                .url("https://www.thmmy.gr/smf/index.php?action=post2")
+                .url(BaseApplication.getForumUrl() + "index.php?action=post2")
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
                 .post(postBody)
                 .build();
