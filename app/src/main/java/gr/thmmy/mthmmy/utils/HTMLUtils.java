@@ -1,5 +1,12 @@
 package gr.thmmy.mthmmy.utils;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -16,13 +23,6 @@ import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.activities.profile.ProfileActivity;
 import gr.thmmy.mthmmy.model.ThmmyPage;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
 
 public class HTMLUtils {
     private HTMLUtils() {

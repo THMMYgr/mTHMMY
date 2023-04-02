@@ -1,5 +1,10 @@
 package gr.thmmy.mthmmy.activities.bookmarks;
 
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -22,11 +27,6 @@ import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Bookmark;
-
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 public class BookmarksActivity extends BaseActivity {
     private static final String TOPIC_URL = forumUrl + "index.php?topic=";

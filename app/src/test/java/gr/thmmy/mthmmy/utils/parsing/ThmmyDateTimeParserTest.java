@@ -1,5 +1,12 @@
 package gr.thmmy.mthmmy.utils.parsing;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
+import static org.powermock.api.support.membermodification.MemberModifier.stub;
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
+import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.purifyTodayDateTime;
+
 import net.lachlanmckee.timberjunit.TimberTestRule;
 
 import org.joda.time.DateTimeZone;
@@ -8,13 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.convertToTimestamp;
-import static gr.thmmy.mthmmy.utils.parsing.ThmmyDateTimeParser.purifyTodayDateTime;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.powermock.api.support.membermodification.MemberMatcher.method;
-import static org.powermock.api.support.membermodification.MemberModifier.stub;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ThmmyDateTimeParser.class)

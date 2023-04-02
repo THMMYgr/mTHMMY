@@ -2,11 +2,11 @@ import org.ajoberstar.grgit.Grgit
 
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'org.ajoberstar.grgit:grgit-core:3.1.1'
+        classpath 'org.ajoberstar.grgit:grgit-core:5.0.0'
     }
 }
 

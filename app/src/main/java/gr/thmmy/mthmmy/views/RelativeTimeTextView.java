@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.views;
 
+import static gr.thmmy.mthmmy.utils.DateTimeUtils.getRelativeTimeSpanString;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -14,8 +16,6 @@ import android.widget.TextView;
 import java.lang.ref.WeakReference;
 
 import gr.thmmy.mthmmy.R;
-
-import static gr.thmmy.mthmmy.utils.DateTimeUtils.getRelativeTimeSpanString;
 
 /**
  * A modified version of https://github.com/curioustechizen/android-ago

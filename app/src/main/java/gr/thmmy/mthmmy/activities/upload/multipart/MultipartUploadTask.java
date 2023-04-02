@@ -11,6 +11,7 @@ import net.gotev.uploadservice.http.BodyWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Extended MultipartUploadTask from gotev/android-upload-service to include a fix for the parameter
@@ -21,7 +22,7 @@ public class MultipartUploadTask extends HttpUploadTask {
     static final String PARAM_UTF8_CHARSET = "multipartUtf8Charset";
 
     private static final String BOUNDARY_SIGNATURE = "-------AndroidUploadService";
-    private static final Charset US_ASCII = Charset.forName("US-ASCII");
+    private static final Charset US_ASCII = StandardCharsets.US_ASCII;
     private static final String NEW_LINE = "\r\n";
     private static final String TWO_HYPHENS = "--";
 
@@ -42,7 +43,7 @@ public class MultipartUploadTask extends HttpUploadTask {
         boundaryBytes = (TWO_HYPHENS + boundary + NEW_LINE).getBytes(US_ASCII);
         trailerBytes = (TWO_HYPHENS + boundary + TWO_HYPHENS + NEW_LINE).getBytes(US_ASCII);
         charset = intent.getBooleanExtra(PARAM_UTF8_CHARSET, false) ?
-                Charset.forName("UTF-8") : US_ASCII;
+                StandardCharsets.UTF_8 : US_ASCII;
 
         httpParams.addHeader("Connection", "Keep-Alive");
         httpParams.addHeader("Content-Type", "multipart/form-data; boundary=" + boundary);

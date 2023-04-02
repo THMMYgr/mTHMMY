@@ -1,12 +1,12 @@
 package gr.thmmy.mthmmy.utils;
 
-import androidx.annotation.VisibleForTesting;
-
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.HOUR_IN_MILLIS;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.SECOND_IN_MILLIS;
 import static android.text.format.DateUtils.YEAR_IN_MILLIS;
+
+import androidx.annotation.VisibleForTesting;
 
 public class DateTimeUtils {
 

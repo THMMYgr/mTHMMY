@@ -1,5 +1,18 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
+import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
+import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
+import static gr.thmmy.mthmmy.utils.FileUtils.faIconFromFilename;
+import static gr.thmmy.mthmmy.utils.ui.GlideUtils.isValidContextForGlide;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -76,19 +89,6 @@ import gr.thmmy.mthmmy.views.ReactiveWebView;
 import gr.thmmy.mthmmy.views.editorview.EditorView;
 import gr.thmmy.mthmmy.views.editorview.IEmojiKeyboard;
 import timber.log.Timber;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
-import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_WHITE;
-import static gr.thmmy.mthmmy.activities.topic.TopicParser.USER_COLOR_YELLOW;
-import static gr.thmmy.mthmmy.base.BaseActivity.getSessionManager;
-import static gr.thmmy.mthmmy.utils.FileUtils.faIconFromFilename;
-import static gr.thmmy.mthmmy.utils.ui.GlideUtils.isValidContextForGlide;
 
 /**
  * Custom {@link RecyclerView.Adapter} used for topics.
@@ -393,11 +393,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     if (currentPost.getAttachedFiles() != null && currentPost.getAttachedFiles().size() != 0) {
                         int filesTextColor;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            filesTextColor = context.getResources().getColor(R.color.accent, null);
-                        }
-                        else
-                            filesTextColor = context.getResources().getColor(R.color.accent);
+                        filesTextColor = context.getResources().getColor(R.color.accent, null);
 
                         for (final ThmmyFile attachedFile : currentPost.getAttachedFiles()) {
                             final TextView attached = new TextView(context);
@@ -417,11 +413,8 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     }
                     if (currentPost.getLastEdit() != null && currentPost.getLastEdit().length() > 0) {
                         int lastEditTextColor;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            lastEditTextColor = context.getResources().getColor(R.color.white, null);
-                        }
-                        else
-                            lastEditTextColor = context.getResources().getColor(R.color.white);
+
+                        lastEditTextColor = context.getResources().getColor(R.color.white, null);
 
                         final TextView lastEdit = new TextView(context);
                         lastEdit.setTextSize(12f);

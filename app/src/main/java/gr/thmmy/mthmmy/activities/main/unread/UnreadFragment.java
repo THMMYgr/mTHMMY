@@ -244,7 +244,7 @@ public class UnreadFragment extends BaseFragment {
             if (loadedPages < numberOfPages) {
                 unreadTask = new UnreadTask(this::onUnreadTaskStarted, UnreadFragment.this::onUnreadTaskCancelled, this::onUnreadTaskFinished);
                 assert SessionManager.unreadUrl != null;
-                unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl.toString() + ";start=" + loadedPages * 20);
+                unreadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, SessionManager.unreadUrl + ";start=" + loadedPages * 20);
             }
             else
                 hideProgressUI();

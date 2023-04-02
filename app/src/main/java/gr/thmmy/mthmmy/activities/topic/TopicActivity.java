@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
+
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.ClipData;
@@ -59,8 +61,6 @@ import gr.thmmy.mthmmy.views.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.views.editorview.EmojiKeyboard;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
 
 /**
  * Activity for parsing and rendering topics. When creating an Intent of this activity you need to

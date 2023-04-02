@@ -1,5 +1,9 @@
 package gr.thmmy.mthmmy.views;
 
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.VIDEO_ID_PARAMETER;
+import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -12,10 +16,6 @@ import android.widget.Toast;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.utils.ui.ImageDownloadDialogBuilder;
-
-import static android.content.Context.CLIPBOARD_SERVICE;
-import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.VIDEO_ID_PARAMETER;
-import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
 
 public class ReactiveWebView extends WebView {
     private final static long MAX_TOUCH_DURATION = 100;

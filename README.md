@@ -11,7 +11,7 @@ A mobile app for [thmmy.gr](https://www.thmmy.gr).
 
 ## Requirements
 
-mTHMMY can be installed on any smartphone with Android 5.0 Lollipop or newer.
+mTHMMY can be installed on any smartphone with Android 6.0 (M) or newer.
 
 ## Download
 

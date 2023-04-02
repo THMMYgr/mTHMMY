@@ -1,5 +1,10 @@
 package gr.thmmy.mthmmy.base;
 
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_COMPACT_TABS;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
+import static gr.thmmy.mthmmy.activities.upload.UploadActivity.firebaseConfigUploadsCoursesKey;
+import static gr.thmmy.mthmmy.utils.io.ResourceUtils.readJSONResourceToString;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -45,15 +50,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_COMPACT_TABS;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
-import static gr.thmmy.mthmmy.activities.upload.UploadActivity.firebaseConfigUploadsCoursesKey;
-import static gr.thmmy.mthmmy.utils.io.ResourceUtils.readJSONResourceToString;
-
 public class BaseApplication extends Application implements Executor{
     private static BaseApplication baseApplication; //BaseApplication singleton
 
     private CrashReportingTree crashReportingTree;
+
+    //Global variables
+    private static String forumUrl;
+    private static String forumHost;
+    private static String forumHostSimple;
 
     //Firebase
     private static String firebaseProjectId;
@@ -70,27 +75,6 @@ public class BaseApplication extends Application implements Executor{
     //Display Metrics
     private static float widthDp;
     private static int widthPxl, heightPxl;
-
-    private static String forumUrl;
-    private static String forumHost;
-    private static String forumHostSimple;
-
-    public static BaseApplication getInstance() {
-        return baseApplication;
-    }
-
-    public static String getForumUrl() {
-        return forumUrl;
-    }
-
-    public static String getForumHost() {
-        return forumHost;
-    }
-
-
-    public static String getForumHostSimple() {
-        return forumHostSimple;
-    }
 
     @Override
     public void onCreate() {
@@ -231,6 +215,22 @@ public class BaseApplication extends Application implements Executor{
 
 
     //-------------------- Getters --------------------
+    public static BaseApplication getInstance() {
+        return baseApplication;
+    }
+
+    public static String getForumUrl() {
+        return forumUrl;
+    }
+
+    public static String getForumHost() {
+        return forumHost;
+    }
+
+    public static String getForumHostSimple() {
+        return forumHostSimple;
+    }
+
     public Context getContext() {
         return getApplicationContext();
     }

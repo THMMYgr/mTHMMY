@@ -1,5 +1,11 @@
 package gr.thmmy.mthmmy.activities.profile;
 
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.emojiTagToHtml;
+import static gr.thmmy.mthmmy.utils.ui.GlideUtils.isValidContextForGlide;
+import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -53,12 +59,6 @@ import gr.thmmy.mthmmy.utils.ui.CenterVerticalSpan;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
-import static gr.thmmy.mthmmy.utils.parsing.ParseHelpers.emojiTagToHtml;
-import static gr.thmmy.mthmmy.utils.ui.GlideUtils.isValidContextForGlide;
-import static gr.thmmy.mthmmy.utils.ui.PhotoViewUtils.displayPhotoViewImage;
 
 /**
  * Activity for user profile. When creating an Intent of this activity you need to bundle a <b>String</b>

@@ -1,5 +1,10 @@
 package gr.thmmy.mthmmy.utils;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static gr.thmmy.mthmmy.activities.upload.UploadsCourse.generateCoursesFromJSON;
+
 import net.lachlanmckee.timberjunit.TimberTestRule;
 
 import org.json.JSONObject;
@@ -14,11 +19,6 @@ import java.util.HashMap;
 
 import gr.thmmy.mthmmy.activities.upload.UploadsCourse;
 import gr.thmmy.mthmmy.utils.io.ResourceUtils;
-
-import static gr.thmmy.mthmmy.activities.upload.UploadsCourse.generateCoursesFromJSON;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JSONObject.class)

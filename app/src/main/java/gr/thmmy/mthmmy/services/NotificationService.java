@@ -1,5 +1,17 @@
 package gr.thmmy.mthmmy.services;
 
+import static androidx.core.app.NotificationCompat.PRIORITY_MAX;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.NOTIFICATION_LED_KEY;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.NOTIFICATION_VIBRATION_KEY;
+import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SELECTED_RINGTONE;
+import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SETTINGS_SHARED_PREFS;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKED_BOARDS_KEY;
+import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKED_TOPICS_KEY;
+import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKS_SHARED_PREFS;
+import static gr.thmmy.mthmmy.model.Bookmark.matchExistsById;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,7 +25,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -33,18 +44,6 @@ import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.Bookmark;
 import gr.thmmy.mthmmy.model.PostNotification;
 import timber.log.Timber;
-
-import static androidx.core.app.NotificationCompat.PRIORITY_MAX;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.NOTIFICATION_LED_KEY;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.NOTIFICATION_VIBRATION_KEY;
-import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SELECTED_RINGTONE;
-import static gr.thmmy.mthmmy.activities.settings.SettingsFragment.SETTINGS_SHARED_PREFS;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
-import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKED_BOARDS_KEY;
-import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKED_TOPICS_KEY;
-import static gr.thmmy.mthmmy.base.BaseActivity.BOOKMARKS_SHARED_PREFS;
-import static gr.thmmy.mthmmy.model.Bookmark.matchExistsById;
 
 public class NotificationService extends FirebaseMessagingService {
     private static final int buildVersion = Build.VERSION.SDK_INT;
@@ -204,15 +203,13 @@ public class NotificationService extends FirebaseMessagingService {
 
         int newPostsCount = 1;
 
-        if (buildVersion >= Build.VERSION_CODES.M) {
-            Notification existingNotification = getActiveNotification(notificationId);
-            if (existingNotification != null) {
-                newPostsCount = existingNotification.extras.getInt(NEW_POSTS_COUNT) + 1;
-                if (isTopicNotification)
-                    contentText = newPostsCount + " new posts";
-                else
-                    contentText = newPostsCount + " new posts in " + postNotification.getTopicTitle();
-            }
+        Notification existingNotification = getActiveNotification(notificationId);
+        if (existingNotification != null) {
+            newPostsCount = existingNotification.extras.getInt(NEW_POSTS_COUNT) + 1;
+            if (isTopicNotification)
+                contentText = newPostsCount + " new posts";
+            else
+                contentText = newPostsCount + " new posts in " + postNotification.getTopicTitle();
         }
 
         Bundle notificationExtras = new Bundle();
@@ -250,10 +247,7 @@ public class NotificationService extends FirebaseMessagingService {
         if (buildVersion < Build.VERSION_CODES.O)
             notificationBuilder.setPriority(PRIORITY_MAX);
 
-        boolean createSummaryNotification = false;
-        if (buildVersion >= Build.VERSION_CODES.M)
-            createSummaryNotification = otherNotificationsExist(notificationId);
-
+        boolean createSummaryNotification = otherNotificationsExist(notificationId);
 
         NotificationCompat.Builder summaryNotificationBuilder = null;
         if (createSummaryNotification) {
@@ -281,7 +275,6 @@ public class NotificationService extends FirebaseMessagingService {
             notificationManager.notify(SUMMARY_TAG, 0, summaryNotificationBuilder.build());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private Notification getActiveNotification(int notificationId) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
@@ -295,7 +288,6 @@ public class NotificationService extends FirebaseMessagingService {
         return null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean otherNotificationsExist(int notificationId) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {

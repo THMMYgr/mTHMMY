@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.downloads;
 
+import static gr.thmmy.mthmmy.activities.upload.UploadActivity.BUNDLE_UPLOAD_CATEGORY;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -36,8 +38,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.activities.upload.UploadActivity.BUNDLE_UPLOAD_CATEGORY;
 
 public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.OnLoadMoreListener {
     /**

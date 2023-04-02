@@ -1,5 +1,8 @@
 package gr.thmmy.mthmmy.session;
 
+import static gr.thmmy.mthmmy.session.SessionManager.baseLogoutLink;
+import static gr.thmmy.mthmmy.session.SessionManager.indexUrl;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -10,9 +13,6 @@ import gr.thmmy.mthmmy.utils.networking.NetworkTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.session.SessionManager.baseLogoutLink;
-import static gr.thmmy.mthmmy.session.SessionManager.indexUrl;
 
 
 public class LogoutTask extends NetworkTask<Void> {

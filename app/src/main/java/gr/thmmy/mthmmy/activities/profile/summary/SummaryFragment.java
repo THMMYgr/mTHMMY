@@ -189,10 +189,7 @@ public class SummaryFragment extends Fragment {
                     && value.contains("@")) || key.startsWith("Website") || key.startsWith("Ιστοτόπος"))
                 textView.setMovementMethod(LinkMovementMethod.getInstance());
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                textView.setTextColor(getResources().getColor(R.color.primary_text, null));
-            else
-                textView.setTextColor(getResources().getColor(R.color.primary_text));
+            textView.setTextColor(getResources().getColor(R.color.primary_text, null));
 
             String textViewContent = "<b>" + key + "</b> " + value;
 

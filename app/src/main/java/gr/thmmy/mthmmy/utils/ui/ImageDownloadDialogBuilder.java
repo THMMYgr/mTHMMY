@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.utils.ui;
 
+import static android.content.Context.CLIPBOARD_SERVICE;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -17,8 +19,6 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import timber.log.Timber;
-
-import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class ImageDownloadDialogBuilder extends AlertDialog.Builder {
     private static final String[] colors = {"Copy image location", "Save Image"};

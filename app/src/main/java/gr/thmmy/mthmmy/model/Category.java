@@ -1,11 +1,11 @@
 package gr.thmmy.mthmmy.model;
 
+import static android.R.attr.id;
+
 import com.bignerdranch.expandablerecyclerview.model.Parent;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.attr.id;
 
 public class Category implements Parent<Board> {
     private final String title;

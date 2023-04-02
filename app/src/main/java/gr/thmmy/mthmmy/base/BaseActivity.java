@@ -1,5 +1,15 @@
 package gr.thmmy.mthmmy.base;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
+import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
+
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,7 +18,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -66,16 +75,6 @@ import ru.noties.markwon.LinkResolverDef;
 import ru.noties.markwon.Markwon;
 import ru.noties.markwon.SpannableConfiguration;
 import timber.log.Timber;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
-import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
-import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
-import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies
@@ -695,29 +694,23 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //True if permissions are OK
     protected boolean checkPerms() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            Timber.i("Checking storage permissions.");
-            String[] PERMISSIONS_STORAGE = {
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        Timber.i("Checking storage permissions.");
+        String[] PERMISSIONS_STORAGE = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-            return !(checkSelfPermission(PERMISSIONS_STORAGE[0]) == PackageManager.PERMISSION_DENIED ||
-                    checkSelfPermission(PERMISSIONS_STORAGE[1]) == PackageManager.PERMISSION_DENIED);
-        }
-        return true;
+        return !(checkSelfPermission(PERMISSIONS_STORAGE[0]) == PackageManager.PERMISSION_DENIED ||
+                checkSelfPermission(PERMISSIONS_STORAGE[1]) == PackageManager.PERMISSION_DENIED);
     }
 
     //Display popup for user to grant permission
     protected void requestPerms(int code) {
-        //Runtime permissions request for devices with API >= 23
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            String[] PERMISSIONS_STORAGE = {
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] PERMISSIONS_STORAGE = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-            Timber.i("Requesting storage permissions (code %d).", code);
-            requestPermissions(PERMISSIONS_STORAGE, code);
-        }
+        Timber.i("Requesting storage permissions (code %d).", code);
+        requestPermissions(PERMISSIONS_STORAGE, code);
     }
 
     @Override

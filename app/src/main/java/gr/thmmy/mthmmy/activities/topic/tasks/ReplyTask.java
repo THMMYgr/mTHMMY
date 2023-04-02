@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic.tasks;
 
+import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
+
 import android.os.AsyncTask;
 
 import java.io.IOException;
@@ -12,8 +14,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
 public class ReplyTask extends AsyncTask<String, Void, Posting.REPLY_STATUS> {
     private ReplyTaskCallbacks listener;
