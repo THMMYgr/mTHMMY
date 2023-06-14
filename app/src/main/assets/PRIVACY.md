@@ -73,4 +73,4 @@ We may update this Privacy Policy from time to time and, thus, you are advised t
 
 ## Contact Us
 
-If you have any questions about our Privacy Policy, please contact us at [thmmynolife@gmail.com](mailto:thmmynolife@gmail.com).
+If you have any questions about our Privacy Policy, please contact us at [contact@thmmy.gr](mailto:contact@thmmy.gr).

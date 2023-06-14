@@ -29,7 +29,7 @@ Our Privacy Policy can be found [here](/PRIVACY.md).
 
 ## Contact
 
-Do not hesitate to contact us for any matter, either by sending an email to [thmmynolife@gmail.com](mailto:thmmynolife@gmail.com), or by joining our [Discord server][discord-server].
+Do not hesitate to contact us for any matter, either by sending an email to [contact@thmmy.gr](mailto:contact@thmmy.gr), or by joining our [Discord server][discord-server].
 
 **Legal attribution: Google Play and the Google Play logo are trademarks of Google Inc.*
 

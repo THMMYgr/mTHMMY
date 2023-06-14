@@ -7,7 +7,7 @@ to contribute to mTHMMY in a way that is efficient for everyone.
 
 **Important!** Instead of creating publicly viewable issues for suspected security
 vulnerabilities, please report them in private to
-[thmmynolife@gmail.com](mailto:thmmynolife@gmail.com).
+[contact@thmmy.gr](mailto:contact@thmmy.gr).
 
 ## I want to contribute!
 
@@ -18,7 +18,7 @@ There are many ways of contributing to mTHMMY:
 - Submitting bugs and ideas to our [issue tracker][github-issues]
 - Forking mTHMMY and submitting [pull requests](#pull-requests)
 - Joining our core team
-- Contacting us by email at [thmmynolife@gmail.com](mailto:thmmynolife@gmail.com)
+- Contacting us by email at [contact@thmmy.gr](mailto:contact@thmmy.gr)
 
 ## Issue tracker
 
