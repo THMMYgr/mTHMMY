@@ -167,7 +167,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //------------------------------------------DRAWER STUFF----------------------------------------
     protected static final int HOME_ID = 0;
     protected static final int DOWNLOADS_ID = 1;
-    protected static final int UPLOAD_ID = 2;
+    //protected static final int UPLOAD_ID = 2; //Removed until fixed
     protected static final int BOOKMARKS_ID = 3;
     protected static final int LOG_ID = 4;
     protected static final int ABOUT_ID = 5;
@@ -267,14 +267,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withIcon(downloadsIcon)
                 .withSelectedIcon(downloadsIconSelected);
 
-        uploadItem = new PrimaryDrawerItem()
-                .withTextColor(primaryColor)
-                .withSelectedColor(selectedPrimaryColor)
-                .withSelectedTextColor(selectedSecondaryColor)
-                .withIdentifier(UPLOAD_ID)
-                .withName(R.string.upload)
-                .withIcon(uploadIcon)
-                .withSelectedIcon(uploadIconSelected);
+//        uploadItem = new PrimaryDrawerItem()
+//                .withTextColor(primaryColor)
+//                .withSelectedColor(selectedPrimaryColor)
+//                .withSelectedTextColor(selectedSecondaryColor)
+//                .withIdentifier(UPLOAD_ID)
+//                .withName(R.string.upload)
+//                .withIcon(uploadIcon)
+//                .withSelectedIcon(uploadIconSelected);
 
         shoutboxItem = new PrimaryDrawerItem()
                 .withTextColor(primaryColor)
@@ -395,12 +395,12 @@ public abstract class BaseActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                     }
-                    else if (drawerItem.equals(UPLOAD_ID)) {
-                        if (!(BaseActivity.this instanceof UploadActivity)) {
-                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
-                            startActivity(intent);
-                        }
-                    }
+//                    else if (drawerItem.equals(UPLOAD_ID)) {
+//                        if (!(BaseActivity.this instanceof UploadActivity)) {
+//                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
+//                            startActivity(intent);
+//                        }
+//                    }
                     else if (drawerItem.equals(BOOKMARKS_ID)) {
                         if (!(BaseActivity.this instanceof BookmarksActivity)) {
                             Intent intent = new Intent(BaseActivity.this, BookmarksActivity.class);
@@ -453,7 +453,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (drawer != null) {
             if (!sessionManager.isLoggedIn()) { //When logged out or if user is guest
                 drawer.removeItem(DOWNLOADS_ID);
-                drawer.removeItem(UPLOAD_ID);
+                //drawer.removeItem(UPLOAD_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername());
                 setDefaultAvatar();

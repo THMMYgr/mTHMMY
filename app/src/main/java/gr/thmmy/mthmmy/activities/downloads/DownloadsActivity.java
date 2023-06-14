@@ -57,7 +57,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     private MaterialProgressBar progressBar;
     private RecyclerView recyclerView;
     private DownloadsAdapter downloadsAdapter;
-    private FloatingActionButton uploadFAB;
+//    private FloatingActionButton uploadFAB;
 
     private ParseDownloadPageTask parseDownloadPageTask;
     private int numberOfPages = -1;
@@ -124,9 +124,9 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
             }
         });
 
-        uploadFAB = findViewById(R.id.upload_fab);
-        uploadFAB.setEnabled(false);
-        uploadFAB.hide();
+//        uploadFAB = findViewById(R.id.upload_fab);
+//        uploadFAB.setEnabled(false);
+//        uploadFAB.hide();
 
         parseDownloadPageTask = new ParseDownloadPageTask();
         parseDownloadPageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, downloadsUrl);
@@ -135,26 +135,26 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflates the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.downloads_menu, menu);
+//        getMenuInflater().inflate(R.menu.downloads_menu, menu);
         super.onCreateOptionsMenu(menu);
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.menu_upload:
-                Intent intent = new Intent(DownloadsActivity.this, UploadActivity.class);
-                Bundle extras = new Bundle();
-                extras.putString(BUNDLE_UPLOAD_CATEGORY, downloadsNav);
-                intent.putExtras(extras);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle presses on the action bar items
+//        switch (item.getItemId()) {
+//            case R.id.menu_upload:
+//                Intent intent = new Intent(DownloadsActivity.this, UploadActivity.class);
+//                Bundle extras = new Bundle();
+//                extras.putString(BUNDLE_UPLOAD_CATEGORY, downloadsNav);
+//                intent.putExtras(extras);
+//                startActivity(intent);
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 
     @Override
     public void onLoadMore() {
@@ -210,7 +210,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
         @Override
         protected void onPreExecute() {
             if (!isLoadingMore) progressBar.setVisibility(ProgressBar.VISIBLE);
-            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(false);
+//            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(false);
         }
 
         @Override
@@ -312,7 +312,7 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                 toolbar.setTitle(downloadsTitle);
 
             ++pagesLoaded;
-            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(true);
+//            if (uploadFAB.getVisibility() != View.GONE) uploadFAB.setEnabled(true);
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             downloadsAdapter.notifyDataSetChanged();
             isLoadingMore = false;

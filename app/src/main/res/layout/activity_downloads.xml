@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/ToolbarTheme"></androidx.appcompat.widget.Toolbar>
+            app:popupTheme="@style/ToolbarTheme" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -31,7 +31,7 @@
         android:background="@color/background"
         android:scrollbars="none"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="gr.thmmy.mthmmy.activities.downloads.DownloadsActivity"></androidx.recyclerview.widget.RecyclerView>
+        tools:context="gr.thmmy.mthmmy.activities.downloads.DownloadsActivity" />
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
@@ -45,13 +45,13 @@
         app:mpb_indeterminateTint="@color/accent"
         app:mpb_progressStyle="horizontal" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/upload_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/fab_margins"
-        android:layout_marginEnd="@dimen/fab_margins"
-        app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
-        app:srcCompat="@drawable/ic_file_upload_white_24dp" />
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/upload_fab"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="bottom|end"-->
+<!--        android:layout_marginBottom="@dimen/fab_margins"-->
+<!--        android:layout_marginEnd="@dimen/fab_margins"-->
+<!--        app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"-->
+<!--        app:srcCompat="@drawable/ic_file_upload_white_24dp" />-->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

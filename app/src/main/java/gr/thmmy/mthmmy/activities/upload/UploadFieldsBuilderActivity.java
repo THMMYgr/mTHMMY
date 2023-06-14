@@ -99,7 +99,7 @@ public class UploadFieldsBuilderActivity extends BaseActivity {
         }
 
         createDrawer();
-        drawer.setSelection(UPLOAD_ID, false);
+//        drawer.setSelection(UPLOAD_ID, false);
 
         semesterChooserLinear = findViewById(R.id.upload_fields_builder_choose_semester);
         semesterRadio = findViewById(R.id.upload_fields_builder_semester_radio_group);

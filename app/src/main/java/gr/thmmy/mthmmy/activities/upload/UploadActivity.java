@@ -169,7 +169,7 @@ public class UploadActivity extends BaseActivity {
         }
 
         createDrawer();
-        drawer.setSelection(UPLOAD_ID);
+//        drawer.setSelection(UPLOAD_ID);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -434,7 +434,7 @@ public class UploadActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-        drawer.setSelection(UPLOAD_ID);
+//        drawer.setSelection(UPLOAD_ID);
         super.onResume();
     }
 
