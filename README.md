@@ -1,9 +1,9 @@
 # mTHMMY
 
-[![GitHub release](https://img.shields.io/github/release/ThmmyNoLife/mTHMMY.svg?color=orange)](https://github.com/ThmmyNoLife/mTHMMY/releases)
+[![GitHub release](https://img.shields.io/github/release/THMMYgr/mTHMMY.svg?color=orange)](https://github.com/THMMYgr/mTHMMY/releases)
 [![API](https://img.shields.io/badge/API-21%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=21)
 [![Discord Channel](https://img.shields.io/discord/252539000571559947?style=flat&color=738bd7&label=discord)][discord-server]
-![Last Commit](https://img.shields.io/github/last-commit/ThmmyNoLife/mTHMMY/develop.svg?style=flat)
+![Last Commit](https://img.shields.io/github/last-commit/THMMYgr/mTHMMY/develop.svg?style=flat)
 
 ![mTHMMY logo](app/src/main/res/mipmap-xhdpi/ic_launcher_round.png)
 

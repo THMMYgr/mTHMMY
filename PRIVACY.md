@@ -69,7 +69,7 @@ mTHMMY may contain links to third-party websites. Any access to and use of such 
 
 ## Policy Updates
 
-We may update this Privacy Policy from time to time and, thus, you are advised to review it periodically. The most recent version of our Privacy Policy can be found at <https://github.com/ThmmyNoLife/mTHMMY/blob/develop/PRIVACY.md>.
+We may update this Privacy Policy from time to time and, thus, you are advised to review it periodically. The most recent version of our Privacy Policy can be found at <https://github.com/THMMYgr/mTHMMY/blob/develop/PRIVACY.md>.
 
 ## Contact Us
 
