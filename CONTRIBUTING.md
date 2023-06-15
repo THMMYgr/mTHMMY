@@ -7,7 +7,7 @@ to contribute to mTHMMY in a way that is efficient for everyone.
 
 **Important!** Instead of creating publicly viewable issues for suspected security
 vulnerabilities, please report them in private to
-[thmmynolife@gmail.com](mailto:thmmynolife@gmail.com).
+[contact@thmmy.gr](mailto:contact@thmmy.gr).
 
 ## I want to contribute!
 
@@ -18,7 +18,7 @@ There are many ways of contributing to mTHMMY:
 - Submitting bugs and ideas to our [issue tracker][github-issues]
 - Forking mTHMMY and submitting [pull requests](#pull-requests)
 - Joining our core team
-- Contacting us by email at [thmmynolife@gmail.com](mailto:thmmynolife@gmail.com)
+- Contacting us by email at [contact@thmmy.gr](mailto:contact@thmmy.gr)
 
 ## Issue tracker
 
@@ -35,15 +35,15 @@ Pull requests with fixes and improvements to mTHMMY are most welcome. Any develo
 follow the workflow below to make a pull request (PR):
 
 1. Fork the project into your personal space on Github
-1. Create a feature branch, away from [develop](https://github.com/ThmmyNoLife/mTHMMY/tree/develop)
+1. Create a feature branch, away from [develop](https://github.com/THMMYgr/mTHMMY/tree/develop)
 1. Push the commit(s) to your fork
-1. Create a PR targeting [develop at mTHMMY](https://github.com/ThmmyNoLife/mTHMMY/tree/develop)
+1. Create a PR targeting [develop at mTHMMY](https://github.com/THMMYgr/mTHMMY/tree/develop)
 1. Fill the PR title describing the change you want to make
 1. Fill the PR description with a brief motive for your change and the method you used to achieve it
 1. Submit the PR.
 
 [google-play]: https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy
-[github-issues]: https://github.com/ThmmyNoLife/mTHMMY/issues
+[github-issues]: https://github.com/THMMYgr/mTHMMY/issues
 [discord-server]: https://discord.gg/CVt3yrn
-[sisyphus]: https://github.com/ThmmyNoLife/Sisyphus
+[sisyphus]: https://github.com/THMMYgr/Sisyphus
 [firebase-console]: https://console.firebase.google.com/

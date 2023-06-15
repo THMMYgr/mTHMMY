@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.settings;
 
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -21,8 +23,6 @@ import java.util.ArrayList;
 import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private enum PREFS_TYPE {

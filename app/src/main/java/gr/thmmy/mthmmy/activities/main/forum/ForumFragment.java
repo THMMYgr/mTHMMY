@@ -9,6 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -87,14 +89,14 @@ public class ForumFragment extends BaseFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         if (categories.isEmpty()) {
             forumTask = new ForumTask(this::onForumTaskStarted, this::onForumTaskFinished);
             forumTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         }
-        Timber.d("onActivityCreated");
+        Timber.d("onViewCreated");
     }
 
     @Override
@@ -197,7 +199,7 @@ public class ForumFragment extends BaseFragment {
     //---------------------------------------ASYNC TASK-----------------------------------
 
     private class ForumTask extends NewParseTask<ArrayList<Category>> {
-        private HttpUrl forumUrl = SessionManager.forumUrl;   //may change upon collapse/expand
+        private HttpUrl forumUrl = SessionManager.getForumUrl();   //may change upon collapse/expand
 
         ForumTask(OnTaskStartedListener onTaskStartedListener,
                   OnNetworkTaskFinishedListener<ArrayList<Category>> onParseTaskFinishedListener) {

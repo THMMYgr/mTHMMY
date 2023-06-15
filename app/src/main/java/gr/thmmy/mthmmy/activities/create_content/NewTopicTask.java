@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.create_content;
 
+import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
+
 import android.os.AsyncTask;
 
 import org.jsoup.Jsoup;
@@ -14,8 +16,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
 public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
 

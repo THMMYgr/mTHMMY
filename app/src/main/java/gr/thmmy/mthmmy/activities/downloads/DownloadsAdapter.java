@@ -1,9 +1,12 @@
 package gr.thmmy.mthmmy.activities.downloads;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +27,6 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Download;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
-import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
 
 class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_TYPE_DOWNLOAD = 0;
@@ -132,13 +131,7 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     }
                 });
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background, null));
-                }
-                else {
-                    //noinspection deprecation
-                    downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background));
-                }
+                downloadViewHolder.upperLinear.setBackgroundColor(context.getResources().getColor(R.color.background, null));
                 downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
                 downloadViewHolder.informationExpandableBtn.setVisibility(View.GONE);
                 downloadViewHolder.informationExpandableBtn.setEnabled(false);

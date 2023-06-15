@@ -1,9 +1,13 @@
 package gr.thmmy.mthmmy.activities.board;
 
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
+import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
+import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,11 +26,6 @@ import gr.thmmy.mthmmy.activities.topic.TopicActivity;
 import gr.thmmy.mthmmy.model.Board;
 import gr.thmmy.mthmmy.model.Topic;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
-
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_TITLE;
-import static gr.thmmy.mthmmy.activities.board.BoardActivity.BUNDLE_BOARD_URL;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_TITLE;
-import static gr.thmmy.mthmmy.activities.topic.TopicActivity.BUNDLE_TOPIC_URL;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link gr.thmmy.mthmmy.model.Board}.
@@ -104,7 +103,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             });
-            if (boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition())) {
+            if (boardExpandableVisibility.get(subBoardViewHolder.getBindingAdapterPosition())) {
                 subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
                 subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
             }
@@ -113,16 +112,19 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
             subBoardViewHolder.showHideExpandable.setOnClickListener(view -> {
-                final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getAdapterPosition());
-                if (visible) {
-                    subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
-                    subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                final int pos = subBoardViewHolder.getBindingAdapterPosition();
+                if (pos >=0 && pos < boardExpandableVisibility.size()){
+                    final boolean visible = boardExpandableVisibility.get(subBoardViewHolder.getBindingAdapterPosition());
+                    if (visible) {
+                        subBoardViewHolder.boardExpandable.setVisibility(View.GONE);
+                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                    }
+                    else {
+                        subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
+                        subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
+                    }
+                    boardExpandableVisibility.set(subBoardViewHolder.getBindingAdapterPosition(), !visible);
                 }
-                else {
-                    subBoardViewHolder.boardExpandable.setVisibility(View.VISIBLE);
-                    subBoardViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
-                }
-                boardExpandableVisibility.set(subBoardViewHolder.getAdapterPosition(), !visible);
             });
             subBoardViewHolder.boardTitle.setText(subBoard.getTitle());
             String mods = subBoard.getMods();
@@ -174,7 +176,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 context.startActivity(intent);
             });
-            if (topicExpandableVisibility.get(topicViewHolder.getAdapterPosition() - parsedSubBoards
+            if (topicExpandableVisibility.get(topicViewHolder.getBindingAdapterPosition() - parsedSubBoards
                     .size())) {
                 topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
                 topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
@@ -184,27 +186,29 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
             topicViewHolder.showHideExpandable.setOnClickListener(view -> {
-                final boolean visible = topicExpandableVisibility.get(topicViewHolder.
-                        getAdapterPosition() - parsedSubBoards.size());
-                if (visible) {
-                    topicViewHolder.topicExpandable.setVisibility(View.GONE);
-                    topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                final int pos = topicViewHolder.getBindingAdapterPosition() - parsedSubBoards.size();
+                if (pos >=0 && pos < topicExpandableVisibility.size()) {
+                    final boolean visible = topicExpandableVisibility.get(topicViewHolder.
+                            getBindingAdapterPosition() - parsedSubBoards.size());
+                    if (visible) {
+                        topicViewHolder.topicExpandable.setVisibility(View.GONE);
+                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                    }
+                    else {
+                        topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
+                        topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
+                    }
+                    topicExpandableVisibility.set(topicViewHolder.getBindingAdapterPosition() -
+                            parsedSubBoards.size(), !visible);
                 }
-                else {
-                    topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
-                    topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
-                }
-                topicExpandableVisibility.set(topicViewHolder.getAdapterPosition() -
-                        parsedSubBoards.size(), !visible);
             });
             topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()
                     , "fonts/fontawesome-webfont.ttf"));
             topicViewHolder.topicUnreadDot.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/fontawesome-webfont.ttf"));
             if (topic.isUnread())
                 topicViewHolder.topicUnreadDot.setVisibility(View.VISIBLE);
-            else {
+            else
                 topicViewHolder.topicUnreadDot.setVisibility(View.GONE);
-            }
             String lockedSticky = topic.getSubject();
             if (topic.isLocked())
                 lockedSticky += " " + context.getResources().getString(R.string.fa_lock);

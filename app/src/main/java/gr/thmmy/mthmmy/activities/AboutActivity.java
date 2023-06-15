@@ -105,7 +105,7 @@ public class AboutActivity extends BaseActivity {
 
             if (gitExists) {
                 versionTextView.setOnClickListener(view -> {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ThmmyNoLife/mTHMMY/commit/" + BuildConfig.COMMIT_HASH));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/THMMYgr/mTHMMY/commit/" + BuildConfig.COMMIT_HASH));
                     startActivity(intent);
                 });
             }

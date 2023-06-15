@@ -57,7 +57,7 @@ public abstract class NetworkTask<T> extends ExternalAsyncTask<String, Parcel<T>
         try {
             response = sendRequest(BaseApplication.getInstance().getClient(), input);
         } catch (IOException e) {
-            Timber.e(e, "Error connecting to thmmy.gr");
+            Timber.e(e, "Error connecting to forum!");
             return new Parcel<>(NetworkResultCodes.NETWORK_ERROR, null);
         }
         String responseBodyString;

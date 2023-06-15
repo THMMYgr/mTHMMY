@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">mTHMMY</string>
+    <string name="forum_url">https://www.thmmy.gr/smf/</string>
+    <string name="forum_host">www.thmmy.gr</string>
+    <string name="forum_host_simple">thmmy.gr</string>
 
     <!--Base Activity-->
     <string name="login">Login</string>
@@ -26,7 +29,7 @@
     <string name="no_unread_topics">No unread topics!</string>
 
     <!--Login Activity-->
-    <string name="thmmy_img_description">thmmy.gr</string>
+    <string name="mthmmy_logo">mTHMMY</string>
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="btn_login">LOGIN</string>
@@ -76,6 +79,7 @@
     </plurals>
     <string name="show_vote_options_button">hide results</string>
     <string name="pref_topic_drafts_key">preference-topic-drafts-key</string>
+    <string name="reply_button">Reply</string>
 
     <!--Profile Activity-->
     <string name="username">Username</string>
@@ -95,10 +99,9 @@
     <string name="epl_libraries"><u>Eclipse Public License v1.0 libraries</u></string>
     <string name="other_libraries"><u>Other libraries</u></string>
     <string name="contact">Contact</string>
-    <string name="contact_text">Do not hesitate to contact us for any technical matter, either by email at thmmynolife@gmail.com, or by joining our Discord server using https://discord.gg/CVt3yrn&#8203;.
-        For account-related issues, please contact the administration team of thmmy.gr by email at contact@thmmy.gr.</string>
+    <string name="contact_text">Do not hesitate to contact us for any matter, either by email at contact@thmmy.gr, or by joining our Discord server using https://discord.gg/CVt3yrn .</string>
     <string name="open_source">Open Source</string>
-    <string name="open_source_text">The source code of mTHMMY can be found on Github at https://github.com/ThmmyNoLife/mTHMMY, along with further details of how one can contribute.</string>
+    <string name="open_source_text">The source code of mTHMMY can be found on Github at https://github.com/THMMYgr/mTHMMY, along with further details of how one can contribute.</string>
     <string name="trollPic">You should see a funny pic!</string>
     <string name="privacy_policy">Privacy policy</string>
 

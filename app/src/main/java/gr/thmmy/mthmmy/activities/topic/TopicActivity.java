@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic;
 
+import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
+
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.ClipData;
@@ -31,7 +33,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -59,8 +61,6 @@ import gr.thmmy.mthmmy.views.CustomLinearLayoutManager;
 import gr.thmmy.mthmmy.views.editorview.EmojiKeyboard;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.services.NotificationService.NEW_POST_TAG;
 
 /**
  * Activity for parsing and rendering topics. When creating an Intent of this activity you need to
@@ -131,7 +131,7 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
         // get TopicViewModel instance
-        viewModel = ViewModelProviders.of(this).get(TopicViewModel.class);
+        viewModel = new ViewModelProvider(this).get(TopicViewModel.class);
         subscribeUI();
 
         Bundle extras = getIntent().getExtras();
@@ -228,42 +228,43 @@ public class TopicActivity extends BaseActivity implements TopicAdapter.OnPostFo
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.menu_bookmark:
-                topicMenuBookmarkClick();
-                return true;
-            case R.id.menu_info:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyleAccent);
-                LayoutInflater inflater = this.getLayoutInflater();
-                LinearLayout infoDialog = (LinearLayout) inflater.inflate(R.layout.dialog_topic_info
-                        , null);
-                TextView treeAndMods = infoDialog.findViewById(R.id.topic_tree_and_mods);
-                treeAndMods.setText(new SpannableStringBuilder("Loading..."));
-                treeAndMods.setMovementMethod(LinkMovementMethod.getInstance());
-                TextView usersViewing = infoDialog.findViewById(R.id.users_viewing);
-                usersViewing.setText(new SpannableStringBuilder("Loading..."));
-                usersViewing.setMovementMethod(LinkMovementMethod.getInstance());
-                viewModel.getTopicTreeAndMods().observe(this, topicTreeAndMods -> {
-                    if (topicTreeAndMods == null) return;
-                    treeAndMods.setText(HTMLUtils.getSpannableFromHtml(this, topicTreeAndMods));
-                });
-                viewModel.getTopicViewers().observe(this, topicViewers -> {
-                    if (topicViewers == null) return;
-                    usersViewing.setText(HTMLUtils.getSpannableFromHtml(this, topicViewers));
-                });
-                builder.setView(infoDialog);
-                topicInfoDialog = builder.create();
-                topicInfoDialog.show();
-                return true;
-            case R.id.menu_share:
-                Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
-                sendIntent.setType("text/plain");
-                sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, viewModel.getTopicUrl());
-                startActivity(Intent.createChooser(sendIntent, "Share via"));
-                return true;                    //invalidateOptionsMenu();
-            default:
-                return super.onOptionsItemSelected(item);
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_bookmark) {
+            topicMenuBookmarkClick();
+            return true;
         }
+        else if (itemId == R.id.menu_info) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyleAccent);
+            LayoutInflater inflater = this.getLayoutInflater();
+            LinearLayout infoDialog = (LinearLayout) inflater.inflate(R.layout.dialog_topic_info
+                    , null);
+            TextView treeAndMods = infoDialog.findViewById(R.id.topic_tree_and_mods);
+            treeAndMods.setText(new SpannableStringBuilder("Loading..."));
+            treeAndMods.setMovementMethod(LinkMovementMethod.getInstance());
+            TextView usersViewing = infoDialog.findViewById(R.id.users_viewing);
+            usersViewing.setText(new SpannableStringBuilder("Loading..."));
+            usersViewing.setMovementMethod(LinkMovementMethod.getInstance());
+            viewModel.getTopicTreeAndMods().observe(this, topicTreeAndMods -> {
+                if (topicTreeAndMods == null) return;
+                treeAndMods.setText(HTMLUtils.getSpannableFromHtml(this, topicTreeAndMods));
+            });
+            viewModel.getTopicViewers().observe(this, topicViewers -> {
+                if (topicViewers == null) return;
+                usersViewing.setText(HTMLUtils.getSpannableFromHtml(this, topicViewers));
+            });
+            builder.setView(infoDialog);
+            topicInfoDialog = builder.create();
+            topicInfoDialog.show();
+            return true;
+        }
+        else if (itemId == R.id.menu_share) {
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_TEXT, viewModel.getTopicUrl());
+            startActivity(Intent.createChooser(sendIntent, "Share via"));
+            return true;                    //invalidateOptionsMenu();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

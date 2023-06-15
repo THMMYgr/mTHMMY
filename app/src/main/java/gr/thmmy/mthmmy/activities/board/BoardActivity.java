@@ -59,6 +59,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
     private String boardUrl;
     private String boardTitle;
+    private String boardId;
     private String parsedTitle;
     private String newTopicUrl;
 
@@ -88,6 +89,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
         if (!tmpUrlSbstr.substring(tmpUrlSbstr.indexOf("board=")).contains("."))
             boardUrl = tmpUrlSbstr + ".0";
 
+        boardId = ThmmyPage.getBoardId(boardUrl);
+
         //Initializes graphics
         toolbar = findViewById(R.id.toolbar);
         if (boardTitle != null && !Objects.equals(boardTitle, "")) toolbar.setTitle(boardTitle);
@@ -98,7 +101,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        thisPageBookmark = new Bookmark(boardTitle, ThmmyPage.getBoardId(boardUrl), true);
+        thisPageBookmark = new Bookmark(boardTitle, boardId, true);
         if (boardTitle != null && !Objects.equals(boardTitle, ""))
             setBoardBookmark(findViewById(R.id.bookmark));
 
@@ -303,7 +306,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             if (!parsingFailed)
                                 tempSubBoards.add(new Board(pUrl, pTitle, pMods, pStats, pLastPost, pLastPostUrl));
                             else
-                                Timber.e("Parsing failed (pLastPost came with: \"%s\", subBoardColumns html was \"%s\")", pLastPost, subBoardColumns);
+                                Timber.e("Parsing failed for a subBoard in board %s (subBoardRow html was \"%s\")",
+                                        boardId, subBoardRow);
                         }
                     }
                 }
@@ -338,7 +342,8 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                             pLastUser = matcher.group(2);
                         }
                         else {
-                            Timber.e("Parsing failed (pLastPost came with: \"%s\", topicColumns html was \"%s\")", pLastPost, topicColumns);
+                            Timber.e("Parsing failed for a topic in board %s (topicRow html was \"%s\")",
+                                    boardId, topicRow);
                             continue;
                         }
 

@@ -484,10 +484,10 @@ public class TopicViewModel extends BaseViewModel implements TopicTask.OnTopicTa
         return prepareForEditResult.getValue().getPostText();
     }
 
-    public String getBuildedQuotes() {
+    public String getBuiltQuotes() {
         if (prepareForReplyResult.getValue() == null)
             throw new NullPointerException("Reply preparation was not found");
-        return prepareForReplyResult.getValue().getBuildedQuotes();
+        return prepareForReplyResult.getValue().getBuiltQuotes();
     }
 
     public int postCount() {

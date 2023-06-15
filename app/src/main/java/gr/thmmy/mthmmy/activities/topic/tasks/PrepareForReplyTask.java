@@ -49,33 +49,33 @@ public class PrepareForReplyTask extends AsyncTask<Integer, Void, PrepareForRepl
             seqnum = document.select("input[name=seqnum]").first().attr("value");
             sc = document.select("input[name=sc]").first().attr("value");
             topic = document.select("input[name=topic]").first().attr("value");
-        } catch (NullPointerException e) {
+        } catch (NullPointerException | Selector.SelectorParseException e) {
             // TODO: Convert this task to (New)ParseTask (?) / handle parsing errors in a better way
-            Timber.e(e, "Prepare failed (1)");
+            Timber.e(e, "Preparing for reply failed (parsing error).");
             return new PrepareForReplyResult(false, null, null, null, null, null);
-        } catch (IOException | Selector.SelectorParseException e) {
-            Timber.e(e, "Prepare failed (2)");
+        } catch (Exception e) {
+            Timber.i("Preparing for reply failed (other error).");
             return new PrepareForReplyResult(false, null, null, null, null, null);
         }
 
-        StringBuilder buildedQuotes = new StringBuilder();
+        StringBuilder builtQuotes = new StringBuilder();
         for (Integer postIndex : postIndices) {
             request = new Request.Builder()
-                    .url("https://www.thmmy.gr/smf/index.php?action=quotefast;quote=" +
+                    .url(BaseApplication.getForumUrl() + "index.php?action=quotefast;quote=" +
                             postIndex + ";" + "sesc=" + sc + ";xml")
                     .build();
             try {
                 Response response = client.newCall(request).execute();
                 String body = response.body().string();
                 body = Parser.unescapeEntities(body, false);
-                buildedQuotes.append(body.substring(body.indexOf("<quote>") + 7, body.indexOf("</quote>")));
-                buildedQuotes.append("\n\n");
+                builtQuotes.append(body.substring(body.indexOf("<quote>") + 7, body.indexOf("</quote>")));
+                builtQuotes.append("\n\n");
             } catch (IOException | Selector.SelectorParseException e) {
                 Timber.e(e, "Quote building failed.");
                 return new PrepareForReplyResult(false, null, null, null, null, null);
             }
         }
-        return new PrepareForReplyResult(true, numReplies, seqnum, sc, topic, buildedQuotes.toString());
+        return new PrepareForReplyResult(true, numReplies, seqnum, sc, topic, builtQuotes.toString());
     }
 
     @Override

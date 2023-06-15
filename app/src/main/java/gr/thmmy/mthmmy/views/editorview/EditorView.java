@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -201,24 +200,24 @@ public class EditorView extends LinearLayout implements EmojiInputField {
                                                 });
                                     }
                                     popupWindow.showAsDropDown(view);
-                                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                                        new AsyncTask<Void, Void, Void>() {
-                                            @Override
-                                            protected Void doInBackground(Void... voids) {
-                                                try {
-                                                    Thread.sleep(100);
-                                                } catch (InterruptedException e) {
-                                                    Timber.e(e);
-                                                }
-                                                return null;
-                                            }
 
-                                            @Override
-                                            protected void onPostExecute(Void aVoid) {
-                                                editText.setSelection(selectionStart, selectionEnd);
+                                    new AsyncTask<Void, Void, Void>() {
+                                        @Override
+                                        protected Void doInBackground(Void... voids) {
+                                            try {
+                                                Thread.sleep(100);
+                                            } catch (InterruptedException e) {
+                                                Timber.e(e);
                                             }
-                                        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                                    }
+                                            return null;
+                                        }
+
+                                        @Override
+                                        protected void onPostExecute(Void aVoid) {
+                                            editText.setSelection(selectionStart, selectionEnd);
+                                        }
+                                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
                                     break;
                                 case R.drawable.ic_format_size:
                                     hadTextSelection = editText.hasSelection();

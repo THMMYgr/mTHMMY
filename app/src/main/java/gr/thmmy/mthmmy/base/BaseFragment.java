@@ -31,7 +31,7 @@ public abstract class BaseFragment extends Fragment {
         if (context instanceof FragmentInteractionListener)
             fragmentInteractionListener = (FragmentInteractionListener) context;
         else
-            throw new RuntimeException(context.toString()
+            throw new RuntimeException(context
                     + " must implement OnFragmentInteractionListener");
     }
 

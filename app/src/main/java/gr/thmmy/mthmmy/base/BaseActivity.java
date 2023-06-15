@@ -1,5 +1,15 @@
 package gr.thmmy.mthmmy.base;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
+import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
+import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
+import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
+
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,7 +18,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +32,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -67,16 +76,6 @@ import ru.noties.markwon.Markwon;
 import ru.noties.markwon.SpannableConfiguration;
 import timber.log.Timber;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_TITLE;
-import static gr.thmmy.mthmmy.activities.downloads.DownloadsActivity.BUNDLE_DOWNLOADS_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_THUMBNAIL_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_URL;
-import static gr.thmmy.mthmmy.activities.profile.ProfileActivity.BUNDLE_PROFILE_USERNAME;
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DEFAULT_HOME_TAB;
-import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
-import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
-
 public abstract class BaseActivity extends AppCompatActivity {
     // Client & Cookies
     protected static OkHttpClient client;
@@ -106,6 +105,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     private boolean isMainActivity;
     private boolean isUserConsentDialogShown;   //Needed because sometimes onResume is being called twice
 
+    protected static String forumUrl = BaseApplication.getForumUrl();   // For convenience
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,7 +127,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        BaseViewModel baseViewModel = ViewModelProviders.of(this).get(BaseViewModel.class);
+        BaseViewModel baseViewModel = new ViewModelProvider(this).get(BaseViewModel.class);
         baseViewModel.getCurrentPageBookmark().observe(this, thisPageBookmark -> setTopicBookmark(thisPageBookmarkMenuButton));
 
         storage = new Storage(getApplicationContext());
@@ -166,7 +167,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //------------------------------------------DRAWER STUFF----------------------------------------
     protected static final int HOME_ID = 0;
     protected static final int DOWNLOADS_ID = 1;
-    protected static final int UPLOAD_ID = 2;
+    //protected static final int UPLOAD_ID = 2; //Removed until fixed
     protected static final int BOOKMARKS_ID = 3;
     protected static final int LOG_ID = 4;
     protected static final int ABOUT_ID = 5;
@@ -266,14 +267,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .withIcon(downloadsIcon)
                 .withSelectedIcon(downloadsIconSelected);
 
-        uploadItem = new PrimaryDrawerItem()
-                .withTextColor(primaryColor)
-                .withSelectedColor(selectedPrimaryColor)
-                .withSelectedTextColor(selectedSecondaryColor)
-                .withIdentifier(UPLOAD_ID)
-                .withName(R.string.upload)
-                .withIcon(uploadIcon)
-                .withSelectedIcon(uploadIconSelected);
+//        uploadItem = new PrimaryDrawerItem()
+//                .withTextColor(primaryColor)
+//                .withSelectedColor(selectedPrimaryColor)
+//                .withSelectedTextColor(selectedSecondaryColor)
+//                .withIdentifier(UPLOAD_ID)
+//                .withName(R.string.upload)
+//                .withIcon(uploadIcon)
+//                .withSelectedIcon(uploadIconSelected);
 
         shoutboxItem = new PrimaryDrawerItem()
                 .withTextColor(primaryColor)
@@ -346,7 +347,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     if (sessionManager.isLoggedIn()) {
                         Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
                         Bundle extras = new Bundle();
-                        extras.putString(BUNDLE_PROFILE_URL, "https://www.thmmy.gr/smf/index.php?action=profile");
+                        extras.putString(BUNDLE_PROFILE_URL, forumUrl + "index.php?action=profile");
                         if (!sessionManager.hasAvatar())
                             extras.putString(BUNDLE_PROFILE_THUMBNAIL_URL, "");
                         else
@@ -394,12 +395,12 @@ public abstract class BaseActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                     }
-                    else if (drawerItem.equals(UPLOAD_ID)) {
-                        if (!(BaseActivity.this instanceof UploadActivity)) {
-                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
-                            startActivity(intent);
-                        }
-                    }
+//                    else if (drawerItem.equals(UPLOAD_ID)) {
+//                        if (!(BaseActivity.this instanceof UploadActivity)) {
+//                            Intent intent = new Intent(BaseActivity.this, UploadActivity.class);
+//                            startActivity(intent);
+//                        }
+//                    }
                     else if (drawerItem.equals(BOOKMARKS_ID)) {
                         if (!(BaseActivity.this instanceof BookmarksActivity)) {
                             Intent intent = new Intent(BaseActivity.this, BookmarksActivity.class);
@@ -452,7 +453,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (drawer != null) {
             if (!sessionManager.isLoggedIn()) { //When logged out or if user is guest
                 drawer.removeItem(DOWNLOADS_ID);
-                drawer.removeItem(UPLOAD_ID);
+                //drawer.removeItem(UPLOAD_ID);
                 loginLogoutItem.withName(R.string.login).withIcon(loginIcon); //Swap logout with login
                 profileDrawerItem.withName(sessionManager.getUsername());
                 setDefaultAvatar();
@@ -693,29 +694,23 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //True if permissions are OK
     protected boolean checkPerms() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            Timber.i("Checking storage permissions.");
-            String[] PERMISSIONS_STORAGE = {
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        Timber.i("Checking storage permissions.");
+        String[] PERMISSIONS_STORAGE = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-            return !(checkSelfPermission(PERMISSIONS_STORAGE[0]) == PackageManager.PERMISSION_DENIED ||
-                    checkSelfPermission(PERMISSIONS_STORAGE[1]) == PackageManager.PERMISSION_DENIED);
-        }
-        return true;
+        return !(checkSelfPermission(PERMISSIONS_STORAGE[0]) == PackageManager.PERMISSION_DENIED ||
+                checkSelfPermission(PERMISSIONS_STORAGE[1]) == PackageManager.PERMISSION_DENIED);
     }
 
     //Display popup for user to grant permission
     protected void requestPerms(int code) {
-        //Runtime permissions request for devices with API >= 23
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            String[] PERMISSIONS_STORAGE = {
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] PERMISSIONS_STORAGE = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-            Timber.i("Requesting storage permissions (code %d).", code);
-            requestPermissions(PERMISSIONS_STORAGE, code);
-        }
+        Timber.i("Requesting storage permissions (code %d).", code);
+        requestPermissions(PERMISSIONS_STORAGE, code);
     }
 
     @Override

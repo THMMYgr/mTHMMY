@@ -148,6 +148,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margins"
         android:layout_marginBottom="50dp"
+        android:contentDescription="@string/reply_button"
         app:layout_behavior="gr.thmmy.mthmmy.utils.ui.ScrollAwareFABBehavior"
         app:srcCompat="@drawable/ic_reply" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

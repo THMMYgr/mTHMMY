@@ -1,5 +1,13 @@
 package gr.thmmy.mthmmy.activities;
 
+import static gr.thmmy.mthmmy.session.SessionManager.BANNED_USER;
+import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
+import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;
+import static gr.thmmy.mthmmy.session.SessionManager.FAILURE;
+import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
+import static gr.thmmy.mthmmy.session.SessionManager.WRONG_PASSWORD;
+import static gr.thmmy.mthmmy.session.SessionManager.WRONG_USER;
+
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,14 +29,6 @@ import gr.thmmy.mthmmy.R;
 import gr.thmmy.mthmmy.activities.main.MainActivity;
 import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.base.BaseApplication;
-
-import static gr.thmmy.mthmmy.session.SessionManager.BANNED_USER;
-import static gr.thmmy.mthmmy.session.SessionManager.CONNECTION_ERROR;
-import static gr.thmmy.mthmmy.session.SessionManager.EXCEPTION;
-import static gr.thmmy.mthmmy.session.SessionManager.FAILURE;
-import static gr.thmmy.mthmmy.session.SessionManager.SUCCESS;
-import static gr.thmmy.mthmmy.session.SessionManager.WRONG_PASSWORD;
-import static gr.thmmy.mthmmy.session.SessionManager.WRONG_USER;
 
 public class LoginActivity extends BaseActivity {
 

@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.utils;
 
+import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,10 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.File;
+import java.util.Locale;
 
 import gr.thmmy.mthmmy.R;
-
-import static gr.thmmy.mthmmy.services.DownloadHelper.SAVE_DIR;
 
 public class FileUtils {
     @NonNull
@@ -21,7 +22,7 @@ public class FileUtils {
         String type = null;
         final String extension = MimeTypeMap.getFileExtensionFromUrl(fileName);
         if (extension != null)
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase(Locale.ROOT));
         if (type == null)
             type = "*/*";
 
@@ -39,7 +40,7 @@ public class FileUtils {
         if (!filename.contains(".")) {
             return null;
         }
-        if (filename.toLowerCase().endsWith(".tar.gz")) {
+        if (filename.toLowerCase(Locale.ROOT).endsWith(".tar.gz")) {
             fileExtension = filename.substring(filename.length() - 7);
         }
         else {
@@ -63,7 +64,9 @@ public class FileUtils {
         if (uri.getScheme().equals("content")) {
             try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
-                    filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    final int columnIndex = (cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    if(columnIndex>=0)
+                        filename = cursor.getString(columnIndex);
                 }
             }
         }
@@ -81,7 +84,9 @@ public class FileUtils {
     public static long sizeFromUri(Context context, @NonNull Uri uri) {
         try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
-                return cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
+                final int columnIndex = (cursor.getColumnIndex(OpenableColumns.SIZE));
+                if(columnIndex>=0)
+                    return cursor.getLong(columnIndex);
             }
         }
         return -1;
@@ -97,7 +102,7 @@ public class FileUtils {
      */
     @NonNull
     public static String faIconFromFilename(Context context, String filename) {
-        filename = filename.toLowerCase();
+        filename = filename.toLowerCase(Locale.ROOT);
 
         if (filename.contains("jpg") || filename.contains("gif") || filename.contains("jpeg")
                 || filename.contains("png"))

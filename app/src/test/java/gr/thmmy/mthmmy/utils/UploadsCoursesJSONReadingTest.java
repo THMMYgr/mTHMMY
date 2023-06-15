@@ -1,5 +1,10 @@
 package gr.thmmy.mthmmy.utils;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static gr.thmmy.mthmmy.activities.upload.UploadsCourse.generateCoursesFromJSON;
+
 import net.lachlanmckee.timberjunit.TimberTestRule;
 
 import org.json.JSONObject;
@@ -15,11 +20,6 @@ import java.util.HashMap;
 import gr.thmmy.mthmmy.activities.upload.UploadsCourse;
 import gr.thmmy.mthmmy.utils.io.ResourceUtils;
 
-import static gr.thmmy.mthmmy.activities.upload.UploadsCourse.generateCoursesFromJSON;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JSONObject.class)
 public class UploadsCoursesJSONReadingTest {
@@ -33,7 +33,7 @@ public class UploadsCoursesJSONReadingTest {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath);
         assertNotNull(is);
         String uploadsCoursesJSON = ResourceUtils.readJSONResourceToString(is);
-        assertNotNull(uploadsCoursesJSON);;
+        assertNotNull(uploadsCoursesJSON);
         JSONObject jsonObject = new JSONObject(uploadsCoursesJSON);
         assertTrue(jsonObject.has("categories"));
         HashMap<Integer, UploadsCourse> coursesHashMap = generateCoursesFromJSON(jsonObject);

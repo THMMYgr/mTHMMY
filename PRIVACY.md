@@ -29,7 +29,7 @@ The use of each Firebase service is explained below:
 
 ### Firebase Cloud Messaging
 
-* **Purpose**: This service is essential for the funcionality of the App. It uses anonymous push notification tokens in order to determine which devices to deliver the appropriate messages to.
+* **Purpose**: This service is essential for the functionality of the App. It uses anonymous push notification tokens in order to determine which devices to deliver the appropriate messages to.
 * **Data collected**: Instance IDs.
 * **Consent**: You will be prompted to agree to the use of this service when you open the App for the first time.
 * **Retention**: Firebase retains Instance IDs until we make an API call for deletion. After the call, data are removed from live and backup systems within 180 days.
@@ -69,8 +69,8 @@ mTHMMY may contain links to third-party websites. Any access to and use of such 
 
 ## Policy Updates
 
-We may update this Privacy Policy from time to time and, thus, you are advised to review it periodically. The most recent version of our Privacy Policy can be found at <https://github.com/ThmmyNoLife/mTHMMY/blob/develop/PRIVACY.md>.
+We may update this Privacy Policy from time to time and, thus, you are advised to review it periodically. The most recent version of our Privacy Policy can be found at <https://github.com/THMMYgr/mTHMMY/blob/develop/PRIVACY.md>.
 
 ## Contact Us
 
-If you have any questions about our Privacy Policy, please contact us at [thmmynolife@gmail.com](mailto:thmmynolife@gmail.com).
+If you have any questions about our Privacy Policy, please contact us at [contact@thmmy.gr](mailto:contact@thmmy.gr).

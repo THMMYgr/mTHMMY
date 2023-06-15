@@ -1,5 +1,8 @@
 package gr.thmmy.mthmmy.session;
 
+import static gr.thmmy.mthmmy.session.SessionManager.baseMarkAllAsReadLink;
+import static gr.thmmy.mthmmy.session.SessionManager.unreadUrl;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -8,9 +11,6 @@ import gr.thmmy.mthmmy.utils.networking.NetworkResultCodes;
 import gr.thmmy.mthmmy.utils.networking.NetworkTask;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.Response;
-
-import static gr.thmmy.mthmmy.session.SessionManager.baseMarkAllAsReadLink;
-import static gr.thmmy.mthmmy.session.SessionManager.unreadUrl;
 
 public class MarkAsReadTask extends NetworkTask<Void> {
     private String markAsReadLink;

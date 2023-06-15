@@ -1,5 +1,15 @@
 package gr.thmmy.mthmmy.activities.upload;
 
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.UPLOADING_APP_SIGNATURE_ENABLE_KEY;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_GREEKLISH_NAME;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_MINIFIED_NAME;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_NAME;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_DESCRIPTION;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_FILENAME;
+import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_TITLE;
+import static gr.thmmy.mthmmy.utils.FileUtils.faIconFromFilename;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -74,16 +84,6 @@ import gr.thmmy.mthmmy.views.AppCompatSpinnerWithoutDefault;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import timber.log.Timber;
 
-import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.UPLOADING_APP_SIGNATURE_ENABLE_KEY;
-import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_GREEKLISH_NAME;
-import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_MINIFIED_NAME;
-import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_COURSE_NAME;
-import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.BUNDLE_UPLOAD_FIELD_BUILDER_SEMESTER;
-import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_DESCRIPTION;
-import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_FILENAME;
-import static gr.thmmy.mthmmy.activities.upload.UploadFieldsBuilderActivity.RESULT_TITLE;
-import static gr.thmmy.mthmmy.utils.FileUtils.faIconFromFilename;
-
 public class UploadActivity extends BaseActivity {
     /**
      * The key to use when putting upload's category String to {@link UploadActivity}'s Bundle.
@@ -91,7 +91,7 @@ public class UploadActivity extends BaseActivity {
     public static final String BUNDLE_UPLOAD_CATEGORY = "UPLOAD_CATEGORY";
     public static final String firebaseConfigUploadsCoursesKey = "uploads_courses";
 
-    private static final String uploadIndexUrl = "https://www.thmmy.gr/smf/index.php?action=tpmod;dl=upload";
+    private static final String uploadIndexUrl = forumUrl + "index.php?action=tpmod;dl=upload";
     private static final String uploadedFromTHMMYPromptHtml = "<br /><div style=\"text-align: right;\"><span style=\"font-style: italic;\">uploaded from <a href=\"https://play.google.com/store/apps/details?id=gr.thmmy.mthmmy\">mTHMMY</a></span>";
     /**
      * Request codes used in activities for result (AFR) calls
@@ -169,7 +169,7 @@ public class UploadActivity extends BaseActivity {
         }
 
         createDrawer();
-        drawer.setSelection(UPLOAD_ID);
+//        drawer.setSelection(UPLOAD_ID);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -434,7 +434,7 @@ public class UploadActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-        drawer.setSelection(UPLOAD_ID);
+//        drawer.setSelection(UPLOAD_ID);
         super.onResume();
     }
 

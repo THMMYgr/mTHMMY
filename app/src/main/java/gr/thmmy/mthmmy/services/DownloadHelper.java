@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.services;
 
+import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
+
 import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
@@ -14,8 +16,6 @@ import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import okhttp3.Cookie;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.utils.FileUtils.getMimeType;
 
 /**
  * Not an actual service, but simply a helper class that adds a download to the queue of Android's

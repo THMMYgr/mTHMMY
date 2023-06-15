@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gr.thmmy.mthmmy.base.BaseApplication;
 import gr.thmmy.mthmmy.utils.parsing.ParseException;
 import okhttp3.Cookie;
 import okhttp3.FormBody;
@@ -34,13 +35,14 @@ import timber.log.Timber;
  */
 public class SessionManager {
     //Generic constants
-    public static final HttpUrl indexUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?theme=4");
-    public static final HttpUrl forumUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=forum;theme=4");
-    private static final HttpUrl loginUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=login2");
-    public static final HttpUrl unreadUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=unread;all;start=0;theme=4");
-    public static final HttpUrl shoutboxUrl = HttpUrl.parse("https://www.thmmy.gr/smf/index.php?action=tpmod;sa=shoutbox;theme=4");
-    static final String baseLogoutLink = "https://www.thmmy.gr/smf/index.php?action=logout;sesc=";
-    static final String baseMarkAllAsReadLink = "https://www.thmmy.gr/smf/index.php?action=markasread;sa=all;sesc=";
+    private final static String FORUM_URL = BaseApplication.getForumUrl();
+    public static final HttpUrl indexUrl = HttpUrl.parse(FORUM_URL + "index.php?theme=4");
+    private static final HttpUrl forumUrl = HttpUrl.parse(FORUM_URL + "index.php?action=forum;theme=4");
+    private static final HttpUrl loginUrl = HttpUrl.parse(FORUM_URL + "index.php?action=login2");
+    public static final HttpUrl unreadUrl = HttpUrl.parse(FORUM_URL + "index.php?action=unread;all;start=0;theme=4");
+    public static final HttpUrl shoutboxUrl = HttpUrl.parse(FORUM_URL + "index.php?action=tpmod;sa=shoutbox;theme=4");
+    static final String baseLogoutLink = FORUM_URL + "index.php?action=logout;sesc=";
+    static final String baseMarkAllAsReadLink = FORUM_URL + "index.php?action=markasread;sa=all;sesc=";
     private static final String guestName = "Guest";
 
     //Response Codes - make sure they do not overlap with NetworkResultCodes, just in case
@@ -190,6 +192,10 @@ public class SessionManager {
     }
 
     //--------------------------------------- GETTERS ------------------------------------------------
+    public static HttpUrl getForumUrl() {
+        return forumUrl;
+    }
+
     public String getUsername() {
         return sessionSharedPrefs.getString(USERNAME, USERNAME);
     }
@@ -291,7 +297,7 @@ public class SessionManager {
             if (elements.size() == 1) {
                 String link = elements.first().attr("href");
 
-                Pattern pattern = Pattern.compile("https://www.thmmy.gr/smf/index.php\\?action=profile;u=(\\d*);sa=showPosts");
+                Pattern pattern = Pattern.compile(FORUM_URL + "index.php\\?action=profile;u=(\\d*);sa=showPosts");
                 Matcher matcher = pattern.matcher(link);
                 if (matcher.find())
                     return Integer.parseInt(matcher.group(1));

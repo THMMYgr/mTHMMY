@@ -1,7 +1,6 @@
 package gr.thmmy.mthmmy.activities.bookmarks;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,8 +17,6 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 
 import gr.thmmy.mthmmy.R;
-import gr.thmmy.mthmmy.activities.LoginActivity;
-import gr.thmmy.mthmmy.activities.board.BoardActivity;
 import gr.thmmy.mthmmy.model.Bookmark;
 
 //TODO refactor using RecyclerView

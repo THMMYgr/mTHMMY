@@ -1,17 +1,17 @@
 package gr.thmmy.mthmmy.activities.topic.tasks;
 
 public class PrepareForReplyResult {
-    private final String numReplies, seqnum, sc, topic, buildedQuotes;
+    private final String numReplies, seqnum, sc, topic, builtQuotes;
     private boolean successful;
 
 
-    public PrepareForReplyResult(boolean successful, String numReplies, String seqnum, String sc, String topic, String buildedQuotes) {
+    public PrepareForReplyResult(boolean successful, String numReplies, String seqnum, String sc, String topic, String builtQuotes) {
         this.successful = successful;
         this.numReplies = numReplies;
         this.seqnum = seqnum;
         this.sc = sc;
         this.topic = topic;
-        this.buildedQuotes = buildedQuotes;
+        this.builtQuotes = builtQuotes;
     }
 
     public String getNumReplies() {
@@ -30,8 +30,8 @@ public class PrepareForReplyResult {
         return topic;
     }
 
-    public String getBuildedQuotes() {
-        return buildedQuotes;
+    public String getBuiltQuotes() {
+        return builtQuotes;
     }
 
     public boolean isSuccessful() {

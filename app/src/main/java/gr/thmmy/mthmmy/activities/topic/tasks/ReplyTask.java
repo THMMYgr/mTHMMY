@@ -1,5 +1,7 @@
 package gr.thmmy.mthmmy.activities.topic.tasks;
 
+import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
+
 import android.os.AsyncTask;
 
 import java.io.IOException;
@@ -12,8 +14,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static gr.thmmy.mthmmy.activities.topic.Posting.replyStatus;
 
 public class ReplyTask extends AsyncTask<String, Void, Posting.REPLY_STATUS> {
     private ReplyTaskCallbacks listener;
@@ -45,7 +45,7 @@ public class ReplyTask extends AsyncTask<String, Void, Posting.REPLY_STATUS> {
                 .addFormDataPart("icon", "xx")
                 .build();
         Request post = new Request.Builder()
-                .url("https://www.thmmy.gr/smf/index.php?action=post2")
+                .url(BaseApplication.getForumUrl() + "index.php?action=post2")
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36")
                 .post(postBody)
                 .build();
