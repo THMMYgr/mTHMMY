@@ -7,7 +7,7 @@
 
 ![mTHMMY logo](app/src/main/res/mipmap-xhdpi/ic_launcher_round.png)
 
-A mobile app for [thmmy.gr](https://www.thmmy.gr).
+The mobile app of [thmmy.gr](https://www.thmmy.gr).
 
 ## Requirements
 
