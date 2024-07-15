@@ -18,7 +18,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -695,12 +697,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     //True if permissions are OK
     protected boolean checkPerms() {
         Timber.i("Checking storage permissions.");
-        String[] PERMISSIONS_STORAGE = {
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+            String[] PERMISSIONS_STORAGE = {
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-        return !(checkSelfPermission(PERMISSIONS_STORAGE[0]) == PackageManager.PERMISSION_DENIED ||
-                checkSelfPermission(PERMISSIONS_STORAGE[1]) == PackageManager.PERMISSION_DENIED);
+            return !(checkSelfPermission(PERMISSIONS_STORAGE[0]) == PackageManager.PERMISSION_DENIED ||
+                    checkSelfPermission(PERMISSIONS_STORAGE[1]) == PackageManager.PERMISSION_DENIED);
+        }
+        return true;
     }
 
     //Display popup for user to grant permission
@@ -735,7 +740,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             prepareDownload(thmmyFile);
         else {
             tempThmmyFile = thmmyFile;
-            requestPerms(DOWNLOAD_REQUEST_CODE);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+                requestPerms(DOWNLOAD_REQUEST_CODE);
         }
     }
 
