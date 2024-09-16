@@ -46,6 +46,7 @@ public class TopicParser {
     private static final int USER_COLOR_BLUE = Color.parseColor("#536DFE");
     static final int USER_COLOR_PINK = Color.parseColor("#FF4081");
     static final int USER_COLOR_YELLOW = Color.parseColor("#FFEB3B");
+    static final int USER_COLOR_PURPLE = Color.parseColor("#8C7DF2");
     static final int USER_COLOR_WHITE = Color.WHITE;
 
     /**
@@ -396,50 +397,34 @@ public class TopicParser {
                 Element usersExtraInfo = userName.parent().nextElementSibling(); //Get sibling "div"
                 List<String> infoList = Arrays.asList(usersExtraInfo.html().split("<br>"));
 
-                if (language == ParseHelpers.Language.GREEK) {
-                    for (String line : infoList) {
-                        if (line.contains("Μηνύματα:")) {
-                            postsLineIndex = infoList.indexOf(line);
-                            //Remove any line breaks and spaces on the start and end
-                            p_numberOfPosts = line.replace("\n", "").replace("\r", "").trim();
-                        }
-                        if (line.contains("Φύλο:")) {
-                            if (line.contains("alt=\"Άντρας\""))
-                                p_gender = "Φύλο: Άντρας";
-                            else
-                                p_gender = "Φύλο: Γυναίκα";
-                        }
-                        if (line.contains("alt=\"*\"")) {
-                            starsLineIndex = infoList.indexOf(line);
-                            Document starsHtml = Jsoup.parse(line);
-                            p_numberOfStars = starsHtml.select("img[alt]").size();
-                            p_userColor = colorPicker(starsHtml.select("img[alt]").first()
-                                    .attr("abs:src"));
-                        }
+                final boolean displayedLanguageGreek = language == ParseHelpers.Language.GREEK;
+                final String genderStr = displayedLanguageGreek ? "Φύλο:" : "Gender:";
+                final String altMaleStr = displayedLanguageGreek ? "alt=\"Άντρας\"" : "alt=\"Male\"";
+                final String genderMaleStr = displayedLanguageGreek ? "Φύλο: Άντρας" : "Gender: Male";
+                final String genderFemaleStr = displayedLanguageGreek ? "Φύλο: Γυναίκα" : "Gender: Female";
+                final String postsStr = displayedLanguageGreek ? "Μηνύματα:" : "Posts:";
+                
+                Document starsHtml= Jsoup.parse("");
+
+                for (String line : infoList) {
+                    if (line.contains(postsStr)) {
+                        postsLineIndex = infoList.indexOf(line);
+                        //Remove any line breaks and spaces on the start and end
+                        p_numberOfPosts = line.replace("\n", "").replace("\r", "").trim();
+                    }
+                    if (line.contains(genderStr)) {
+                        if (line.contains(altMaleStr))
+                            p_gender = genderMaleStr;
+                        else
+                            p_gender = genderFemaleStr;
+                    }
+                    if (line.contains("alt=\"*\"")) {
+                        starsLineIndex = infoList.indexOf(line);
+                        starsHtml = Jsoup.parse(line);
                     }
                 }
-                else {
-                    for (String line : infoList) {
-                        if (line.contains("Posts:")) {
-                            postsLineIndex = infoList.indexOf(line);
-                            //Remove any line breaks and spaces on the start and end
-                            p_numberOfPosts = line.replace("\n", "").replace("\r", "").trim();
-                        }
-                        if (line.contains("Gender:")) {
-                            if (line.contains("alt=\"Male\""))
-                                p_gender = "Gender: Male";
-                            else
-                                p_gender = "Gender: Female";
-                        }
-                        if (line.contains("alt=\"*\"")) {
-                            starsLineIndex = infoList.indexOf(line);
-                            Document starsHtml = Jsoup.parse(line);
-                            p_numberOfStars = starsHtml.select("img[alt]").size();
-                            p_userColor = colorPicker(starsHtml.select("img[alt]").first()
-                                    .attr("abs:src"));
-                        }
-                    }
-                }
+
+                p_numberOfStars = starsHtml.select("img[alt]").size();
 
                 //If this member has no stars yet ==> New member,
                 //or is just a member
@@ -451,6 +436,9 @@ public class TopicParser {
                     p_specialRank = infoList.get(0).trim(); //First line has the special rank
                     p_rank = infoList.get(1).trim(); //Second line has the rank
                 }
+
+                p_userColor = colorPicker(starsHtml.select("img[alt]").first().attr("abs:src"), p_specialRank);
+
                 for (int i = postsLineIndex + 1; i < infoList.size() - 1; ++i) {
                     //Searches under "Posts:"
                     //and above "Personal Message", "View Profile" etc buttons
@@ -586,7 +574,9 @@ public class TopicParser {
      * @param starsUrl String containing the URL of a user's stars
      * @return an int corresponding to the right color
      */
-    private static int colorPicker(String starsUrl) {
+    private static int colorPicker(String starsUrl, String specialRank) {
+        if(Objects.equals(specialRank, "Veteran"))
+            return USER_COLOR_PURPLE;
         if (starsUrl.contains("/star.gif"))
             return USER_COLOR_YELLOW;
         else if (starsUrl.contains("/starmod.gif"))
