@@ -178,7 +178,7 @@ public class TopicParser {
                     p_specialRank, p_gender, p_personalText, p_numberOfPosts, p_postLastEditDate,
                     p_postURL, p_deletePostURL, p_editPostURL;
             int p_postNum, p_postIndex, p_numberOfStars, p_userColor;
-            boolean p_isDeleted = false, p_isUserMentionedInPost = false;
+            boolean p_isDeleted = false, p_isUserMentionedInPost = false, p_isUserOnline = false;
             ArrayList<ThmmyFile> p_attachedFiles;
 
             //Initialize variables
@@ -403,7 +403,8 @@ public class TopicParser {
                 final String genderMaleStr = displayedLanguageGreek ? "Φύλο: Άντρας" : "Gender: Male";
                 final String genderFemaleStr = displayedLanguageGreek ? "Φύλο: Γυναίκα" : "Gender: Female";
                 final String postsStr = displayedLanguageGreek ? "Μηνύματα:" : "Posts:";
-                
+                final String pmTitleWithOnlineStatusStr = displayedLanguageGreek ? "title=\"Προσωπικό μήνυμα (Σε σύνδεση)\"" : "title=\"Personal Message (Online)\"";
+
                 Document starsHtml= Jsoup.parse("");
 
                 for (String line : infoList) {
@@ -422,6 +423,8 @@ public class TopicParser {
                         starsLineIndex = infoList.indexOf(line);
                         starsHtml = Jsoup.parse(line);
                     }
+                    if (line.contains(pmTitleWithOnlineStatusStr))
+                        p_isUserOnline = true;
                 }
 
                 p_numberOfStars = starsHtml.select("img[alt]").size();
@@ -437,7 +440,10 @@ public class TopicParser {
                     p_rank = infoList.get(1).trim(); //Second line has the rank
                 }
 
-                p_userColor = colorPicker(starsHtml.select("img[alt]").first().attr("abs:src"), p_specialRank);
+                Element starsHtmlEl = starsHtml.select("img[alt]").first();
+
+                if (p_numberOfStars>0 && starsHtmlEl!=null)
+                    p_userColor = colorPicker(starsHtmlEl.attr("abs:src"), p_specialRank);
 
                 for (int i = postsLineIndex + 1; i < infoList.size() - 1; ++i) {
                     //Searches under "Posts:"
@@ -463,7 +469,7 @@ public class TopicParser {
                         , p_postNum, p_postDate, p_profileURL, p_rank, p_specialRank, p_gender
                         , p_numberOfPosts, p_personalText, p_numberOfStars, p_userColor
                         , p_attachedFiles, p_postLastEditDate, p_postURL, p_deletePostURL, p_editPostURL
-                        , p_isUserMentionedInPost, Post.TYPE_POST));
+                        , p_isUserOnline, p_isUserMentionedInPost, Post.TYPE_POST));
 
             }
             else { //Deleted user

@@ -378,6 +378,10 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 //Sets username,submit date, index number, subject, post's and attached files texts
                 holder.username.setText(currentPost.getAuthor());
+
+                if(currentPost.getUserOnlineStatus())
+                    holder.onlineStatusDot.setVisibility(View.VISIBLE);
+
                 holder.postDate.setText(currentPost.getPostDate());
                 if (currentPost.getPostNumber() != 0)
                     holder.postNum.setText(context.getString(
@@ -822,7 +826,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final View bodyFooterDivider;
         final LinearLayout postFooter;
 
-        final TextView specialRank, rank, gender, numberOfPosts, personalText, stars;
+        final TextView specialRank, rank, gender, numberOfPosts, personalText, stars, onlineStatusDot;
 
         PostViewHolder(View view) {
             super(view);
@@ -835,6 +839,7 @@ class TopicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             username = view.findViewById(R.id.username);
             subject = view.findViewById(R.id.subject);
             post = view.findViewById(R.id.post);
+            onlineStatusDot = view.findViewById(R.id.online_status_dot);
             post.setBackgroundColor(Color.argb(1, 255, 255, 255));
             quoteToggle = view.findViewById(R.id.toggle_quote_button);
             overflowButton = view.findViewById(R.id.post_overflow_menu);
