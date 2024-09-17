@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.net.MalformedURLException;
@@ -50,6 +51,7 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return (parsedDownloads.get(position) == null) ? VIEW_TYPE_LOADING : VIEW_TYPE_DOWNLOAD;
     }
 
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_DOWNLOAD) {
@@ -57,12 +59,12 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     inflate(R.layout.activity_downloads_row, parent, false);
             return new DownloadViewHolder(download);
         }
-        else if (viewType == VIEW_TYPE_LOADING) {
+        // viewType == VIEW_TYPE_LOADING
+        else {
             View loading = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.recycler_loading_item, parent, false);
             return new LoadingViewHolder(loading);
         }
-        return null;
     }
 
     @Override
@@ -87,7 +89,9 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     context.startActivity(intent);
                 });
 
-                if (downloadExpandableVisibility.get(downloadViewHolder.getAdapterPosition())) {
+                final int pos = downloadViewHolder.getBindingAdapterPosition();
+
+                if (pos >=0 && pos < downloadExpandableVisibility.size() && downloadExpandableVisibility.get(pos)) {
                     downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
                     downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                 }
@@ -95,18 +99,21 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     downloadViewHolder.informationExpandable.setVisibility(View.GONE);
                     downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
                 }
+
                 downloadViewHolder.informationExpandableBtn.setOnClickListener(view -> {
-                    final boolean visible = downloadExpandableVisibility.get(downloadViewHolder.
-                            getAdapterPosition());
-                    if (visible) {
-                        downloadViewHolder.informationExpandable.setVisibility(View.GONE);
-                        downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                    final int pos2 = downloadViewHolder.getBindingAdapterPosition();
+                    if (pos2 >=0 && pos2 < downloadExpandableVisibility.size()){
+                        final boolean visible = downloadExpandableVisibility.get(pos2);
+                        if (visible) {
+                            downloadViewHolder.informationExpandable.setVisibility(View.GONE);
+                            downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
+                        }
+                        else {
+                            downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
+                            downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
+                        }
+                        downloadExpandableVisibility.set(pos2, !visible);
                     }
-                    else {
-                        downloadViewHolder.informationExpandable.setVisibility(View.VISIBLE);
-                        downloadViewHolder.informationExpandableBtn.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
-                    }
-                    downloadExpandableVisibility.set(downloadViewHolder.getAdapterPosition(), !visible);
                 });
                 downloadViewHolder.title.setTypeface(Typeface.createFromAsset(context.getAssets()
                         , "fonts/fontawesome-webfont.ttf"));
