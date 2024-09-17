@@ -10,9 +10,13 @@ buildscript {
     }
 }
 
-static def getCurrentBranch() {
+def getGrgit() {
+    return Grgit.open(currentDir: project.rootDir)
+}
+
+def getCurrentBranch() {
     try {
-        def grgit = Grgit.open()
+        def grgit = getGrgit()
         def currentBranch = grgit.branch.getCurrent().name
         grgit.close()
         return currentBranch
@@ -21,9 +25,9 @@ static def getCurrentBranch() {
     }
 }
 
-static def getCommitHash() {
+def getCommitHash() {
     try {
-        def grgit = Grgit.open()
+        def grgit = getGrgit()
         def commitHash = grgit.head().id
         grgit.close()
         return commitHash
@@ -33,9 +37,9 @@ static def getCommitHash() {
 }
 
 //Will return true if there are no uncommitted changes
-static def isClean() {
+def isClean() {
     try {
-        def grgit = Grgit.open()
+        def grgit = getGrgit()
         def isClean = grgit.status().isClean()
         grgit.close()
         return isClean
