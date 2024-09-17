@@ -22,6 +22,12 @@
             app:iconSpaceReserved="false" />
         <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
+            android:key="@string/pref_app_use_greek_timezone_key"
+            android:title="@string/pref_title_use_greek_timezone"
+            android:summary="@string/pref_summary_use_greek_timezone"
+            app:iconSpaceReserved="false" />
+        <androidx.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
             android:key="@string/pref_app_display_compact_tabs_key"
             android:title="@string/pref_title_display_compact_tabs"
             android:summary="@string/pref_summary_display_compact_tabs"
