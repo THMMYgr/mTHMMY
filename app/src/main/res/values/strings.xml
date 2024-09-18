@@ -182,7 +182,7 @@
     <string name="pref_summary_display_relative_time">Considering that you haven\'t set some weird custom time format</string>
     <string name="pref_app_use_greek_timezone_key">pref_app_use_greek_timezone_key</string>
     <string name="pref_title_use_greek_timezone">Use Greek timezone</string>
-    <string name="pref_summary_use_greek_timezone">For relative time only. Disable this if you have also set a custom displayed time in your profile</string>
+    <string name="pref_summary_use_greek_timezone">For relative time only. Disable this if you have also set a custom displayed time in your profile.</string>
     <string name="pref_app_display_compact_tabs_key">pref_app_display_compact_tabs_key</string>
     <string name="pref_title_display_compact_tabs">Display compact tabs</string>
     <string name="pref_summary_display_compact_tabs">Home screen tabs will occupy less space</string>

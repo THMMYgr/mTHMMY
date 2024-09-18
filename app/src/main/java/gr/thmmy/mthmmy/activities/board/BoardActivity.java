@@ -219,7 +219,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
                 try {
                     Elements pages = boardPage.select("table.tborder td.catbg[height=30]").first()
                             .select("a.navPages");
-                    if (pages != null && !pages.isEmpty()) {
+                    if (!pages.isEmpty()) {
                         for (Element page : pages) {
                             if (Integer.parseInt(page.text()) > numberOfPages)
                                 numberOfPages = Integer.parseInt(page.text());
@@ -240,7 +240,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
 
             if (pagesLoaded == 0) { //Finds sub boards
                 Elements subBoardRows = boardPage.select("div.tborder>table>tbody>tr");
-                if (subBoardRows != null && !subBoardRows.isEmpty()) {
+                if (!subBoardRows.isEmpty()) {
                     for (Element subBoardRow : subBoardRows) {
                         if (!Objects.equals(subBoardRow.className(), "titlebg")) {
                             String pUrl = "", pTitle = "", pMods = "", pStats = "",
@@ -314,7 +314,7 @@ public class BoardActivity extends BaseActivity implements BoardAdapter.OnLoadMo
             }
             //Finds topics
             Elements topicRows = boardPage.select("table.bordercolor>tbody>tr");
-            if (topicRows != null && !topicRows.isEmpty()) {
+            if (!topicRows.isEmpty()) {
                 for (Element topicRow : topicRows) {
                     if (!Objects.equals(topicRow.className(), "titlebg")) {
                         String pTopicUrl, pSubject, pStarter, pLastUser = "", pLastPostDateTime = "00:00:00", pLastPost, pLastPostUrl, pStats;

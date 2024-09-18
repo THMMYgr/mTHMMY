@@ -8,7 +8,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.util.Objects;
 
+import gr.thmmy.mthmmy.activities.topic.Posting;
 import gr.thmmy.mthmmy.base.BaseApplication;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -73,14 +75,12 @@ public class NewTopicTask extends AsyncTask<String, Void, Boolean> {
             try {
                 client.newCall(post).execute();
                 Response response2 = client.newCall(post).execute();
-                switch (replyStatus(response2)) {
-                    case SUCCESSFUL:
-                        BaseApplication.getInstance().logFirebaseAnalyticsEvent("new_topic_creation", null);
-                        return true;
-                    default:
-                        Timber.e("Malformed post. Request string: %s", post.toString());
-                        return false;
+                if (Objects.requireNonNull(replyStatus(response2)) == Posting.REPLY_STATUS.SUCCESSFUL) {
+                    BaseApplication.getInstance().logFirebaseAnalyticsEvent("new_topic_creation", null);
+                    return true;
                 }
+                Timber.e("Malformed post. Request string: %s", post.toString());
+                return false;
             } catch (IOException e) {
                 return false;
             }

@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -228,11 +229,11 @@ public class MainActivity extends BaseActivity implements RecentFragment.RecentF
     public void updateTabIcon(int position) {
         if (position >= tabLayout.getTabCount()) return;
         if (position == 0)
-            tabLayout.getTabAt(0).setIcon(getResources().getDrawable(R.drawable.ic_access_time_white_24dp));
+            tabLayout.getTabAt(0).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_access_time_white_24dp));
         else if (position == 1)
-            tabLayout.getTabAt(1).setIcon(getResources().getDrawable(R.drawable.ic_forum_white_24dp));
+            tabLayout.getTabAt(1).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_forum_white_24dp));
         else if (position == 2)
-            tabLayout.getTabAt(2).setIcon(getResources().getDrawable(R.drawable.ic_fiber_new_white_24dp));
+            tabLayout.getTabAt(2).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_fiber_new_white_24dp));
     }
 
     private void updateTabIcons() {

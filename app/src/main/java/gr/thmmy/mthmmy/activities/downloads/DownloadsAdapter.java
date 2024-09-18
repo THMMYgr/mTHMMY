@@ -28,6 +28,7 @@ import gr.thmmy.mthmmy.base.BaseActivity;
 import gr.thmmy.mthmmy.model.Download;
 import gr.thmmy.mthmmy.model.ThmmyFile;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
+import timber.log.Timber;
 
 class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_TYPE_DOWNLOAD = 0;
@@ -134,7 +135,7 @@ class DownloadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         ((BaseActivity) context).downloadFile(new ThmmyFile(
                                 new URL(download.getUrl()), download.getFileName(), null));
                     } catch (MalformedURLException e) {
-                        e.printStackTrace();
+                        Timber.e(e, "MalformedURLException");
                     }
                 });
 
