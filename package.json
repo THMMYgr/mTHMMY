@@ -1,17 +1,17 @@
 {
     "title": "mTHMMY",
     "name": "mthmmy",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Landing page for mTHMMY.",
     "private": true,
-    "author": "Thmmy No Life",
+    "author": "THMMY.gr",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ThmmyNoLife/thmmynolife.github.io.git"
+        "url": "https://github.com/THMMYgr/mTHMMY.git"
     },
     "bugs": {
-        "url": "https://github.com/ThmmyNoLife/thmmynolife.github.io/issues",
-        "email": "thmmynolife@gmail.com"
+        "url": "https://github.com/THMMYgr/mTHMMY/issues",
+        "email": "contact@thmmy.gr"
     },
     "devDependencies": {
         "browser-sync": "^2.26.0",
