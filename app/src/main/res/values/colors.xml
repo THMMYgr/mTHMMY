@@ -21,6 +21,7 @@
     <color name="link_color">#FF9800</color>
     <color name="mention_color">#FAA61A</color>
     <color name="error_red">#890d0d</color>
+    <color name="online_green">#4CAF50</color>
 
     <color name="white">#FFFFFF</color>
     <color name="iron">#CCCCCC</color>

@@ -16,6 +16,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return VIEW_TYPE_LOADING;
     }
 
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_SUB_BOARD) {
@@ -75,16 +77,16 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     inflate(R.layout.activity_board_topic_row, parent, false);
             return new TopicViewHolder(topic);
         }
-        else if (viewType == VIEW_TYPE_LOADING) {
+        // viewType == VIEW_TYPE_LOADING
+        else {
             View loading = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.recycler_loading_item, parent, false);
             return new LoadingViewHolder(loading);
         }
-        return null;
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof SubBoardViewHolder) {
             final Board subBoard = parsedSubBoards.get(position);
             final SubBoardViewHolder subBoardViewHolder = (SubBoardViewHolder) holder;
@@ -176,8 +178,9 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 context.startActivity(intent);
             });
-            if (topicExpandableVisibility.get(topicViewHolder.getBindingAdapterPosition() - parsedSubBoards
-                    .size())) {
+
+            final int pos = topicViewHolder.getBindingAdapterPosition() - parsedSubBoards.size();
+            if (pos >=0 && pos < topicExpandableVisibility.size() && topicExpandableVisibility.get(pos)) {
                 topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
                 topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
             }
@@ -185,11 +188,11 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 topicViewHolder.topicExpandable.setVisibility(View.GONE);
                 topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
             }
+
             topicViewHolder.showHideExpandable.setOnClickListener(view -> {
-                final int pos = topicViewHolder.getBindingAdapterPosition() - parsedSubBoards.size();
-                if (pos >=0 && pos < topicExpandableVisibility.size()) {
-                    final boolean visible = topicExpandableVisibility.get(topicViewHolder.
-                            getBindingAdapterPosition() - parsedSubBoards.size());
+                final int pos2 = topicViewHolder.getBindingAdapterPosition() - parsedSubBoards.size();
+                if (pos2 >=0 && pos2 < topicExpandableVisibility.size()) {
+                    final boolean visible = topicExpandableVisibility.get(pos2);
                     if (visible) {
                         topicViewHolder.topicExpandable.setVisibility(View.GONE);
                         topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_down_accent_24dp);
@@ -198,8 +201,7 @@ class BoardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         topicViewHolder.topicExpandable.setVisibility(View.VISIBLE);
                         topicViewHolder.showHideExpandable.setImageResource(R.drawable.ic_arrow_drop_up_accent_24dp);
                     }
-                    topicExpandableVisibility.set(topicViewHolder.getBindingAdapterPosition() -
-                            parsedSubBoards.size(), !visible);
+                    topicExpandableVisibility.set(pos2, !visible);
                 }
             });
             topicViewHolder.topicSubject.setTypeface(Typeface.createFromAsset(context.getAssets()

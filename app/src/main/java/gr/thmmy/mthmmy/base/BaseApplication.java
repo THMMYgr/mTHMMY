@@ -2,6 +2,7 @@ package gr.thmmy.mthmmy.base;
 
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_COMPACT_TABS;
 import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.DISPLAY_RELATIVE_TIME;
+import static gr.thmmy.mthmmy.activities.settings.SettingsActivity.USE_GREEK_TIMEZONE;
 import static gr.thmmy.mthmmy.activities.upload.UploadActivity.firebaseConfigUploadsCoursesKey;
 import static gr.thmmy.mthmmy.utils.io.ResourceUtils.readJSONResourceToString;
 
@@ -71,6 +72,7 @@ public class BaseApplication extends Application implements Executor{
 
     private boolean displayRelativeTime;
     private boolean displayCompactTabs;
+    private boolean useGreekTimezone;
 
     //Display Metrics
     private static float widthDp;
@@ -115,6 +117,7 @@ public class BaseApplication extends Application implements Executor{
 
         displayRelativeTime = settingsSharedPrefs.getBoolean(DISPLAY_RELATIVE_TIME, true);
         displayCompactTabs = settingsSharedPrefs.getBoolean(DISPLAY_COMPACT_TABS, true);
+        useGreekTimezone = settingsSharedPrefs.getBoolean(USE_GREEK_TIMEZONE, true);
     }
 
     private void initFirebase(SharedPreferences settingsSharedPrefs) {
@@ -261,6 +264,10 @@ public class BaseApplication extends Application implements Executor{
 
     public boolean isDisplayCompactTabsEnabled() {
         return displayCompactTabs;
+    }
+
+    public boolean isUseGreekTimezoneEnabled() {
+        return useGreekTimezone;
     }
 
     //-------------------- Firebase --------------------

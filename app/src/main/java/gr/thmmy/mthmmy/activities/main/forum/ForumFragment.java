@@ -209,7 +209,7 @@ public class ForumFragment extends BaseFragment {
         @Override
         protected ArrayList<Category> parse(Document document, Response response) throws ParseException {
             Elements categoryBlocks = document.select(".tborder:not([style])>table[cellpadding=5]");
-            if (categoryBlocks.size() != 0) {
+            if (!categoryBlocks.isEmpty()) {
                 ArrayList<Category> fetchedCategories = new ArrayList<>();
                 for (Element categoryBlock : categoryBlocks) {
                     Element categoryElement = categoryBlock.select("td[colspan=2]>[name]").first();

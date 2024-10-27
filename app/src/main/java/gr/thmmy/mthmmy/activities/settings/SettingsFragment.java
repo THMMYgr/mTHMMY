@@ -66,7 +66,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         defaultHomeTabValues.add("0");
         defaultHomeTabValues.add("1");
 
-        if (isLoggedIn = BaseApplication.getInstance().getSessionManager().isLoggedIn()) {
+        isLoggedIn = BaseApplication.getInstance().getSessionManager().isLoggedIn();
+
+        if (isLoggedIn) {
             defaultHomeTabEntries.add(UNREAD);
             defaultHomeTabValues.add("2");
         }
@@ -226,6 +228,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         }
         else if (key.equals(getString(R.string.pref_app_display_compact_tabs_key))
                 && BaseApplication.getInstance().isDisplayCompactTabsEnabled() != sharedPreferences.getBoolean(key, false)) {
+            displayRestartAppToTakeEffectToast();
+        }
+        else if (key.equals(getString(R.string.pref_app_use_greek_timezone_key))
+                && BaseApplication.getInstance().isUseGreekTimezoneEnabled() != sharedPreferences.getBoolean(key, false)) {
             displayRestartAppToTakeEffectToast();
         }
     }

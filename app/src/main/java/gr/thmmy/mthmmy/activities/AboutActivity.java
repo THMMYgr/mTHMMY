@@ -60,7 +60,7 @@ public class AboutActivity extends BaseActivity {
         String versionInfo = "";
         if (gitExists)
             versionInfo = "-" + BuildConfig.CURRENT_BRANCH + "-" + commitHash
-                    + (BuildConfig.IS_CLEAN ? "" : "-dirty")
+                    + (BuildConfig.IS_CLEAN ? "" : "~")
                     + " ";  // Avoid last letter being cut in italics styled TextView
 
         //Initialize appbar

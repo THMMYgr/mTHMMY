@@ -45,7 +45,16 @@ public class ThmmyDateTimeParser {
     public static String convertToTimestamp(String thmmyDateTime) {
         Timber.v("Will attempt to convert %s to timestamp.", thmmyDateTime);
         String originalDateTime = thmmyDateTime;
-        DateTimeZone dtz = getDtz();
+
+        DateTimeZone dtz;
+
+        // This was added for people who briefly travelled abroad and didn't change the displayed time in their profile settings
+        final boolean useeGreekTimezone = BaseApplication.getInstance().isUseGreekTimezoneEnabled();
+
+        if(useeGreekTimezone)
+            dtz = DateTimeZone.forID("Europe/Athens");
+        else
+            dtz = DateTimeZone.getDefault();
 
         // Remove any unnecessary "Today at" strings
         thmmyDateTime = purifyTodayDateTime(thmmyDateTime);
@@ -111,13 +120,5 @@ public class ThmmyDateTimeParser {
     // Converts e.g. 12:16:48 -> 12:16, October 03, 2019, 16:40:18 -> 12:16 October 03, 2019, 16:40
     private static String removeSeconds(String dateTime) {
         return dateTime.replaceAll("(.*):\\d+($|\\s.*)", "$1$2");
-    }
-
-    @VisibleForTesting
-    private static DateTimeZone getDtz() {
-        if (!BaseApplication.getInstance().getSessionManager().isLoggedIn())
-            return DateTimeZone.forID("Europe/Athens");
-        else
-            return DateTimeZone.getDefault();
     }
 }

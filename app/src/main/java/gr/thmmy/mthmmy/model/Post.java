@@ -47,6 +47,7 @@ public class Post extends TopicItem {
     private final String personalText;
     private final int numberOfStars;
     private final boolean isUserMentionedInPost;
+    private final boolean isUserOnline;
 
     // Suppresses default constructor
     @SuppressWarnings("unused")
@@ -73,6 +74,7 @@ public class Post extends TopicItem {
         postURL = null;
         postDeleteURL = null;
         postEditURL = null;
+        isUserOnline = false;
         isUserMentionedInPost = false;
         postType = -1;
     }
@@ -101,13 +103,14 @@ public class Post extends TopicItem {
      * @param attachedFiles post's attached files
      * @param lastEdit      post's last edit date
      * @param postURL       post's URL
+     * @param isUserOnline  author's online status
      */
     public Post(@Nullable String thumbnailUrl, String author, String subject, String content
             , String bbContent, int postIndex, int postNumber, String postDate, String profileURl, @Nullable String rank
             , @Nullable String special_rank, @Nullable String gender, @Nullable String numberOfPosts
             , @Nullable String personalText, int numberOfStars, int userColor
             , @Nullable ArrayList<ThmmyFile> attachedFiles, @Nullable String lastEdit, String postURL
-            , @Nullable String postDeleteURL, @Nullable String postEditURL, boolean isUserMentionedInPost
+            , @Nullable String postDeleteURL, @Nullable String postEditURL, boolean isUserOnline, boolean isUserMentionedInPost
             , int postType) {
         this.bbContent = bbContent;
         if (Objects.equals(thumbnailUrl, "")) this.thumbnailUrl = null;
@@ -132,6 +135,7 @@ public class Post extends TopicItem {
         this.postURL = postURL;
         this.postDeleteURL = postDeleteURL;
         this.postEditURL = postEditURL;
+        this.isUserOnline = isUserOnline;
         this.isUserMentionedInPost = isUserMentionedInPost;
         this.postType = postType;
     }
@@ -182,6 +186,7 @@ public class Post extends TopicItem {
         this.postURL = postURL;
         this.postDeleteURL = postDeleteURL;
         this.postEditURL = postEditURL;
+        this.isUserOnline = false;
         this.isUserMentionedInPost = isUserMentionedInPost;
         this.postType = postType;
     }
@@ -360,6 +365,17 @@ public class Post extends TopicItem {
      */
     public int getUserColor() {
         return userColor;
+    }
+
+    /**
+     * Gets the online status of this post's author.
+     *
+     * @return online status of this post's author
+     */
+
+    @Nullable
+    public boolean getUserOnlineStatus() {
+        return isUserOnline;
     }
 
     /**

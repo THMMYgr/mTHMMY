@@ -234,13 +234,10 @@ public class DownloadsActivity extends BaseActivity implements DownloadsAdapter.
                     type = Download.DownloadItemType.DOWNLOADS_FILE;
 
                 Elements pages = downloadPage.select("a.navPages");
-                if (pages != null) {
-                    for (Element page : pages) {
-                        int pageNumber = Integer.parseInt(page.text());
-                        if (pageNumber > numberOfPages) numberOfPages = pageNumber;
-                    }
+                for (Element page : pages) {
+                    int pageNumber = Integer.parseInt(page.text());
+                    if (pageNumber > numberOfPages) numberOfPages = pageNumber;
                 }
-                else numberOfPages = 1;
 
                 Elements rows = downloadPage.select("table.tborder>tbody>tr");
                 if (type == Download.DownloadItemType.DOWNLOADS_CATEGORY) {
